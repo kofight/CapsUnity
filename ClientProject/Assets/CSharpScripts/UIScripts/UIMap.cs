@@ -54,6 +54,7 @@ public class UIMap : UIWindowNGUI
     {
         base.OnShow();
         MoveTo(new Vector2(0, 0));
+
     }
     public override void OnUpdate()
     {

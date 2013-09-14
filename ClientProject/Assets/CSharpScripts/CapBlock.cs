@@ -26,27 +26,29 @@ public class CapBlock
 {
     public TBlockColor color;							//颜色
 
-    	int x_move;
-	int y_move;
-	bool m_bEating;						//正在消失的标记
-	bool isDropping;
-	bool isCanMove;
-	bool m_bNeedCheckEatLine;			//一旦落地就被标记，然后EatAllLine逻辑用这个变量区分是否需要检测消行
+    public int x_move;
+    public int y_move;
+    public bool m_bEating;						//正在消失的标记
+    public bool isDropping;
+    public bool isCanMove;
+    public bool m_bNeedCheckEatLine;			//一旦落地就被标记，然后EatAllLine逻辑用这个变量区分是否需要检测消行
 
-	TSpecialBlock special;				//特殊功能块
-	UISprite blockSprite;			//精灵动画
+    public TSpecialBlock special;				//特殊功能块
 
-	void Eat()							//吃掉这个块
+    public UISprite m_blockSprite;		//精灵动画
+    public Transform m_blockTransform;         //
+
+    public void Eat()							//吃掉这个块
 	{
 		m_bEating = true;
 	}
 
-	bool IsEating()
+    public bool IsEating()
 	{
 		return m_bEating;
 	}
 
-	void Reset()
+    public void Reset()
 	{
 		x_move = 0;
 		y_move = 0;
@@ -55,7 +57,8 @@ public class CapBlock
 		isDropping = false;
 	}
 
-	bool SelectAble(){
+    public bool SelectAble()
+    {
 
 		if (isCanMove==false||
 			m_bEating||
@@ -69,7 +72,7 @@ public class CapBlock
 		return true;
 	}
 
-	CapBlock()
+	public CapBlock()
     {
         isCanMove = true;
     }

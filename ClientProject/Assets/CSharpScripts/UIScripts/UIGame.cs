@@ -10,6 +10,7 @@ public class UIGame : UIWindowNGUI
     public override void OnShow()
     {
         base.OnShow();
+
     }
     public override void OnUpdate()
     {

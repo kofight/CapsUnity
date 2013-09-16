@@ -24,6 +24,22 @@ public enum TSpecialBlock
 
 public class CapBlock  
 {
+    public CapBlock Clone()
+    {
+        CapBlock newBlock = new CapBlock();
+        newBlock.color = color;
+        newBlock.x_move = x_move;
+        newBlock.y_move = y_move;
+        newBlock.m_bEating = m_bEating;
+        newBlock.isDropping = isDropping;
+        newBlock.isCanMove = isCanMove;
+        newBlock.m_bNeedCheckEatLine = m_bNeedCheckEatLine;
+        newBlock.special = special;
+        newBlock.m_blockSprite = m_blockSprite;
+        newBlock.m_blockTransform = m_blockTransform;
+        return newBlock;
+    }
+
     public TBlockColor color;							//颜色
 
     public int x_move;

@@ -169,7 +169,7 @@ public class GameLogic {
     public void StartGame()
     {
         long time = Timer.millisecondNow();
-        m_random = new System.Random((int)time);
+        m_random = new System.Random((int)(Time.realtimeSinceStartup * 1000));
         m_lastClickTime = time;
         m_singleGameStartTime = time;
         //srand(time);
@@ -242,10 +242,11 @@ public class GameLogic {
                             //PlayAni(i, j, 0, true);
                             //CreateCapParticle(i, j);
                             //清空block信息
+                            MakeSpriteFree(m_blocks[i, j].color, m_blocks[i, j].m_blockTransform);
+
                             m_blocks[i, j].color = TBlockColor.EColor_None;
                             m_blocks[i, j].m_blockTransform = null;
                             m_blocks[i, j].Reset();
-
                         }
                     }
 
@@ -345,8 +346,6 @@ public class GameLogic {
                     m_changeBack = false;	//清除换回标志
                     if (m_selectedPos[0].x == -1 || m_selectedPos[1].x == -1) return;
 
-                    ExchangeBlock(m_selectedPos[0], m_selectedPos[1]);
-
                     bool hasEatLine1 = EatLine(m_selectedPos[0]);
                     bool hasEatLine2 = EatLine(m_selectedPos[1]);
 
@@ -368,6 +367,7 @@ public class GameLogic {
                     bool hasEatLine2 = EatLine(m_selectedPos[1]);
                     if (!hasEatLine1 && !hasEatLine2)//如果交换不成功,播放交换回来的动画
                     {
+                        ExchangeBlock(m_selectedPos[0], m_selectedPos[1]);
                         timerMoveBlock.Play();
                         //PlayAni(m_selectedPos[1].x, m_selectedPos[1].y,GetOtherDirection(m_moveDirection));
                         //PlayAni(m_selectedPos[0].x, m_selectedPos[0].y,m_moveDirection);
@@ -385,39 +385,38 @@ public class GameLogic {
                     }
                 }
             }
+
+            passTime = (int)timerMoveBlock.GetTime();
+            int moveTime = MOVE_TIME - passTime;		//重新获取一次passtime，因为前面有可能被刷新过
+            if (m_selectedPos[0].x == -1 || m_selectedPos[1].x == -1) return;
+            if (m_selectedPos[0].x != m_selectedPos[1].x)		//若x方向上的值不一样，就有x方向上的移动
+            {
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].x_move = (m_selectedPos[1].x - m_selectedPos[0].x) * moveTime * BLOCKWIDTH / MOVE_TIME;
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].x_move = (m_selectedPos[0].x - m_selectedPos[1].x) * moveTime * BLOCKWIDTH / MOVE_TIME;
+            }
+            if (m_selectedPos[0].x - m_selectedPos[1].x == 0)
+            {
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].y_move = (m_selectedPos[1].y - m_selectedPos[0].y) * moveTime * BLOCKWIDTH / MOVE_TIME;
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].y_move = (m_selectedPos[0].y - m_selectedPos[1].y) * moveTime * BLOCKWIDTH / MOVE_TIME;
+            }
             else
             {
-                int moveTime = MOVE_TIME - passTime;		//重新获取一次passtime，因为前面有可能被刷新过
-                if (m_selectedPos[0].x == -1 || m_selectedPos[1].x == -1) return;
-                if (m_selectedPos[0].x != m_selectedPos[1].x)		//若x方向上的值不一样，就有x方向上的移动
+                if (m_selectedPos[0].y != m_selectedPos[1].y)
                 {
-                    m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].x_move = (m_selectedPos[1].x - m_selectedPos[0].x) * moveTime * BLOCKWIDTH / MOVE_TIME;
-                    m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].x_move = (m_selectedPos[0].x - m_selectedPos[1].x) * moveTime * BLOCKWIDTH / MOVE_TIME;
-                }
-                if (m_selectedPos[0].x - m_selectedPos[1].x == 0)
-                {
-                    m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].y_move = (m_selectedPos[1].y - m_selectedPos[0].y) * moveTime * BLOCKWIDTH / MOVE_TIME;
-                    m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].y_move = (m_selectedPos[0].y - m_selectedPos[1].y) * moveTime * BLOCKWIDTH / MOVE_TIME;
+                    m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].y_move = (m_selectedPos[1].y - m_selectedPos[0].y) * moveTime * (BLOCKWIDTH / 2) / MOVE_TIME;
+                    m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].y_move = (m_selectedPos[0].y - m_selectedPos[1].y) * moveTime * (BLOCKWIDTH / 2) / MOVE_TIME;
                 }
                 else
                 {
-                    if (m_selectedPos[0].y != m_selectedPos[1].y)
+                    if (m_selectedPos[0].x % 2 == 0)
                     {
-                        m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].y_move = (m_selectedPos[1].y - m_selectedPos[0].y) * moveTime * (BLOCKWIDTH / 2) / MOVE_TIME;
-                        m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].y_move = (m_selectedPos[0].y - m_selectedPos[1].y) * moveTime * (BLOCKWIDTH / 2) / MOVE_TIME;
+                        m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].y_move = 0 - moveTime * (BLOCKWIDTH / 2) / MOVE_TIME;
+                        m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].y_move = moveTime * (BLOCKWIDTH / 2) / MOVE_TIME;
                     }
                     else
                     {
-                        if (m_selectedPos[0].x % 2 == 0)
-                        {
-                            m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].y_move = 0 - moveTime * (BLOCKWIDTH / 2) / MOVE_TIME;
-                            m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].y_move = moveTime * (BLOCKWIDTH / 2) / MOVE_TIME;
-                        }
-                        else
-                        {
-                            m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].y_move = moveTime * (BLOCKWIDTH / 2) / MOVE_TIME;
-                            m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].y_move = 0 - moveTime * (BLOCKWIDTH / 2) / MOVE_TIME;
-                        }
+                        m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].y_move = moveTime * (BLOCKWIDTH / 2) / MOVE_TIME;
+                        m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].y_move = 0 - moveTime * (BLOCKWIDTH / 2) / MOVE_TIME;
                     }
                 }
             }
@@ -437,7 +436,7 @@ public class GameLogic {
                     tag = true;
                     for (int k = j; k > 0; k--)			//空格子上方全体掉落一行
                     {
-                        m_blocks[i,k] = m_blocks[i,k - 1];
+                        m_blocks[i,k] = m_blocks[i,k - 1].Clone();              //TODO 这里要用值拷贝
                         m_blocks[i,k].isDropping = true;
                     }
 

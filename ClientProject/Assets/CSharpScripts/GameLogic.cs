@@ -143,7 +143,7 @@ public class GameLogic {
         string name;
         for (int i = 0; i < 6; ++i )
         {
-            name = "Block" + (i+1);
+            name = "Item" + (i + 1);
             m_availableSprite[i] = new LinkedList<Transform>();
             GameObject capObj = GameObject.Find("CapInstance" + (i+1));
             m_availableSprite[i].AddFirst(capObj.transform);
@@ -267,7 +267,7 @@ public class GameLogic {
                             //CreateCapParticle(i, j);
                             //清空block信息
                             MakeSpriteFree(m_blocks[i, j].color, m_blocks[i, j].m_blockTransform);
-
+                            CreateSpecialBlock(TSpecialBlock.ESpecial_Normal, new Position(i, j));
                             m_blocks[i, j].color = TBlockColor.EColor_None;
                             m_blocks[i, j].m_blockTransform = null;
                             m_blocks[i, j].m_blockSprite = null;
@@ -570,15 +570,30 @@ public class GameLogic {
         //根据结果来生成道具////////////////////////////////////////////////////////////////////////
         else if (maxCountInSameDir == 4)		//若最大每行消了4个
         {
-            CreateSpecialBlock(TSpecialBlock.ESpecial_EatLineDir0, position);
+            if (m_moveDirection == TDirection.EDir_Up || m_moveDirection == TDirection.EDir_Down)
+            {
+                CreateSpecialBlock(TSpecialBlock.ESpecial_EatLineDir0, position);
+            }
+            if (m_moveDirection == TDirection.EDir_UpRight || m_moveDirection == TDirection.EDir_LeftDown)
+            {
+                CreateSpecialBlock(TSpecialBlock.ESpecial_EatLineDir1, position);
+            }
+            if (m_moveDirection == TDirection.EDir_DownRight || m_moveDirection == TDirection.EDir_LeftUp)
+            {
+                CreateSpecialBlock(TSpecialBlock.ESpecial_EatLineDir2, position);
+            }
         }
         else if (maxCountInSameDir >= 5)		//若最大每行消了5个
         {
             CreateSpecialBlock(TSpecialBlock.ESpecial_EatAColor, position);
         }
-        else if (totalSameCount > 4)			//若总共消除大于4个
+        else if (totalSameCount >= 6)			//若总共消除大于等于6个（3,4消除或者多个3消）
         {
             CreateSpecialBlock(TSpecialBlock.ESpecial_Bomb, position);
+        }
+        else if (totalSameCount > 4)			//若总共消除大于4个
+        {
+            CreateSpecialBlock(TSpecialBlock.ESpecial_Painter, position);
         }
 
         //TODO 记分
@@ -615,35 +630,84 @@ public class GameLogic {
             return;
         for (int i = 0; i <= position.y; i++)
         {
-            m_blocks[position.x, i].isCanMove = false;
+            m_blocks[position.x, i].isCanMove = false;      //上方所有块都不能移动
         }
         m_blocks[position.x, position.y].Eat();			//吃掉当前块
+
+        switch (m_blocks[position.x, position.y].special)
+        {
+            case TSpecialBlock.ESpecial_Bomb:
+                {
+                    for (TDirection dir = TDirection.EDir_Up; dir <= TDirection.EDir_LeftUp; ++dir )
+                    {
+                        //TODO 这里要放特效
+                        Position newPos = GoTo(position, dir, 1);
+                        EatBlock(newPos);
+                    }
+                }
+                break;
+            case TSpecialBlock.ESpecial_Painter:
+                {
+
+                }
+                break;
+            case TSpecialBlock.ESpecial_EatLineDir0:
+                {
+
+                }
+                break;
+            case TSpecialBlock.ESpecial_EatLineDir1:
+                {
+
+                }
+                break;
+            case TSpecialBlock.ESpecial_EatLineDir2:
+                {
+
+                }
+                break;
+            case TSpecialBlock.ESpecial_EatAColor:
+                {
+
+                }
+                break;
+        }
     }
 
 
     void CreateSpecialBlock(TSpecialBlock specailType, Position pos)
     {
         m_blocks[pos.x, pos.y].special = specailType;
-        //switch (specailType)
-        //{
-        //    case ESpecial_EatLineDir0:
-        //        m_blocks[pos.x][pos.y].pBlockSprite->pLabel->setString("Dir0");
-        //        break;
-        //    case ESpecial_EatLineDir1:
-        //        m_blocks[pos.x][pos.y].pBlockSprite->pLabel->setString("Dir1");
-        //        break;
-        //    case ESpecial_EatLineDir2:
-        //        m_blocks[pos.x][pos.y].pBlockSprite->pLabel->setString("Dir2");
-        //        break;
-        //    case ESpecial_Bomb:
-        //        m_blocks[pos.x][pos.y].pBlockSprite->pLabel->setString("Bomb");
-        //        break;
-        //    case ESpecial_EatAColor:
-        //        m_blocks[pos.x][pos.y].pBlockSprite->pLabel->setString("EatColor");
-        //        break;
-        //    default:
-        //        break;
-        //}
+        switch (specailType)
+        {
+            case TSpecialBlock.ESpecial_Normal:
+                {
+                    m_blocks[pos.x, pos.y].m_blockSprite.spriteName = "Item" + (int)(m_blocks[pos.x, pos.y].color - TBlockColor.EColor_None);
+                }
+                break;
+            case TSpecialBlock.ESpecial_EatLineDir0:
+                m_blocks[pos.x, pos.y].m_blockSprite.spriteName = "Line" + (int)(m_blocks[pos.x, pos.y].color - TBlockColor.EColor_None) + "_3";
+                break;
+            case TSpecialBlock.ESpecial_EatLineDir1:
+                m_blocks[pos.x, pos.y].m_blockSprite.spriteName = "Line" + (int)(m_blocks[pos.x, pos.y].color - TBlockColor.EColor_None) + "_1";
+                break;
+            case TSpecialBlock.ESpecial_EatLineDir2:
+                m_blocks[pos.x, pos.y].m_blockSprite.spriteName = "Line" + (int)(m_blocks[pos.x, pos.y].color - TBlockColor.EColor_None) + "_2";
+                break;
+            case TSpecialBlock.ESpecial_Bomb:
+                m_blocks[pos.x, pos.y].m_blockSprite.spriteName = "Bomb" + (int)(m_blocks[pos.x, pos.y].color - TBlockColor.EColor_None);
+                break;
+            case TSpecialBlock.ESpecial_Painter:
+                {
+                    m_blocks[pos.x, pos.y].m_blockSprite.spriteName = "Painter" + (int)(m_blocks[pos.x, pos.y].color - TBlockColor.EColor_None);
+                }
+                break;
+            case TSpecialBlock.ESpecial_EatAColor:
+                m_blocks[pos.x, pos.y].m_blockSprite.spriteName = "Rainbow";
+                break;
+            default:
+                break;
+        }
     }
 
     public void OnTouchBegin(int x, int y)

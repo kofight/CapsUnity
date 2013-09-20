@@ -19,6 +19,7 @@ public enum TSpecialBlock
     ESpecial_EatLineDir1,			//一次消一线，方向1
     ESpecial_EatLineDir2,			//一次消一线，方向2
     ESpecial_Bomb,					//一次消周围9个
+    ESpecial_Painter,				//刷子
     ESpecial_EatAColor,				//一次消一个颜色
 };
 

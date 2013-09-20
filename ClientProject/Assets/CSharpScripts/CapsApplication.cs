@@ -22,7 +22,8 @@ public enum UIDrawPrefab
     ShadowTextLabel,
     BigOutlineTextLabel,
     BaseSpriteCommonAtlas,
-    BaseSpliceSpriteCommonAtlas
+    BaseSpliceSpriteCommonAtlas,
+    BaseNumber,
 }
 
 public class CapsApplication : S5Application
@@ -54,8 +55,10 @@ public class CapsApplication : S5Application
         UIDrawer.Singleton.AddPrefab((int)UIDrawPrefab.ShadowTextLabel, ResManager.Singleton.GetUIPrefabByName("ShadowTextLabel"));
         UIDrawer.Singleton.AddPrefab((int)UIDrawPrefab.OutlineTextLabel, ResManager.Singleton.GetUIPrefabByName("OutlineTextLabel"));
         UIDrawer.Singleton.AddPrefab((int)UIDrawPrefab.BaseSpriteCommonAtlas, ResManager.Singleton.GetUIPrefabByName("BaseSpriteCommonAtlas"));
+        UIDrawer.Singleton.AddPrefab((int)UIDrawPrefab.BaseNumber, ResManager.Singleton.GetUIPrefabByName("BaseNumber"));
         UIDrawer.Singleton.fontDefaultPrefabID = (int)UIDrawPrefab.OutlineTextLabel;
         UIDrawer.Singleton.spriteDefaultPrefabID = (int)UIDrawPrefab.BaseSpriteCommonAtlas;
+        UIDrawer.Singleton.numDefaultPrefabID = (int)UIDrawPrefab.BaseNumber;
         //UIDrawer.Singleton.AddPrefab((int)UIDrawPrefab.BaseSpliceSpriteCommonAtlas, Resources.Load("BaseSpliceSpriteCommonAtlas") as GameObject);
         //UIDrawer.Singleton.AddPrefab((int)UIDrawPrefab.BaseAvatarSpriteAtlas, Resources.Load("BaseAvatarSpriteAtlas") as GameObject);
 

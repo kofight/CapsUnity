@@ -181,6 +181,7 @@ public class GameLogic {
                 while (IsHaveLine(new Position(i, j))) m_blocks[i, j].color = GetNextColor(m_blocks[i,j].color);		//若新生成瓶盖的造成消行，换一个颜色
                 m_blocks[i, j].Reset();
                 m_blocks[i, j].m_blockTransform = GetFreeBlockSprite(m_blocks[i, j].color);
+                m_blocks[i, j].m_blockSprite = m_blocks[i, j].m_blockTransform.GetComponent<UISprite>();
             }
         UpdateProgress();
     }
@@ -188,8 +189,12 @@ public class GameLogic {
     public void Update()
     {
         Timer.s_currentTime = Time.realtimeSinceStartup;
+		//Timer.s_currentTime = Timer.s_currentTime + 0.02f;		//
         TimerWork();
         int shadowOffSet = 5;
+
+        Color curColor = new Color(1.0f, 1.0f, 1.0f, 1.0f - Mathf.Clamp01((float)timerEatBlock.GetTime() / EATBLOCK_TIME));
+		Color defaultColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
 
         //根据数据绘制Sprite
         for (int i = 0; i < BlockCountX; i++)
@@ -219,9 +224,28 @@ public class GameLogic {
                     //m_blocks[i][j].pBlockSprite->pShadowSprite->setPosition(ccp(gameAreaX + i * BLOCKWIDTH + m_blocks[i][j].x_move + BLOCKWIDTH / 2 + shadowOffSet, m_windowHeight - (gameAreaY + j * BLOCKWIDTH + m_blocks[i][j].y_move + (i + 1) % 2 * BLOCKWIDTH / 2 + BLOCKWIDTH / 2 + shadowOffSet)));
 
                     m_blocks[i, j].m_blockTransform.localPosition = new Vector3(gameAreaX + i * BLOCKWIDTH + m_blocks[i, j].x_move + BLOCKWIDTH / 2, -(gameAreaY + j * BLOCKWIDTH + m_blocks[i,j].y_move + (i + 1) % 2 * BLOCKWIDTH / 2 + BLOCKWIDTH / 2));
+                    if ( m_blocks[i, j].m_blockSprite != null)
+                    {
+                        if (m_blocks[i, j].IsEating())
+                        {
+                            m_blocks[i, j].m_blockSprite.color = curColor;
+                            UIDrawer.Singleton.DrawNumber("Score" + i + "," + j, (int)m_blocks[i, j].m_blockTransform.localPosition.x, -(int)m_blocks[i, j].m_blockTransform.localPosition.y, 60, "HighDown", 15);
+                        }
+                        else
+                        {
+                            m_blocks[i, j].m_blockSprite.color = defaultColor;
+                        }
+                    }
+					
                 }
             }
         }
+        if (Time.deltaTime > 0.02f)
+        {
+            Debug.Log("DeltaTime = " + Time.deltaTime);
+        }
+
+        UIDrawer.Singleton.DrawNumber("testNum", 100, 100, 999, "HighDown", 20);
     }
 
     void TimerWork()
@@ -246,6 +270,7 @@ public class GameLogic {
 
                             m_blocks[i, j].color = TBlockColor.EColor_None;
                             m_blocks[i, j].m_blockTransform = null;
+                            m_blocks[i, j].m_blockSprite = null;
                             m_blocks[i, j].Reset();
                         }
                     }
@@ -445,6 +470,7 @@ public class GameLogic {
                     m_blocks[i,0].Reset();
                     m_blocks[i,0].isDropping = true;
                     m_blocks[i,0].m_blockTransform = GetFreeBlockSprite(m_blocks[i,0].color);
+					m_blocks[i,0].m_blockSprite = m_blocks[i,0].m_blockTransform.GetComponent<UISprite>();
                     break;
                 }
             }

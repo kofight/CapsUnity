@@ -12,10 +12,14 @@ public class UIDrawerData
     public UIWidget uiWidget;
     public UIEffectPlayer effectPlayer;
 	public UIWindowStateEnum playingState;
+    public string numberStartName;
+    public float curNumber;
+    public Transform transform;
+    public List<Transform> m_numSpriteList = new List<Transform>();
 
     public void Show()
     {
-        effectPlayer = uiWidget.GetComponent<UIEffectPlayer>();
+        effectPlayer = transform.GetComponent<UIEffectPlayer>();
         if (effectPlayer != null)
         {
             effectPlayer.OnShow();
@@ -87,6 +91,7 @@ public class UIDrawer
     Dictionary<int, GameObject> mPrefabs = new Dictionary<int, GameObject>();
     public int fontDefaultPrefabID = 0;
     public int spriteDefaultPrefabID = 0;
+    public int numDefaultPrefabID = 0;
 
     public void OnCreate()
     {
@@ -125,6 +130,36 @@ public class UIDrawer
         return data;
     }
 
+    public UIDrawerData CreateNumber(string id, int x, int y, string imageNameStart, float xInterval, int maxIntLenth = 3, int floatLenth = 0)
+    {
+        UIDrawerData data = CreateWidget(id, x, y, numDefaultPrefabID);
+		data.transform.localScale = new Vector3(1, 1, 1);
+		
+        Transform trans = data.transform.GetChild(0);
+		UISprite sprite = trans.GetComponent<UISprite>();
+        int lenth = maxIntLenth + (floatLenth > 0 ? floatLenth + 1 : 0);		//计算位长
+        int xPos = 0;
+        data.m_numSpriteList.Add(trans);
+        trans.gameObject.SetActive(false);
+        trans.gameObject.LocalPositionX(xPos);
+		trans.gameObject.LocalPositionY(0.0f);		
+		data.numberStartName = imageNameStart;
+
+        for (int i = 1; i < lenth; ++i )
+        {
+            GameObject newObj = GameObject.Instantiate(trans.gameObject) as GameObject;
+            data.m_numSpriteList.Add(newObj.transform);
+			newObj.transform.parent = data.transform;
+            xPos += (int)xInterval;
+			newObj.transform.localScale = trans.localScale;
+            newObj.transform.LocalPositionX(xPos);
+			newObj.transform.LocalPositionY(0.0f);
+            newObj.SetActive(false);
+			
+        }
+        return data;
+    }
+
     public UIDrawerData CreateWidget(string id, int x, int y, int prefabID)
     {
         UIDrawerData data = new UIDrawerData();
@@ -137,7 +172,10 @@ public class UIDrawer
             return null;
         }
         GameObject labelObj = GameObject.Instantiate(labelPrefab) as GameObject;
-        data.uiWidget = labelObj.GetComponents<UIWidget>()[0];
+		UIWidget [] widgets = labelObj.GetComponents<UIWidget>();
+		if(widgets.Length > 0)
+        	data.uiWidget = widgets[0];
+        data.transform = labelObj.transform;
         labelObj.transform.parent = UIWindowManager.Singleton.AnchorObject[(int)DefaultAnchor].transform;
         labelObj.transform.localPosition = new Vector3(x, -y, 0.0f);
 
@@ -155,7 +193,7 @@ public class UIDrawer
         {
             Debug.LogWarning("Remove an not exist obj id = " + id);
         }
-        GameObject.Destroy(data.uiWidget.gameObject);
+        GameObject.Destroy(data.transform.gameObject);
         mDrawDataMap.Remove(id);
     }
 
@@ -268,6 +306,67 @@ public class UIDrawer
             data.xPos = x;
             data.yPos = y;
             data.uiWidget.transform.localPosition = new Vector3(x, -y, 0.0f);
+        }
+        data.DidDrawLastFrame = true;
+    }
+
+    public void DrawNumber(string id, int x, int y, float numberValue, string imageNameStart, float xInterval, int maxIntLenth = 3, int floatLenth = 0)
+    {
+        UIDrawerData data;
+        if (!mDrawDataMap.TryGetValue(id, out data))
+        {
+            data = CreateNumber(id, x, y, imageNameStart, xInterval, maxIntLenth, floatLenth);
+            data.IsExistMode = false;
+        }
+
+        if (data.xPos != x || data.yPos != y)
+        {
+            data.xPos = x;
+            data.yPos = y;
+            data.transform.localPosition = new Vector3(x, -y, -100f);
+        }
+        if (numberValue != data.curNumber)
+        {
+            data.curNumber = numberValue;
+	        int intNum = (int)numberValue;
+	        int factor = 10;									//用来取某个位的数字的因子
+	        string name;
+
+	        int curNumStartIndex = maxIntLenth - 1;
+	        for (int i=0; i<maxIntLenth; ++i)		//处理整数部分
+	        {
+		        int number = (intNum % factor) / (factor / 10);		//取出正在处理的位的数字
+		        if (number != 0)
+		        {
+			        curNumStartIndex = maxIntLenth - 1 - i;
+		        }
+
+                name = data.numberStartName + number;
+                data.m_numSpriteList[maxIntLenth - 1 - i].GetComponent<UISprite>().spriteName = name;
+		        factor *= 10;
+	        }
+
+            if (floatLenth > 0)			//若有小数部分
+            {
+                name = data.numberStartName + "Point";        //生成名字字符串
+                data.m_numSpriteList[maxIntLenth].GetComponent<UISprite>().spriteName = name;		//小数点
+
+                factor = 10;
+
+                for (int i = 0; i < floatLenth; ++i)
+                {
+                    int number = ((int)(numberValue * factor)) % 10;
+                    name = data.numberStartName + number;
+                    data.m_numSpriteList[maxIntLenth].GetComponent<UISprite>().spriteName = name;
+                    factor *= 10;
+                }
+            }
+
+            for (int i = curNumStartIndex; i < data.m_numSpriteList.Count; ++i)
+            {
+                data.m_numSpriteList[i].gameObject.SetActive(true);
+            }
+
         }
         data.DidDrawLastFrame = true;
     }

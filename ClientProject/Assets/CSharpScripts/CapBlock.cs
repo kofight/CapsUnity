@@ -10,6 +10,7 @@ public enum TBlockColor
     EColor_Red,
     EColor_Golden,
     EColor_Blue,
+    EColor_Grey,                
 };
 
 public enum TSpecialBlock

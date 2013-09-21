@@ -71,7 +71,7 @@ class Position{
 public class GameLogic {
     static readonly int BlockCountX = 7;	//游戏区有几列
     static readonly int BlockCountY = 7;	//游戏区有几行
-
+    static readonly int ColorCount = 7;     //有几种颜色
     static readonly int gameAreaX = 0;		//游戏区域左上角坐标
     static readonly int gameAreaY = 100;		//游戏区域左上角坐标
     static readonly int gameAreaWidth = 480;	//游戏区域宽度
@@ -141,7 +141,7 @@ public class GameLogic {
     {
         //初始化瓶盖图片池
         string name;
-        for (int i = 0; i < 6; ++i )
+        for (int i = 0; i < ColorCount; ++i )
         {
             name = "Item" + (i + 1);
             m_availableSprite[i] = new LinkedList<Transform>();
@@ -568,6 +568,14 @@ public class GameLogic {
         }
         //TODO 生成道具
         //根据结果来生成道具////////////////////////////////////////////////////////////////////////
+		else if (maxCountInSameDir >= 5)		//若最大每行消了5个
+        {
+            CreateSpecialBlock(TSpecialBlock.ESpecial_EatAColor, position);
+        }
+		else if (totalSameCount >= 6)			//若总共消除大于等于6个（3,4消除或者多个3消）
+        {
+            CreateSpecialBlock(TSpecialBlock.ESpecial_Bomb, position);
+        }
         else if (maxCountInSameDir == 4)		//若最大每行消了4个
         {
             if (m_moveDirection == TDirection.EDir_Up || m_moveDirection == TDirection.EDir_Down)
@@ -582,14 +590,6 @@ public class GameLogic {
             {
                 CreateSpecialBlock(TSpecialBlock.ESpecial_EatLineDir2, position);
             }
-        }
-        else if (maxCountInSameDir >= 5)		//若最大每行消了5个
-        {
-            CreateSpecialBlock(TSpecialBlock.ESpecial_EatAColor, position);
-        }
-        else if (totalSameCount >= 6)			//若总共消除大于等于6个（3,4消除或者多个3消）
-        {
-            CreateSpecialBlock(TSpecialBlock.ESpecial_Bomb, position);
         }
         else if (totalSameCount > 4)			//若总共消除大于4个
         {
@@ -622,12 +622,61 @@ public class GameLogic {
         return true;
     }
 
+    Position FindRandomPos(TBlockColor excludeColor, Position [] excludePos)       //找到某个颜色的随机一个块, 简易算法，性能不好
+    {
+        int ranNum = m_random.Next()%(BlockCountX*BlockCountY);
+        int count = 0;
+        for (int i = 0; i < BlockCountX; i++)				//遍历一行
+        {
+            for (int j = 0; j < BlockCountY; j++)		//遍历一列
+            {
+                if (count < ranNum)
+                {
+					++count;
+                    continue;
+                }
+                if (m_blocks[i, j].color == excludeColor)
+                {
+                    continue;
+                }
+                if (m_blocks[i,j].special == TSpecialBlock.ESpecial_EatAColor)
+                {
+                    continue;
+                }
+                Position pos = new Position(i, j);
+                bool bFind = false;
+                for (int k = 0; k < excludePos.Length; ++k )
+                {
+                    if (excludePos[k] == pos)
+                    {
+                        bFind = true;
+                        break;
+                    }
+                }
+                if (!bFind)
+                {
+                    return pos;
+                }
+                if(i == BlockCountX -1 && j == BlockCountY -1)//Repeat the loop till get a result
+				{
+					i=0;
+					j=0;
+				}
+            }
+        }
+        return new Position(0, 0);
+    }
+
     void EatBlock(Position position)
     {
         if (position.x >= BlockCountX || position.y >= BlockCountY || position.x < 0 || position.y < 0)
             return;
         if (m_blocks[position.x, position.y].x_move > 0 || m_blocks[position.x, position.y].y_move > 0)
             return;
+        if (m_blocks[position.x, position.y].IsEating())        //不重复消除
+        {
+            return;
+        }
         for (int i = 0; i <= position.y; i++)
         {
             m_blocks[position.x, i].isCanMove = false;      //上方所有块都不能移动
@@ -648,22 +697,51 @@ public class GameLogic {
                 break;
             case TSpecialBlock.ESpecial_Painter:
                 {
-
+                    Position[] excludePos = new Position[4];
+                    for (int i = 0; i < 4; ++i )
+                    {
+                        excludePos[i] = position;           //先用当前位置初始化排除的位置数组
+                    }
+                    for (int i = 0; i < 3; ++i )            //取得随机点
+                    {
+                        excludePos[i + 1] = FindRandomPos(m_blocks[position.x, position.y].color, excludePos);
+                    }
+                    //TODO 这里要放特效
+                    for (int i = 1; i < 4; ++i )
+                    {
+                        //更改颜色的操作
+                        MakeSpriteFree(m_blocks[excludePos[i].x, excludePos[i].y].color, m_blocks[excludePos[i].x, excludePos[i].y].m_blockTransform);
+                        m_blocks[excludePos[i].x, excludePos[i].y].m_blockTransform = GetFreeBlockSprite(m_blocks[position.x, position.y].color);
+                        m_blocks[excludePos[i].x, excludePos[i].y].m_blockSprite = m_blocks[excludePos[i].x, excludePos[i].y].m_blockTransform.GetComponent<UISprite>();
+                        m_blocks[excludePos[i].x, excludePos[i].y].color = m_blocks[position.x, position.y].color;
+                    }
                 }
                 break;
             case TSpecialBlock.ESpecial_EatLineDir0:
                 {
-
+                    for (int i = 0; i < BlockCountX; ++i )
+                    {
+                        EatBlock(GoTo(position, TDirection.EDir_Down, i));
+                        EatBlock(GoTo(position, TDirection.EDir_Up, i));
+                    }
                 }
                 break;
             case TSpecialBlock.ESpecial_EatLineDir1:
                 {
-
+                    for (int i = 1; i < BlockCountX - 1; ++i)
+                    {
+                        EatBlock(GoTo(position, TDirection.EDir_UpRight, i));
+                        EatBlock(GoTo(position, TDirection.EDir_LeftDown, i));
+                    }
                 }
                 break;
             case TSpecialBlock.ESpecial_EatLineDir2:
                 {
-
+                    for (int i = 0; i < BlockCountX; ++i)
+                    {
+                        EatBlock(GoTo(position, TDirection.EDir_LeftUp, i));
+                        EatBlock(GoTo(position, TDirection.EDir_DownRight, i));
+                    }
                 }
                 break;
             case TSpecialBlock.ESpecial_EatAColor:
@@ -920,13 +998,13 @@ public class GameLogic {
 
     TBlockColor GetRandomColor()
     {
-        return TBlockColor.EColor_White + m_random.Next() % 6;
+        return TBlockColor.EColor_White + m_random.Next() % ColorCount;
     }
 
     TBlockColor GetNextColor(TBlockColor color)
     {
         int index = color - TBlockColor.EColor_White;
-        return (TBlockColor)((index + 1) % 6 + TBlockColor.EColor_White);
+        return (TBlockColor)((index + 1) % ColorCount + TBlockColor.EColor_White);
     }
 
     bool IsHaveLine(Position position)

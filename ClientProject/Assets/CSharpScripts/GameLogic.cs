@@ -68,6 +68,28 @@ class Position{
 	}
 };
 
+public enum TGridType
+{
+    Normal,         //普通
+    None,           //空格子
+    Jelly,          //果冻
+    JellyDouble,    //两层果冻
+}
+
+public enum TGridBlockType     //固定障碍
+{
+    None,               //没有
+    Stone,              //石头
+    Chocolate,          //巧克力
+    Cage,               //笼子
+}
+
+public class GridData
+{
+    public TGridType grid;
+    public TGridBlockType gridBlock;
+}
+
 public class GameLogic {
     public static readonly int BlockCountX = 7;	//游戏区有几列
     public static readonly int BlockCountY = 7;	//游戏区有几行
@@ -88,6 +110,7 @@ public class GameLogic {
 	TDirection m_moveDirection;							                //选择的块1向块2移动的方向
 	Position [] m_selectedPos = new Position[2];		                //记录两次点击选择的方块
     CapBlock[,] m_blocks = new CapBlock[BlockCountX, BlockCountY];		//屏幕上方块的数组
+    GridData[,] m_grids = new GridData[BlockCountX, BlockCountY];       //格子数据
 	int m_progress;										//当前进度
 	TGameState m_gameState;								//游戏状态
 	int m_comboCount;				//记录当前连击数
@@ -160,6 +183,7 @@ public class GameLogic {
            for (int j = 0; j < BlockCountY; j++)
         	{
 				m_blocks[i,j] = new CapBlock();
+                m_grids[i, j] = new GridData();
 			}
 
         m_selectedPos[0] = new Position();
@@ -223,7 +247,7 @@ public class GameLogic {
                     //m_blocks[i][j].pBlockSprite->pSprite->setPosition(ccp(gameAreaX + i * BLOCKWIDTH + m_blocks[i][j].x_move + BLOCKWIDTH / 2, m_windowHeight - (gameAreaY + j * BLOCKWIDTH + m_blocks[i][j].y_move + (i + 1) % 2 * BLOCKWIDTH / 2 + BLOCKWIDTH / 2)));
                     //m_blocks[i][j].pBlockSprite->pShadowSprite->setPosition(ccp(gameAreaX + i * BLOCKWIDTH + m_blocks[i][j].x_move + BLOCKWIDTH / 2 + shadowOffSet, m_windowHeight - (gameAreaY + j * BLOCKWIDTH + m_blocks[i][j].y_move + (i + 1) % 2 * BLOCKWIDTH / 2 + BLOCKWIDTH / 2 + shadowOffSet)));
 
-                    m_blocks[i, j].m_blockTransform.localPosition = new Vector3(gameAreaX + i * BLOCKWIDTH + m_blocks[i, j].x_move + BLOCKWIDTH / 2, -(gameAreaY + j * BLOCKWIDTH + m_blocks[i,j].y_move + (i + 1) % 2 * BLOCKWIDTH / 2 + BLOCKWIDTH / 2));
+                    m_blocks[i, j].m_blockTransform.localPosition = new Vector3(gameAreaX + i * BLOCKWIDTH + m_blocks[i, j].x_move + BLOCKWIDTH / 2, -(gameAreaY + j * BLOCKWIDTH + m_blocks[i,j].y_move + (i + 1) % 2 * BLOCKWIDTH / 2 + BLOCKWIDTH / 2), -105);
                     if ( m_blocks[i, j].m_blockSprite != null)
                     {
                         if (m_blocks[i, j].IsEating())
@@ -236,7 +260,19 @@ public class GameLogic {
                             m_blocks[i, j].m_blockSprite.color = defaultColor;
                         }
                     }
-					
+                }
+
+                if (m_grids[i, j].grid == TGridType.Normal)
+                {
+                    UIDrawer.Singleton.DrawSprite("Grid" + i + "," + j, gameAreaX + i * BLOCKWIDTH + BLOCKWIDTH / 2, gameAreaY + j * BLOCKWIDTH + (i + 1) % 2 * BLOCKWIDTH / 2 + BLOCKWIDTH / 2, "Grid0");
+                }
+                if (m_grids[i, j].grid == TGridType.Jelly)
+                {
+                    UIDrawer.Singleton.DrawSprite("Grid" + i + "," + j, gameAreaX + i * BLOCKWIDTH + BLOCKWIDTH / 2, gameAreaY + j * BLOCKWIDTH + (i + 1) % 2 * BLOCKWIDTH / 2 + BLOCKWIDTH / 2, "Grid1");
+                }
+                if (m_grids[i, j].grid == TGridType.JellyDouble)
+                {
+                    UIDrawer.Singleton.DrawSprite("Grid" + i + "," + j, gameAreaX + i * BLOCKWIDTH + BLOCKWIDTH / 2, gameAreaY + j * BLOCKWIDTH + (i + 1) % 2 * BLOCKWIDTH / 2 + BLOCKWIDTH / 2, "Grid1");
                 }
             }
         }

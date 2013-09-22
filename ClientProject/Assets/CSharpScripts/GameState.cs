@@ -10,11 +10,11 @@ public class GameState : State
     {
         base.DoInitState();
         UIWindowManager.Singleton.CreateWindow<UIGame>();
+        UIWindowManager.Singleton.CreateWindow<UIStageEditor>(UIWindowManager.Anchor.Right);
         UIWindowManager.Singleton.GetUIWindow<UIGame>().ShowWindow();
 
         m_gameLogic.Init();
         m_gameLogic.StartGame();
-
         //UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
     }
 
@@ -39,6 +39,7 @@ public class GameState : State
     public override void OnTap(Vector2 fingerPos)
     {
         base.OnTap(fingerPos);
+        m_gameLogic.OnTap((int)fingerPos.x, (int)(fingerPos.y));
     }
 
     public override void OnPinchMove(Vector2 fingerPos1, Vector2 fingerPos2, float delta)

@@ -74,6 +74,10 @@ public class CapsApplication : S5Application
             ChangeState((int)StateEnum.Login);
 			UIWindowManager.Singleton.CreateWindow<UILogin>().ShowWindow();
         }
+        if (Application.platform == RuntimePlatform.WindowsEditor)
+        {
+            GlobalVars.EditStageMode = true;        //编辑器里自动进入关卡编辑模式
+        }
     }
 
     protected override void DoUpdate()

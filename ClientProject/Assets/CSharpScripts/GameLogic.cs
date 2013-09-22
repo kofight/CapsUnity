@@ -69,20 +69,20 @@ class Position{
 };
 
 public class GameLogic {
-    static readonly int BlockCountX = 7;	//游戏区有几列
-    static readonly int BlockCountY = 7;	//游戏区有几行
-    static readonly int ColorCount = 7;     //有几种颜色
-    static readonly int gameAreaX = 0;		//游戏区域左上角坐标
-    static readonly int gameAreaY = 100;		//游戏区域左上角坐标
-    static readonly int gameAreaWidth = 480;	//游戏区域宽度
-    static readonly int gameAreaHeight = 510;//游戏区域高度
-    static readonly int BLOCKWIDTH = 60;
-    static readonly bool CanMoveWhenDroping = true;			//是否支持下落的同时移动
-    static readonly int PROGRESSTOWIN = 2000;
-    static readonly int DROP_TIME = 120;			//下落的时间
-    static readonly int MOVE_TIME = 250;    		//移动的时间
-    static readonly int EATBLOCK_TIME = 200;		//消块时间
-    static readonly int GAMETIME = 6000000;		//游戏时间
+    public static readonly int BlockCountX = 7;	//游戏区有几列
+    public static readonly int BlockCountY = 7;	//游戏区有几行
+    public static readonly int ColorCount = 7;     //有几种颜色
+    public static readonly int gameAreaX = 0;		//游戏区域左上角坐标
+    public static readonly int gameAreaY = 100;		//游戏区域左上角坐标
+    public static readonly int gameAreaWidth = 480;	//游戏区域宽度
+    public static readonly int gameAreaHeight = 510;//游戏区域高度
+    public static readonly int BLOCKWIDTH = 60;
+    public static readonly bool CanMoveWhenDroping = true;			//是否支持下落的同时移动
+    public static readonly int PROGRESSTOWIN = 2000;
+    public static readonly int DROP_TIME = 120;			//下落的时间
+    public static readonly int MOVE_TIME = 250;    		//移动的时间
+    public static readonly int EATBLOCK_TIME = 200;		//消块时间
+    public static readonly int GAMETIME = 6000000;		//游戏时间
 
     ///游戏逻辑变量/////////////////////////////////////////////////////////////////
 	TDirection m_moveDirection;							                //选择的块1向块2移动的方向
@@ -667,6 +667,15 @@ public class GameLogic {
         return new Position(0, 0);
     }
 
+    void ChangeColor(Position pos, TBlockColor color)
+    {
+        //更改颜色的操作
+        MakeSpriteFree(m_blocks[pos.x, pos.y].color, m_blocks[pos.x, pos.y].m_blockTransform);
+        m_blocks[pos.x, pos.y].m_blockTransform = GetFreeBlockSprite(color);
+        m_blocks[pos.x, pos.y].m_blockSprite = m_blocks[pos.x, pos.y].m_blockTransform.GetComponent<UISprite>();
+        m_blocks[pos.x, pos.y].color = color;
+    }
+
     void EatBlock(Position position)
     {
         if (position.x >= BlockCountX || position.y >= BlockCountY || position.x < 0 || position.y < 0)
@@ -709,11 +718,7 @@ public class GameLogic {
                     //TODO 这里要放特效
                     for (int i = 1; i < 4; ++i )
                     {
-                        //更改颜色的操作
-                        MakeSpriteFree(m_blocks[excludePos[i].x, excludePos[i].y].color, m_blocks[excludePos[i].x, excludePos[i].y].m_blockTransform);
-                        m_blocks[excludePos[i].x, excludePos[i].y].m_blockTransform = GetFreeBlockSprite(m_blocks[position.x, position.y].color);
-                        m_blocks[excludePos[i].x, excludePos[i].y].m_blockSprite = m_blocks[excludePos[i].x, excludePos[i].y].m_blockTransform.GetComponent<UISprite>();
-                        m_blocks[excludePos[i].x, excludePos[i].y].color = m_blocks[position.x, position.y].color;
+                        ChangeColor(excludePos[i], m_blocks[position.x, position.y].color);
                     }
                 }
                 break;
@@ -785,6 +790,33 @@ public class GameLogic {
                 break;
             default:
                 break;
+        }
+    }
+
+    public void OnTap(int x, int y)
+    {
+        //不在游戏区，不处理
+        if (x < gameAreaX || y < gameAreaY || x > gameAreaX + gameAreaWidth || y > gameAreaY + gameAreaHeight)
+        {
+            return;
+        }
+
+        Position p = new Position();
+        p.x = (x - gameAreaX) / BLOCKWIDTH;
+        if (p.x % 2 == 0)
+            p.y = (y - gameAreaY - BLOCKWIDTH / 2) / BLOCKWIDTH;
+        else
+            p.y = (y - gameAreaY) / BLOCKWIDTH;
+        if (p.y > BlockCountY) p.y = BlockCountY;
+
+        if (GlobalVars.EditState == TEditState.ChangeColor)
+        {
+            ChangeColor(p, GlobalVars.EditingColor);
+        }
+
+        if (GlobalVars.EditState == TEditState.ChangeSpecial)
+        {
+            CreateSpecialBlock(GlobalVars.EditingSpecial, p);
         }
     }
 

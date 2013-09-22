@@ -188,6 +188,7 @@ public class S5Application
 
     private void OnTap(Vector2 fingerPos)
     {
+		fingerPos.y = Screen.height - fingerPos.y;
         mCurGameState.OnTap(fingerPos);
     }
 

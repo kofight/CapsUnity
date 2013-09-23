@@ -20,6 +20,8 @@ public class GlobalVars {
     public static TEditState EditState;                        //当前的编辑状态
     public static TBlockColor EditingColor;                    //正在编辑的颜色
     public static TSpecialBlock EditingSpecial;                //正在编辑的颜色
+    public static TGridType     EditingGrid;                //正在编辑的颜色
+    public static TGridBlockType EditingGridBlock;                //正在编辑的颜色
 
 	// Use this for initialization
 	void Start () {

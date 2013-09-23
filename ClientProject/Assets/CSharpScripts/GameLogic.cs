@@ -94,11 +94,12 @@ public class GameLogic {
     public static readonly int BlockCountX = 7;	//游戏区有几列
     public static readonly int BlockCountY = 7;	//游戏区有几行
     public static readonly int ColorCount = 7;     //有几种颜色
+    public static readonly int BLOCKWIDTH = 60;
     public static readonly int gameAreaX = 0;		//游戏区域左上角坐标
     public static readonly int gameAreaY = 100;		//游戏区域左上角坐标
-    public static readonly int gameAreaWidth = 480;	//游戏区域宽度
-    public static readonly int gameAreaHeight = 510;//游戏区域高度
-    public static readonly int BLOCKWIDTH = 60;
+    public static readonly int gameAreaWidth = BLOCKWIDTH * BlockCountX;	//游戏区域宽度
+    public static readonly int gameAreaHeight = BLOCKWIDTH * BlockCountY + BlockCountY / 2;//游戏区域高度
+    
     public static readonly bool CanMoveWhenDroping = true;			//是否支持下落的同时移动
     public static readonly int PROGRESSTOWIN = 2000;
     public static readonly int DROP_TIME = 120;			//下落的时间
@@ -268,11 +269,11 @@ public class GameLogic {
                 }
                 if (m_grids[i, j].grid == TGridType.Jelly)
                 {
-                    UIDrawer.Singleton.DrawSprite("Grid" + i + "," + j, gameAreaX + i * BLOCKWIDTH + BLOCKWIDTH / 2, gameAreaY + j * BLOCKWIDTH + (i + 1) % 2 * BLOCKWIDTH / 2 + BLOCKWIDTH / 2, "Grid1");
+                    UIDrawer.Singleton.DrawSprite("Jelly" + i + "," + j, gameAreaX + i * BLOCKWIDTH + BLOCKWIDTH / 2, gameAreaY + j * BLOCKWIDTH + (i + 1) % 2 * BLOCKWIDTH / 2 + BLOCKWIDTH / 2, "Grid1");
                 }
                 if (m_grids[i, j].grid == TGridType.JellyDouble)
                 {
-                    UIDrawer.Singleton.DrawSprite("Grid" + i + "," + j, gameAreaX + i * BLOCKWIDTH + BLOCKWIDTH / 2, gameAreaY + j * BLOCKWIDTH + (i + 1) % 2 * BLOCKWIDTH / 2 + BLOCKWIDTH / 2, "Grid1");
+                    UIDrawer.Singleton.DrawSprite("Jelly2" + i + "," + j, gameAreaX + i * BLOCKWIDTH + BLOCKWIDTH / 2, gameAreaY + j * BLOCKWIDTH + (i + 1) % 2 * BLOCKWIDTH / 2 + BLOCKWIDTH / 2, "Grid2");
                 }
             }
         }
@@ -728,6 +729,15 @@ public class GameLogic {
         }
         m_blocks[position.x, position.y].Eat();			//吃掉当前块
 
+        if (m_grids[position.x, position.y].grid == TGridType.Jelly)
+        {
+            m_grids[position.x, position.y].grid = TGridType.Normal;
+        }
+        else if (m_grids[position.x, position.y].grid == TGridType.JellyDouble)
+        {
+            m_grids[position.x, position.y].grid = TGridType.Jelly;
+        }
+
         switch (m_blocks[position.x, position.y].special)
         {
             case TSpecialBlock.ESpecial_Bomb:
@@ -853,6 +863,16 @@ public class GameLogic {
         if (GlobalVars.EditState == TEditState.ChangeSpecial)
         {
             CreateSpecialBlock(GlobalVars.EditingSpecial, p);
+        }
+
+        if (GlobalVars.EditState == TEditState.EditStageBlock)
+        {
+            m_grids[p.x, p.y].gridBlock = GlobalVars.EditingGridBlock;
+        }
+
+        if (GlobalVars.EditState == TEditState.EditStageGrid)
+        {
+			m_grids[p.x, p.y].grid = GlobalVars.EditingGrid;
         }
     }
 

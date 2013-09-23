@@ -27,6 +27,26 @@ public class UIStageEditor : UIWindowNGUI
                 GlobalVars.EditingSpecial = (TSpecialBlock)special;
             });
         }
+
+        for (int i = 0; i <= (int)TGridType.JellyDouble; ++i)
+        {
+            int grid = i;
+            AddChildComponentMouseClick("StageGrid" + i, delegate(object sender, UIMouseClick.ClickArgs e)
+            {
+                GlobalVars.EditState = TEditState.EditStageGrid;
+                GlobalVars.EditingGrid = (TGridType)grid;
+            });
+        }
+
+        for (int i = 0; i <= (int)TGridBlockType.Cage; ++i)
+        {
+            int gridBlock = i;
+            AddChildComponentMouseClick("StageBlock" + i, delegate(object sender, UIMouseClick.ClickArgs e)
+            {
+                GlobalVars.EditState = TEditState.EditStageBlock;
+                GlobalVars.EditingGridBlock = (TGridBlockType)gridBlock;
+            });
+        }
     }
     public override void OnShow()
     {

@@ -107,11 +107,12 @@ public class GameLogic {
     public static readonly int EATBLOCK_TIME = 200;		//消块时间
     public static readonly int GAMETIME = 6000000;		//游戏时间
 
+    public StageData CurStageData;                      //当前的关卡数据
+
     ///游戏逻辑变量/////////////////////////////////////////////////////////////////
 	TDirection m_moveDirection;							                //选择的块1向块2移动的方向
 	Position [] m_selectedPos = new Position[2];		                //记录两次点击选择的方块
     CapBlock[,] m_blocks = new CapBlock[BlockCountX, BlockCountY];		//屏幕上方块的数组
-    GridData[,] m_grids = new GridData[BlockCountX, BlockCountY];       //格子数据
 	int m_progress;										//当前进度
 	TGameState m_gameState;								//游戏状态
 	int m_comboCount;				//记录当前连击数
@@ -158,7 +159,6 @@ public class GameLogic {
     {
         m_freePool = GameObject.Find("FreePool");
         m_capsPool = GameObject.Find("CapsPool");
-        CleanRoom();
     }
 
     public void Init()
@@ -179,25 +179,28 @@ public class GameLogic {
                 newObj.transform.localPosition = Vector3.zero;
             }
         }
-		
-		for (int i = 0; i < BlockCountX; i++)
-           for (int j = 0; j < BlockCountY; j++)
-        	{
-				m_blocks[i,j] = new CapBlock();
-                m_grids[i, j] = new GridData();
-			}
+
+        for (int i = 0; i < BlockCountX; i++)
+            for (int j = 0; j < BlockCountY; j++)
+            {
+                m_blocks[i, j] = new CapBlock();
+            }
 
         m_selectedPos[0] = new Position();
         m_selectedPos[1] = new Position();
     }
 
-    public void StartGame()
+    public void StartGame()     //开始游戏（及重新开始游戏）
     {
         long time = Timer.millisecondNow();
         m_random = new System.Random((int)(Time.realtimeSinceStartup * 1000));
         m_lastClickTime = time;
         m_singleGameStartTime = time;
         //srand(time);
+
+        CurStageData = StageData.CreateStageData();
+        CurStageData.LoadStageData(GlobalVars.CurStageNum);
+
         for (int i = 0; i < BlockCountX; i++)
             for (int j = 0; j < BlockCountY; j++)
             {
@@ -208,7 +211,20 @@ public class GameLogic {
                 m_blocks[i, j].m_blockTransform = GetFreeBlockSprite(m_blocks[i, j].color);
                 m_blocks[i, j].m_blockSprite = m_blocks[i, j].m_blockTransform.GetComponent<UISprite>();
             }
+
         UpdateProgress();
+    }
+
+    public void ClearGame()
+    {
+        m_progress = 0;
+        for (int i = 0; i < BlockCountX; i++)
+            for (int j = 0; j < BlockCountY; j++)
+            {
+                MakeSpriteFree(m_blocks[i, j].color, m_blocks[i, j].m_blockTransform);
+                m_blocks[i, j].m_blockTransform = null;
+                m_blocks[i, j].m_blockSprite = null;
+            }
     }
 
     public void Update()
@@ -263,15 +279,15 @@ public class GameLogic {
                     }
                 }
 
-                if (m_grids[i, j].grid == TGridType.Normal)
+                if (CurStageData.GridDataArray[i, j].grid == TGridType.Normal)
                 {
                     UIDrawer.Singleton.DrawSprite("Grid" + i + "," + j, gameAreaX + i * BLOCKWIDTH + BLOCKWIDTH / 2, gameAreaY + j * BLOCKWIDTH + (i + 1) % 2 * BLOCKWIDTH / 2 + BLOCKWIDTH / 2, "Grid0");
                 }
-                if (m_grids[i, j].grid == TGridType.Jelly)
+                if (CurStageData.GridDataArray[i, j].grid == TGridType.Jelly)
                 {
                     UIDrawer.Singleton.DrawSprite("Jelly" + i + "," + j, gameAreaX + i * BLOCKWIDTH + BLOCKWIDTH / 2, gameAreaY + j * BLOCKWIDTH + (i + 1) % 2 * BLOCKWIDTH / 2 + BLOCKWIDTH / 2, "Grid1");
                 }
-                if (m_grids[i, j].grid == TGridType.JellyDouble)
+                if (CurStageData.GridDataArray[i, j].grid == TGridType.JellyDouble)
                 {
                     UIDrawer.Singleton.DrawSprite("Jelly2" + i + "," + j, gameAreaX + i * BLOCKWIDTH + BLOCKWIDTH / 2, gameAreaY + j * BLOCKWIDTH + (i + 1) % 2 * BLOCKWIDTH / 2 + BLOCKWIDTH / 2, "Grid2");
                 }
@@ -729,13 +745,13 @@ public class GameLogic {
         }
         m_blocks[position.x, position.y].Eat();			//吃掉当前块
 
-        if (m_grids[position.x, position.y].grid == TGridType.Jelly)
+        if (CurStageData.GridDataArray[position.x, position.y].grid == TGridType.Jelly)
         {
-            m_grids[position.x, position.y].grid = TGridType.Normal;
+            CurStageData.GridDataArray[position.x, position.y].grid = TGridType.Normal;
         }
-        else if (m_grids[position.x, position.y].grid == TGridType.JellyDouble)
+        else if (CurStageData.GridDataArray[position.x, position.y].grid == TGridType.JellyDouble)
         {
-            m_grids[position.x, position.y].grid = TGridType.Jelly;
+            CurStageData.GridDataArray[position.x, position.y].grid = TGridType.Jelly;
         }
 
         switch (m_blocks[position.x, position.y].special)
@@ -867,12 +883,18 @@ public class GameLogic {
 
         if (GlobalVars.EditState == TEditState.EditStageBlock)
         {
-            m_grids[p.x, p.y].gridBlock = GlobalVars.EditingGridBlock;
+            CurStageData.GridDataArray[p.x, p.y].gridBlock = GlobalVars.EditingGridBlock;
         }
 
         if (GlobalVars.EditState == TEditState.EditStageGrid)
         {
-			m_grids[p.x, p.y].grid = GlobalVars.EditingGrid;
+            CurStageData.GridDataArray[p.x, p.y].grid = GlobalVars.EditingGrid;
+        }
+
+        if (GlobalVars.EditState == TEditState.Eat)
+        {
+            EatBlock(p);
+            timerEatBlock.Play();												//开启消块计时器
         }
     }
 
@@ -1066,11 +1088,6 @@ public class GameLogic {
         m_availableSprite[type].AddLast(trans);
         trans.parent = m_freePool.transform;
         trans.gameObject.SetActive(false);
-    }
-
-    public void CleanRoom()
-    {
-        
     }
 
     void UpdateProgress()

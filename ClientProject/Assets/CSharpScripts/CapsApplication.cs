@@ -65,15 +65,11 @@ public class CapsApplication : S5Application
         TextTable.Singleton.AddTextMap(@"baseText");
         TextTable.Singleton.AddTextMap(@"errorcode");
 
-        if (CapsConfig.Instance.RapidStart)
-        {
-            ChangeState((int)StateEnum.Game);
-        }
-        else
-        {
-            ChangeState((int)StateEnum.Login);
-			UIWindowManager.Singleton.CreateWindow<UILogin>().ShowWindow();
-        }
+        ChangeState((int)StateEnum.Login);
+		UIWindowManager.Singleton.CreateWindow<UILogin>().ShowWindow();
+
+        GlobalVars.TotalStageCount = CapsConfig.Instance.TotalStageCount;
+
         if (Application.platform == RuntimePlatform.WindowsEditor)
         {
             GlobalVars.EditStageMode = true;        //编辑器里自动进入关卡编辑模式

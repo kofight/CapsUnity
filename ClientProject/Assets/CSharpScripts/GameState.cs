@@ -15,6 +15,9 @@ public class GameState : State
 
         m_gameLogic.Init();
         m_gameLogic.StartGame();
+
+        UIWindowManager.Singleton.GetUIWindow<UIStageEditor>().GameLogicProp = m_gameLogic; ;
+
         //UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
     }
 
@@ -22,6 +25,7 @@ public class GameState : State
     {
         base.DoDeInitState();
         UIWindowManager.Singleton.GetUIWindow<UIGame>().HideWindow();
+        m_gameLogic.ClearGame();
     }
 
     public override void Update()

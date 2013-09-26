@@ -37,7 +37,6 @@ namespace Webgame.Utility
                 _dictValues[key].Value = values.ToString();
             else
                 _dictValues.Add(key, new ConfigItem { Value = values.ToString() });
-            Save();
         }
 
         public void Save()
@@ -47,7 +46,7 @@ namespace Webgame.Utility
                 case RuntimePlatform.WindowsEditor:
                 case RuntimePlatform.OSXEditor:
                 case RuntimePlatform.WindowsPlayer:
-                    StreamWriter sw = new StreamWriter(_path, false, Encoding.UTF8);
+                    StreamWriter sw = new StreamWriter("Assets/Config/Resources/" + _path + ".txt", false, Encoding.UTF8);
                     foreach (var key in _dictValues.Keys)
                     {
                         if (key.Contains("//"))
@@ -56,6 +55,7 @@ namespace Webgame.Utility
                             sw.WriteLine(key + "\t\t\t" + _dictValues[key].Value + "\t\t\t\t" + _dictValues[key].Description);
                     }
                     sw.Close();
+                    UnityEditor.AssetDatabase.Refresh();
                     break;
             }
 
@@ -94,9 +94,15 @@ namespace Webgame.Utility
             return listdata;
         }
 
-        public void Read()
+        public bool Read()
         {
-            Read(File.ReadAllText(_path, Encoding.UTF8));
+            TextAsset text = (TextAsset)Resources.Load(_path);
+            if (text != null)
+            {
+                Read(text.text);
+                return true;
+            }
+            return false;
         }
 
         public void Read(string content, bool clearExist = true)

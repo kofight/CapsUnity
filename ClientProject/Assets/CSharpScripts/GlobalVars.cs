@@ -8,6 +8,7 @@ public enum TEditState
     ChangeSpecial,
     EditStageBlock,
     EditStageGrid,
+    Eat,
 }
 
 public class GlobalVars {
@@ -15,6 +16,7 @@ public class GlobalVars {
     public static int AvailabeStageCount = 3;           //当前可用关卡的数量
 	public static int TotalStageCount = 4;              //当前可用关卡的数量
     public static bool EditStageMode = false;           //是否关卡编辑模式
+    public static int CurStageNum = 1;                  //当前关卡编号
 
     //编辑模式的变量
     public static TEditState EditState;                        //当前的编辑状态

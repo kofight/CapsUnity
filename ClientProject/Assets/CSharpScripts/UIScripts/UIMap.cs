@@ -64,6 +64,7 @@ public class UIMap : UIWindowNGUI
     private void OnStageClicked(object sender, UIMouseClick.ClickArgs e)
     {
         UIWindowManager.Singleton.GetUIWindow<UIStageInfo>().ShowWindow();
+        GlobalVars.CurStageNum = (int)e.UserState;
     }
 
     public void MoveTo(Vector2 pos) //移动到某个位置

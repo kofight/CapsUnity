@@ -223,8 +223,11 @@ public class GameLogic {
             for (int j = 0; j < BlockCountY; j++)
             {
                 MakeSpriteFree(m_blocks[i, j].color, m_blocks[i, j].m_blockTransform);
+                CreateSpecialBlock(TSpecialBlock.ESpecial_Normal, new Position(i, j));
+                m_blocks[i, j].color = TBlockColor.EColor_None;
                 m_blocks[i, j].m_blockTransform = null;
                 m_blocks[i, j].m_blockSprite = null;
+                m_blocks[i, j].Reset();
             }
     }
 
@@ -420,6 +423,7 @@ public class GameLogic {
                     if (!EatAllLine())					//若没有能消了的
                     {
                         m_comboCount = 0;
+                        OnDropEnd();
                     }
                     else								//若有能直接消除的块
                     {
@@ -852,6 +856,53 @@ public class GameLogic {
 
                 }
                 break;
+        }
+    }
+
+    int GetJellyCount()
+    {
+        int count = 0;
+        for (int i = 0; i < BlockCountX; i++)				//遍历一行
+        {
+            for (int j = 0; j < BlockCountY; j++)		//遍历一列
+            {
+                if (PlayingStageData.GridDataArray[i, j].grid == TGridType.Jelly || PlayingStageData.GridDataArray[i, j].grid == TGridType.JellyDouble)
+                {
+                    ++count;
+                }
+            }
+        }
+        return count;
+    }
+
+    public bool CheckStageFinish()
+    {
+        if (PlayingStageData.Target == GameTarget.ClearJelly)       //若目标为清果冻，计算果冻数量
+        {
+            if (GetJellyCount() == 0)       //若完成目标
+            {
+                return true;
+            }
+        }
+        else if (PlayingStageData.Target == GameTarget.BringFruitDown)      //看看水果有没有都落地
+        {
+
+        }
+        else if (PlayingStageData.Target == GameTarget.GetScore)
+        {
+            if (m_progress > PlayingStageData.StarScore[0])                 //大于1星就算完成
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void OnDropEnd()            //所有下落和移动结束时被调用
+    {
+        if (CheckStageFinish())
+        {
+            UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();
         }
     }
 

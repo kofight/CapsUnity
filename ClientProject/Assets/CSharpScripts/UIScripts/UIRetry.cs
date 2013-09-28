@@ -8,9 +8,19 @@ public class UIRetry : UIWindowNGUI
         base.OnCreate();
         AddChildComponentMouseClick("CloseBtn", OnCloseClicked);
         AddChildComponentMouseClick("RetryBtn", OnRetryClicked);
+        AddChildComponentMouseClick("NextLevelBtn", OnNextLevelClicked);
     }
     public override void OnShow()
     {
+        Transform nextBtn = UIToolkits.FindChild(mUIObject.transform, "NextLevelBtn");
+        if (GlobalVars.CurGameLogic.CheckStageFinish())
+        {
+            nextBtn.gameObject.SetActive(true);
+        }
+        else
+        {
+            nextBtn.gameObject.SetActive(false);
+        }
         base.OnShow();
     }
     public override void OnUpdate()
@@ -23,6 +33,11 @@ public class UIRetry : UIWindowNGUI
         HideWindow();
         GlobalVars.CurGameLogic.ClearGame();
         GlobalVars.CurGameLogic.StartGame();
+    }
+
+    private void OnNextLevelClicked(object sender, UIMouseClick.ClickArgs e)
+    {
+
     }
 
     private void OnCloseClicked(object sender, UIMouseClick.ClickArgs e)

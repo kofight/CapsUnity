@@ -107,7 +107,7 @@ public class GameLogic {
     public static readonly int EATBLOCK_TIME = 200;		//消块时间
     public static readonly int GAMETIME = 6000000;		//游戏时间
 
-    public StageData CurStageData;                      //当前的关卡数据
+    public StageData PlayingStageData;                      //当前的关卡数据
 
     ///游戏逻辑变量/////////////////////////////////////////////////////////////////
 	TDirection m_moveDirection;							                //选择的块1向块2移动的方向
@@ -118,11 +118,11 @@ public class GameLogic {
 	int m_comboCount;				//记录当前连击数
 	bool m_changeBack;		//在交换方块动画中标志是否为换回动画
     System.Random m_random;
+    long m_gameStartTime = 0;                              //游戏开始时间
 
     ///统计数据///////////////////////////////////////////////////////////////////////
     long m_lastClickTime;				//上次点击时间
     long m_rhythmMark;				//节奏感得分
-    long m_singleGameStartTime;		//单人模式游戏开始时间
     long m_gameTakeTime;				//一局游戏所用时间
     int m_totalClickCount;		//总共点击次数
     int m_workedClickCount;	//有效点击次数
@@ -192,14 +192,15 @@ public class GameLogic {
 
     public void StartGame()     //开始游戏（及重新开始游戏）
     {
+        Timer.s_currentTime = Time.realtimeSinceStartup;        //更新一次时间
         long time = Timer.millisecondNow();
         m_random = new System.Random((int)(Time.realtimeSinceStartup * 1000));
         m_lastClickTime = time;
-        m_singleGameStartTime = time;
+        m_gameStartTime = time;
         //srand(time);
 
-        CurStageData = StageData.CreateStageData();
-        CurStageData.LoadStageData(GlobalVars.CurStageNum);
+        PlayingStageData = StageData.CreateStageData();
+        PlayingStageData.LoadStageData(GlobalVars.CurStageNum);
 
         for (int i = 0; i < BlockCountX; i++)
             for (int j = 0; j < BlockCountY; j++)
@@ -230,9 +231,14 @@ public class GameLogic {
     public void Update()
     {
         Timer.s_currentTime = Time.realtimeSinceStartup;
+
+        if (m_gameStartTime == 0)           //游戏没到开始状态
+        {
+            return;
+        }
 		//Timer.s_currentTime = Timer.s_currentTime + 0.02f;		//
+
         TimerWork();
-        int shadowOffSet = 5;
 
         Color curColor = new Color(1.0f, 1.0f, 1.0f, 1.0f - Mathf.Clamp01((float)timerEatBlock.GetTime() / EATBLOCK_TIME));
 		Color defaultColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -279,15 +285,15 @@ public class GameLogic {
                     }
                 }
 
-                if (CurStageData.GridDataArray[i, j].grid == TGridType.Normal)
+                if (PlayingStageData.GridDataArray[i, j].grid == TGridType.Normal)
                 {
                     UIDrawer.Singleton.DrawSprite("Grid" + i + "," + j, gameAreaX + i * BLOCKWIDTH + BLOCKWIDTH / 2, gameAreaY + j * BLOCKWIDTH + (i + 1) % 2 * BLOCKWIDTH / 2 + BLOCKWIDTH / 2, "Grid0");
                 }
-                if (CurStageData.GridDataArray[i, j].grid == TGridType.Jelly)
+                if (PlayingStageData.GridDataArray[i, j].grid == TGridType.Jelly)
                 {
                     UIDrawer.Singleton.DrawSprite("Jelly" + i + "," + j, gameAreaX + i * BLOCKWIDTH + BLOCKWIDTH / 2, gameAreaY + j * BLOCKWIDTH + (i + 1) % 2 * BLOCKWIDTH / 2 + BLOCKWIDTH / 2, "Grid1");
                 }
-                if (CurStageData.GridDataArray[i, j].grid == TGridType.JellyDouble)
+                if (PlayingStageData.GridDataArray[i, j].grid == TGridType.JellyDouble)
                 {
                     UIDrawer.Singleton.DrawSprite("Jelly2" + i + "," + j, gameAreaX + i * BLOCKWIDTH + BLOCKWIDTH / 2, gameAreaY + j * BLOCKWIDTH + (i + 1) % 2 * BLOCKWIDTH / 2 + BLOCKWIDTH / 2, "Grid2");
                 }
@@ -298,7 +304,36 @@ public class GameLogic {
             Debug.Log("DeltaTime = " + Time.deltaTime);
         }
 
-        UIDrawer.Singleton.DrawNumber("testNum", 100, 100, 999, "HighDown", 20);
+        if (GlobalVars.CurStageData.StepLimit > 0)          //限制步数的关卡
+        {
+            UIDrawer.Singleton.DrawText("StepLimitText", 100, 575, "Steps:");
+            UIDrawer.Singleton.DrawNumber("SetpLimit", 140, 586, PlayingStageData.StepLimit, "HighDown", 14);
+            if (PlayingStageData.StepLimit == 0)            //
+            {
+                if (timerDropDown.GetState() == TimerEnum.EStop && timerEatBlock.GetState() == TimerEnum.EStop && timerMoveBlock.GetState() == TimerEnum.EStop)   //若没步数了，触发游戏结束
+                {
+                    UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
+                    m_gameStartTime = 0;
+                }
+            }
+        }
+        if (GlobalVars.CurStageData.TimeLimit > 0)          //限制时间的关卡
+        {
+            UIDrawer.Singleton.DrawText("TimeLimitText", 100, 575, "Time:");
+            float timeRemain = GlobalVars.CurStageData.TimeLimit - (Timer.millisecondNow() - m_gameStartTime) / 1000.0f;
+
+            if (timeRemain < 0)     
+            {
+                timeRemain = 0;
+                if (timerDropDown.GetState() == TimerEnum.EStop && timerEatBlock.GetState() == TimerEnum.EStop && timerMoveBlock.GetState() == TimerEnum.EStop)   //若没时间了，触发游戏结束
+                {
+                    UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
+                    m_gameStartTime = 0;
+                }
+            }
+
+            UIDrawer.Singleton.DrawNumber("TimeLimit", 140, 586, timeRemain, "HighDown", 14, 2, 2);
+        }
     }
 
     void TimerWork()
@@ -445,6 +480,7 @@ public class GameLogic {
                     bool hasEatLine2 = EatLine(m_selectedPos[1]);
                     if (!hasEatLine1 && !hasEatLine2)//如果交换不成功,播放交换回来的动画
                     {
+                        ++PlayingStageData.StepLimit;           //步数恢复
                         ExchangeBlock(m_selectedPos[0], m_selectedPos[1]);
                         timerMoveBlock.Play();
                         //PlayAni(m_selectedPos[1].x, m_selectedPos[1].y,GetOtherDirection(m_moveDirection));
@@ -745,13 +781,13 @@ public class GameLogic {
         }
         m_blocks[position.x, position.y].Eat();			//吃掉当前块
 
-        if (CurStageData.GridDataArray[position.x, position.y].grid == TGridType.Jelly)
+        if (PlayingStageData.GridDataArray[position.x, position.y].grid == TGridType.Jelly)
         {
-            CurStageData.GridDataArray[position.x, position.y].grid = TGridType.Normal;
+            PlayingStageData.GridDataArray[position.x, position.y].grid = TGridType.Normal;
         }
-        else if (CurStageData.GridDataArray[position.x, position.y].grid == TGridType.JellyDouble)
+        else if (PlayingStageData.GridDataArray[position.x, position.y].grid == TGridType.JellyDouble)
         {
-            CurStageData.GridDataArray[position.x, position.y].grid = TGridType.Jelly;
+            PlayingStageData.GridDataArray[position.x, position.y].grid = TGridType.Jelly;
         }
 
         switch (m_blocks[position.x, position.y].special)
@@ -883,12 +919,12 @@ public class GameLogic {
 
         if (GlobalVars.EditState == TEditState.EditStageBlock)
         {
-            CurStageData.GridDataArray[p.x, p.y].gridBlock = GlobalVars.EditingGridBlock;
+            PlayingStageData.GridDataArray[p.x, p.y].gridBlock = GlobalVars.EditingGridBlock;
         }
 
         if (GlobalVars.EditState == TEditState.EditStageGrid)
         {
-            CurStageData.GridDataArray[p.x, p.y].grid = GlobalVars.EditingGrid;
+            PlayingStageData.GridDataArray[p.x, p.y].grid = GlobalVars.EditingGrid;
         }
 
         if (GlobalVars.EditState == TEditState.Eat)
@@ -991,11 +1027,15 @@ public class GameLogic {
         //选中第二个
         m_selectedPos[1] = p;
 
-        MoveBlockPair(m_selectedPos[0], m_selectedPos[1]);
+        if (PlayingStageData.StepLimit > 0)
+        {
+            MoveBlockPair(m_selectedPos[0], m_selectedPos[1]);
+        }
     }
 
     void MoveBlockPair(Position position1, Position position2)
     {
+        --PlayingStageData.StepLimit;
         ExchangeBlock(position1, position2);			//交换方块
 
         //PlaySound(capsmove);							//移动

@@ -25,6 +25,9 @@ public class GlobalVars {
     public static TGridType     EditingGrid;                //正在编辑的颜色
     public static TGridBlockType EditingGridBlock;                //正在编辑的颜色
 
+    public static StageData CurStageData;                                    //当前正在查看或玩的关卡数据
+    public static GameLogic CurGameLogic;                       //当前的游戏逻辑
+
 	// Use this for initialization
 	void Start () {
 	

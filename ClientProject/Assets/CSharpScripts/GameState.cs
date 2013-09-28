@@ -11,12 +11,14 @@ public class GameState : State
         base.DoInitState();
         UIWindowManager.Singleton.CreateWindow<UIGame>();
         UIWindowManager.Singleton.CreateWindow<UIStageEditor>(UIWindowManager.Anchor.Right);
+        UIWindowManager.Singleton.CreateWindow<UIGameEnd>();
+        UIWindowManager.Singleton.CreateWindow<UIRetry>();
         UIWindowManager.Singleton.GetUIWindow<UIGame>().ShowWindow();
 
         m_gameLogic.Init();
         m_gameLogic.StartGame();
 
-        UIWindowManager.Singleton.GetUIWindow<UIStageEditor>().GameLogicProp = m_gameLogic; ;
+        GlobalVars.CurGameLogic = m_gameLogic;
 
         //UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
     }

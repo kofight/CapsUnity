@@ -3,8 +3,6 @@ using System.Collections;
 
 public class UIStageEditor : UIWindowNGUI
 {
-    public GameLogic GameLogicProp { get; set; }
-
     public override void OnCreate()
     {
         base.OnCreate();
@@ -17,8 +15,8 @@ public class UIStageEditor : UIWindowNGUI
 
         AddChildComponentMouseClick("RestartBtn", delegate(object sender, UIMouseClick.ClickArgs e)
             {
-                GameLogicProp.ClearGame();
-                GameLogicProp.StartGame();
+                GlobalVars.CurGameLogic.ClearGame();
+                GlobalVars.CurGameLogic.StartGame();
             });
 
         for (int i = 0; i < GameLogic.ColorCount; ++i)
@@ -61,6 +59,15 @@ public class UIStageEditor : UIWindowNGUI
             });
         }
 
+        for (int i = 0; i <= (int)GameTarget.ClearJelly; ++i)
+        {
+            int targetType = i;
+            AddChildComponentMouseClick("TargetMode" + i, delegate(object sender, UIMouseClick.ClickArgs e)
+            {
+                GlobalVars.CurGameLogic.PlayingStageData.Target = (GameTarget)targetType;
+            });
+        }
+
         AddChildComponentMouseClick("EatBlock", delegate(object sender, UIMouseClick.ClickArgs e)
             {
                 GlobalVars.EditState = TEditState.Eat;
@@ -71,6 +78,14 @@ public class UIStageEditor : UIWindowNGUI
         base.OnShow();
         UIInput input = GetChildComponent<UIInput>("LevelInput");
         input.text = GlobalVars.CurStageNum.ToString();
+
+        input = GetChildComponent<UIInput>("StepLimit");
+        input.text = GlobalVars.CurGameLogic.PlayingStageData.StepLimit.ToString();
+
+        input = GetChildComponent<UIInput>("TimeLimit");
+        input.text = GlobalVars.CurGameLogic.PlayingStageData.TimeLimit.ToString();
+
+
     }
     public override void OnUpdate()
     {
@@ -85,17 +100,30 @@ public class UIStageEditor : UIWindowNGUI
 
     private void OnSaveClicked(object sender, UIMouseClick.ClickArgs e)
     {
-        UIInput input = GetChildComponent<UIInput>("LevelInput");
+        UIInput input = GetChildComponent<UIInput>("StepLimit");
+        int stepLimit = (int)System.Convert.ChangeType(input.text, typeof(int));
+        GlobalVars.CurGameLogic.PlayingStageData.StepLimit = stepLimit;
+
+
+
+        input = GetChildComponent<UIInput>("TimeLimit");
+        int timeLimit = (int)System.Convert.ChangeType(input.text, typeof(int));
+        GlobalVars.CurGameLogic.PlayingStageData.TimeLimit = timeLimit;
+
+
+        input = GetChildComponent<UIInput>("LevelInput");
         int levelNum = (int)System.Convert.ChangeType(input.text, typeof(int));
-        GameLogicProp.CurStageData.SaveStageData(levelNum);
+        GlobalVars.CurGameLogic.PlayingStageData.SaveStageData(levelNum);
         GlobalVars.CurStageNum = levelNum;
+
+        GlobalVars.CurStageData.LoadStageData(levelNum);
     }
 
     private void OnLoadClicked(object sender, UIMouseClick.ClickArgs e)
     {
         UIInput input = GetChildComponent<UIInput>("LevelInput");
         int levelNum = (int)System.Convert.ChangeType(input.text, typeof(int));
-        GameLogicProp.CurStageData = StageData.CreateStageData();
-        GameLogicProp.CurStageData.LoadStageData(levelNum);
+        GlobalVars.CurGameLogic.PlayingStageData = StageData.CreateStageData();
+        GlobalVars.CurGameLogic.PlayingStageData.LoadStageData(levelNum);
     }
 }

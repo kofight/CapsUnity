@@ -6,15 +6,14 @@ public enum GameTarget
 {
 	ClearJelly,
 	BringFruitDown,
-	GetScoreWithSteps,
-	GetScoreInTime,
+	GetScore,
 }
 
 public class StageData 
 {
 	public GameTarget Target;           //关卡目标
 	public int 		StepLimit;		    //步数限制
-	public float 	TimeLimit;          //时间限制（单位秒）
+	public int  	TimeLimit;          //时间限制（单位秒）
     public int[]    StarScore = new int[3];          //获得星星的分数
     public GridData[,] GridDataArray = new GridData[GameLogic.BlockCountX,GameLogic.BlockCountY];      //关卡初始地块数据
 
@@ -57,7 +56,7 @@ public class StageData
         _config.GetValue<int>("Target", out targetInt);
         Target = (GameTarget)targetInt;
         _config.GetValue<int>("StepLimit", out StepLimit);
-        _config.GetValue<float>("TimeLimit", out TimeLimit);
+        _config.GetValue<int>("TimeLimit", out TimeLimit);
 
         string temp;
         _config.GetValue<string>("StarScore", out temp);

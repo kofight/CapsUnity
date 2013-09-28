@@ -19,6 +19,19 @@ public class UIMainMenu : UIWindowNGUI
 
     private void OnQuitClicked(object sender, UIMouseClick.ClickArgs e)
     {
-        UIWindowManager.Singleton.GetUIWindow<UIQuitConfirm>().ShowWindow();
+        if (CapsApplication.Singleton.CurStateEnum == StateEnum.Game)
+        {
+            UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();   
+        }
+        else if (UIWindowManager.Singleton.GetUIWindow<UIMap>().Visible)
+        {
+            UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().HideWindow();
+            UIWindowManager.Singleton.GetUIWindow<UIMap>().HideWindow();
+            UIWindowManager.Singleton.GetUIWindow<UILogin>().ShowWindow();
+        }
+        else
+        {
+            UIWindowManager.Singleton.GetUIWindow<UIQuitConfirm>().ShowWindow();
+        }
     }
 }

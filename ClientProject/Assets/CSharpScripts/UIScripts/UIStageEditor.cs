@@ -59,7 +59,7 @@ public class UIStageEditor : UIWindowNGUI
             });
         }
 
-        for (int i = 0; i <= (int)GameTarget.ClearJelly; ++i)
+        for (int i = 0; i <= (int)GameTarget.GetScore; ++i)
         {
             int targetType = i;
             AddChildComponentMouseClick("TargetMode" + i, delegate(object sender, UIMouseClick.ClickArgs e)

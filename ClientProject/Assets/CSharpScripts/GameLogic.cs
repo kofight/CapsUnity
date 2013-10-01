@@ -114,6 +114,7 @@ public class GameLogic {
     public static readonly int GAMETIME = 6000000;		//游戏时间
 
     public StageData PlayingStageData;                      //当前的关卡数据
+    public int GetProgress(){ return m_progress; }
 
     ///游戏逻辑变量/////////////////////////////////////////////////////////////////
 	TDirection m_moveDirection;							                //选择的块1向块2移动的方向
@@ -230,7 +231,7 @@ public class GameLogic {
             }
         }
 
-        UpdateProgress();
+        OnProgressChange();
     }
 
     public void ClearGame()
@@ -452,6 +453,7 @@ public class GameLogic {
                     }
                     else								//若有能直接消除的块
                     {
+                        ++m_comboCount;                 //增加Combo
                         timerEatBlock.Play();
                         timerEatBlock.Adjust(5);		//Bug,不知道为什么这里必须停一下，才能消所有行
                     }
@@ -769,19 +771,24 @@ public class GameLogic {
             return false;
         }
 
+        int kItem = 0;                  //自然消除为0
+
         if (totalSameCount == 3)		//总共就消了3个
         {
             EatBlock(position);
         }
-        //TODO 生成道具
         //根据结果来生成道具////////////////////////////////////////////////////////////////////////
 		else if (maxCountInSameDir >= 5)		//若最大每行消了5个
         {
             CreateSpecialBlock(TSpecialBlock.ESpecial_EatAColor, position);
+            m_progress += 2000;                  //Todo 增加文字特效
+            kItem = 3;
         }
 		else if (totalSameCount >= 6)			//若总共消除大于等于6个（3,4消除或者多个3消）
         {
             CreateSpecialBlock(TSpecialBlock.ESpecial_Bomb, position);
+            m_progress += 600;                  //Todo 增加文字特效
+            kItem = 2;
         }
         else if (maxCountInSameDir == 4)		//若最大每行消了4个
         {
@@ -797,35 +804,42 @@ public class GameLogic {
             {
                 CreateSpecialBlock(TSpecialBlock.ESpecial_EatLineDir2, position);
             }
+            m_progress += 500;                  //Todo 增加文字特效
+            kItem = 1;
         }
         else if (totalSameCount > 4)			//若总共消除大于4个
         {
             CreateSpecialBlock(TSpecialBlock.ESpecial_Painter, position);
+            m_progress += 600;                  //Todo 增加文字特效
+            kItem = 1;
         }
 
         //TODO 记分
         ////根据结果来记分
-        //float kQuantity = 1;
-        //float kCombo = 1;
-        //if ((totalSameCount - 3) >= MaxKQuanlity)
-        //{
-        //    kQuantity = KQuanlityTable[MaxKQuanlity-1];
-        //}
-        //else
-        //{
-        //    kQuantity = KQuanlityTable[totalSameCount-3];
-        //}
+        int kQuantity = 1;
+        int kCombo = 1;
+        int kLevel = 0;
 
-        //if (m_comboCount >= MaxKCombo)
-        //{
-        //    kCombo = KComboTable[MaxKCombo-1];
-        //}
-        //else
-        //{
-        //    kCombo = KComboTable[m_comboCount];
-        //}
-        //m_progress += 50 * kQuantity * kCombo;
-        UpdateProgress();
+        if (totalSameCount >= CapsConfig.Instance.MaxKQuanlity)
+        {
+            kQuantity = CapsConfig.Instance.KQuanlityTable[CapsConfig.Instance.MaxKQuanlity - 3];
+        }
+        else
+        {
+            kQuantity = CapsConfig.Instance.KQuanlityTable[totalSameCount - 3];
+        }
+
+        if (m_comboCount + 1 >= CapsConfig.Instance.MaxKCombo)
+        {
+            kCombo = CapsConfig.Instance.KComboTable[CapsConfig.Instance.MaxKCombo - 1];
+        }
+        else
+        {
+            kCombo = CapsConfig.Instance.KComboTable[m_comboCount + 1];
+        }
+
+        m_progress += 50 * (kQuantity + kCombo + kItem + kLevel);
+        OnProgressChange();
         return true;
     }
 
@@ -981,27 +995,11 @@ public class GameLogic {
         }
     }
 
-    int GetJellyCount()
-    {
-        int count = 0;
-        for (int i = 0; i < BlockCountX; i++)				//遍历一行
-        {
-            for (int j = 0; j < BlockCountY; j++)		//遍历一列
-            {
-                if (PlayingStageData.GridDataArray[i, j].grid == TGridType.Jelly || PlayingStageData.GridDataArray[i, j].grid == TGridType.JellyDouble)
-                {
-                    ++count;
-                }
-            }
-        }
-        return count;
-    }
-
     public bool CheckStageFinish()
     {
         if (PlayingStageData.Target == GameTarget.ClearJelly)       //若目标为清果冻，计算果冻数量
         {
-            if (GetJellyCount() == 0)       //若完成目标
+            if (PlayingStageData.GetJellyCount() == 0)       //若完成目标
             {
                 return true;
             }
@@ -1010,13 +1008,13 @@ public class GameLogic {
         {
 
         }
-        else if (PlayingStageData.Target == GameTarget.GetScore)
-        {
-            if (m_progress > PlayingStageData.StarScore[0])                 //大于1星就算完成
-            {
-                return true;
-            }
-        }
+        //else if (PlayingStageData.Target == GameTarget.GetScore)
+        //{
+        //    if (m_progress > PlayingStageData.StarScore[0])                 //大于1星就算完成
+        //    {
+        //        return true;
+        //    }
+        //}
         return false;
     }
 
@@ -1199,63 +1197,69 @@ public class GameLogic {
 
         //选中第二个
         m_selectedPos[1] = p;
+        if (GlobalVars.CurStageData.StepLimit > 0 && PlayingStageData.StepLimit == 0)
+        {
+            return;
+        }
         ProcessMove();
     }
 
     void ProcessMove()
     {
-        if (PlayingStageData.StepLimit > 0)
+        if (GlobalVars.CurStageData.StepLimit > 0)
         {
-            TSpecialBlock special0 = m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special;
-            TSpecialBlock special1 = m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special;
-            if (special0 == TSpecialBlock.ESpecial_Normal
-                && special1 == TSpecialBlock.ESpecial_Normal)
+            --PlayingStageData.StepLimit;
+        }
+        
+        TSpecialBlock special0 = m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special;
+        TSpecialBlock special1 = m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special;
+        if (special0 == TSpecialBlock.ESpecial_Normal
+            && special1 == TSpecialBlock.ESpecial_Normal)
+        {
+            MoveBlockPair(m_selectedPos[0], m_selectedPos[1]);
+        }
+        else
+        {
+            //处理五彩块
+            if (special0 == TSpecialBlock.ESpecial_EatAColor)
             {
-                MoveBlockPair(m_selectedPos[0], m_selectedPos[1]);
+                if (special1 == TSpecialBlock.ESpecial_Normal)
+                {
+                    EatAColor(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color);
+                }
+                if (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||
+                    special1 == TSpecialBlock.ESpecial_EatLineDir1)
+                {
+                    ChangeColorToLine(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color);
+                }
+                if (special1 == TSpecialBlock.ESpecial_EatAColor)
+                {
+                    EatAColor(TBlockColor.EColor_None);         //消全部
+                }
+            }
+            else if (special1 == TSpecialBlock.ESpecial_EatAColor)
+            {
+                if (special0 == TSpecialBlock.ESpecial_Normal)
+                {
+                    EatAColor(m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color);
+                }
+                if (special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir2 ||
+                    special0 == TSpecialBlock.ESpecial_EatLineDir1)
+                {
+                    ChangeColorToLine(m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color);
+                }
             }
             else
             {
-                //处理五彩块
-                if (special0 == TSpecialBlock.ESpecial_EatAColor)
-                {
-                    if (special1 == TSpecialBlock.ESpecial_Normal)
-                    {
-                        EatAColor(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color);
-                    }
-                    if (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||
-                        special1 == TSpecialBlock.ESpecial_EatLineDir1)
-                    {
-                        ChangeColorToLine(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color);
-                    }
-                    if (special1 == TSpecialBlock.ESpecial_EatAColor)
-                    {
-                        EatAColor(TBlockColor.EColor_None);         //消全部
-                    }
-                }
-                else if (special1 == TSpecialBlock.ESpecial_EatAColor)
-                {
-                    if (special0 == TSpecialBlock.ESpecial_Normal)
-                    {
-                        EatAColor(m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color);
-                    }
-                    if (special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir2 ||
-                        special0 == TSpecialBlock.ESpecial_EatLineDir1)
-                    {
-                        ChangeColorToLine(m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color);
-                    }
-                }
-                else
-                {
-                    MoveBlockPair(m_selectedPos[0], m_selectedPos[1]);
-                }
+                MoveBlockPair(m_selectedPos[0], m_selectedPos[1]);
+            }
 
-                //处理条状块
-                if (special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir1 || special0 == TSpecialBlock.ESpecial_EatLineDir2)
+            //处理条状块
+            if (special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir1 || special0 == TSpecialBlock.ESpecial_EatLineDir2)
+            {
+                if (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir1 || special1 == TSpecialBlock.ESpecial_EatLineDir2)
                 {
-                    if (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir1 || special1 == TSpecialBlock.ESpecial_EatLineDir2)
-                    {
 
-                    }
                 }
             }
         }
@@ -1286,7 +1290,6 @@ public class GameLogic {
 
     void MoveBlockPair(Position position1, Position position2)
     {
-        --PlayingStageData.StepLimit;
         ExchangeBlock(position1, position2);			//交换方块
 
         //PlaySound(capsmove);							//移动
@@ -1381,7 +1384,7 @@ public class GameLogic {
         trans.gameObject.SetActive(false);
     }
 
-    void UpdateProgress()
+    void OnProgressChange()
     {
 
     }

@@ -73,6 +73,7 @@ public class UIStageEditor : UIWindowNGUI
                 GlobalVars.EditState = TEditState.Eat;
             });
     }
+
     public override void OnShow()
     {
         base.OnShow();
@@ -85,8 +86,16 @@ public class UIStageEditor : UIWindowNGUI
         input = GetChildComponent<UIInput>("TimeLimit");
         input.text = GlobalVars.CurGameLogic.PlayingStageData.TimeLimit.ToString();
 
+        input = GetChildComponent<UIInput>("ColorCount");
+        input.text = GlobalVars.CurGameLogic.PlayingStageData.ColorCount.ToString();
 
+        for (int i = 0; i < 3; ++i )
+        {
+            input = GetChildComponent<UIInput>("Star" + (i +1));
+            input.text = GlobalVars.CurGameLogic.PlayingStageData.StarScore[i].ToString();
+        }
     }
+
     public override void OnUpdate()
     {
         base.OnUpdate();
@@ -114,12 +123,17 @@ public class UIStageEditor : UIWindowNGUI
         int colorCount = (int)System.Convert.ChangeType(input.text, typeof(int));
         GlobalVars.CurGameLogic.PlayingStageData.ColorCount = colorCount;
 
+        for (int i = 0; i < 3; ++i )
+        {
+            input = GetChildComponent<UIInput>("Star" + (i + 1));
+            int score = (int)System.Convert.ChangeType(input.text, typeof(int));
+            GlobalVars.CurGameLogic.PlayingStageData.StarScore[i] = score;
+        }
 
         input = GetChildComponent<UIInput>("LevelInput");
         int levelNum = (int)System.Convert.ChangeType(input.text, typeof(int));
         GlobalVars.CurGameLogic.PlayingStageData.SaveStageData(levelNum);
         GlobalVars.CurStageNum = levelNum;
-
 
         GlobalVars.CurStageData.LoadStageData(levelNum);
     }

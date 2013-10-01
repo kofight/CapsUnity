@@ -105,7 +105,7 @@ public class GameLogic {
     public static readonly int gameAreaY = 100;		//游戏区域左上角坐标
     public static readonly int gameAreaWidth = BLOCKWIDTH * BlockCountX;	//游戏区域宽度
     public static readonly int gameAreaHeight = BLOCKWIDTH * BlockCountY + BlockCountY / 2;//游戏区域高度
-    
+    public static readonly int TotalColorCount = 7;
     public static readonly bool CanMoveWhenDroping = true;			//是否支持下落的同时移动
     public static readonly int PROGRESSTOWIN = 2000;
     public static readonly int DROP_TIME = 120;			//下落的时间
@@ -171,7 +171,7 @@ public class GameLogic {
     {
         //初始化瓶盖图片池
         string name;
-        for (int i = 0; i < PlayingStageData.ColorCount; ++i )
+        for (int i = 0; i < TotalColorCount; ++i)            //最多7种颜色，固定死
         {
             name = "Item" + (i + 1);
             m_availableSprite[i] = new LinkedList<Transform>();
@@ -342,6 +342,9 @@ public class GameLogic {
 
             UIDrawer.Singleton.DrawNumber("TimeLimit", 140, 586, timeRemain, "HighDown", 14, 2, 2);
         }
+
+        //绘制分数
+        UIDrawer.Singleton.DrawNumber("Score", 140, 606, m_progress, "HighDown", 14, 2, 2);
     }
 
     void TimerWork()
@@ -971,7 +974,7 @@ public class GameLogic {
                 break;
             case TSpecialBlock.ESpecial_EatAColor:
                 {
-
+                    EatAColor(m_blocks[position.x, position.y].color);
                 }
                 break;
         }
@@ -1240,6 +1243,10 @@ public class GameLogic {
                         ChangeColorToLine(m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color);
                     }
                 }
+                else
+                {
+                    MoveBlockPair(m_selectedPos[0], m_selectedPos[1]);
+                }
 
                 //处理条状块
                 if (special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir1 || special0 == TSpecialBlock.ESpecial_EatLineDir2)
@@ -1255,7 +1262,20 @@ public class GameLogic {
 
     void EatAColor(TBlockColor color)
     {
-
+        for (int i = 0; i < BlockCountX; ++i )
+        {
+            for (int j = 0; i < BlockCountY; ++j )
+            {
+                if (color == TBlockColor.EColor_None)
+                {
+                    EatBlock(new Position(i, j));
+                }
+                else if (m_blocks[i, j].color == color)
+                {
+                    EatBlock(new Position(i, j));
+                }
+            }
+        }
     }
 
     void ChangeColorToLine(TBlockColor color)

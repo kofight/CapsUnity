@@ -1424,61 +1424,66 @@ public class GameLogic {
 
     TBlockColor GetRandomColor()
     {
-        bool AddNut = false;        //记录是否生成坚果的结果
+        if (PlayingStageData.Target == GameTarget.BringFruitDown)
+        {
+            bool AddNut = false;        //记录是否生成坚果的结果
+            int remainNutsCount = (GlobalVars.CurStageData.Nut1Count + GlobalVars.CurStageData.Nut2Count) - PlayingStageData.Nut1Count - PlayingStageData.Nut2Count - m_nut1Count - m_nut2Count;
 
-        if (m_nut1Count + m_nut2Count == 0)
-        {
-            if (m_random.Next() % 3 == 0)       //3分之一的概率
+            if (remainNutsCount > 0)
             {
-                AddNut = true;
-            }
-        }
-        else if (m_nut1Count + m_nut2Count == 1)
-        {
-            if (m_random.Next() % 10 == 0)       //10分之一的概率
-            {
-                AddNut = true;
-            }
-        }
-        else if (m_nut1Count + m_nut2Count == 2)
-        {
-            if (m_random.Next() % 25 == 0)       //25分之一的概率
-            {
-                AddNut = true;
-            }
-        }
-
-        if (AddNut)
-        {
-            TBlockColor nutColor;
-            if (m_nut1Count + PlayingStageData.Nut1Count == GlobalVars.CurStageData.Nut1Count)      //若已掉 够了，就不再掉
-            {
-                nutColor = TBlockColor.EColor_Nut2;
+                if (m_nut1Count + m_nut2Count == 0)
+                {
+                    if (m_random.Next() % 3 == 0)       //3分之一的概率
+                    {
+                        AddNut = true;
+                    }
+                }
+                else if (m_nut1Count + m_nut2Count == 1)
+                {
+                    if (m_random.Next() % 10 == 0)       //10分之一的概率
+                    {
+                        AddNut = true;
+                    }
+                }
+                else if (m_nut1Count + m_nut2Count == 2)
+                {
+                    if (m_random.Next() % 25 == 0)       //25分之一的概率
+                    {
+                        AddNut = true;
+                    }
+                }
             }
 
-            else if (m_nut2Count + PlayingStageData.Nut2Count == GlobalVars.CurStageData.Nut2Count)      //若已掉 够了，就不再掉
+            if (AddNut)
             {
-                nutColor = TBlockColor.EColor_Nut1;
-            }
-            else
-            {
-                nutColor = TBlockColor.EColor_Nut1 + m_random.Next() % 2;
-            }
+                TBlockColor nutColor;
+                if (m_nut1Count + PlayingStageData.Nut1Count >= GlobalVars.CurStageData.Nut1Count)      //若已掉 够了，就不再掉
+                {
+                    nutColor = TBlockColor.EColor_Nut2;
+                }
 
-            if (nutColor == TBlockColor.EColor_Nut1)
-            {
-                ++m_nut1Count;
+                else if (m_nut2Count + PlayingStageData.Nut2Count >= GlobalVars.CurStageData.Nut2Count)      //若已掉 够了，就不再掉
+                {
+                    nutColor = TBlockColor.EColor_Nut1;
+                }
+                else
+                {
+                    nutColor = TBlockColor.EColor_Nut1 + m_random.Next() % 2;
+                }
+
+                if (nutColor == TBlockColor.EColor_Nut1)
+                {
+                    ++m_nut1Count;
+                }
+                else
+                {
+                    ++m_nut2Count;
+                }
+                return nutColor;
             }
-            else
-            {
-                ++m_nut2Count;
-            }
-            return nutColor;
         }
-        else
-        {
-            return TBlockColor.EColor_White + m_random.Next() % PlayingStageData.ColorCount;
-        }
+
+        return TBlockColor.EColor_White + m_random.Next() % PlayingStageData.ColorCount;
     }
 
     TBlockColor GetNextColor(TBlockColor color)

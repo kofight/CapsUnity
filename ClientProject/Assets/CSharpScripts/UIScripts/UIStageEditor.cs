@@ -102,10 +102,10 @@ public class UIStageEditor : UIWindowNGUI
         input.text = GlobalVars.CurGameLogic.PlayingStageData.ColorCount.ToString();
 
         input = GetChildComponent<UIInput>("Nut1");
-        input.text = GlobalVars.CurGameLogic.PlayingStageData.Nut1Count.ToString();
+        input.text = GlobalVars.CurStageData.Nut1Count.ToString();
 
         input = GetChildComponent<UIInput>("Nut2");
-        input.text = GlobalVars.CurGameLogic.PlayingStageData.Nut2Count.ToString();
+        input.text = GlobalVars.CurStageData.Nut2Count.ToString();
 
         for (int i = 0; i < 3; ++i )
         {

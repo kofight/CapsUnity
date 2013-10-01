@@ -42,12 +42,32 @@ public class CapBlock
         return newBlock;
     }
 
+    public void Assign(CapBlock block)
+    {
+        color = block.color;
+        x_move = block.x_move;
+        y_move = block.y_move;
+        m_bEating = block.m_bEating;
+        isDropping = block.isDropping;
+        isCanMove = block.isCanMove;
+        m_bNeedCheckEatLine = block.m_bNeedCheckEatLine;
+        special = block.special;
+        m_blockSprite = block.m_blockSprite;
+        m_blockTransform = block.m_blockTransform;
+    }
+
+    public bool IsEmpty()
+    {
+        return color == TBlockColor.EColor_None;
+    }
+
     public TBlockColor color;							//颜色
 
     public int x_move;
     public int y_move;
     public bool m_bEating;						//正在消失的标记
     public bool isDropping;
+    public Position droppingTo;                 //正在落向某个位置
     public bool isCanMove;
     public bool m_bNeedCheckEatLine;			//一旦落地就被标记，然后EatAllLine逻辑用这个变量区分是否需要检测消行
 

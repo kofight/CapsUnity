@@ -20,7 +20,7 @@ public class UIMap : UIWindowNGUI
         
         m_stageBtns = new Transform[GlobalVars.TotalStageCount];
 
-
+        GlobalVars.AvailabeStageCount = GlobalVars.TotalStageCount;         //临时开放所有关卡 Todo 之后要按玩家进度
 
         for (int i = 0; i < GlobalVars.TotalStageCount; ++i)
         {

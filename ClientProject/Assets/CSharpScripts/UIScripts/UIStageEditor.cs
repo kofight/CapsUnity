@@ -19,7 +19,7 @@ public class UIStageEditor : UIWindowNGUI
                 GlobalVars.CurGameLogic.StartGame();
             });
 
-        for (int i = 0; i < GameLogic.ColorCount; ++i)
+        for (int i = 0; i < 7; ++i)
         {
 			int color = i + 1;
             AddChildComponentMouseClick("ChangeColor" + color, delegate(object sender, UIMouseClick.ClickArgs e)
@@ -110,11 +110,16 @@ public class UIStageEditor : UIWindowNGUI
         int timeLimit = (int)System.Convert.ChangeType(input.text, typeof(int));
         GlobalVars.CurGameLogic.PlayingStageData.TimeLimit = timeLimit;
 
+        input = GetChildComponent<UIInput>("ColorCount");
+        int colorCount = (int)System.Convert.ChangeType(input.text, typeof(int));
+        GlobalVars.CurGameLogic.PlayingStageData.ColorCount = colorCount;
+
 
         input = GetChildComponent<UIInput>("LevelInput");
         int levelNum = (int)System.Convert.ChangeType(input.text, typeof(int));
         GlobalVars.CurGameLogic.PlayingStageData.SaveStageData(levelNum);
         GlobalVars.CurStageNum = levelNum;
+
 
         GlobalVars.CurStageData.LoadStageData(levelNum);
     }

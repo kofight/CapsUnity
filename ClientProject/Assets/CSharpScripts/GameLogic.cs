@@ -100,7 +100,6 @@ public class GridData
 public class GameLogic {
     public static readonly int BlockCountX = 7;	//游戏区有几列
     public static readonly int BlockCountY = 7;	//游戏区有几行
-    public static readonly int ColorCount = 7;     //有几种颜色
     public static readonly int BLOCKWIDTH = 60;
     public static readonly int gameAreaX = 0;		//游戏区域左上角坐标
     public static readonly int gameAreaY = 100;		//游戏区域左上角坐标
@@ -172,7 +171,7 @@ public class GameLogic {
     {
         //初始化瓶盖图片池
         string name;
-        for (int i = 0; i < ColorCount; ++i )
+        for (int i = 0; i < PlayingStageData.ColorCount; ++i )
         {
             name = "Item" + (i + 1);
             m_availableSprite[i] = new LinkedList<Transform>();
@@ -1374,13 +1373,13 @@ public class GameLogic {
 
     TBlockColor GetRandomColor()
     {
-        return TBlockColor.EColor_White + m_random.Next() % ColorCount;
+        return TBlockColor.EColor_White + m_random.Next() % PlayingStageData.ColorCount;
     }
 
     TBlockColor GetNextColor(TBlockColor color)
     {
         int index = color - TBlockColor.EColor_White;
-        return (TBlockColor)((index + 1) % ColorCount + TBlockColor.EColor_White);
+        return (TBlockColor)((index + 1) % PlayingStageData.ColorCount + TBlockColor.EColor_White);
     }
 
     bool IsHaveLine(Position position)

@@ -1268,7 +1268,7 @@ public class GameLogic {
     {
         for (int i = 0; i < BlockCountX; ++i )
         {
-            for (int j = 0; i < BlockCountY; ++j )
+            for (int j = 0; j < BlockCountY; ++j )
             {
                 if (color == TBlockColor.EColor_None)
                 {
@@ -1280,6 +1280,7 @@ public class GameLogic {
                 }
             }
         }
+		timerEatBlock.Play();
     }
 
     void ChangeColorToLine(TBlockColor color)

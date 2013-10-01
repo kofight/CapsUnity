@@ -1,2 +1,2 @@
-﻿TotalStageCount             4
+﻿TotalStageCount             30
 Version                     Pre-Alpha-0.1

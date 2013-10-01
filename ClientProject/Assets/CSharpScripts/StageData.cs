@@ -14,6 +14,7 @@ public class StageData
 	public GameTarget Target;           //关卡目标
 	public int 		StepLimit;		    //步数限制
 	public int  	TimeLimit;          //时间限制（单位秒）
+    public int      ColorCount = 7;         //颜色总数
     public int[]    StarScore = new int[3];          //获得星星的分数
     public GridData[,] GridDataArray = new GridData[GameLogic.BlockCountX,GameLogic.BlockCountY];      //关卡初始地块数据
 

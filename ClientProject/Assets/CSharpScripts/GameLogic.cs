@@ -902,6 +902,10 @@ public class GameLogic {
                 {
                     continue;
                 }
+                if (m_blocks[i,j].color > TBlockColor.EColor_Grey)
+                {
+                    continue;
+                }
                 if (m_blocks[i, j].color == excludeColor)
                 {
                     continue;

@@ -344,7 +344,8 @@ public class GameLogic {
         }
 
         //绘制分数
-        UIDrawer.Singleton.DrawNumber("Score", 140, 606, m_progress, "HighDown", 14, 2, 2);
+        UIDrawer.Singleton.DrawText("ScoreText", 200, 575, "Score:");
+        UIDrawer.Singleton.DrawNumber("Score", 250, 586, m_progress, "HighDown", 14);
     }
 
     void TimerWork()

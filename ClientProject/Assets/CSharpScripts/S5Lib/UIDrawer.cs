@@ -13,7 +13,7 @@ public class UIDrawerData
     public UIEffectPlayer effectPlayer;
 	public UIWindowStateEnum playingState;
     public string numberStartName;
-    public float curNumber;
+    public float curNumber = -100000;
     public Transform transform;
     public List<Transform> m_numSpriteList = new List<Transform>();
 

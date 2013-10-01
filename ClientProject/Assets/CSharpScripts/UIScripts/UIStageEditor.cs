@@ -19,7 +19,7 @@ public class UIStageEditor : UIWindowNGUI
                 GlobalVars.CurGameLogic.StartGame();
             });
 
-        for (int i = 0; i < 7; ++i)
+        for (int i = 0; i < GameLogic.TotalColorCount; ++i)
         {
 			int color = i + 1;
             AddChildComponentMouseClick("ChangeColor" + color, delegate(object sender, UIMouseClick.ClickArgs e)

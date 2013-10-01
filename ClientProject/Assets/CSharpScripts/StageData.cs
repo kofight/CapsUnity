@@ -30,6 +30,22 @@ public class StageData
         return data;
     }
 
+    public int GetJellyCount()
+    {
+        int count = 0;
+        for (int i = 0; i < GameLogic.BlockCountX; i++)				//遍历一行
+        {
+            for (int j = 0; j < GameLogic.BlockCountY; j++)		//遍历一列
+            {
+                if (GridDataArray[i, j].grid == TGridType.Jelly || GridDataArray[i, j].grid == TGridType.JellyDouble)
+                {
+                    ++count;
+                }
+            }
+        }
+        return count;
+    }
+
     int GridDataToInt(GridData data)
     {
         return (int)data.grid * 10 + (int)data.gridBlock;
@@ -58,6 +74,11 @@ public class StageData
         Target = (GameTarget)targetInt;
         _config.GetValue<int>("StepLimit", out StepLimit);
         _config.GetValue<int>("TimeLimit", out TimeLimit);
+        _config.GetValue<int>("ColorCount", out ColorCount);
+        if (ColorCount == 0)
+        {
+            ColorCount = 7;
+        }
 
         string temp;
         _config.GetValue<string>("StarScore", out temp);
@@ -88,6 +109,7 @@ public class StageData
         _config.Write("Target", (int)Target);
         _config.Write("StepLimit", StepLimit);
         _config.Write("TimeLimit", TimeLimit);
+        _config.Write("ColorCount", ColorCount);
         string temp = string.Empty;
         for (int i = 0; i < 3; ++i )
         {

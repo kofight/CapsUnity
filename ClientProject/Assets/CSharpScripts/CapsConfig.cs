@@ -26,6 +26,12 @@ public class CapsConfig
     //[ConfigAttribute(DefaultValue = 2.0f, Name = "落水等待时间", FieldType = typeof(float))]
     //public float DownInWaterWaitTime = 2.0f;
 
+    //用来计算分数的常量
+    public int MaxKQuanlity = 10;
+    public int MaxKCombo = 9;
+    public int[] KQuanlityTable = { 0, 1, 2, 3, 3, 3, 3, 3, 3 };
+    public int[] KComboTable = {0, 1, 2, 3, 4, 5, 6, 6, 6};
+
     private ConfigOperator _config;
 
     public string version = "Pre Alpha 0.1";

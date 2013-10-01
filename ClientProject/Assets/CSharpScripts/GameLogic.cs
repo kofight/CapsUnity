@@ -1255,6 +1255,7 @@ public class GameLogic {
             {
                 if (special1 == TSpecialBlock.ESpecial_Normal)
                 {
+                    m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat(); //自己消失
                     EatAColor(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color);
                 }
                 if (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||
@@ -1271,7 +1272,8 @@ public class GameLogic {
             {
                 if (special0 == TSpecialBlock.ESpecial_Normal)
                 {
-                    EatAColor(m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color);
+                    m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat(); //自己消失
+                    EatAColor(m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color);      //消颜色
                 }
                 if (special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir2 ||
                     special0 == TSpecialBlock.ESpecial_EatLineDir1)
@@ -1301,6 +1303,10 @@ public class GameLogic {
         {
             for (int j = 0; j < BlockCountY; ++j )
             {
+                if (color != TBlockColor.EColor_None && m_blocks[i, j].special == TSpecialBlock.ESpecial_EatAColor)
+                {
+                    continue;
+                }
                 if (color == TBlockColor.EColor_None)
                 {
                     EatBlock(new Position(i, j));
@@ -1563,6 +1569,10 @@ public class GameLogic {
 		{
             return TBlockColor.EColor_None;
 		}
+        if (m_blocks[p.x, p.y].special == TSpecialBlock.ESpecial_EatAColor)         //Todo EatAColor是否变成一个Color而不是一个Specail?
+        {
+            return TBlockColor.EColor_None;
+        }
 		return m_blocks[p.x, p.y].color;
 	}
 

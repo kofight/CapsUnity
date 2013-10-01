@@ -98,11 +98,11 @@ public class GridData
 }
 
 public class GameLogic {
-    public static readonly int BlockCountX = 7;	//游戏区有几列
-    public static readonly int BlockCountY = 7;	//游戏区有几行
+    public static readonly int BlockCountX = 9;	//游戏区有几列
+    public static readonly int BlockCountY = 9;	//游戏区有几行
     public static readonly int BLOCKWIDTH = 60;
     public static readonly int gameAreaX = 0;		//游戏区域左上角坐标
-    public static readonly int gameAreaY = 100;		//游戏区域左上角坐标
+    public static readonly int gameAreaY = 0;		//游戏区域左上角坐标
     public static readonly int gameAreaWidth = BLOCKWIDTH * BlockCountX;	//游戏区域宽度
     public static readonly int gameAreaHeight = BLOCKWIDTH * BlockCountY + BlockCountY / 2;//游戏区域高度
     public static readonly int TotalColorCount = 7;

@@ -1196,11 +1196,72 @@ public class GameLogic {
 
         //选中第二个
         m_selectedPos[1] = p;
+        ProcessMove();
+    }
 
+    void ProcessMove()
+    {
         if (PlayingStageData.StepLimit > 0)
         {
-            MoveBlockPair(m_selectedPos[0], m_selectedPos[1]);
+            TSpecialBlock special0 = m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special;
+            TSpecialBlock special1 = m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special;
+            if (special0 == TSpecialBlock.ESpecial_Normal
+                && special1 == TSpecialBlock.ESpecial_Normal)
+            {
+                MoveBlockPair(m_selectedPos[0], m_selectedPos[1]);
+            }
+            else
+            {
+                //处理五彩块
+                if (special0 == TSpecialBlock.ESpecial_EatAColor)
+                {
+                    if (special1 == TSpecialBlock.ESpecial_Normal)
+                    {
+                        EatAColor(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color);
+                    }
+                    if (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||
+                        special1 == TSpecialBlock.ESpecial_EatLineDir1)
+                    {
+                        ChangeColorToLine(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color);
+                    }
+                    if (special1 == TSpecialBlock.ESpecial_EatAColor)
+                    {
+                        EatAColor(TBlockColor.EColor_None);         //消全部
+                    }
+                }
+                else if (special1 == TSpecialBlock.ESpecial_EatAColor)
+                {
+                    if (special0 == TSpecialBlock.ESpecial_Normal)
+                    {
+                        EatAColor(m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color);
+                    }
+                    if (special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir2 ||
+                        special0 == TSpecialBlock.ESpecial_EatLineDir1)
+                    {
+                        ChangeColorToLine(m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color);
+                    }
+                }
+
+                //处理条状块
+                if (special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir1 || special0 == TSpecialBlock.ESpecial_EatLineDir2)
+                {
+                    if (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir1 || special1 == TSpecialBlock.ESpecial_EatLineDir2)
+                    {
+
+                    }
+                }
+            }
         }
+    }
+
+    void EatAColor(TBlockColor color)
+    {
+
+    }
+
+    void ChangeColorToLine(TBlockColor color)
+    {
+
     }
 
     void MoveBlockPair(Position position1, Position position2)

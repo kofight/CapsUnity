@@ -10,12 +10,15 @@ public enum TBlockColor
     EColor_Red,
     EColor_Golden,
     EColor_Blue,
-    EColor_Grey,                
+    EColor_Grey,
+
+    EColor_Nut1,                  //
+    EColor_Nut2,                  //
 };
 
 public enum TSpecialBlock
 {
-    ESpecial_Normal,			//普通块
+    ESpecial_Normal,			    //普通块
     ESpecial_EatLineDir0,			//一次消一线，方向0
     ESpecial_EatLineDir1,			//一次消一线，方向1
     ESpecial_EatLineDir2,			//一次消一线，方向2
@@ -54,6 +57,40 @@ public class CapBlock
         special = block.special;
         m_blockSprite = block.m_blockSprite;
         m_blockTransform = block.m_blockTransform;
+    }
+
+    public void RefreshBlockSprite()
+    {
+        switch (special)
+        {
+            case TSpecialBlock.ESpecial_Normal:
+                {
+                    m_blockSprite.spriteName = "Item" + (int)(color - TBlockColor.EColor_None);
+                }
+                break;
+            case TSpecialBlock.ESpecial_EatLineDir0:
+                m_blockSprite.spriteName = "Line" + (int)(color - TBlockColor.EColor_None) + "_3";
+                break;
+            case TSpecialBlock.ESpecial_EatLineDir1:
+                m_blockSprite.spriteName = "Line" + (int)(color - TBlockColor.EColor_None) + "_1";
+                break;
+            case TSpecialBlock.ESpecial_EatLineDir2:
+                m_blockSprite.spriteName = "Line" + (int)(color - TBlockColor.EColor_None) + "_2";
+                break;
+            case TSpecialBlock.ESpecial_Bomb:
+                m_blockSprite.spriteName = "Bomb" + (int)(color - TBlockColor.EColor_None);
+                break;
+            case TSpecialBlock.ESpecial_Painter:
+                {
+                    m_blockSprite.spriteName = "Painter" + (int)(color - TBlockColor.EColor_None);
+                }
+                break;
+            case TSpecialBlock.ESpecial_EatAColor:
+                m_blockSprite.spriteName = "Rainbow";
+                break;
+            default:
+                break;
+        }
     }
 
     public bool IsEmpty()

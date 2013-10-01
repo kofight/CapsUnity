@@ -29,6 +29,18 @@ public class UIStageEditor : UIWindowNGUI
             });
         }
 
+        AddChildComponentMouseClick("ChangeToNut1", delegate(object sender, UIMouseClick.ClickArgs e)
+        {
+            GlobalVars.EditState = TEditState.ChangeColor;
+            GlobalVars.EditingColor = TBlockColor.EColor_Nut1;
+        });
+
+        AddChildComponentMouseClick("ChangeToNut2", delegate(object sender, UIMouseClick.ClickArgs e)
+        {
+            GlobalVars.EditState = TEditState.ChangeColor;
+            GlobalVars.EditingColor = TBlockColor.EColor_Nut2;
+        });
+
         for (int i = 0; i <= (int)TSpecialBlock.ESpecial_EatAColor; ++i)
         {
             int special = i;
@@ -89,6 +101,12 @@ public class UIStageEditor : UIWindowNGUI
         input = GetChildComponent<UIInput>("ColorCount");
         input.text = GlobalVars.CurGameLogic.PlayingStageData.ColorCount.ToString();
 
+        input = GetChildComponent<UIInput>("Nut1");
+        input.text = GlobalVars.CurGameLogic.PlayingStageData.Nut1Count.ToString();
+
+        input = GetChildComponent<UIInput>("Nut2");
+        input.text = GlobalVars.CurGameLogic.PlayingStageData.Nut2Count.ToString();
+
         for (int i = 0; i < 3; ++i )
         {
             input = GetChildComponent<UIInput>("Star" + (i +1));
@@ -129,6 +147,14 @@ public class UIStageEditor : UIWindowNGUI
             int score = (int)System.Convert.ChangeType(input.text, typeof(int));
             GlobalVars.CurGameLogic.PlayingStageData.StarScore[i] = score;
         }
+
+        input = GetChildComponent<UIInput>("Nut1");
+        int nut1Count = (int)System.Convert.ChangeType(input.text, typeof(int));
+        GlobalVars.CurGameLogic.PlayingStageData.Nut1Count = nut1Count;
+
+        input = GetChildComponent<UIInput>("Nut2");
+        int nut2Count = (int)System.Convert.ChangeType(input.text, typeof(int));
+        GlobalVars.CurGameLogic.PlayingStageData.Nut2Count = nut2Count;
 
         input = GetChildComponent<UIInput>("LevelInput");
         int levelNum = (int)System.Convert.ChangeType(input.text, typeof(int));

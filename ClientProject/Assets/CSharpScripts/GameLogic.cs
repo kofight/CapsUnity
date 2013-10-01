@@ -95,6 +95,7 @@ public class GridData
     public TGridType grid;
     public TGridBlockType gridBlock;
     public bool bBirth;                          //是否为出生点
+    public bool bExit;                           //坚果的出口
 }
 
 public class GameLogic {
@@ -162,6 +163,9 @@ public class GameLogic {
     GameObject m_freePool;
     GameObject m_capsPool;
 
+    int m_nut1Count;
+    int m_nut2Count;
+
     public GameLogic()
     {
         m_freePool = GameObject.Find("FreePool");
@@ -172,7 +176,7 @@ public class GameLogic {
     {
         //初始化瓶盖图片池
         string name;
-        for (int i = 0; i < TotalColorCount; ++i)            //最多7种颜色，固定死
+        for (int i = 0; i < TotalColorCount + 2; ++i)            //最多7种颜色，固定死
         {
             name = "Item" + (i + 1);
             m_availableSprite[i] = new LinkedList<Transform>();
@@ -223,12 +227,37 @@ public class GameLogic {
                     PlayingStageData.GridDataArray[i, j].bBirth = true;             //每列的第一个位置为出生点
                     bHasBirth = true;
                 }
+
                 m_blocks[i, j].color = GetRandomColor();
                 while (IsHaveLine(new Position(i, j))) m_blocks[i, j].color = GetNextColor(m_blocks[i, j].color);		//若新生成瓶盖的造成消行，换一个颜色
                 m_blocks[i, j].Reset();
                 m_blocks[i, j].m_blockTransform = GetFreeBlockSprite(m_blocks[i, j].color);
                 m_blocks[i, j].m_blockSprite = m_blocks[i, j].m_blockTransform.GetComponent<UISprite>();
             }
+        }
+
+        //查找坚果的出口
+        if (PlayingStageData.Target == GameTarget.BringFruitDown)
+        {
+            for (int i = 0; i < BlockCountX; i++)
+            {
+                bool bHasExit = false;
+                for (int j = BlockCountY - 1; j >= 0; j--)
+                {
+                    if (PlayingStageData.GridDataArray[i, j].grid == TGridType.None)
+                    {
+                        continue;
+                    }
+                    if (!bHasExit)
+                    {
+                        PlayingStageData.GridDataArray[i, j].bExit = true;
+                        bHasExit = true;
+                    }
+                }
+            }
+
+            PlayingStageData.Nut1Count = 0;
+            PlayingStageData.Nut2Count = 0;
         }
 
         OnProgressChange();
@@ -245,7 +274,8 @@ public class GameLogic {
                     continue;
                 }
                 MakeSpriteFree(m_blocks[i, j].color, m_blocks[i, j].m_blockTransform);
-                CreateSpecialBlock(TSpecialBlock.ESpecial_Normal, new Position(i, j));
+                m_blocks[i, j].special = TSpecialBlock.ESpecial_Normal;
+                m_blocks[i, j].RefreshBlockSprite();
                 m_blocks[i, j].color = TBlockColor.EColor_None;
                 m_blocks[i, j].m_blockTransform = null;
                 m_blocks[i, j].m_blockSprite = null;
@@ -344,6 +374,12 @@ public class GameLogic {
             UIDrawer.Singleton.DrawNumber("TimeLimit", 140, 586, timeRemain, "HighDown", 14, 2, 2);
         }
 
+        if (GlobalVars.CurStageData.Target == GameTarget.BringFruitDown)
+        {
+            UIDrawer.Singleton.DrawText("Nut1Count", 100, 600, "Nut1:" + PlayingStageData.Nut1Count + "/" + GlobalVars.CurStageData.Nut1Count);
+            UIDrawer.Singleton.DrawText("Nut2Count", 180, 600, "Nut2:" + PlayingStageData.Nut2Count + "/" + GlobalVars.CurStageData.Nut2Count);
+        }
+
         //绘制分数
         UIDrawer.Singleton.DrawText("ScoreText:", 200, 575, "Score:" + m_progress);
     }
@@ -371,7 +407,8 @@ public class GameLogic {
                             //CreateCapParticle(i, j);
                             //清空block信息
                             MakeSpriteFree(m_blocks[i, j].color, m_blocks[i, j].m_blockTransform);
-                            CreateSpecialBlock(TSpecialBlock.ESpecial_Normal, new Position(i, j));
+                            m_blocks[i, j].special = TSpecialBlock.ESpecial_Normal;
+                            m_blocks[i, j].RefreshBlockSprite();
                             m_blocks[i, j].color = TBlockColor.EColor_None;
                             m_blocks[i, j].m_blockTransform = null;
                             m_blocks[i, j].m_blockSprite = null;
@@ -624,37 +661,11 @@ public class GameLogic {
 
                         tag = true;
                     }
-
-                    ////先看下面的格子是否为镂空，若为镂空，一直向下查找不镂空的
-                    //if (PlayingStageData.GridDataArray[dropFrom.x, dropFrom.y + 1].grid == TGridType.None)      //若为镂空
-                    //{
-
-                    //}
-                    //if (DropBlockFrom(dropFrom, TDirection.EDir_Down, 1))     //尝试往正下方掉落
-                    //{
-                    //    tag = true;
-                    //}
-                    /*else if (DropBlockTo(dropDest, TDirection.EDir_UpRight))
-                    {
-                        tag = true;
-                    }
-                    else if (DropBlockTo(dropDest, TDirection.EDir_LeftDown))
-                    {
-                        tag = true;
-                    }*/
-
-                    ////补充新的方块
-                    //m_blocks[i,0].color = GetRandomColor();		//最上方获取新的方块
-                    //m_blocks[i,0].Reset();
-                    //m_blocks[i,0].isDropping = true;
-                    //m_blocks[i,0].m_blockTransform = GetFreeBlockSprite(m_blocks[i,0].color);
-                    //m_blocks[i,0].m_blockSprite = m_blocks[i,0].m_blockTransform.GetComponent<UISprite>();
-                    //break;
                 }
             }
         }
 
-        //需要补充遍历所有出生点
+        //需要补充遍历所有出生点和离开点（坚果）
         for (int j = BlockCountY - 1; j >= 0; j--)		//从最下面开始遍历
         {
             for (int i = 0; i < BlockCountX; i++)				//一次遍历一行
@@ -668,6 +679,29 @@ public class GameLogic {
                     m_blocks[i, j].m_blockTransform = GetFreeBlockSprite(m_blocks[i, j].color);
                     m_blocks[i, j].m_blockSprite = m_blocks[i, j].m_blockTransform.GetComponent<UISprite>();
                     tag = true;
+                }
+
+                if (PlayingStageData.Target == GameTarget.BringFruitDown && PlayingStageData.GridDataArray[i, j].bExit && m_blocks[i, j].color > TBlockColor.EColor_Grey)       //若到退出点且为坚果
+                {
+					//记录吃一个坚果
+					if (m_blocks[i, j].color == TBlockColor.EColor_Nut1)
+					{
+                        PlayingStageData.Nut1Count++;
+                        --m_nut1Count;
+					}
+
+                    if (m_blocks[i, j].color == TBlockColor.EColor_Nut2)
+                    {
+                        PlayingStageData.Nut2Count++;
+                        --m_nut2Count;
+                    }
+					
+                    MakeSpriteFree(m_blocks[i, j].color, m_blocks[i, j].m_blockTransform);
+					m_blocks[i, j].color = TBlockColor.EColor_None;
+                    m_blocks[i, j].m_blockSprite = null;
+                    m_blocks[i, j].m_blockTransform = null;
+
+                    
                 }
             }
         }
@@ -713,6 +747,10 @@ public class GameLogic {
         eatBlockPos[0] = position;
 
         TBlockColor color = GetBlockColor(position);
+        if (color > TBlockColor.EColor_Grey)
+        {
+            return false;
+        }
         Position curPos;
         for (TDirection dir = TDirection.EDir_Up; dir <= TDirection.EDir_DownRight; dir = (TDirection)(dir + 1))		//遍历3个方向
         {
@@ -779,13 +817,13 @@ public class GameLogic {
         //根据结果来生成道具////////////////////////////////////////////////////////////////////////
 		else if (maxCountInSameDir >= 5)		//若最大每行消了5个
         {
-            CreateSpecialBlock(TSpecialBlock.ESpecial_EatAColor, position);
+            m_blocks[position.x, position.y].special = TSpecialBlock.ESpecial_EatAColor;
             m_progress += 2000;                  //Todo 增加文字特效
             kItem = 3;
         }
 		else if (totalSameCount >= 6)			//若总共消除大于等于6个（3,4消除或者多个3消）
         {
-            CreateSpecialBlock(TSpecialBlock.ESpecial_Bomb, position);
+            m_blocks[position.x, position.y].special = TSpecialBlock.ESpecial_Bomb;
             m_progress += 600;                  //Todo 增加文字特效
             kItem = 2;
         }
@@ -793,25 +831,26 @@ public class GameLogic {
         {
             if (m_moveDirection == TDirection.EDir_Up || m_moveDirection == TDirection.EDir_Down)
             {
-                CreateSpecialBlock(TSpecialBlock.ESpecial_EatLineDir0, position);
+                m_blocks[position.x, position.y].special = TSpecialBlock.ESpecial_EatLineDir0;
             }
             if (m_moveDirection == TDirection.EDir_UpRight || m_moveDirection == TDirection.EDir_LeftDown)
             {
-                CreateSpecialBlock(TSpecialBlock.ESpecial_EatLineDir1, position);
+                m_blocks[position.x, position.y].special = TSpecialBlock.ESpecial_EatLineDir1;
             }
             if (m_moveDirection == TDirection.EDir_DownRight || m_moveDirection == TDirection.EDir_LeftUp)
             {
-                CreateSpecialBlock(TSpecialBlock.ESpecial_EatLineDir2, position);
+                m_blocks[position.x, position.y].special = TSpecialBlock.ESpecial_EatLineDir2;
             }
             m_progress += 500;                  //Todo 增加文字特效
             kItem = 1;
         }
         else if (totalSameCount > 4)			//若总共消除大于4个
         {
-            CreateSpecialBlock(TSpecialBlock.ESpecial_Painter, position);
+            m_blocks[position.x, position.y].special = TSpecialBlock.ESpecial_Painter;
             m_progress += 600;                  //Todo 增加文字特效
             kItem = 1;
         }
+        m_blocks[position.x, position.y].RefreshBlockSprite();
 
         //TODO 记分
         ////根据结果来记分
@@ -908,6 +947,9 @@ public class GameLogic {
     {
         if (position.x >= BlockCountX || position.y >= BlockCountY || position.x < 0 || position.y < 0)
             return;
+
+        if (m_blocks[position.x, position.y].color > TBlockColor.EColor_Grey) return;
+
         if (m_blocks[position.x, position.y].x_move > 0 || m_blocks[position.x, position.y].y_move > 0)
             return;
         if (m_blocks[position.x, position.y].IsEating())        //不重复消除
@@ -1005,7 +1047,10 @@ public class GameLogic {
         }
         else if (PlayingStageData.Target == GameTarget.BringFruitDown)      //看看水果有没有都落地
         {
-
+            if (PlayingStageData.Nut1Count == GlobalVars.CurStageData.Nut1Count && PlayingStageData.Nut2Count == GlobalVars.CurStageData.Nut2Count)
+            {
+                return true;
+            }
         }
         //else if (PlayingStageData.Target == GameTarget.GetScore)
         //{
@@ -1022,42 +1067,6 @@ public class GameLogic {
         if (CheckStageFinish())
         {
             UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();
-        }
-    }
-
-
-    void CreateSpecialBlock(TSpecialBlock specailType, Position pos)
-    {
-        m_blocks[pos.x, pos.y].special = specailType;
-        switch (specailType)
-        {
-            case TSpecialBlock.ESpecial_Normal:
-                {
-                    m_blocks[pos.x, pos.y].m_blockSprite.spriteName = "Item" + (int)(m_blocks[pos.x, pos.y].color - TBlockColor.EColor_None);
-                }
-                break;
-            case TSpecialBlock.ESpecial_EatLineDir0:
-                m_blocks[pos.x, pos.y].m_blockSprite.spriteName = "Line" + (int)(m_blocks[pos.x, pos.y].color - TBlockColor.EColor_None) + "_3";
-                break;
-            case TSpecialBlock.ESpecial_EatLineDir1:
-                m_blocks[pos.x, pos.y].m_blockSprite.spriteName = "Line" + (int)(m_blocks[pos.x, pos.y].color - TBlockColor.EColor_None) + "_1";
-                break;
-            case TSpecialBlock.ESpecial_EatLineDir2:
-                m_blocks[pos.x, pos.y].m_blockSprite.spriteName = "Line" + (int)(m_blocks[pos.x, pos.y].color - TBlockColor.EColor_None) + "_2";
-                break;
-            case TSpecialBlock.ESpecial_Bomb:
-                m_blocks[pos.x, pos.y].m_blockSprite.spriteName = "Bomb" + (int)(m_blocks[pos.x, pos.y].color - TBlockColor.EColor_None);
-                break;
-            case TSpecialBlock.ESpecial_Painter:
-                {
-                    m_blocks[pos.x, pos.y].m_blockSprite.spriteName = "Painter" + (int)(m_blocks[pos.x, pos.y].color - TBlockColor.EColor_None);
-                }
-                break;
-            case TSpecialBlock.ESpecial_EatAColor:
-                m_blocks[pos.x, pos.y].m_blockSprite.spriteName = "Rainbow";
-                break;
-            default:
-                break;
         }
     }
 
@@ -1080,11 +1089,29 @@ public class GameLogic {
         if (GlobalVars.EditState == TEditState.ChangeColor)
         {
             ChangeColor(p, GlobalVars.EditingColor);
+            m_nut1Count = 0;
+            m_nut2Count = 0;
+            for (int i = 0; i < BlockCountX; ++i )
+            {
+                for (int j = 0; j < BlockCountY; ++j )
+                {
+                    if (m_blocks[i, j].color == TBlockColor.EColor_Nut1)
+                    {
+                        m_nut1Count++;
+                    }
+
+                    if (m_blocks[i, j].color == TBlockColor.EColor_Nut2)
+                    {
+                        m_nut2Count++;
+                    }
+                }
+            }
         }
 
         if (GlobalVars.EditState == TEditState.ChangeSpecial)
         {
-            CreateSpecialBlock(GlobalVars.EditingSpecial, p);
+            m_blocks[p.x, p.y].special = GlobalVars.EditingSpecial;
+            m_blocks[p.x, p.y].RefreshBlockSprite();
         }
 
         if (GlobalVars.EditState == TEditState.EditStageBlock)
@@ -1397,7 +1424,61 @@ public class GameLogic {
 
     TBlockColor GetRandomColor()
     {
-        return TBlockColor.EColor_White + m_random.Next() % PlayingStageData.ColorCount;
+        bool AddNut = false;        //记录是否生成坚果的结果
+
+        if (m_nut1Count + m_nut2Count == 0)
+        {
+            if (m_random.Next() % 3 == 0)       //3分之一的概率
+            {
+                AddNut = true;
+            }
+        }
+        else if (m_nut1Count + m_nut2Count == 1)
+        {
+            if (m_random.Next() % 10 == 0)       //5分之一的概率
+            {
+                AddNut = true;
+            }
+        }
+        else if (m_nut1Count + m_nut2Count == 2)
+        {
+            if (m_random.Next() % 25 == 0)       //15分之一的概率
+            {
+                AddNut = true;
+            }
+        }
+
+        if (AddNut)
+        {
+            TBlockColor nutColor;
+            if (m_nut1Count + PlayingStageData.Nut1Count == GlobalVars.CurStageData.Nut1Count)      //若已掉 够了，就不再掉
+            {
+                nutColor = TBlockColor.EColor_Nut2;
+            }
+
+            else if (m_nut2Count + PlayingStageData.Nut2Count == GlobalVars.CurStageData.Nut2Count)      //若已掉 够了，就不再掉
+            {
+                nutColor = TBlockColor.EColor_Nut1;
+            }
+            else
+            {
+                nutColor = TBlockColor.EColor_Nut1 + m_random.Next() % 2;
+            }
+
+            if (nutColor == TBlockColor.EColor_Nut1)
+            {
+                ++m_nut1Count;
+            }
+            else
+            {
+                ++m_nut2Count;
+            }
+            return nutColor;
+        }
+        else
+        {
+            return TBlockColor.EColor_White + m_random.Next() % PlayingStageData.ColorCount;
+        }
     }
 
     TBlockColor GetNextColor(TBlockColor color)

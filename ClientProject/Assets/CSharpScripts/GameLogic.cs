@@ -1435,14 +1435,14 @@ public class GameLogic {
         }
         else if (m_nut1Count + m_nut2Count == 1)
         {
-            if (m_random.Next() % 10 == 0)       //5分之一的概率
+            if (m_random.Next() % 10 == 0)       //10分之一的概率
             {
                 AddNut = true;
             }
         }
         else if (m_nut1Count + m_nut2Count == 2)
         {
-            if (m_random.Next() % 25 == 0)       //15分之一的概率
+            if (m_random.Next() % 25 == 0)       //25分之一的概率
             {
                 AddNut = true;
             }

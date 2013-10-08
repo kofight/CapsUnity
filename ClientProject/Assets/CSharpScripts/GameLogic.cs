@@ -149,7 +149,7 @@ public class GameLogic {
 	//CCAnimation *m_blockMoveAni[6][6];			//六种方块向六个方向移动的动画
 	//CCSprite * m_selectAni;						//选中动画
 	//BlockSprite * m_pComboSprite[5];			//Combo粒子的精灵
-	Dictionary<int, LinkedList<Transform> >   m_availableSprite = new Dictionary<int, LinkedList<Transform>>();				//用来存放可用的Sprite
+	LinkedList<Transform>   m_availableSprite = new LinkedList<Transform>();				//用来存放可用的Sprite
 	Dictionary<int, string> m_soundEffectMap = new Dictionary<int, string>();								    //声音
 
     LinkedList<Paticle> m_paticleList;			//粒子列表
@@ -179,9 +179,7 @@ public class GameLogic {
         for (int i = 0; i < TotalColorCount + 2; ++i)            //最多7种颜色，固定死
         {
             name = "Item" + (i + 1);
-            m_availableSprite[i] = new LinkedList<Transform>();
-            GameObject capObj = GameObject.Find("CapInstance" + (i+1));
-            m_availableSprite[i].AddFirst(capObj.transform);
+            GameObject capObj = GameObject.Find("CapInstance");
             for (int j = 0; j < 40; ++j )
             {
                 GameObject newObj = GameObject.Instantiate(capObj) as GameObject;
@@ -233,6 +231,7 @@ public class GameLogic {
                 m_blocks[i, j].Reset();
                 m_blocks[i, j].m_blockTransform = GetFreeBlockSprite(m_blocks[i, j].color);
                 m_blocks[i, j].m_blockSprite = m_blocks[i, j].m_blockTransform.GetComponent<UISprite>();
+                m_blocks[i, j].RefreshBlockSprite();
             }
         }
 
@@ -651,6 +650,7 @@ public class GameLogic {
                             m_blocks[dropFrom.x, dropFrom.y].isDropping = true;
                             m_blocks[dropFrom.x, dropFrom.y].m_blockTransform = GetFreeBlockSprite(m_blocks[dropFrom.x, dropFrom.y].color);
                             m_blocks[dropFrom.x, dropFrom.y].m_blockSprite = m_blocks[dropFrom.x, dropFrom.y].m_blockTransform.GetComponent<UISprite>();
+                            m_blocks[dropFrom.x, dropFrom.y].RefreshBlockSprite();
                         }
                         else
                         {
@@ -678,6 +678,7 @@ public class GameLogic {
                     m_blocks[i, j].isDropping = true;
                     m_blocks[i, j].m_blockTransform = GetFreeBlockSprite(m_blocks[i, j].color);
                     m_blocks[i, j].m_blockSprite = m_blocks[i, j].m_blockTransform.GetComponent<UISprite>();
+                    m_blocks[i, j].RefreshBlockSprite();
                     tag = true;
                 }
 
@@ -914,6 +915,10 @@ public class GameLogic {
                 {
                     continue;
                 }
+                if (m_blocks[i, j].IsEating())
+                {
+                    continue;
+                }
                 Position pos = new Position(i, j);
                 bool bFind = false;
                 for (int k = 0; k < excludePos.Length; ++k )
@@ -940,10 +945,12 @@ public class GameLogic {
 
     void ChangeColor(Position pos, TBlockColor color)
     {
+        Debug.Log("Wrong Color = " + color.ToString());
         //更改颜色的操作
         MakeSpriteFree(m_blocks[pos.x, pos.y].color, m_blocks[pos.x, pos.y].m_blockTransform);
         m_blocks[pos.x, pos.y].m_blockTransform = GetFreeBlockSprite(color);
         m_blocks[pos.x, pos.y].m_blockSprite = m_blocks[pos.x, pos.y].m_blockTransform.GetComponent<UISprite>();
+        m_blocks[pos.x, pos.y].RefreshBlockSprite();
         m_blocks[pos.x, pos.y].color = color;
     }
 
@@ -953,6 +960,11 @@ public class GameLogic {
             return;
 
         if (m_blocks[position.x, position.y].color > TBlockColor.EColor_Grey) return;
+
+        if (m_blocks[position.x, position.y].IsEating())
+        {
+            return;
+        }
 
         if (m_blocks[position.x, position.y].x_move > 0 || m_blocks[position.x, position.y].y_move > 0)
             return;
@@ -1404,19 +1416,16 @@ public class GameLogic {
 
     Transform GetFreeBlockSprite(TBlockColor color)
     {
-	    int type = (int)(color - TBlockColor.EColor_White);
-        LinkedList<Transform> list = m_availableSprite[type];
-	    Transform trans = list.Last.Value;
+        Transform trans = m_availableSprite.Last.Value;
         trans.parent = m_capsPool.transform;
         trans.gameObject.SetActive(true);
-        list.RemoveLast();
+        m_availableSprite.RemoveLast();
         return trans;
     }
 
     void MakeSpriteFree(TBlockColor color, Transform trans)
     {
-        int type = (int)(color - TBlockColor.EColor_White);
-        m_availableSprite[type].AddLast(trans);
+        m_availableSprite.AddLast(trans);
         trans.parent = m_freePool.transform;
         trans.gameObject.SetActive(false);
     }

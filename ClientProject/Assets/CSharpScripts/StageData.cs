@@ -1,12 +1,51 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using Webgame.Utility;
+
+public enum GridFlag
+{
+    GenerateCap = 1,        //是否要在这个格子生成瓶盖
+
+    Jelly = 1 << 1,              //果冻
+    
+    JellyDouble = 1 << 2,        //双层果冻
+
+    Birth = 1 << 3,              //块的生成点
+    
+    NotGenerateCap = 1 << 4,     // 标记不生成瓶盖的格子（因为GenerateCap为0时无法清晰表达语义，所以用这个来补充）  
+
+    Stone = 1 << 5,              //石头
+
+    Cage = 1 << 6,               //笼子
+
+    Chocolate = 1 << 7,          //巧克力
+
+    FruitExit = 1 << 8,          //水果的消失点
+
+    Portal = 1 << 9,             //传送门
+}
+
+public enum PortalFlag
+{
+    Normal,             //正常
+    Invisible,          //不可见
+}
+
 
 public enum GameTarget
 {
 	ClearJelly,
 	BringFruitDown,
 	GetScore,
+}
+
+public class Portal
+{
+    Position from;
+    Position to;
+
+    int flag;           //目前只有两种， 0 不可见  1 可见
 }
 
 public class StageData 
@@ -18,7 +57,28 @@ public class StageData
     public int Nut1Count = 3;
     public int Nut2Count = 3;
     public int[]    StarScore = new int[3];          //获得星星的分数
-    public GridData[,] GridDataArray = new GridData[GameLogic.BlockCountX,GameLogic.BlockCountY];      //关卡初始地块数据
+    public int [, ] GridData = new int[GameLogic.BlockCountX, GameLogic.BlockCountY];                        //关卡初始地块数据
+
+    public Dictionary<int, Portal> PortalMap;                                                                //用来储存所有的传送门，键值是传送目标的编码
+
+    public bool CheckFlag(int x, int y, GridFlag flag)
+    {
+        if ((GridData[x, y] & (int)flag) > 0)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public void ClearFlag(int x, int y, GridFlag flag)
+    {
+        GridData[x, y] &= ~(int)flag;            //清除标记
+    }
+
+    public void AddFlag(int x, int y, GridFlag flag)
+    {
+        GridData[x, y] |= (int)flag;
+    }
 
     public static StageData CreateStageData()     //从资源装载关卡
     {
@@ -26,7 +86,7 @@ public class StageData
         for (int i = 0; i < GameLogic.BlockCountX; i++)
             for (int j = 0; j < GameLogic.BlockCountY; j++)
             {
-                data.GridDataArray[i, j] = new GridData();
+                data.GridData[i, j] = new int();
             }
 
         return data;
@@ -39,7 +99,7 @@ public class StageData
         {
             for (int j = 0; j < GameLogic.BlockCountY; j++)		//遍历一列
             {
-                if (GridDataArray[i, j].grid == TGridType.Jelly || GridDataArray[i, j].grid == TGridType.JellyDouble)
+                if (CheckFlag(i, j, GridFlag.Jelly) || CheckFlag(i, j, GridFlag.JellyDouble))
                 {
                     ++count;
                 }
@@ -100,7 +160,101 @@ public class StageData
             for (int j = 0; j < GameLogic.BlockCountY; ++j )
             {
                 int number = (int)System.Convert.ChangeType(gridDataTokens[j * GameLogic.BlockCountX + i], typeof(int));
-                GridDataArray[i, j] = IntToGridData(number);
+                GridData[i, j] = number;
+            }
+        }
+
+        Debug.Log("Level " + levelNum + " Loaded");
+    }
+
+    public void LoadOldStageData(int levelNum)
+    {
+        _config = new ConfigOperator("Level" + levelNum);
+        if (!_config.Read())
+        {
+            Debug.LogError("Trying to load an file not exist! filename = Level" + levelNum);
+            return;
+        }
+        int targetInt = 0;
+        _config.GetValue<int>("Target", out targetInt);
+        Target = (GameTarget)targetInt;
+        _config.GetValue<int>("StepLimit", out StepLimit);
+        _config.GetValue<int>("TimeLimit", out TimeLimit);
+        _config.GetValue<int>("ColorCount", out ColorCount);
+        _config.GetValue<int>("Nut1Count", out Nut1Count);
+        _config.GetValue<int>("Nut2Count", out Nut2Count);
+        int newFormat = 0;
+        _config.GetValue<int>("NewFormat", out newFormat);
+        if (ColorCount == 0)
+        {
+            ColorCount = 7;
+        }
+
+        string temp;
+        _config.GetValue<string>("StarScore", out temp);
+        string[] scoreTokens = temp.Split(',');
+        for (int i = 0; i < 3; ++i)
+        {
+            StarScore[i] = (int)System.Convert.ChangeType(scoreTokens[i], typeof(int));
+        }
+
+        _config.GetValue<string>("GridDataArray", out temp);
+
+        string[] gridDataTokens = temp.Split(',');
+        for (int i = 0; i < GameLogic.BlockCountX; ++i)
+        {
+            for (int j = 0; j < GameLogic.BlockCountY; ++j)
+            {
+                int number = (int)System.Convert.ChangeType(gridDataTokens[j * GameLogic.BlockCountX + i], typeof(int));
+
+                if (newFormat > 0)
+                {
+                    GridData[i, j] = number;
+                    continue;
+                }
+
+                GridData data = IntToGridData(number);
+
+                int flags = 0;
+
+                if (data.grid == TGridType.Jelly)
+                {
+                    flags |= (int)GridFlag.Jelly;
+                    flags |= (int)GridFlag.GenerateCap;
+                }
+                if (data.grid == TGridType.JellyDouble)
+                {
+                    flags |= (int)GridFlag.JellyDouble;
+                    flags |= (int)GridFlag.GenerateCap;
+                }
+
+                if (data.gridBlock == TGridBlockType.Cage)
+                {
+                    flags |= (int)GridFlag.GenerateCap;
+                    flags |= (int)GridFlag.Cage;
+                }
+
+                if (data.gridBlock == TGridBlockType.Chocolate)
+                {
+                    flags |= (int)GridFlag.NotGenerateCap;
+                    flags |= (int)GridFlag.Chocolate;
+                }
+
+                if (data.gridBlock == TGridBlockType.Stone)
+                {
+                    flags |= (int)GridFlag.Stone;
+                    flags |= (int)GridFlag.NotGenerateCap;
+                }
+
+                if (data.gridBlock == TGridBlockType.None)
+                {
+                    if (data.grid == TGridType.Normal)
+                    {
+                        flags |= (int)GridFlag.GenerateCap;
+                    }
+                }
+
+                GridData[i, j] = flags;
             }
         }
 
@@ -116,6 +270,7 @@ public class StageData
         _config.Write("ColorCount", ColorCount);
         _config.Write("Nut1Count", Nut1Count);
         _config.Write("Nut2Count", Nut2Count);
+        _config.Write("NewFormat", 1);                  //新格式标记
         string temp = string.Empty;
         for (int i = 0; i < 3; ++i )
         {
@@ -129,8 +284,7 @@ public class StageData
         {
             for (int i = 0; i < GameLogic.BlockCountX; ++i)
             {
-                int number = GridDataToInt(GridDataArray[i, j]);
-                temp = temp + number + ",";
+                temp = temp + GridData[i, j] + ",";
             }
         }
 

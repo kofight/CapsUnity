@@ -42,6 +42,7 @@ public class CapBlock
         newBlock.special = special;
         newBlock.m_blockSprite = m_blockSprite;
         newBlock.m_blockTransform = m_blockTransform;
+        newBlock.m_animation = m_animation;
         return newBlock;
     }
 
@@ -57,10 +58,32 @@ public class CapBlock
         special = block.special;
         m_blockSprite = block.m_blockSprite;
         m_blockTransform = block.m_blockTransform;
+        m_animation = block.m_animation;
     }
 
-    public void RefreshBlockSprite()
+    public void RefreshBlockSprite(int flag)
     {
+        if ((flag & (int)GridFlag.Stone) > 0)
+        {
+            m_blockSprite.spriteName = "Block1";
+            isLocked = true;
+			return;
+        }
+
+        if ((flag & (int)GridFlag.Chocolate) > 0)
+        {
+            m_blockSprite.spriteName = "Block2";
+            isLocked = true;
+			return;
+        }
+
+        if ((flag & (int)GridFlag.Cage) > 0)
+        {
+            m_blockSprite.spriteName = "Block3-" + (int)(color - TBlockColor.EColor_None);
+            isLocked = true;
+			return;
+        }
+
         switch (special)
         {
             case TSpecialBlock.ESpecial_Normal:
@@ -104,12 +127,13 @@ public class CapBlock
     public int y_move;
     public bool m_bEating;						//正在消失的标记
     public bool isDropping;
-    public Position droppingTo;                 //正在落向某个位置
+    public Position droppingFrom;                 //从某个点掉落过来
     public bool isCanMove;
     public bool m_bNeedCheckEatLine;			//一旦落地就被标记，然后EatAllLine逻辑用这个变量区分是否需要检测消行
-
+    public bool isLocked;                       //是否被锁定
     public TSpecialBlock special;				//特殊功能块
 
+    public Animation m_animation;
     public UISprite m_blockSprite;		//精灵动画
     public Transform m_blockTransform;         //
 
@@ -136,6 +160,7 @@ public class CapBlock
     {
 
 		if (isCanMove==false||
+            isLocked ||
 			m_bEating||
 			isDropping==true||
 			x_move>0||

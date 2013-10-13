@@ -41,6 +41,14 @@ public class UIStageEditor : UIWindowNGUI
             GlobalVars.EditingColor = TBlockColor.EColor_Nut2;
         });
 
+        //开始编辑关卡旗标事件
+        AddChildComponentMouseClick("EditStageBlock", delegate(object sender, UIMouseClick.ClickArgs e)
+        {
+            GlobalVars.EditState = TEditState.EditStageGrid;
+            GlobalVars.EditingGrid = GetGridFlagsFromCheckBoxes();
+        });
+
+
         for (int i = 0; i <= (int)TSpecialBlock.ESpecial_EatAColor; ++i)
         {
             int special = i;
@@ -51,23 +59,12 @@ public class UIStageEditor : UIWindowNGUI
             });
         }
 
-        for (int i = 0; i <= (int)TGridType.JellyDouble; ++i)
+        for (int i = 1; i <= 10; ++i)
         {
-            int grid = i;
-            AddChildComponentMouseClick("StageGrid" + i, delegate(object sender, UIMouseClick.ClickArgs e)
+            AddChildComponentMouseClick("GridFlag" + i, delegate(object sender, UIMouseClick.ClickArgs e)
             {
                 GlobalVars.EditState = TEditState.EditStageGrid;
-                GlobalVars.EditingGrid = (TGridType)grid;
-            });
-        }
-
-        for (int i = 0; i <= (int)TGridBlockType.Cage; ++i)
-        {
-            int gridBlock = i;
-            AddChildComponentMouseClick("StageBlock" + i, delegate(object sender, UIMouseClick.ClickArgs e)
-            {
-                GlobalVars.EditState = TEditState.EditStageBlock;
-                GlobalVars.EditingGridBlock = (TGridBlockType)gridBlock;
+                GlobalVars.EditingGrid = GetGridFlagsFromCheckBoxes();
             });
         }
 
@@ -84,6 +81,72 @@ public class UIStageEditor : UIWindowNGUI
             {
                 GlobalVars.EditState = TEditState.Eat;
             });
+
+        AddChildComponentMouseClick("GridNoneBtn", delegate(object sender, UIMouseClick.ClickArgs e)
+        {
+            GlobalVars.EditingGrid = 0;
+            RefreshStageGridFlagCheckBoxes(GlobalVars.EditingGrid);
+        });
+
+        AddChildComponentMouseClick("GridJellyBtn", delegate(object sender, UIMouseClick.ClickArgs e)
+        {
+            GlobalVars.EditingGrid = ((int)GridFlag.Jelly) | ((int)GridFlag.GenerateCap);
+            RefreshStageGridFlagCheckBoxes(GlobalVars.EditingGrid);
+        });
+
+        AddChildComponentMouseClick("GridJelly2Btn", delegate(object sender, UIMouseClick.ClickArgs e)
+        {
+            GlobalVars.EditingGrid = ((int)GridFlag.JellyDouble) | ((int)GridFlag.GenerateCap);
+            RefreshStageGridFlagCheckBoxes(GlobalVars.EditingGrid);
+        });
+
+        AddChildComponentMouseClick("GridNormalBtn", delegate(object sender, UIMouseClick.ClickArgs e)
+        {
+            GlobalVars.EditingGrid = (int)GridFlag.GenerateCap;
+            RefreshStageGridFlagCheckBoxes(GlobalVars.EditingGrid);
+        });
+
+        AddChildComponentMouseClick("GridStoneBtn", delegate(object sender, UIMouseClick.ClickArgs e)
+        {
+            GlobalVars.EditingGrid = ((int)GridFlag.Stone) | ((int)GridFlag.NotGenerateCap);
+            RefreshStageGridFlagCheckBoxes(GlobalVars.EditingGrid);
+        });
+
+        AddChildComponentMouseClick("GridChocolateBtn", delegate(object sender, UIMouseClick.ClickArgs e)
+        {
+            GlobalVars.EditingGrid = ((int)GridFlag.Chocolate) | ((int)GridFlag.NotGenerateCap);
+            RefreshStageGridFlagCheckBoxes(GlobalVars.EditingGrid);
+        });
+    }
+
+    void RefreshStageGridFlagCheckBoxes(int gridFlags)       //刷新当前编辑的GridFlag对应的CheckBox界面
+    {
+        for (int i = 0; i < 10; ++i )
+        {
+            UICheckbox checkBox = UIToolkits.FindComponent<UICheckbox>(mUIObject.transform, "GridFlag" + (i + 1));      //找到CheckBox
+            if ((gridFlags & 1 << i) > 0)
+            {
+                checkBox.Set(true);
+            }
+            else
+            {
+                checkBox.Set(false);
+            }
+        }
+    }
+
+    int GetGridFlagsFromCheckBoxes()
+    {
+        int gridFlags = 0;
+        for (int i = 0; i < 10; ++i)
+        {
+            UICheckbox checkBox = UIToolkits.FindComponent<UICheckbox>(mUIObject.transform, "GridFlag" + (i + 1));      //找到CheckBox
+            if (checkBox.isChecked)
+            {
+                gridFlags |= 1 << i;
+            }
+        }
+        return gridFlags;
     }
 
     public override void OnShow()
@@ -161,7 +224,7 @@ public class UIStageEditor : UIWindowNGUI
         GlobalVars.CurGameLogic.PlayingStageData.SaveStageData(levelNum);
         GlobalVars.CurStageNum = levelNum;
 
-        GlobalVars.CurStageData.LoadStageData(levelNum);
+        GlobalVars.CurStageData.LoadOldStageData(levelNum);
     }
 
     private void OnLoadClicked(object sender, UIMouseClick.ClickArgs e)
@@ -169,6 +232,6 @@ public class UIStageEditor : UIWindowNGUI
         UIInput input = GetChildComponent<UIInput>("LevelInput");
         int levelNum = (int)System.Convert.ChangeType(input.text, typeof(int));
         GlobalVars.CurGameLogic.PlayingStageData = StageData.CreateStageData();
-        GlobalVars.CurGameLogic.PlayingStageData.LoadStageData(levelNum);
+        GlobalVars.CurGameLogic.PlayingStageData.LoadOldStageData(levelNum);
     }
 }

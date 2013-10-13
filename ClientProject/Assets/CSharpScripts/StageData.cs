@@ -6,20 +6,23 @@ public enum GridFlag
 {
     GenerateCap = 1,        //是否要在这个格子生成瓶盖
 
-    Jelly = 1 << 2,              //果冻
-    JellyDouble = 1 << 3,        //双层果冻
+    Jelly = 1 << 1,              //果冻
+    
+    JellyDouble = 1 << 2,        //双层果冻
 
-    NotGenerateCap = 1 << 4,     //标记不生成瓶盖的格子（因为GenerateCap为0时无法清晰表达语义，所以用这个来补充）
-    Stone = 1 << 5,              //石头      
-    Chocolate = 1 << 6,          //巧克力
+    Birth = 1 << 3,              //块的生成点
+    
+    NotGenerateCap = 1 << 4,     // 标记不生成瓶盖的格子（因为GenerateCap为0时无法清晰表达语义，所以用这个来补充）  
 
-    Cage = 1 << 7,               //笼子
+    Stone = 1 << 5,              //石头
 
-    Portal = 1 << 8,             //传送门
+    Cage = 1 << 6,               //笼子
 
+    Chocolate = 1 << 7,          //巧克力
 
-    Birth = 1 << 9,              //块的生成点
-    FruitExit = 1 << 10,          //水果的消失点
+    FruitExit = 1 << 8,          //水果的消失点
+
+    Portal = 1 << 9,             //传送门
 }
 
 public enum PortalFlag

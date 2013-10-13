@@ -21,6 +21,10 @@ public class UIGame : UIWindowNGUI
 
     private void OnEditStageClicked(object sender, UIMouseClick.ClickArgs e)
     {
+        if (UIWindowManager.Singleton.GetUIWindow<UIStageEditor>() == null)
+        {
+            UIWindowManager.Singleton.CreateWindow<UIStageEditor>(UIWindowManager.Anchor.Right);
+        }
         UIWindowManager.Singleton.GetUIWindow<UIStageEditor>().ShowWindow();        //显示编辑窗口
     }
 }

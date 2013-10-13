@@ -57,7 +57,7 @@ public class UIStageEditor : UIWindowNGUI
             AddChildComponentMouseClick("StageGrid" + i, delegate(object sender, UIMouseClick.ClickArgs e)
             {
                 GlobalVars.EditState = TEditState.EditStageGrid;
-                GlobalVars.EditingGrid = (TGridType)grid;
+                //GlobalVars.EditingGrid = (TGridType)grid;
             });
         }
 
@@ -66,8 +66,8 @@ public class UIStageEditor : UIWindowNGUI
             int gridBlock = i;
             AddChildComponentMouseClick("StageBlock" + i, delegate(object sender, UIMouseClick.ClickArgs e)
             {
-                GlobalVars.EditState = TEditState.EditStageBlock;
-                GlobalVars.EditingGridBlock = (TGridBlockType)gridBlock;
+                GlobalVars.EditState = TEditState.EditStageGrid;
+                //GlobalVars.EditingGridBlock = (TGridBlockType)gridBlock;
             });
         }
 
@@ -161,7 +161,7 @@ public class UIStageEditor : UIWindowNGUI
         GlobalVars.CurGameLogic.PlayingStageData.SaveStageData(levelNum);
         GlobalVars.CurStageNum = levelNum;
 
-        GlobalVars.CurStageData.LoadStageData(levelNum);
+        GlobalVars.CurStageData.LoadOldStageData(levelNum);
     }
 
     private void OnLoadClicked(object sender, UIMouseClick.ClickArgs e)
@@ -169,6 +169,6 @@ public class UIStageEditor : UIWindowNGUI
         UIInput input = GetChildComponent<UIInput>("LevelInput");
         int levelNum = (int)System.Convert.ChangeType(input.text, typeof(int));
         GlobalVars.CurGameLogic.PlayingStageData = StageData.CreateStageData();
-        GlobalVars.CurGameLogic.PlayingStageData.LoadStageData(levelNum);
+        GlobalVars.CurGameLogic.PlayingStageData.LoadOldStageData(levelNum);
     }
 }

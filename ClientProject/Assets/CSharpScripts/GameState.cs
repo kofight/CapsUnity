@@ -10,7 +10,6 @@ public class GameState : State
     {
         base.DoInitState();
         UIWindowManager.Singleton.CreateWindow<UIGame>();
-        UIWindowManager.Singleton.CreateWindow<UIStageEditor>(UIWindowManager.Anchor.Right);
         UIWindowManager.Singleton.CreateWindow<UIGameEnd>();
         UIWindowManager.Singleton.CreateWindow<UIRetry>();
         UIWindowManager.Singleton.GetUIWindow<UIGame>().ShowWindow();

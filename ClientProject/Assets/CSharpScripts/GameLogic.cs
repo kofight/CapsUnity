@@ -292,7 +292,7 @@ public class GameLogic {
                     {
                         if (m_blocks[i, j].IsEating())
                         {
-                            m_blocks[i, j].m_blockSprite.color = curColor;
+                            //m_blocks[i, j].m_blockSprite.color = curColor;
                             UIDrawer.Singleton.DrawNumber("Score" + i + "," + j, (int)m_blocks[i, j].m_blockTransform.localPosition.x, -(int)m_blocks[i, j].m_blockTransform.localPosition.y, 60, "HighDown", 15);
                         }
                         else
@@ -435,6 +435,12 @@ public class GameLogic {
                         {
                             continue;
                         }
+
+                        if (m_blocks[i, j].isDropping)
+                        {
+                            m_blocks[i, j].m_animation.Play("DropDown");
+                        }
+
                         m_blocks[i, j].isDropping = false;
                         m_blocks[i, j].x_move = 0;
                         m_blocks[i, j].y_move = 0;
@@ -876,33 +882,20 @@ public class GameLogic {
         {
             for (int j = 0; j < BlockCountY; j++)		//遍历一列
             {
-                if (PlayingStageData.GridData[i, j] == 0)
-                {
-                    continue;
-                }
-                if (count < ranNum)
+				if (count < ranNum)
                 {
 					++count;
                     continue;
                 }
-                if (m_blocks[i, j].color == TBlockColor.EColor_None)
+				
+                if (PlayingStageData.GridData[i, j] == 0 || m_blocks[i, j].color == TBlockColor.EColor_None || m_blocks[i,j].color > TBlockColor.EColor_Grey
+					|| m_blocks[i, j].color == excludeColor || m_blocks[i,j].special == TSpecialBlock.ESpecial_EatAColor || m_blocks[i, j].IsEating())
                 {
-                    continue;
-                }
-                if (m_blocks[i,j].color > TBlockColor.EColor_Grey)
-                {
-                    continue;
-                }
-                if (m_blocks[i, j].color == excludeColor)
-                {
-                    continue;
-                }
-                if (m_blocks[i,j].special == TSpecialBlock.ESpecial_EatAColor)
-                {
-                    continue;
-                }
-                if (m_blocks[i, j].IsEating())
-                {
+					if(i == BlockCountX -1 && j == BlockCountY -1)//Repeat the loop till get a result
+					{
+						i=0;
+						j=0;
+					}
                     continue;
                 }
                 Position pos = new Position(i, j);
@@ -912,21 +905,27 @@ public class GameLogic {
                     if (excludePos[k] == pos)
                     {
                         bFind = true;
-                        break;
+                        continue;
                     }
                 }
                 if (!bFind)
                 {
                     return pos;
                 }
-                if(i == BlockCountX -1 && j == BlockCountY -1)//Repeat the loop till get a result
+
+				if(count >= ranNum + BlockCountX*BlockCountY)
+				{
+					break;
+				}
+				
+				if(i == BlockCountX -1 && j == BlockCountY -1)//Repeat the loop till get a result
 				{
 					i=0;
 					j=0;
 				}
             }
         }
-        return new Position(0, 0);
+        return new Position(-1, -1);
     }
 
     void ChangeColor(Position pos, TBlockColor color)
@@ -1045,6 +1044,12 @@ public class GameLogic {
                 }
                 break;
         }
+
+        //Todo 临时加的粒子代码
+        m_blocks[position.x, position.y].m_animation.Play("Eat");
+        Object obj = Resources.Load("EatEffect");
+        GameObject gameObj = GameObject.Instantiate(obj) as GameObject;
+        gameObj.transform.position = m_blocks[position.x, position.y].m_blockTransform.position;
     }
 
     public bool CheckStageFinish()
@@ -1428,6 +1433,7 @@ public class GameLogic {
         m_blocks[x, y].m_blockTransform = GetFreeBlockSprite(m_blocks[x, y].color);
         m_blocks[x, y].m_blockSprite = m_blocks[x, y].m_blockTransform.GetComponent<UISprite>();
         m_blocks[x, y].RefreshBlockSprite(PlayingStageData.GridData[x, y]);
+        m_blocks[x, y].m_animation = m_blocks[x, y].m_blockTransform.GetComponent<Animation>();
     }
 
     void MakeSpriteFree(int x, int y)

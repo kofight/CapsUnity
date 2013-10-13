@@ -42,6 +42,7 @@ public class CapBlock
         newBlock.special = special;
         newBlock.m_blockSprite = m_blockSprite;
         newBlock.m_blockTransform = m_blockTransform;
+        newBlock.m_animation = m_animation;
         return newBlock;
     }
 
@@ -57,6 +58,7 @@ public class CapBlock
         special = block.special;
         m_blockSprite = block.m_blockSprite;
         m_blockTransform = block.m_blockTransform;
+        m_animation = block.m_animation;
     }
 
     public void RefreshBlockSprite(int flag)
@@ -131,6 +133,7 @@ public class CapBlock
     public bool isLocked;                       //是否被锁定
     public TSpecialBlock special;				//特殊功能块
 
+    public Animation m_animation;
     public UISprite m_blockSprite;		//精灵动画
     public Transform m_blockTransform;         //
 

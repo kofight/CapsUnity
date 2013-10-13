@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using Webgame.Utility;
 
 public enum GridFlag
@@ -39,6 +40,14 @@ public enum GameTarget
 	GetScore,
 }
 
+public class Portal
+{
+    Position from;
+    Position to;
+
+    int flag;           //目前只有两种， 0 不可见  1 可见
+}
+
 public class StageData 
 {
 	public GameTarget Target;           //关卡目标
@@ -49,6 +58,8 @@ public class StageData
     public int Nut2Count = 3;
     public int[]    StarScore = new int[3];          //获得星星的分数
     public int [, ] GridData = new int[GameLogic.BlockCountX, GameLogic.BlockCountY];                        //关卡初始地块数据
+
+    public Dictionary<int, Portal> PortalMap;                                                                //用来储存所有的传送门，键值是传送目标的编码
 
     public bool CheckFlag(int x, int y, GridFlag flag)
     {

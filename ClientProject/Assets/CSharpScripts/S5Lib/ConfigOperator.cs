@@ -55,7 +55,7 @@ namespace Webgame.Utility
                             sw.WriteLine(key + "\t\t\t" + _dictValues[key].Value + "\t\t\t\t" + _dictValues[key].Description);
                     }
                     sw.Close();
-                    UnityEditor.AssetDatabase.Refresh();
+                    //UnityEditor.AssetDatabase.Refresh();
                     break;
             }
 

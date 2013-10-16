@@ -48,29 +48,49 @@ public class Position{
         x = xPos;
         y = yPos;
     }
+	
+	public Position(Position pos)
+    {
+        x = pos.x;
+        y = pos.y;
+    }
 
-	public static bool operator!=(Position lhs, Position rhs)
-	{
-		if (lhs.x != rhs.x || lhs.y != rhs.y)
-		{
-			return true;
-		}
-		return false;
-	}
+    public override bool Equals(object ob)
+    {
+        if (this == ob)
+        {
+            return true;
+        }
+        if ((ob == null) || !this.GetType().Equals(ob.GetType()))
+        {
+            return false;
+        }
 
-    public static bool operator==(Position lhs, Position rhs)
-	{
-		if (lhs.x == rhs.x && lhs.y == rhs.y)
-		{
-			return true;
-		}
-		return false;
-	}
+        Position oth = (Position)ob;
+        return this.x == oth.x && this.y == oth.y;
+    }
 
     public void Set(int xPos, int yPos)
     {
         x = xPos;
         y = yPos;
+    }
+
+    public void Assign(Position p)
+    {
+        x = p.x;
+        y = p.y;
+    }
+
+    public int ToInt()
+    {
+        return y * 10 + x;
+    }
+
+    public void FromInt(int val)
+    {
+        x = val % 10;
+        y = val / 10;
     }
 };
 
@@ -109,8 +129,8 @@ public class GameLogic {
     public static readonly int TotalColorCount = 7;
     public static readonly bool CanMoveWhenDroping = true;			//是否支持下落的同时移动
     public static readonly int PROGRESSTOWIN = 2000;
-    public static readonly int DROP_TIME = 120;			//下落的时间
-    public static readonly int MOVE_TIME = 250;    		//移动的时间
+    public static readonly int DROP_TIME = 2000;			//下落的时间
+    public static readonly int MOVE_TIME = 1200;    		//移动的时间
     public static readonly int EATBLOCK_TIME = 200;		//消块时间
     public static readonly int GAMETIME = 6000000;		//游戏时间
 
@@ -211,7 +231,7 @@ public class GameLogic {
         //srand(time);
 
         PlayingStageData = StageData.CreateStageData();
-        PlayingStageData.LoadOldStageData(GlobalVars.CurStageNum);
+        PlayingStageData.LoadStageData(GlobalVars.CurStageNum);
 
         for (int i = 0; i < BlockCountX; i++)
         {
@@ -261,6 +281,16 @@ public class GameLogic {
             }
     }
 
+    int GetXPos(int x)
+    {
+        return x * BLOCKWIDTH + BLOCKWIDTH / 2;
+    }
+
+    int GetYPos(int x, int y)
+    {
+        return gameAreaY + y * BLOCKWIDTH + (x + 1) % 2 * BLOCKWIDTH / 2 + BLOCKWIDTH / 2;
+    }
+
     public void Update()
     {
         Timer.s_currentTime = Time.realtimeSinceStartup;
@@ -287,7 +317,7 @@ public class GameLogic {
                 }
                 if (m_blocks[i,j].color != TBlockColor.EColor_None)
                 {
-                    m_blocks[i, j].m_blockTransform.localPosition = new Vector3(gameAreaX + i * BLOCKWIDTH + m_blocks[i, j].x_move + BLOCKWIDTH / 2, -(gameAreaY + j * BLOCKWIDTH + m_blocks[i,j].y_move + (i + 1) % 2 * BLOCKWIDTH / 2 + BLOCKWIDTH / 2), -105);
+                    m_blocks[i, j].m_blockTransform.localPosition = new Vector3(GetXPos(i) + m_blocks[i, j].x_move, -(m_blocks[i,j].y_move + GetYPos(i, j)), -105);
                     if ( m_blocks[i, j].m_blockSprite != null)
                     {
                         if (m_blocks[i, j].IsEating())
@@ -305,15 +335,26 @@ public class GameLogic {
                 //绘制底图
                 if (PlayingStageData.CheckFlag(i, j, GridFlag.Jelly))
                 {
-                    UIDrawer.Singleton.DrawSprite("Jelly" + i + "," + j, gameAreaX + i * BLOCKWIDTH + BLOCKWIDTH / 2, gameAreaY + j * BLOCKWIDTH + (i + 1) % 2 * BLOCKWIDTH / 2 + BLOCKWIDTH / 2, "Grid1");
+                    UIDrawer.Singleton.DrawSprite("Jelly" + i + "," + j, GetXPos(i), GetYPos(i, j), "Jelly");
                 }
                 else if (PlayingStageData.CheckFlag(i, j, GridFlag.JellyDouble))
                 {
-                    UIDrawer.Singleton.DrawSprite("Jelly2" + i + "," + j, gameAreaX + i * BLOCKWIDTH + BLOCKWIDTH / 2, gameAreaY + j * BLOCKWIDTH + (i + 1) % 2 * BLOCKWIDTH / 2 + BLOCKWIDTH / 2, "Grid2");
+                    UIDrawer.Singleton.DrawSprite("Jelly2" + i + "," + j, GetXPos(i), GetYPos(i, j), "JellyDouble");
                 }
                 else if (PlayingStageData.GridData[i, j] != 0)
                 {
-                    UIDrawer.Singleton.DrawSprite("Grid" + i + "," + j, gameAreaX + i * BLOCKWIDTH + BLOCKWIDTH / 2, gameAreaY + j * BLOCKWIDTH + (i + 1) % 2 * BLOCKWIDTH / 2 + BLOCKWIDTH / 2, "Grid0"); 
+                    UIDrawer.Singleton.DrawSprite("Grid" + i + "," + j, GetXPos(i), GetYPos(i, j), "Grid"); 
+                }
+
+                //绘制水果出口
+                if (PlayingStageData.Target == GameTarget.BringFruitDown && PlayingStageData.CheckFlag(i, j, GridFlag.FruitExit))
+                {
+                    UIDrawer.Singleton.DrawSprite("Exit" + i + "," + j, GetXPos(i), GetYPos(i, j), "FruitExit", 3); 
+                }
+
+                if (GlobalVars.EditStageMode && PlayingStageData.CheckFlag(i, j, GridFlag.Birth))     //若在关卡编辑状态
+                {
+                    UIDrawer.Singleton.DrawSprite("Birth" + i + "," + j, GetXPos(i), GetYPos(i, j), "Birth", 3);       //出生点
                 }
             }
         }
@@ -361,6 +402,21 @@ public class GameLogic {
 
         //绘制分数
         UIDrawer.Singleton.DrawText("ScoreText:", 200, 575, "Score:" + m_progress);
+
+        //绘制传送门
+        foreach(KeyValuePair<int, Portal> pair in PlayingStageData.PortalMap)
+        {
+            if (pair.Value.flag == 1)               //可见传送门
+            {
+                UIDrawer.Singleton.DrawSprite("PortalStart" + pair.Key, GetXPos(pair.Value.from.x), GetYPos(pair.Value.from.x, pair.Value.from.y) + BLOCKWIDTH / 2, "PortalStart", 3);
+                UIDrawer.Singleton.DrawSprite("PortalEnd" + pair.Key, GetXPos(pair.Value.to.x), GetYPos(pair.Value.to.x, pair.Value.to.y) - BLOCKWIDTH / 2 + 15, "PortalEnd", 3);
+            }
+            else if (GlobalVars.EditStageMode)      //编辑器模式，画不可见传送门
+            {
+                UIDrawer.Singleton.DrawSprite("InviPortalStart" + pair.Key, GetXPos(pair.Value.from.x), GetYPos(pair.Value.from.x, pair.Value.from.y), "InviPortalStart", 3);
+                UIDrawer.Singleton.DrawSprite("InviPortalEnd" + pair.Key, GetXPos(pair.Value.to.x), GetYPos(pair.Value.to.x, pair.Value.to.y), "InviPortalEnd", 3);
+            }
+        }
     }
 
     void TimerWork()
@@ -486,7 +542,7 @@ public class GameLogic {
                     }
                     if (m_blocks[i, j].isDropping)
                     {
-                        m_blocks[i, j].y_move = (int)timerDropDown.GetTime() * BLOCKWIDTH / DROP_TIME - BLOCKWIDTH;
+                        ProcessDropPic(m_blocks[i, j].droppingFrom, new Position(i, j), (int)timerDropDown.GetTime());
                     }
                 }
             }
@@ -552,36 +608,77 @@ public class GameLogic {
 
             passTime = (int)timerMoveBlock.GetTime();
             int moveTime = MOVE_TIME - passTime;		//重新获取一次passtime，因为前面有可能被刷新过
-            if (m_selectedPos[0].x == -1 || m_selectedPos[1].x == -1) return;
-            if (m_selectedPos[0].x != m_selectedPos[1].x)		//若x方向上的值不一样，就有x方向上的移动
+            ProcessMovePic(m_selectedPos[0], m_selectedPos[1], moveTime);
+        }
+    }
+
+    void ProcessMovePic(Position from, Position to, int moveTime)
+    {
+        if (from.x == -1 || to.x == -1) return;
+        if (from.x != to.x)		//若x方向上的值不一样，就有x方向上的移动
+        {
+            m_blocks[from.x, from.y].x_move = (to.x - from.x) * moveTime * BLOCKWIDTH / MOVE_TIME;
+            m_blocks[to.x, to.y].x_move = (from.x - to.x) * moveTime * BLOCKWIDTH / MOVE_TIME;
+        }
+        if (from.x - to.x == 0)
+        {
+            m_blocks[from.x, from.y].y_move = (to.y - from.y) * moveTime * BLOCKWIDTH / MOVE_TIME;
+            m_blocks[to.x, to.y].y_move = (from.y - to.y) * moveTime * BLOCKWIDTH / MOVE_TIME;
+        }
+        else
+        {
+            if (from.y != to.y)
             {
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].x_move = (m_selectedPos[1].x - m_selectedPos[0].x) * moveTime * BLOCKWIDTH / MOVE_TIME;
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].x_move = (m_selectedPos[0].x - m_selectedPos[1].x) * moveTime * BLOCKWIDTH / MOVE_TIME;
-            }
-            if (m_selectedPos[0].x - m_selectedPos[1].x == 0)
-            {
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].y_move = (m_selectedPos[1].y - m_selectedPos[0].y) * moveTime * BLOCKWIDTH / MOVE_TIME;
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].y_move = (m_selectedPos[0].y - m_selectedPos[1].y) * moveTime * BLOCKWIDTH / MOVE_TIME;
+                m_blocks[from.x, from.y].y_move = (to.y - from.y) * moveTime * (BLOCKWIDTH / 2) / MOVE_TIME;
+                m_blocks[to.x, to.y].y_move = (from.y - to.y) * moveTime * (BLOCKWIDTH / 2) / MOVE_TIME;
             }
             else
             {
-                if (m_selectedPos[0].y != m_selectedPos[1].y)
+                if (from.x % 2 == 0)
                 {
-                    m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].y_move = (m_selectedPos[1].y - m_selectedPos[0].y) * moveTime * (BLOCKWIDTH / 2) / MOVE_TIME;
-                    m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].y_move = (m_selectedPos[0].y - m_selectedPos[1].y) * moveTime * (BLOCKWIDTH / 2) / MOVE_TIME;
+                    m_blocks[from.x, from.y].y_move = 0 - moveTime * (BLOCKWIDTH / 2) / MOVE_TIME;
+                    m_blocks[to.x, to.y].y_move = moveTime * (BLOCKWIDTH / 2) / MOVE_TIME;
                 }
                 else
                 {
-                    if (m_selectedPos[0].x % 2 == 0)
-                    {
-                        m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].y_move = 0 - moveTime * (BLOCKWIDTH / 2) / MOVE_TIME;
-                        m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].y_move = moveTime * (BLOCKWIDTH / 2) / MOVE_TIME;
-                    }
-                    else
-                    {
-                        m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].y_move = moveTime * (BLOCKWIDTH / 2) / MOVE_TIME;
-                        m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].y_move = 0 - moveTime * (BLOCKWIDTH / 2) / MOVE_TIME;
-                    }
+                    m_blocks[from.x, from.y].y_move = moveTime * (BLOCKWIDTH / 2) / MOVE_TIME;
+                    m_blocks[to.x, to.y].y_move = 0 - moveTime * (BLOCKWIDTH / 2) / MOVE_TIME;
+                }
+            }
+        }
+    }
+
+    void ProcessDropPic(Position from, Position to, int dropTime)
+    {
+        if (from == null)        //生成点，只能垂直向下移动
+        {
+            m_blocks[to.x, to.y].y_move = dropTime * BLOCKWIDTH / DROP_TIME - BLOCKWIDTH;
+            return;
+        }
+
+        if (from.x != to.x)		//若x方向上的值不一样，就有x方向上的移动
+        {
+            m_blocks[to.x, to.y].x_move = (to.x - from.x) * (dropTime * BLOCKWIDTH / DROP_TIME - BLOCKWIDTH);
+        }
+        if (from.x - to.x == 0)
+        {
+            m_blocks[to.x, to.y].y_move = dropTime * BLOCKWIDTH / DROP_TIME - BLOCKWIDTH;
+        }
+        else
+        {
+            if (from.y != to.y)
+            {
+                m_blocks[to.x, to.y].y_move = dropTime * (BLOCKWIDTH / 2) / DROP_TIME - BLOCKWIDTH / 2;
+            }
+            else
+            {
+                if (from.x % 2 == 1)
+                {
+                    m_blocks[to.x, to.y].y_move = dropTime * (BLOCKWIDTH / 2) / DROP_TIME - BLOCKWIDTH/2;
+                }
+                else
+                {
+                    m_blocks[to.x, to.y].y_move = 0 - (dropTime * (BLOCKWIDTH / 2) / DROP_TIME - BLOCKWIDTH/2);
                 }
             }
         }
@@ -592,70 +689,105 @@ public class GameLogic {
         //下落块，所有可下落区域下落一行////////////////////////////////////////////////////////////////////////
         bool tag = false;
         Position dropDest = new Position();          //掉落的目标点
-        Position dropFrom = new Position();          //从哪里开始掉落 
-        for (int j = BlockCountY - 1; j >= 0; j--)		//从最下面开始遍历
+        Position dropFrom = new Position();          //从哪里开始掉落
+        bool bNeedCheckAgain = true;
+        while (bNeedCheckAgain)
         {
-            for (int i = 0; i < BlockCountX; i++)				//一次遍历一行
+            bNeedCheckAgain = false;
+            for (int j = BlockCountY - 1; j >= 0; j--)		//从最下面开始遍历
             {
-                if (PlayingStageData.GridData[i, j] == 0)
+                for (int i = 0; i < BlockCountX; i++)				//一次遍历一行
                 {
-                    continue;
-                }
-                bool bDrop = false;
-                if (!m_blocks[i,j].IsEmpty() && !m_blocks[i, j].isLocked)			//若有块且没被锁定，处理下落
-                {
-                    //向下找到底////////////////////////////////////////////////////////////////////////
-                    dropFrom.Set(i, j);         //设立一个掉落目标
-                    dropDest.Set(i, j + 1);     //设立一个基本的掉落目标点
-
-                    //一直向下找到不是镂空的有效点
-                    while (CheckPosAvailable(dropDest) && 
-                        PlayingStageData.GridData[dropDest.x, dropDest.y] == 0)
+                    if (PlayingStageData.GridData[i, j] == 0)
                     {
-                        ++dropDest.y;
+                        continue;
+                    }
+                    if (m_blocks[i, j].isDropping)      //已经在下落的点，不处理了
+                    {
+                        continue;
+                    }
+                    bool bDrop = false;
+                    bool UpLocked = false;              //上面被锁住
+
+                    if (m_blocks[i, j].IsEmpty())       //找到空块
+                    {
+                        dropDest.Set(i, j);
+                        //先看是否在传送点
+                        if (PlayingStageData.CheckFlag(dropDest.x, dropDest.y, GridFlag.PortalEnd))
+                        {
+                            dropFrom.Assign(PlayingStageData.PortalMap[dropDest.ToInt()].from);
+
+                            if (m_blocks[dropFrom.x, dropFrom.y].color != TBlockColor.EColor_None
+                                && m_blocks[dropFrom.x, dropFrom.y].isLocked == false)       //传送门入口处有有效块
+                            {
+                                bDrop = true;       //可以下落
+                            }
+                        }
+
+                        if (!bDrop)                    //若没找到掉落点
+                        {
+                            dropFrom.Set(i, j - 1);     //向上看一格
+                            if (CheckPosAvailable(dropFrom))            //先看看格子是否有效
+                            {
+                                if (PlayingStageData.GridData[dropFrom.x, dropFrom.y] == 0 || m_blocks[dropFrom.x, dropFrom.y].isLocked)        //空格和锁都算锁
+                                {
+                                    UpLocked = true;
+                                }
+
+                                if (!m_blocks[dropFrom.x, dropFrom.y].isDropping && m_blocks[dropFrom.x, dropFrom.y].color != TBlockColor.EColor_None)           //找到有效块
+                                {
+                                    bDrop = true;       //可以下落
+                                }
+                            }
+                        }
+                        if (UpLocked)                    //若没找到掉落点，且上方的点被锁
+                        {
+                            dropFrom = GoTo(new Position(i, j), TDirection.EDir_LeftUp, 1);         //向左上看一格
+                            if (CheckPosAvailable(dropFrom) && !m_blocks[dropFrom.x, dropFrom.y].isDropping && PlayingStageData.GridData[dropFrom.x, dropFrom.y] != 0 && m_blocks[dropFrom.x, dropFrom.y].color != TBlockColor.EColor_None)        //若是有效点，且为空，形成掉落
+                            {
+                                bDrop = true;
+                            }
+                        }
+                        if (!bDrop && UpLocked)                    //若没找到掉落点，且上方的点被锁
+                        {
+                            dropFrom = GoTo(new Position(i, j), TDirection.EDir_UpRight, 1);         //向右上看一格
+                            if (CheckPosAvailable(dropFrom) && !m_blocks[dropFrom.x, dropFrom.y].isDropping && PlayingStageData.GridData[dropFrom.x, dropFrom.y] != 0 && m_blocks[dropFrom.x, dropFrom.y].color != TBlockColor.EColor_None)        //若是有效点，且为空，形成掉落
+                            {
+                                bDrop = true;
+                            }
+                        }
                     }
 
-                    if (CheckPosAvailable(dropDest) && m_blocks[dropDest.x, dropDest.y].color == TBlockColor.EColor_None)        //若是有效点，且为空，形成掉落
+                    if (bDrop)      //处理下落
                     {
-                        bDrop = true;
-                    }
+                        m_blocks[dropDest.x, dropDest.y].Assign(m_blocks[dropFrom.x, dropFrom.y]);
+                        m_blocks[dropDest.x, dropDest.y].isDropping = true;
+                        m_blocks[dropDest.x, dropDest.y].droppingFrom = new Position(dropFrom);
 
-                    if (!bDrop)
-                    {
-                        //向左下找一步////////////////////////////////////////////////////////////////////////
-                        Position destPos = GoTo(new Position(i, j), TDirection.EDir_LeftDown, 1);
-
+                        //若是出生点，生成新块////////////////////////////////////////////////////////////////////////
+                        if (PlayingStageData.CheckFlag(dropFrom.x, dropFrom.y, GridFlag.Birth))
+                        {
+                            //补充新的方块
+                            CreateBlock(dropFrom.x, dropFrom.y, false);
+                            m_blocks[dropFrom.x, dropFrom.y].isDropping = true;
+                            m_blocks[i, j].droppingFrom = null;
+                        }
+                        else
+                        {
+                            m_blocks[dropFrom.x, dropFrom.y].color = TBlockColor.EColor_None;
+                            m_blocks[dropFrom.x, dropFrom.y].m_blockSprite = null;
+                            m_blocks[dropFrom.x, dropFrom.y].m_blockTransform = null;
+                            if (dropFrom.x % 2 == 1)
+                            {
+                                bNeedCheckAgain = true;             //，因为中间产生了新的空位，需要再检查一次空位
+                            }
+                        }
+                        tag = true;
                     }
-
-                    if (!bDrop)
-                    {
-                        //向右下找一步////////////////////////////////////////////////////////////////////////
-                        Position destPos = GoTo(new Position(i, j), TDirection.EDir_DownRight, 1);
-                    }
-                }
-                if (bDrop)      //处理下落
-                {
-                    m_blocks[dropDest.x, dropDest.y].Assign(m_blocks[dropFrom.x, dropFrom.y]);
-                    m_blocks[dropDest.x, dropDest.y].isDropping = true;
-                    m_blocks[dropDest.x, dropDest.y].droppingFrom = dropFrom;
-
-                    //若是出生点，生成新块////////////////////////////////////////////////////////////////////////
-                    if (PlayingStageData.CheckFlag(dropFrom.x, dropFrom.y, GridFlag.Birth))
-                    {
-                        //补充新的方块
-                        CreateBlock(dropFrom.x, dropFrom.y, false);
-                        m_blocks[dropFrom.x, dropFrom.y].isDropping = true;
-                    }
-                    else
-                    {
-                        m_blocks[dropFrom.x, dropFrom.y].color = TBlockColor.EColor_None;
-                        m_blocks[dropFrom.x, dropFrom.y].m_blockSprite = null;
-                        m_blocks[dropFrom.x, dropFrom.y].m_blockTransform = null;
-                    }
-                    tag = true;
                 }
             }
         }
+
 
         //需要补充遍历所有出生点和离开点（坚果）
         for (int j = BlockCountY - 1; j >= 0; j--)		//从最下面开始遍历
@@ -666,6 +798,7 @@ public class GameLogic {
                 {
                     CreateBlock(i, j, false);
                     m_blocks[i, j].isDropping = true;
+					m_blocks[i, j].droppingFrom = null;
                     tag = true;
                 }
 
@@ -1046,10 +1179,10 @@ public class GameLogic {
         }
 
         //Todo 临时加的粒子代码
-        m_blocks[position.x, position.y].m_animation.Play("Eat");
-        Object obj = Resources.Load("EatEffect");
-        GameObject gameObj = GameObject.Instantiate(obj) as GameObject;
-        gameObj.transform.position = m_blocks[position.x, position.y].m_blockTransform.position;
+        //m_blocks[position.x, position.y].m_animation.Play("Eat");
+        //Object obj = Resources.Load("EatEffect");
+        //GameObject gameObj = GameObject.Instantiate(obj) as GameObject;
+        //gameObj.transform.position = m_blocks[position.x, position.y].m_blockTransform.position;
     }
 
     public bool CheckStageFinish()
@@ -1140,6 +1273,39 @@ public class GameLogic {
         {
             EatBlock(p);
             timerEatBlock.Play();												//开启消块计时器
+        }
+
+        if (GlobalVars.EditState == TEditState.EditPortal)
+        {
+            if (PlayingStageData.CheckFlag(p.x, p.y, GridFlag.Portal))          //不能在已经有传送门的地方编写
+            {
+                return;
+            }
+
+            if (GlobalVars.EditingPortal.from == null)                          //在编辑第一个点
+            {   
+                GlobalVars.EditingPortal.from = p;
+            }
+            else
+            {
+                if (p == GlobalVars.EditingPortal.from)                         //起点终点不能重合
+                {
+                    return;
+                }
+
+                GlobalVars.EditingPortal.to = p;
+
+                PlayingStageData.PortalMap.Add(p.ToInt(), GlobalVars.EditingPortal);    //把在编辑的Portal存起来
+
+                PlayingStageData.AddFlag(GlobalVars.EditingPortal.from.x, GlobalVars.EditingPortal.from.y, GridFlag.Portal);
+                PlayingStageData.AddFlag(GlobalVars.EditingPortal.from.x, GlobalVars.EditingPortal.from.y, GridFlag.PortalStart);
+                PlayingStageData.AddFlag(GlobalVars.EditingPortal.to.x, GlobalVars.EditingPortal.to.y, GridFlag.Portal);
+                PlayingStageData.AddFlag(GlobalVars.EditingPortal.to.x, GlobalVars.EditingPortal.to.y, GridFlag.PortalEnd);
+
+                int flag = GlobalVars.EditingPortal.flag;
+                GlobalVars.EditingPortal = new Portal();
+                GlobalVars.EditingPortal.flag = flag;
+            }
         }
     }
 

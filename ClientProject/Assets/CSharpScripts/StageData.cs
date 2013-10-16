@@ -24,6 +24,10 @@ public enum GridFlag
     FruitExit = 1 << 8,          //水果的消失点
 
     Portal = 1 << 9,             //传送门
+    PortalStart = 1 << 10,             //传送门
+    PortalEnd = 1 << 11,             //传送门
+
+    MoveAble = 1 << 12,             //是否可移动
 }
 
 public enum PortalFlag
@@ -42,10 +46,17 @@ public enum GameTarget
 
 public class Portal
 {
-    Position from;
-    Position to;
+	public Portal(){}
+	public Portal(Portal p)
+	{
+		from = new Position(p.from);
+		to = new Position(p.to);
+		flag = p.flag;
+	}
+    public Position from;
+    public Position to;
 
-    int flag;           //目前只有两种， 0 不可见  1 可见
+    public int flag;           //目前只有两种， 0 不可见  1 可见
 }
 
 public class StageData 
@@ -59,7 +70,7 @@ public class StageData
     public int[]    StarScore = new int[3];          //获得星星的分数
     public int [, ] GridData = new int[GameLogic.BlockCountX, GameLogic.BlockCountY];                        //关卡初始地块数据
 
-    public Dictionary<int, Portal> PortalMap;                                                                //用来储存所有的传送门，键值是传送目标的编码
+    public Dictionary<int, Portal> PortalMap = new Dictionary<int, Portal>();                                                                //用来储存所有的传送门，键值是传送目标的编码
 
     public bool CheckFlag(int x, int y, GridFlag flag)
     {
@@ -131,6 +142,15 @@ public class StageData
             Debug.LogError("Trying to load an file not exist! filename = Level" + levelNum);
             return;
         }
+		
+		int newFormat = 0;
+		_config.GetValue<int>("NewFormat", out newFormat);
+		if(newFormat == 0)
+		{
+			LoadOldStageData(levelNum);
+			return;
+		}
+		
         int targetInt = 0;
         _config.GetValue<int>("Target", out targetInt);
         Target = (GameTarget)targetInt;
@@ -152,6 +172,8 @@ public class StageData
             StarScore[i] = (int)System.Convert.ChangeType(scoreTokens[i], typeof(int));
         }
 
+        //GridData
+
         _config.GetValue<string>("GridDataArray", out temp);
 
         string[] gridDataTokens = temp.Split(',');
@@ -161,6 +183,21 @@ public class StageData
             {
                 int number = (int)System.Convert.ChangeType(gridDataTokens[j * GameLogic.BlockCountX + i], typeof(int));
                 GridData[i, j] = number;
+            }
+        }
+
+        //Portals
+        _config.GetValue<string>("PortalArray", out temp);
+        if (temp != null)
+        {
+            string[] portalDataTokens = temp.Split(',');
+            for (int i = 0; i < portalDataTokens.Length - 4; i += 5)
+            {
+                Portal portal = new Portal();
+                portal.from = new Position((int)System.Convert.ChangeType(portalDataTokens[i], typeof(int)), (int)System.Convert.ChangeType(portalDataTokens[i + 1], typeof(int)));
+                portal.to = new Position((int)System.Convert.ChangeType(portalDataTokens[i + 2], typeof(int)), (int)System.Convert.ChangeType(portalDataTokens[i + 3], typeof(int)));
+                portal.flag = (int)System.Convert.ChangeType(portalDataTokens[i + 4], typeof(int));
+                PortalMap.Add(portal.to.ToInt(), portal);
             }
         }
 
@@ -289,6 +326,20 @@ public class StageData
         }
 
         _config.Write("GridDataArray", temp);
+
+        temp = string.Empty;
+
+        foreach(KeyValuePair<int, Portal> pair in PortalMap)
+        {
+            temp = temp + pair.Value.from.x + ",";
+            temp = temp + pair.Value.from.y + ",";
+            temp = temp + pair.Value.to.x + ",";
+            temp = temp + pair.Value.to.y + ",";
+            temp = temp + pair.Value.flag + ",";
+        }
+
+        _config.Write("PortalArray", temp);
+
         _config.Save();
         Debug.Log("Level " + levelNum + " Saved");
     }

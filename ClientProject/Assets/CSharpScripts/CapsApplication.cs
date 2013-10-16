@@ -69,11 +69,6 @@ public class CapsApplication : S5Application
 		UIWindowManager.Singleton.CreateWindow<UILogin>().ShowWindow();
 
         GlobalVars.TotalStageCount = CapsConfig.Instance.TotalStageCount;
-
-        if (Application.platform == RuntimePlatform.WindowsEditor)
-        {
-            GlobalVars.EditStageMode = true;        //编辑器里自动进入关卡编辑模式
-        }
     }
 
     protected override void DoUpdate()

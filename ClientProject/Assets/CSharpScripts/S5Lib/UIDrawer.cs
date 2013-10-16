@@ -118,14 +118,15 @@ public class UIDrawer
         return data;
     }
 
-    public UIDrawerData CreateSprite(string id, int x, int y, string spriteName, int prefabID)
+    public UIDrawerData CreateSprite(string id, int x, int y, string spriteName, int prefabID, int depth)
     {
         UIDrawerData data = CreateWidget(id, x, y, prefabID);
         UISprite sprite = data.uiWidget as UISprite;
         data.IsLabel = false;
         sprite.spriteName = spriteName;
+        sprite.depth = depth;
         data.uiWidget.gameObject.transform.localScale = new Vector3(sprite.GetAtlasSprite().paddingRight - sprite.GetAtlasSprite().paddingLeft, sprite.GetAtlasSprite().paddingTop - sprite.GetAtlasSprite().paddingBottom, 0);
-        data.uiWidget.gameObject.transform.localPosition = new Vector3(x, -y, -100f);
+        data.uiWidget.gameObject.transform.localPosition = new Vector3(x, -y, 0);
 		data.Show();      //触发显示
         return data;
     }
@@ -236,9 +237,10 @@ public class UIDrawer
         DrawText(id, x, y, text, fontDefaultPrefabID, alpha);
     }
 
-    public UISprite DrawSprite(string id, int x, int y, string spriteName, int prefabID)
+    public UISprite DrawSprite(string id, int x, int y, string spriteName, int depth)
     {
-        return DrawSprite(id, new Rect(x, y, 0, 0), spriteName, prefabID, true, 0);
+        //Todo 每次画Sprite需要new一个Rect很慢
+        return DrawSprite(id, new Rect(x, y, 0, 0), spriteName, spriteDefaultPrefabID, true, depth);
     }
 
     public UISprite DrawSprite(string id, Rect rect, string spriteName, int prefabID, bool makePixedPerfect, int depth)
@@ -249,7 +251,7 @@ public class UIDrawer
         UIDrawerData data;
         if (!mDrawDataMap.TryGetValue(id, out data))
         {
-            data = CreateSprite(id, (int)rect.x, (int)rect.y, spriteName, prefabID);
+            data = CreateSprite(id, (int)rect.x, (int)rect.y, spriteName, prefabID, depth);
             data.IsExistMode = false;
         }
         var sprite = data.uiWidget as UISprite;
@@ -260,14 +262,14 @@ public class UIDrawer
         }
         else
         {
-            data.uiWidget.gameObject.transform.localScale = new Vector3(rect.width, rect.height, 1f);
+            data.uiWidget.gameObject.transform.localScale = new Vector3(rect.width, rect.height, 1f);       //Todo 性能问题
         }
 
         if (data.xPos != x || data.yPos != y)
         {
             data.xPos = x;
             data.yPos = y;
-            data.uiWidget.transform.localPosition = new Vector3(x, -y, -100f);
+            data.uiWidget.transform.localPosition = new Vector3(x, -y, 0);			//Todo 性能问题
         }
         data.DidDrawLastFrame = true;
         return sprite;
@@ -290,7 +292,7 @@ public class UIDrawer
 
     public UISprite DrawSprite(string id, int x, int y, string spriteName)
     {
-        return DrawSprite(id, x, y, spriteName, spriteDefaultPrefabID);
+        return DrawSprite(id, x, y, spriteName, 0);
     }
 
     public void DrawPrefab(string id, int x, int y, int labelID)

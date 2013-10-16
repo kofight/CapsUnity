@@ -26,5 +26,6 @@ public class UIGame : UIWindowNGUI
             UIWindowManager.Singleton.CreateWindow<UIStageEditor>(UIWindowManager.Anchor.Right);
         }
         UIWindowManager.Singleton.GetUIWindow<UIStageEditor>().ShowWindow();        //显示编辑窗口
+        GlobalVars.EditStageMode = true;        //编辑器里自动进入关卡编辑模式
     }
 }

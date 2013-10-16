@@ -3,6 +3,8 @@ using System.Collections;
 
 public class UIStageEditor : UIWindowNGUI
 {
+    bool editingPortal = false;         //编辑传送门的标记
+
     public override void OnCreate()
     {
         base.OnCreate();
@@ -81,6 +83,20 @@ public class UIStageEditor : UIWindowNGUI
             {
                 GlobalVars.EditState = TEditState.Eat;
             });
+
+        AddChildComponentMouseClick("EditPortal", delegate(object sender, UIMouseClick.ClickArgs e)
+        {
+            GlobalVars.EditState = TEditState.EditPortal;
+            GlobalVars.EditingPortal = new Portal();
+            GlobalVars.EditingPortal.flag = 1;
+        });
+
+        AddChildComponentMouseClick("EditPortalInvisible", delegate(object sender, UIMouseClick.ClickArgs e)
+        {
+            GlobalVars.EditState = TEditState.EditPortal;
+            GlobalVars.EditingPortal = new Portal();
+            GlobalVars.EditingPortal.flag = 0;
+        });
 
         AddChildComponentMouseClick("GridNoneBtn", delegate(object sender, UIMouseClick.ClickArgs e)
         {
@@ -186,6 +202,7 @@ public class UIStageEditor : UIWindowNGUI
     {
         HideWindow();
         GlobalVars.EditState = TEditState.None;
+        GlobalVars.EditStageMode = false;
     }
 
     private void OnSaveClicked(object sender, UIMouseClick.ClickArgs e)
@@ -224,7 +241,7 @@ public class UIStageEditor : UIWindowNGUI
         GlobalVars.CurGameLogic.PlayingStageData.SaveStageData(levelNum);
         GlobalVars.CurStageNum = levelNum;
 
-        GlobalVars.CurStageData.LoadOldStageData(levelNum);
+        GlobalVars.CurStageData.LoadStageData(levelNum);
     }
 
     private void OnLoadClicked(object sender, UIMouseClick.ClickArgs e)
@@ -232,6 +249,6 @@ public class UIStageEditor : UIWindowNGUI
         UIInput input = GetChildComponent<UIInput>("LevelInput");
         int levelNum = (int)System.Convert.ChangeType(input.text, typeof(int));
         GlobalVars.CurGameLogic.PlayingStageData = StageData.CreateStageData();
-        GlobalVars.CurGameLogic.PlayingStageData.LoadOldStageData(levelNum);
+        GlobalVars.CurGameLogic.PlayingStageData.LoadStageData(levelNum);
     }
 }

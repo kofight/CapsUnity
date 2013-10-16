@@ -8,6 +8,7 @@ public enum TEditState
     ChangeSpecial,
     EditStageGrid,
     Eat,
+    EditPortal,
 }
 
 public class GlobalVars {
@@ -19,11 +20,12 @@ public class GlobalVars {
 
     //编辑模式的变量
     public static TEditState EditState;                        //当前的编辑状态
+    public static Portal EditingPortal;                     //当前正编辑的传送门
     public static TBlockColor EditingColor;                    //正在编辑的颜色
     public static TSpecialBlock EditingSpecial;                //正在编辑的颜色
     public static int     EditingGrid;                          //正在编辑的块
 
-    public static StageData CurStageData;                                    //当前正在查看或玩的关卡数据
+    public static StageData CurStageData;                       //当前正在查看或玩的关卡数据
     public static GameLogic CurGameLogic;                       //当前的游戏逻辑
 
 	// Use this for initialization

@@ -65,23 +65,23 @@ public class CapBlock
     {
         if ((flag & (int)GridFlag.Stone) > 0)
         {
-            m_blockSprite.spriteName = "Block1";
+            m_blockSprite.spriteName = "Stone";
             isLocked = true;
 			return;
         }
 
         if ((flag & (int)GridFlag.Chocolate) > 0)
         {
-            m_blockSprite.spriteName = "Block2";
+            m_blockSprite.spriteName = "Chocolate";
             isLocked = true;
 			return;
         }
 
         if ((flag & (int)GridFlag.Cage) > 0)
         {
-            m_blockSprite.spriteName = "Block3-" + (int)(color - TBlockColor.EColor_None);
-            isLocked = true;
-			return;
+            //m_blockSprite.spriteName = "Block3-" + (int)(color - TBlockColor.EColor_None);
+            //isLocked = true;
+			//return;
         }
 
         switch (special)

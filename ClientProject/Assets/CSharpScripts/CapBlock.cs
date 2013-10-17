@@ -63,6 +63,10 @@ public class CapBlock
 
     public void RefreshBlockSprite(int flag)
     {
+        if (m_blockSprite == null)
+        {
+            return;
+        }
         if ((flag & (int)GridFlag.Stone) > 0)
         {
             m_blockSprite.spriteName = "Stone";

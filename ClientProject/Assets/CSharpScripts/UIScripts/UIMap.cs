@@ -73,24 +73,24 @@ public class UIMap : UIWindowNGUI
     {
         m_destOffSet = new Vector2(-pos.x, -pos.y);
         //判断出界情况
-        if (m_destOffSet.x > - (Screen.width / 2 + Border))
+        if (m_destOffSet.x > - (CapsApplication.Singleton.Width / 2 + Border))
         {
-            m_destOffSet.x = -(Screen.width / 2 + Border);
+            m_destOffSet.x = -(CapsApplication.Singleton.Width / 2 + Border);
         }
 
-        if (m_destOffSet.x < - (Width - Border - Screen.width / 2))
+        if (m_destOffSet.x < -(Width - Border - CapsApplication.Singleton.Width / 2))
         {
-            m_destOffSet.x = -(Width - Border - Screen.width / 2);
+            m_destOffSet.x = -(Width - Border - CapsApplication.Singleton.Width / 2);
         }
 
-        if (m_destOffSet.y > -(Screen.height / 2 + Border))
+        if (m_destOffSet.y > -(CapsApplication.Singleton.Height / 2 + Border))
         {
-            m_destOffSet.y = -(Screen.height / 2 + Border);
+            m_destOffSet.y = -(CapsApplication.Singleton.Height / 2 + Border);
         }
 
-        if (m_destOffSet.y < -(Height - Border - Screen.height / 2))
+        if (m_destOffSet.y < -(Height - Border - CapsApplication.Singleton.Height / 2))
         {
-            m_destOffSet.y = -(Height - Border - Screen.height / 2);
+            m_destOffSet.y = -(Height - Border - CapsApplication.Singleton.Height / 2);
         }
 
         m_backGroundTrans.localPosition = new Vector3(m_destOffSet.x, m_destOffSet.y, m_backGroundTrans.position.z);

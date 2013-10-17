@@ -10,10 +10,15 @@ public class S5Application
     bool mHasFirstUpdate = false;
     public State mCurGameState { get; private set; }
     private State mOldGameState;
+
+    public int Height { get; set; }
+    public int Width { get; set; }
+
     public MonoBehaviour mCoroutineStarter { private get; set; }				  //Any Exist MonoBehaviour could be a starter, usually is AppLaugher
     public S5Application()
     {
-
+        Height = 960;
+        Width = Screen.width * 960 / Screen.height;
     }
 
     protected virtual void ExceptionProcessor(Exception e)
@@ -188,18 +193,35 @@ public class S5Application
 
     private void OnTap(Vector2 fingerPos)
     {
+        
 		fingerPos.y = Screen.height - fingerPos.y;
+
+        fingerPos.y = fingerPos.y * Height / Screen.height;
+        fingerPos.x = fingerPos.x * Height / Screen.height;
+
         mCurGameState.OnTap(fingerPos);
     }
 
     private void OnDoubleTap(Vector2 fingerPos)
     {
+        fingerPos.y = Screen.height - fingerPos.y;
+
+        fingerPos.y = fingerPos.y * Height / Screen.height;
+        fingerPos.x = fingerPos.x * Height / Screen.height;
+
         mCurGameState.OnDoubleTap(fingerPos);
     }
 
     private void OnDragMove(Vector2 fingerPos, Vector2 delta)
     {
 		fingerPos.y = Screen.height - fingerPos.y;
+
+        fingerPos.y = fingerPos.y * Height / Screen.height;
+        fingerPos.x = fingerPos.x * Height / Screen.height;
+
+        delta.x = delta.x * Height / Screen.height;
+        delta.y = delta.y * Height / Screen.height;
+
         mCurGameState.OnDragMove(fingerPos, delta);
     }
 
@@ -239,6 +261,8 @@ public class S5Application
     private void OnPressDown(int fingerIndex, Vector2 fingerPos)
     {
 		fingerPos.y = Screen.height - fingerPos.y;
+        fingerPos.y = fingerPos.y * Height / Screen.height;
+        fingerPos.x = fingerPos.x * Height / Screen.height;
         mCurGameState.OnPressDown(fingerIndex, fingerPos);
     }
     private void OnPressUp(int fingerIndex, Vector2 fingerPos, float timeHeldDown)

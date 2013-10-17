@@ -129,8 +129,8 @@ public class GameLogic {
     public static readonly int TotalColorCount = 7;
     public static readonly bool CanMoveWhenDroping = true;			//是否支持下落的同时移动
     public static readonly int PROGRESSTOWIN = 2000;
-    public static readonly int DROP_TIME = 2000;			//下落的时间
-    public static readonly int MOVE_TIME = 1200;    		//移动的时间
+    public static readonly int DROP_TIME = 120;			//下落的时间
+    public static readonly int MOVE_TIME = 250;    		//移动的时间
     public static readonly int EATBLOCK_TIME = 200;		//消块时间
     public static readonly int GAMETIME = 6000000;		//游戏时间
 

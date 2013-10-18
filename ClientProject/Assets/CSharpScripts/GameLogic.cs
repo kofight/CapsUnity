@@ -133,6 +133,8 @@ public class GameLogic {
     public static readonly int MOVE_TIME = 250;    		//移动的时间
     public static readonly int EATBLOCK_TIME = 200;		//消块时间
     public static readonly int GAMETIME = 6000000;		//游戏时间
+    public static readonly float CheckAvailableTimeInterval = 1.0f;       //1秒钟后尝试找是否有可消块
+    public static readonly float ShowHelpTimeInterval = 5.0f;       //5秒钟后显示可消块
 
     public StageData PlayingStageData;                      //当前的关卡数据
     public int GetProgress(){ return m_progress; }
@@ -164,6 +166,8 @@ public class GameLogic {
     Timer timerMoveBlock = new Timer();
     Timer timerEatBlock = new Timer();
     Timer timerDropDown = new Timer();
+    float m_dropDownEndTime;
+    Position helpP1, helpP2;
 
     	//资源物件
 	//CCAnimation *m_blockMoveAni[6][6];			//六种方块向六个方向移动的动画
@@ -221,6 +225,56 @@ public class GameLogic {
         m_selectedPos[1] = new Position();
     }
 
+    bool Help(out Position p1, out Position p2)                 //查找到一个可交换的位置
+    {
+        for (int i = 0; i < BlockCountX; ++i )
+        {
+            for (int j = 0; j < BlockCountY; ++j )
+            {
+                if (PlayingStageData.GridData[i, j] == 0)
+                {
+                    continue;
+                }
+                if (m_blocks[i, j].color == TBlockColor.EColor_None)
+                {
+                    continue;
+                }
+
+                Position position = new Position(i, j);
+
+                for (TDirection dir = TDirection.EDir_Up; dir <= TDirection.EDir_LeftUp; dir = (TDirection)(dir + 1))		//遍历6个方向
+                {
+                    Position curPos = GoTo(position, dir, 1);
+                    if (CheckPosAvailable(curPos))
+                    {
+                        if (PlayingStageData.GridData[curPos.x, curPos.y] == 0)
+                        {
+                            continue;
+                        }
+                        if (m_blocks[curPos.x, curPos.y].color == TBlockColor.EColor_None)
+                        {
+                            continue;
+                        }
+                        ExchangeBlock(curPos, position);        //临时交换
+                        if (IsHaveLine(curPos) || IsHaveLine(position))
+                        {
+                            p1 = curPos;
+                            p2 = position;
+                            ExchangeBlock(curPos, position);        //换回
+                            return true;
+                        }
+                        ExchangeBlock(curPos, position);        //换回
+                    }
+                    
+                }
+
+            }
+        }
+        p1 = null;
+        p2 = null;
+        return false;
+    }
+
     public void StartGame()     //开始游戏（及重新开始游戏）
     {
         Timer.s_currentTime = Time.realtimeSinceStartup;        //更新一次时间
@@ -265,6 +319,8 @@ public class GameLogic {
         }
 
         OnProgressChange();
+
+        m_dropDownEndTime = Time.realtimeSinceStartup;
     }
 
     public void ClearGame()
@@ -415,6 +471,30 @@ public class GameLogic {
             {
                 UIDrawer.Singleton.DrawSprite("InviPortalStart" + pair.Key, GetXPos(pair.Value.from.x), GetYPos(pair.Value.from.x, pair.Value.from.y), "InviPortalStart", 3);
                 UIDrawer.Singleton.DrawSprite("InviPortalEnd" + pair.Key, GetXPos(pair.Value.to.x), GetYPos(pair.Value.to.x, pair.Value.to.y), "InviPortalEnd", 3);
+            }
+        }
+
+        if (m_dropDownEndTime > 0)
+        {
+            if (helpP1 == null)     //还没找帮助点
+            {
+                if (Time.realtimeSinceStartup > m_dropDownEndTime + CheckAvailableTimeInterval)
+                {
+                    helpP1 = new Position();
+                    helpP2 = new Position();
+                    if(!Help(out helpP1, out helpP2))
+                    {
+                                                //重排
+                    }
+                }
+            }
+            else if (Time.realtimeSinceStartup > m_dropDownEndTime + ShowHelpTimeInterval)
+            {
+                if (!m_blocks[helpP1.x, helpP1.y].m_animation.isPlaying)
+                {
+                    m_blocks[helpP1.x, helpP1.y].m_animation.Play("Help");
+                    m_blocks[helpP2.x, helpP2.y].m_animation.Play("Help");
+                }
             }
         }
     }
@@ -1153,6 +1233,15 @@ public class GameLogic {
         }
         m_blocks[position.x, position.y].Eat();			//吃掉当前块
 
+        if (m_dropDownEndTime > 0)
+        {
+            m_blocks[helpP1.x, helpP1.y].m_animation.Stop();
+            m_blocks[helpP2.x, helpP2.y].m_animation.Stop();
+            m_dropDownEndTime = 0;                          //清除dropDownEnd的时间记录
+            helpP1 = null;                                  //清除帮助点
+            helpP2 = null;                                  //清除帮助点
+        }
+
         if (PlayingStageData.CheckFlag(position.x, position.y, GridFlag.Stone))
         {
             PlayingStageData.ClearFlag(position.x, position.y, GridFlag.Stone);
@@ -1280,7 +1369,10 @@ public class GameLogic {
         if (CheckStageFinish())
         {
             UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();
+            return;
         }
+
+        m_dropDownEndTime = Time.realtimeSinceStartup;
     }
 
     public void OnTap(int x, int y)

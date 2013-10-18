@@ -554,6 +554,14 @@ public class GameLogic {
             int passTime = (int)timerMoveBlock.GetTime();
             if (passTime > MOVE_TIME)	//交换方块计时器到了MOVE_TIME
             {
+                for (int i = 0; i < BlockCountX; ++i)
+                {
+                    for (int j = 0; j < BlockCountY; ++j)
+                    {
+                        m_tempBlocks[i, j] = false;         //清理临时数组
+                    }
+                }
+
                 timerMoveBlock.Stop();				//停止计时器
                 //清空方块的偏移值
                 m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].x_move = 0;
@@ -602,6 +610,17 @@ public class GameLogic {
 
                         ClearSelected();
                         timerEatBlock.Play();												//开启消块计时器
+                    }
+                }
+
+                for (int i = 0; i < BlockCountX; ++i)
+                {
+                    for (int j = 0; j < BlockCountY; ++j)
+                    {
+                        if (m_tempBlocks[i, j])
+                        {
+                            ClearStoneAround(i, j);
+                        }
                     }
                 }
             }
@@ -830,6 +849,13 @@ public class GameLogic {
 
     bool EatAllLine()
     {
+        for (int i = 0; i < BlockCountX; ++i )
+        {
+            for (int j = 0; j < BlockCountY; ++j )
+            {
+                m_tempBlocks[i, j] = false;         //清理临时数组
+            }
+        }
         bool tag = false;
         CapBlock pBlock = null;
         for (int i = 0; i < BlockCountX; i++)
@@ -850,8 +876,21 @@ public class GameLogic {
                 }
             }
         }
+
+        for (int i = 0; i < BlockCountX; ++i )
+        {
+            for (int j = 0; j < BlockCountY; ++j )
+            {
+                if (m_tempBlocks[i, j])
+                {
+                    ClearStoneAround(i, j);
+                }
+            }
+        }
         return tag;
     }
+
+    bool [,] m_tempBlocks = new bool[BlockCountX, BlockCountY];		//一个临时数组，用来记录哪些块要消除
 
     bool EatLine(Position position)
     {
@@ -919,6 +958,7 @@ public class GameLogic {
                     if (eatBlockPos[i] != position)										//起始块放在后面处理
                     {
                         EatBlock(eatBlockPos[i]);										//吃掉
+                        m_tempBlocks[eatBlockPos[i].x, eatBlockPos[i].y] = true;
                     }
                 }
                 totalSameCount += (countInSameLine - 1);							//记录总的消除数量，减1是因为起始块是各条线公用的
@@ -1066,6 +1106,30 @@ public class GameLogic {
         //更改颜色的操作
         m_blocks[pos.x, pos.y].color = color;
         m_blocks[pos.x, pos.y].RefreshBlockSprite(PlayingStageData.GridData[pos.x, pos.y]);
+    }
+
+    void ClearStoneAround(int x, int y)        //消除周围的石块
+    {
+        if (PlayingStageData.CheckFlag(x, y, GridFlag.Stone))
+        {
+            PlayingStageData.ClearFlag(x, y, GridFlag.Stone);
+            m_blocks[x, y].isLocked = false;
+            MakeSpriteFree(x, y);
+        }
+
+        for (int i = 0; i < 6; ++i )
+        {
+            Position pos = GoTo(new Position(x, y), (TDirection)i, 1);
+            if (CheckPosAvailable(pos))
+            {
+                if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Stone))
+                {
+                    PlayingStageData.ClearFlag(pos.x, pos.y, GridFlag.Stone);
+                    m_blocks[pos.x, pos.y].isLocked = false;
+                    MakeSpriteFree(pos.x, pos.y);
+                }
+            }
+        }
     }
 
     void EatBlock(Position position)

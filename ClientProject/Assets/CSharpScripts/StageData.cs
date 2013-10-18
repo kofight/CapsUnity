@@ -186,6 +186,7 @@ public class StageData
             }
         }
 
+        PortalMap.Clear();
         //Portals
         _config.GetValue<string>("PortalArray", out temp);
         if (temp != null)

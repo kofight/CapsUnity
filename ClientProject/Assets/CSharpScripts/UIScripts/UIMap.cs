@@ -20,15 +20,25 @@ public class UIMap : UIWindowNGUI
         
         m_stageBtns = new Transform[GlobalVars.TotalStageCount];
 
-        GlobalVars.AvailabeStageCount = GlobalVars.TotalStageCount;         //临时开放所有关卡 Todo 之后要按玩家进度
+        GlobalVars.AvailabeStageCount = PlayerPrefs.GetInt("StageAvailableCount");
+        if (GlobalVars.AvailabeStageCount == 0)
+        {
+            GlobalVars.AvailabeStageCount = 1;
+        }
 
-        for (int i = 0; i < GlobalVars.TotalStageCount; ++i)
+
+    }
+    public override void OnShow()
+    {
+        base.OnShow();
+		
+		for (int i = 0; i < GlobalVars.TotalStageCount; ++i)
         {
             Transform transform = UIToolkits.FindChild(mUIObject.transform, "Stage" + (i + 1));      //找到对象
             if (i >= GlobalVars.AvailabeStageCount)     //隐藏超出范围的按钮
             {
                 transform.gameObject.SetActive(false);
-                break;
+                continue;
             }
             
             transform.gameObject.SetActive(true);                                                    //显示对象
@@ -49,12 +59,8 @@ public class UIMap : UIWindowNGUI
             click.Click += OnStageClicked;
             click.UserState = i+1;                                          //存储关卡数
         }
-    }
-    public override void OnShow()
-    {
-        base.OnShow();
+		
         MoveTo(new Vector2(0, 0));
-
     }
     public override void OnUpdate()
     {

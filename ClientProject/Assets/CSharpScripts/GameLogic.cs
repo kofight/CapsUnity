@@ -173,7 +173,7 @@ public class GameLogic {
 	//CCAnimation *m_blockMoveAni[6][6];			//六种方块向六个方向移动的动画
 	//CCSprite * m_selectAni;						//选中动画
 	//BlockSprite * m_pComboSprite[5];			//Combo粒子的精灵
-	LinkedList<Transform>   m_availableSprite = new LinkedList<Transform>();				//用来存放可用的Sprite
+    LinkedList<CapBlock> m_capBlockFreeList = new LinkedList<CapBlock>();				//用来存放可用的Sprite
 	Dictionary<int, string> m_soundEffectMap = new Dictionary<int, string>();								    //声音
 
     LinkedList<Paticle> m_paticleList;			//粒子列表
@@ -204,22 +204,12 @@ public class GameLogic {
         {
             name = "Item" + (i + 1);
             GameObject capObj = GameObject.Find("CapInstance");
-            for (int j = 0; j < 40; ++j )
+            for (int j = 0; j < 100; ++j )
             {
-                GameObject newObj = GameObject.Instantiate(capObj) as GameObject;
-                m_availableSprite.AddLast(newObj.transform);
-                newObj.transform.parent = m_freePool.transform;
-                newObj.SetActive(false);
-                newObj.transform.localScale = new Vector3(58.0f, 58.0f, 1.0f);
-                newObj.transform.localPosition = Vector3.zero;
+                CapBlock capBlock = new CapBlock();
+                m_capBlockFreeList.AddLast(capBlock);
             }
         }
-
-        for (int i = 0; i < BlockCountX; i++)
-            for (int j = 0; j < BlockCountY; j++)
-            {
-                m_blocks[i, j] = new CapBlock();
-            }
 
         m_selectedPos[0] = new Position();
         m_selectedPos[1] = new Position();
@@ -231,11 +221,7 @@ public class GameLogic {
         {
             for (int j = 0; j < BlockCountY; ++j )
             {
-                if (PlayingStageData.GridData[i, j] == 0)
-                {
-                    continue;
-                }
-                if (m_blocks[i, j].color == TBlockColor.EColor_None)
+                if (m_blocks[i, j] == null)                     //空格或空块
                 {
                     continue;
                 }
@@ -247,14 +233,11 @@ public class GameLogic {
                     Position curPos = GoTo(position, dir, 1);
                     if (CheckPosAvailable(curPos))
                     {
-                        if (PlayingStageData.GridData[curPos.x, curPos.y] == 0)
+                        if (m_blocks[i, j] == null)             //空格或空块
                         {
                             continue;
                         }
-                        if (m_blocks[curPos.x, curPos.y].color == TBlockColor.EColor_None)
-                        {
-                            continue;
-                        }
+
                         ExchangeBlock(curPos, position);        //临时交换
                         if (IsHaveLine(curPos) || IsHaveLine(position))
                         {
@@ -371,20 +354,18 @@ public class GameLogic {
                 {
                     continue;
                 }
-                if (m_blocks[i,j].color != TBlockColor.EColor_None)
+                if (m_blocks[i,j] != null)
                 {
-                    m_blocks[i, j].m_blockTransform.localPosition = new Vector3(GetXPos(i) + m_blocks[i, j].x_move, -(m_blocks[i,j].y_move + GetYPos(i, j)), -105);
-                    if ( m_blocks[i, j].m_blockSprite != null)
+                    m_blocks[i, j].m_blockTransform.localPosition = new Vector3(GetXPos(i) + m_blocks[i, j].x_move, -(m_blocks[i, j].y_move + GetYPos(i, j)), -105);
+
+                    if (m_blocks[i, j].IsEating())
                     {
-                        if (m_blocks[i, j].IsEating())
-                        {
-                            //m_blocks[i, j].m_blockSprite.color = curColor;
-                            UIDrawer.Singleton.DrawNumber("Score" + i + "," + j, (int)m_blocks[i, j].m_blockTransform.localPosition.x, -(int)m_blocks[i, j].m_blockTransform.localPosition.y, 60, "HighDown", 15);
-                        }
-                        else
-                        {
-                            m_blocks[i, j].m_blockSprite.color = defaultColor;
-                        }
+                        //m_blocks[i, j].m_blockSprite.color = curColor;
+                        UIDrawer.Singleton.DrawNumber("Score" + i + "," + j, (int)m_blocks[i, j].m_blockTransform.localPosition.x, -(int)m_blocks[i, j].m_blockTransform.localPosition.y, 60, "HighDown", 15);
+                    }
+                    else
+                    {
+                        m_blocks[i, j].m_blockSprite.color = defaultColor;
                     }
                 }
 
@@ -490,7 +471,7 @@ public class GameLogic {
             }
             else if (Time.realtimeSinceStartup > m_dropDownEndTime + ShowHelpTimeInterval)
             {
-                if (!m_blocks[helpP1.x, helpP1.y].m_animation.isPlaying)
+                if (m_blocks[helpP1.x, helpP1.y]!=null && !m_blocks[helpP1.x, helpP1.y].m_animation.isPlaying)
                 {
                     m_blocks[helpP1.x, helpP1.y].m_animation.Play("Help");
                     m_blocks[helpP2.x, helpP2.y].m_animation.Play("Help");
@@ -512,7 +493,7 @@ public class GameLogic {
                 for (int i = 0; i < BlockCountX; i++)
                     for (int j = 0; j < BlockCountY; j++)
                     {
-                        if (PlayingStageData.GridData[i, j] == 0)
+                        if (m_blocks[i, j] == null)     //为空块
                         {
                             continue;
                         }
@@ -546,13 +527,9 @@ public class GameLogic {
                 {
                     for (int j = BlockCountY - 1; j >= 0; j--)			//从下往上遍历
                     {
-                        if (PlayingStageData.GridData[i, j] == 0)
+                        if (m_blocks[i, j] == null)     //为空块
                         {
                             continue;
-                        }
-                        if (m_blocks[i, j].color == TBlockColor.EColor_None)			//若发现空格，中断，证明这列上面所有的块都没落到底
-                        {
-                            break;
                         }
                         if (m_blocks[i, j].isDropping)						//若正在下降且
                         {
@@ -567,7 +544,7 @@ public class GameLogic {
                 {
                     for (int j = 0; j < BlockCountY; j++)
                     {
-                        if (PlayingStageData.GridData[i, j] == 0)
+                        if (m_blocks[i, j] == null)     //为空块
                         {
                             continue;
                         }
@@ -590,7 +567,7 @@ public class GameLogic {
                     {
                         for (int j = 0; j < BlockCountY; j++)
                         {
-                            if (PlayingStageData.GridData[i, j] == 0)
+                            if (m_blocks[i, j] == null)     //为空块
                             {
                                 continue;
                             }
@@ -616,7 +593,7 @@ public class GameLogic {
             {
                 for (int j = 0; j < BlockCountY; j++)
                 {
-                    if (PlayingStageData.GridData[i, j] == 0)
+                    if (m_blocks[i, j] == null)
                     {
                         continue;
                     }
@@ -797,18 +774,14 @@ public class GameLogic {
             {
                 for (int i = 0; i < BlockCountX; i++)				//一次遍历一行
                 {
-                    if (PlayingStageData.GridData[i, j] == 0)
-                    {
-                        continue;
-                    }
-                    if (m_blocks[i, j].isDropping)      //已经在下落的点，不处理了
+                    if (PlayingStageData.GridData[i, j] == 0 || PlayingStageData.CheckFlag(i, j, GridFlag.Stone | GridFlag.Cage | GridFlag.Chocolate))		//若为镂空块，石头，不判断
                     {
                         continue;
                     }
                     bool bDrop = false;
                     bool UpLocked = false;              //上面被锁住
 
-                    if (m_blocks[i, j].IsEmpty())       //找到空块
+                    if (m_blocks[i, j] == null)       //找到空块
                     {
                         dropDest.Set(i, j);
                         //先看是否在传送点
@@ -816,8 +789,8 @@ public class GameLogic {
                         {
                             dropFrom.Assign(PlayingStageData.PortalMap[dropDest.ToInt()].from);
 
-                            if (m_blocks[dropFrom.x, dropFrom.y].color != TBlockColor.EColor_None
-                                && m_blocks[dropFrom.x, dropFrom.y].isLocked == false)       //传送门入口处有有效块
+                            if (m_blocks[dropFrom.x, dropFrom.y] != null                    //传送门入口处有有效块
+                                && m_blocks[dropFrom.x, dropFrom.y].isLocked == false)      //可以下落 
                             {
                                 bDrop = true;       //可以下落
                             }
@@ -828,12 +801,12 @@ public class GameLogic {
                             dropFrom.Set(i, j - 1);     //向上看一格
                             if (CheckPosAvailable(dropFrom))            //先看看格子是否有效
                             {
-                                if (PlayingStageData.GridData[dropFrom.x, dropFrom.y] == 0 || m_blocks[dropFrom.x, dropFrom.y].isLocked)        //空格和锁都算锁
+                                if (PlayingStageData.GridData[dropFrom.x, dropFrom.y] == 0 ||
+                                    PlayingStageData.CheckFlag(dropFrom.x, dropFrom.y, GridFlag.Stone | GridFlag.Cage | GridFlag.Chocolate))
                                 {
                                     UpLocked = true;
                                 }
-
-                                if (!m_blocks[dropFrom.x, dropFrom.y].isDropping && m_blocks[dropFrom.x, dropFrom.y].color != TBlockColor.EColor_None)           //找到有效块
+                                else if (m_blocks[dropFrom.x, dropFrom.y] != null && !m_blocks[dropFrom.x, dropFrom.y].isDropping)           //找到有效块
                                 {
                                     bDrop = true;       //可以下落
                                 }
@@ -842,7 +815,7 @@ public class GameLogic {
                         if (UpLocked)                    //若没找到掉落点，且上方的点被锁
                         {
                             dropFrom = GoTo(new Position(i, j), TDirection.EDir_LeftUp, 1);         //向左上看一格
-                            if (CheckPosAvailable(dropFrom) && !m_blocks[dropFrom.x, dropFrom.y].isDropping && PlayingStageData.GridData[dropFrom.x, dropFrom.y] != 0 && m_blocks[dropFrom.x, dropFrom.y].color != TBlockColor.EColor_None)        //若是有效点，且为空，形成掉落
+                            if (CheckPosAvailable(dropFrom) && m_blocks[dropFrom.x, dropFrom.y]  != null && !m_blocks[dropFrom.x, dropFrom.y].isDropping && PlayingStageData.GridData[dropFrom.x, dropFrom.y] != 0)        //若是有效点，且为空，形成掉落
                             {
                                 bDrop = true;
                             }
@@ -850,39 +823,38 @@ public class GameLogic {
                         if (!bDrop && UpLocked)                    //若没找到掉落点，且上方的点被锁
                         {
                             dropFrom = GoTo(new Position(i, j), TDirection.EDir_UpRight, 1);         //向右上看一格
-                            if (CheckPosAvailable(dropFrom) && !m_blocks[dropFrom.x, dropFrom.y].isDropping && PlayingStageData.GridData[dropFrom.x, dropFrom.y] != 0 && m_blocks[dropFrom.x, dropFrom.y].color != TBlockColor.EColor_None)        //若是有效点，且为空，形成掉落
+                            if (CheckPosAvailable(dropFrom) && m_blocks[dropFrom.x, dropFrom.y] != null && !m_blocks[dropFrom.x, dropFrom.y].isDropping && PlayingStageData.GridData[dropFrom.x, dropFrom.y] != 0)        //若是有效点，且为空，形成掉落
                             {
                                 bDrop = true;
                             }
                         }
-                    }
 
-                    if (bDrop)      //处理下落
-                    {
-                        m_blocks[dropDest.x, dropDest.y].Assign(m_blocks[dropFrom.x, dropFrom.y]);
-                        m_blocks[dropDest.x, dropDest.y].isDropping = true;
-                        m_blocks[dropDest.x, dropDest.y].droppingFrom = new Position(dropFrom);
+                        if (bDrop)      //处理下落
+                        {
+                            m_blocks[dropDest.x, dropDest.y] = m_blocks[dropFrom.x, dropFrom.y];
+                            m_blocks[dropDest.x, dropDest.y].isDropping = true;
+                            m_blocks[dropDest.x, dropDest.y].droppingFrom = new Position(dropFrom);
 
-                        //若是出生点，生成新块////////////////////////////////////////////////////////////////////////
-                        if (PlayingStageData.CheckFlag(dropFrom.x, dropFrom.y, GridFlag.Birth))
-                        {
-                            //补充新的方块
-                            CreateBlock(dropFrom.x, dropFrom.y, false);
-                            m_blocks[dropFrom.x, dropFrom.y].isDropping = true;
-                            m_blocks[i, j].droppingFrom = null;
-                        }
-                        else
-                        {
-                            m_blocks[dropFrom.x, dropFrom.y].color = TBlockColor.EColor_None;
-                            m_blocks[dropFrom.x, dropFrom.y].m_blockSprite = null;
-                            m_blocks[dropFrom.x, dropFrom.y].m_blockTransform = null;
-                            if (dropFrom.x % 2 == 1)
+                            //若是出生点，生成新块////////////////////////////////////////////////////////////////////////
+                            if (PlayingStageData.CheckFlag(dropFrom.x, dropFrom.y, GridFlag.Birth))
                             {
-                                bNeedCheckAgain = true;             //，因为中间产生了新的空位，需要再检查一次空位
+                                //补充新的方块
+                                CreateBlock(dropFrom.x, dropFrom.y, false);
+                                m_blocks[dropFrom.x, dropFrom.y].isDropping = true;
+                                m_blocks[dropFrom.x, dropFrom.y].droppingFrom = null;       //droppingFrom置空代表从上方掉落
                             }
+                            else
+                            {
+                                m_blocks[dropFrom.x, dropFrom.y] = null;            //原先点置空
+
+                                if (dropFrom.x % 2 == 1)
+                                {
+                                    bNeedCheckAgain = true;             //，因为中间产生了新的空位，需要再检查一次空位
+                                }
+                            }
+                            tag = true;
                         }
-                        tag = true;
-                    }
+                    }        
                 }
             }
         }
@@ -893,7 +865,7 @@ public class GameLogic {
         {
             for (int i = 0; i < BlockCountX; i++)				//一次遍历一行
             {
-                if (PlayingStageData.CheckFlag(i, j, GridFlag.Birth) && m_blocks[i, j].IsEmpty())     //若为出生点
+                if (PlayingStageData.CheckFlag(i, j, GridFlag.Birth) && m_blocks[i, j] == null)     //若为出生点
                 {
                     CreateBlock(i, j, false);
                     m_blocks[i, j].isDropping = true;
@@ -937,17 +909,15 @@ public class GameLogic {
             }
         }
         bool tag = false;
-        CapBlock pBlock = null;
         for (int i = 0; i < BlockCountX; i++)
         {
             for (int j = 0; j < BlockCountY; j++)
             {
-                if (PlayingStageData.GridData[i,j] == 0)
+                if (m_blocks[i, j] == null)
                 {
                     continue;
                 }
-                pBlock = GetBlock(new Position(i, j));
-                if (pBlock.m_bNeedCheckEatLine && !pBlock.IsEating())		//只有没在消除状态的块才遍历，防止重复记分
+                if (m_blocks[i, j].m_bNeedCheckEatLine && !m_blocks[i, j].IsEating())		//只有没在消除状态的块才遍历，防止重复记分
                 {
                     if (EatLine(new Position(i, j)))
                     {
@@ -1141,7 +1111,7 @@ public class GameLogic {
                     continue;
                 }
 				
-                if (PlayingStageData.GridData[i, j] == 0 || m_blocks[i, j].color == TBlockColor.EColor_None || m_blocks[i,j].color > TBlockColor.EColor_Grey
+                if (m_blocks[i, j] == null || m_blocks[i,j].color > TBlockColor.EColor_Grey
 					|| m_blocks[i, j].color == excludeColor || m_blocks[i,j].special == TSpecialBlock.ESpecial_EatAColor || m_blocks[i, j].IsEating())
                 {
 					if(i == BlockCountX -1 && j == BlockCountY -1)//Repeat the loop till get a result
@@ -1200,7 +1170,7 @@ public class GameLogic {
         for (int i = 0; i < 6; ++i )
         {
             Position pos = GoTo(new Position(x, y), (TDirection)i, 1);
-            if (CheckPosAvailable(pos))
+            if (CheckPosAvailable(pos) && m_blocks[x, y] != null)
             {
                 if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Stone))
                 {
@@ -1217,10 +1187,11 @@ public class GameLogic {
         if (position.x >= BlockCountX || position.y >= BlockCountY || position.x < 0 || position.y < 0)
             return;
 
-        if (m_blocks[position.x, position.y].color > TBlockColor.EColor_Grey) return;
-        if (m_blocks[position.x, position.y].color == TBlockColor.EColor_None) return;
+        if (m_blocks[position.x, position.y] == null) return;
 
-        if (m_blocks[position.x, position.y].x_move > 0 || m_blocks[position.x, position.y].y_move > 0)
+        if (m_blocks[position.x, position.y].color > TBlockColor.EColor_Grey) return;
+
+        if (m_blocks[position.x, position.y].x_move > 0 || m_blocks[position.x, position.y].y_move > 0)     //正在移动的不能消除
             return;
 
         if (m_blocks[position.x, position.y].IsEating())        //不重复消除
@@ -1229,14 +1200,23 @@ public class GameLogic {
         }
         for (int i = 0; i <= position.y; i++)
         {
-            m_blocks[position.x, i].isCanMove = false;      //上方所有块都不能移动
+            if (m_blocks[position.x, i]!=null)
+            {
+                m_blocks[position.x, i].isCanMove = false;      //上方所有块都不能移动
+            }
         }
         m_blocks[position.x, position.y].Eat();			//吃掉当前块
 
-        if (m_dropDownEndTime > 0)
+        if (m_dropDownEndTime > 0 && helpP1 != null)
         {
-            m_blocks[helpP1.x, helpP1.y].m_animation.Stop();
-            m_blocks[helpP2.x, helpP2.y].m_animation.Stop();
+            if (m_blocks[helpP1.x, helpP1.y]!=null)
+            {
+                m_blocks[helpP1.x, helpP1.y].m_animation.Stop();
+            }
+            if (m_blocks[helpP2.x, helpP2.y]!=null)
+            {
+                m_blocks[helpP2.x, helpP2.y].m_animation.Stop();
+            }
             m_dropDownEndTime = 0;                          //清除dropDownEnd的时间记录
             helpP1 = null;                                  //清除帮助点
             helpP2 = null;                                  //清除帮助点
@@ -1331,8 +1311,8 @@ public class GameLogic {
                 break;
         }
 
+        m_blocks[position.x, position.y].m_animation.Play("Eat");
         //Todo 临时加的粒子代码
-        //m_blocks[position.x, position.y].m_animation.Play("Eat");
         //Object obj = Resources.Load("EatEffect");
         //GameObject gameObj = GameObject.Instantiate(obj) as GameObject;
         //gameObj.transform.position = m_blocks[position.x, position.y].m_blockTransform.position;
@@ -1483,16 +1463,13 @@ public class GameLogic {
 		    p.y=(y-gameAreaY)/BLOCKWIDTH;
 	    if(p.y>BlockCountY)p.y=BlockCountY;
 
-	    //若不可选中，不处理
-	    if(!m_blocks[p.x, p.y].SelectAble())
-		    return;
+        //如果选中一个状态处于不可移动的块，或者一个特殊块，置选中标志为空，返回
+        if (m_blocks[p.x, p.y] == null || !m_blocks[p.x, p.y].SelectAble())
+        {
+            ClearSelected();
+            return;
+        }
 
-	    //如果选中一个状态处于不可移动的块，或者一个特殊块，置选中标志为空，返回
-	    if( ! m_blocks[p.x,p.y].SelectAble() )
-	    {
-		    ClearSelected();
-		    return;
-	    }
         m_selectedPos[0] = p;
         if (m_selectedPos[0].x == -1) return;
         m_totalClickCount++;
@@ -1549,7 +1526,7 @@ public class GameLogic {
         }
 
         //如果在选第二个块时，第一次选中的块已经变为不可移动，清空选中状态，返回
-        if (!m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].SelectAble())
+        if (m_blocks[m_selectedPos[0].x, m_selectedPos[0].y] == null || !m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].SelectAble())
         {
             ClearSelected();
             return;
@@ -1732,43 +1709,33 @@ public class GameLogic {
         m_blocks[position2.x, position2.y] = tempBlock;
     }
 
-    Transform GetFreeBlockSprite(TBlockColor color)
+    CapBlock GetFreeCapBlock(TBlockColor color)
     {
-        Transform trans = m_availableSprite.Last.Value;
-        trans.parent = m_capsPool.transform;
-        trans.gameObject.SetActive(true);
-        m_availableSprite.RemoveLast();
-        return trans;
+        CapBlock block = m_capBlockFreeList.Last.Value;
+        block.m_blockTransform.gameObject.SetActive(true);
+        m_capBlockFreeList.RemoveLast();
+        return block;
     }
 
     void CreateBlock(int x, int y, bool avoidLine)
     {
-        //补充新的方块
-        m_blocks[x, y].color = GetRandomColor();		//最上方获取新的方块
+        TBlockColor color = GetRandomColor();		//最上方获取新的方块
+        m_blocks[x, y] = GetFreeCapBlock(color);            //创建新的块 Todo 变成用缓存
+        m_blocks[x, y].color = color;               //设置颜色
 
         if (avoidLine)
         {
             while (IsHaveLine(new Position(x, y))) m_blocks[x, y].color = GetNextColor(m_blocks[x, y].color);		//若新生成瓶盖的造成消行，换一个颜色
         }
-        
-        m_blocks[x, y].Reset();
-        m_blocks[x, y].m_blockTransform = GetFreeBlockSprite(m_blocks[x, y].color);
-        m_blocks[x, y].m_blockSprite = m_blocks[x, y].m_blockTransform.GetComponent<UISprite>();
-        m_blocks[x, y].RefreshBlockSprite(PlayingStageData.GridData[x, y]);
-        m_blocks[x, y].m_animation = m_blocks[x, y].m_blockTransform.GetComponent<Animation>();
+        m_blocks[x, y].RefreshBlockSprite(PlayingStageData.GridData[x, y]);                                         //刷新下显示内容
     }
 
     void MakeSpriteFree(int x, int y)
     {
-        m_availableSprite.AddLast(m_blocks[x, y].m_blockTransform);
-        m_blocks[x, y].m_blockTransform.parent = m_freePool.transform;
+        m_capBlockFreeList.AddLast(m_blocks[x, y]);
         m_blocks[x, y].m_blockTransform.gameObject.SetActive(false);
-
-        m_blocks[x, y].special = TSpecialBlock.ESpecial_Normal;
-        m_blocks[x, y].color = TBlockColor.EColor_None;
-        m_blocks[x, y].m_blockTransform = null;
-        m_blocks[x, y].m_blockSprite = null;
         m_blocks[x, y].Reset();
+        m_blocks[x, y] = null;
     }
 
     void OnProgressChange()
@@ -1915,7 +1882,7 @@ public class GameLogic {
 
 	TBlockColor GetBlockColor(Position p)						//获得位置的颜色
 	{
-		if (!CheckPosAvailable(p))
+        if (!CheckPosAvailable(p) || m_blocks[p.x, p.y] == null)
 		{
             return TBlockColor.EColor_None;
 		}

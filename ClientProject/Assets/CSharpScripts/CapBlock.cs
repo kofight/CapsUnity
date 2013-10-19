@@ -29,38 +29,6 @@ public enum TSpecialBlock
 
 public class CapBlock  
 {
-    public CapBlock Clone()
-    {
-        CapBlock newBlock = new CapBlock();
-        newBlock.color = color;
-        newBlock.x_move = x_move;
-        newBlock.y_move = y_move;
-        newBlock.m_bEating = m_bEating;
-        newBlock.isDropping = isDropping;
-        newBlock.isCanMove = isCanMove;
-        newBlock.m_bNeedCheckEatLine = m_bNeedCheckEatLine;
-        newBlock.special = special;
-        newBlock.m_blockSprite = m_blockSprite;
-        newBlock.m_blockTransform = m_blockTransform;
-        newBlock.m_animation = m_animation;
-        return newBlock;
-    }
-
-    public void Assign(CapBlock block)
-    {
-        color = block.color;
-        x_move = block.x_move;
-        y_move = block.y_move;
-        m_bEating = block.m_bEating;
-        isDropping = block.isDropping;
-        isCanMove = block.isCanMove;
-        m_bNeedCheckEatLine = block.m_bNeedCheckEatLine;
-        special = block.special;
-        m_blockSprite = block.m_blockSprite;
-        m_blockTransform = block.m_blockTransform;
-        m_animation = block.m_animation;
-    }
-
     public void RefreshBlockSprite(int flag)
     {
         if (m_blockSprite == null)
@@ -120,11 +88,6 @@ public class CapBlock
         }
     }
 
-    public bool IsEmpty()
-    {
-        return color == TBlockColor.EColor_None;
-    }
-
     public TBlockColor color;							//颜色
 
     public int x_move;
@@ -132,7 +95,7 @@ public class CapBlock
     public bool m_bEating;						//正在消失的标记
     public bool isDropping;
     public Position droppingFrom;                 //从某个点掉落过来
-    public bool isCanMove;
+    public bool isCanMove = true;
     public bool m_bNeedCheckEatLine;			//一旦落地就被标记，然后EatAllLine逻辑用这个变量区分是否需要检测消行
     public bool isLocked;                       //是否被锁定
     public TSpecialBlock special;				//特殊功能块
@@ -168,8 +131,7 @@ public class CapBlock
 			m_bEating||
 			isDropping==true||
 			x_move>0||
-			y_move>0 ||
-			color == TBlockColor.EColor_None)
+			y_move>0)
 		{
 			return false;
 		}
@@ -178,6 +140,18 @@ public class CapBlock
 
 	public CapBlock()
     {
-        isCanMove = true;
+        //创建新Sprite
+        GameObject capObj = GameObject.Find("CapInstance");
+        GameObject newObj = GameObject.Instantiate(capObj) as GameObject;
+        newObj.SetActive(false);
+
+        newObj.transform.parent = capObj.transform.parent;
+        
+        newObj.transform.localScale = new Vector3(58.0f, 58.0f, 1.0f);
+        newObj.transform.localPosition = Vector3.zero;
+
+        m_blockTransform = newObj.transform;
+        m_blockSprite = newObj.GetComponent<UISprite>();
+        m_animation = newObj.GetComponent<Animation>();
     }
 }

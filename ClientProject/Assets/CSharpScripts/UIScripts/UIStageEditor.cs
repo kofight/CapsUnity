@@ -21,6 +21,11 @@ public class UIStageEditor : UIWindowNGUI
                 GlobalVars.CurGameLogic.StartGame();
             });
 
+        AddChildComponentMouseClick("ResortBtn", delegate(object sender, UIMouseClick.ClickArgs e)
+        {
+            GlobalVars.CurGameLogic.AutoResort();
+        });
+
         for (int i = 0; i < GameLogic.TotalColorCount; ++i)
         {
 			int color = i + 1;

@@ -135,6 +135,7 @@ public class GameLogic {
     public static readonly int GAMETIME = 6000000;		//游戏时间
     public static readonly float CheckAvailableTimeInterval = 1.0f;       //1秒钟后尝试找是否有可消块
     public static readonly float ShowHelpTimeInterval = 5.0f;       //5秒钟后显示可消块
+    public static readonly float ShowNoPossibleExhangeTextTime = 1.0f;      //没有可交换的块显示，持续1秒钟
 
     public StageData PlayingStageData;                      //当前的关卡数据
     public int GetProgress(){ return m_progress; }
@@ -167,6 +168,7 @@ public class GameLogic {
     Timer timerEatBlock = new Timer();
     Timer timerDropDown = new Timer();
     float m_dropDownEndTime;
+    float m_showNoPossibleExhangeTextTime = 0;              //显示
     Position helpP1, helpP2;
 
     	//资源物件
@@ -258,6 +260,73 @@ public class GameLogic {
         return false;
     }
 
+    public void AutoResort()           //自动重排功能 Todo 没处理交换后形成消除的情况，不确定要不要处理
+    {
+        Position[] array = new Position[BlockCountX * BlockCountY];
+
+        int count = 0;
+        for (int i = 0; i < BlockCountX; ++i)
+        {
+            for (int j = 0; j < BlockCountY; ++j)
+            {
+                if (m_blocks[i, j] == null || PlayingStageData.CheckFlag(i, j, GridFlag.Stone)
+                    || PlayingStageData.CheckFlag(i, j, GridFlag.Cage) || PlayingStageData.CheckFlag(i, j, GridFlag.Chocolate))                     //空格或空块
+                {
+                    continue;
+                }
+
+                array[count] = new Position(i, j);          //先找出可以交换的位置
+                ++count;
+            }
+        }
+
+        Permute<Position>(array, count);       //重排
+
+
+
+        CapBlock[,] blocks = new CapBlock[BlockCountX, BlockCountY];
+
+        for (int i = 0; i < BlockCountX; ++i)
+        {
+            for (int j = 0; j < BlockCountY; ++j)
+            {
+                blocks[i, j] = m_blocks[i, j];          //先复制份数据
+            }
+        }
+
+        count = 0;
+        for (int i = 0; i < BlockCountX; ++i)
+        {
+            for (int j = 0; j < BlockCountY; ++j)
+            {
+                if (m_blocks[i, j] == null || PlayingStageData.CheckFlag(i, j, GridFlag.Stone)
+                    || PlayingStageData.CheckFlag(i, j, GridFlag.Cage) || PlayingStageData.CheckFlag(i, j, GridFlag.Chocolate))                     //空格或空块
+                {
+                    continue;
+                }
+                    
+                m_blocks[i, j] = blocks[array[count].x, array[count].y];        //把随机内容取出来保存上
+                ++count;
+            }
+        }
+
+    }
+
+    void Permute<T>(T[] array, int count)
+    {
+        for (int i = 1; i < count; i++)
+        {
+            Swap<T>(array, i, m_random.Next(0, i));
+        }
+    }
+
+    void Swap<T>(T[] array, int indexA, int indexB)
+    {
+        T temp = array[indexA];
+        array[indexA] = array[indexB];
+        array[indexB] = temp;
+    }
+
     public void StartGame()     //开始游戏（及重新开始游戏）
     {
         Timer.s_currentTime = Time.realtimeSinceStartup;        //更新一次时间
@@ -339,6 +408,20 @@ public class GameLogic {
             return;
         }
 		//Timer.s_currentTime = Timer.s_currentTime + 0.02f;		//
+
+        if (m_showNoPossibleExhangeTextTime > 0)        //正在显示“没有可交换块，需要重排”
+        {
+            if (Timer.millisecondNow() > m_showNoPossibleExhangeTextTime + ShowNoPossibleExhangeTextTime)       //时间已到
+            {
+                AutoResort();                                   //自动重排
+                m_showNoPossibleExhangeTextTime = 0;            //交换完毕，关闭状态
+            }
+            else
+            {
+                //显示提示信息
+                UIDrawer.Singleton.DrawText("NoExchangeText", 100, 100, "No Block To Exchange! Auto Resort...");
+            }
+        }
 
         TimerWork();
 
@@ -465,7 +548,7 @@ public class GameLogic {
                     helpP2 = new Position();
                     if(!Help(out helpP1, out helpP2))
                     {
-                                                //重排
+                        m_showNoPossibleExhangeTextTime = Timer.millisecondNow();                       //显示需要重排
                     }
                 }
             }

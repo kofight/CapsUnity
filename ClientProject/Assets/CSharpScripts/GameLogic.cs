@@ -136,7 +136,7 @@ public class GameLogic {
     public static readonly float CheckAvailableTimeInterval = 1.0f;       //1秒钟后尝试找是否有可消块
     public static readonly float ShowHelpTimeInterval = 5.0f;       //5秒钟后显示可消块
     public static readonly float ShowNoPossibleExhangeTextTime = 1.0f;      //没有可交换的块显示，持续1秒钟
-
+    public int CurSeed;                                     //当前的随机种子
     public StageData PlayingStageData;                      //当前的关卡数据
     public int GetProgress(){ return m_progress; }
 
@@ -215,6 +215,9 @@ public class GameLogic {
 
         m_selectedPos[0] = new Position();
         m_selectedPos[1] = new Position();
+		
+		PlayingStageData = StageData.CreateStageData();
+        PlayingStageData.LoadStageData(GlobalVars.CurStageNum);
     }
 
     bool Help(out Position p1, out Position p2)                 //查找到一个可交换的位置
@@ -331,13 +334,20 @@ public class GameLogic {
     {
         Timer.s_currentTime = Time.realtimeSinceStartup;        //更新一次时间
         long time = Timer.millisecondNow();
-        m_random = new System.Random((int)(Time.realtimeSinceStartup * 1000));
         m_lastClickTime = time;
         m_gameStartTime = time;
-        //srand(time);
 
-        PlayingStageData = StageData.CreateStageData();
-        PlayingStageData.LoadStageData(GlobalVars.CurStageNum);
+        CurSeed = PlayingStageData.Seed;
+
+        if (CurSeed > 0)
+        {
+            m_random = new System.Random(CurSeed);
+        }
+        else
+        {
+            m_random = new System.Random((int)Time.timeSinceLevelLoad * 1000);
+        }
+        
 
         for (int i = 0; i < BlockCountX; i++)
         {

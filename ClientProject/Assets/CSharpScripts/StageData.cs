@@ -65,10 +65,12 @@ public class StageData
 	public int 		StepLimit;		    //步数限制
 	public int  	TimeLimit;          //时间限制（单位秒）
     public int      ColorCount = 7;         //颜色总数
+    public int Seed = 0;                    //种子
     public int Nut1Count = 3;
     public int Nut2Count = 3;
     public int[]    StarScore = new int[3];          //获得星星的分数
     public int [, ] GridData = new int[GameLogic.BlockCountX, GameLogic.BlockCountY];                        //关卡初始地块数据
+
 
     public Dictionary<int, Portal> PortalMap = new Dictionary<int, Portal>();                                                                //用来储存所有的传送门，键值是传送目标的编码
 
@@ -159,6 +161,8 @@ public class StageData
         _config.GetValue<int>("ColorCount", out ColorCount);
         _config.GetValue<int>("Nut1Count", out Nut1Count);
         _config.GetValue<int>("Nut2Count", out Nut2Count);
+        _config.GetValue<int>("Seed", out Seed);
+
         if (ColorCount == 0)
         {
             ColorCount = 7;
@@ -308,6 +312,7 @@ public class StageData
         _config.Write("ColorCount", ColorCount);
         _config.Write("Nut1Count", Nut1Count);
         _config.Write("Nut2Count", Nut2Count);
+        _config.Write("Seed", Seed);
         _config.Write("NewFormat", 1);                  //新格式标记
         string temp = string.Empty;
         for (int i = 0; i < 3; ++i )

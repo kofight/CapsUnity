@@ -466,6 +466,11 @@ public class GameLogic {
                     UIDrawer.Singleton.DrawSprite("Grid" + i + "," + j, GetXPos(i), GetYPos(i, j), "Grid"); 
                 }
 
+                if (PlayingStageData.CheckFlag(i, j, GridFlag.Cage))
+                {
+                    UIDrawer.Singleton.DrawSprite("Cage" + i + "," + j, GetXPos(i), GetYPos(i, j), "Cage", 3);
+                }
+
                 //绘制水果出口
                 if (PlayingStageData.Target == GameTarget.BringFruitDown && PlayingStageData.CheckFlag(i, j, GridFlag.FruitExit))
                 {
@@ -1112,6 +1117,7 @@ public class GameLogic {
         if (totalSameCount == 3)		//总共就消了3个
         {
             EatBlock(position);
+            m_tempBlocks[position.x, position.y] = true;
         }
         //根据结果来生成道具////////////////////////////////////////////////////////////////////////
 		else if (maxCountInSameDir >= 5)		//若最大每行消了5个
@@ -1281,14 +1287,6 @@ public class GameLogic {
         {
             return;
         }
-        for (int i = 0; i <= position.y; i++)
-        {
-            if (m_blocks[position.x, i]!=null)
-            {
-                m_blocks[position.x, i].isCanMove = false;      //上方所有块都不能移动
-            }
-        }
-        m_blocks[position.x, position.y].Eat();			//吃掉当前块
 
         if (m_dropDownEndTime > 0 && helpP1 != null)
         {
@@ -1309,16 +1307,19 @@ public class GameLogic {
         {
             PlayingStageData.ClearFlag(position.x, position.y, GridFlag.Stone);
             m_blocks[position.x, position.y].isLocked = false;
+            return;
         }
         else if (PlayingStageData.CheckFlag(position.x, position.y, GridFlag.Chocolate))
         {
             PlayingStageData.ClearFlag(position.x, position.y, GridFlag.Chocolate);
             m_blocks[position.x, position.y].isLocked = false;
+            return;
         }
         else if (PlayingStageData.CheckFlag(position.x, position.y, GridFlag.Cage))
         {
             PlayingStageData.ClearFlag(position.x, position.y, GridFlag.Cage);
             m_blocks[position.x, position.y].isLocked = false;
+            return;
         }
         else if (PlayingStageData.CheckFlag(position.x, position.y, GridFlag.JellyDouble))
         {
@@ -1329,6 +1330,15 @@ public class GameLogic {
         {
             PlayingStageData.ClearFlag(position.x, position.y, GridFlag.Jelly);
         }
+
+        for (int i = 0; i <= position.y; i++)
+        {
+            if (m_blocks[position.x, i] != null)
+            {
+                m_blocks[position.x, i].isCanMove = false;      //上方所有块都不能移动
+            }
+        }
+        m_blocks[position.x, position.y].Eat();			//吃掉当前块
 
         switch (m_blocks[position.x, position.y].special)
         {

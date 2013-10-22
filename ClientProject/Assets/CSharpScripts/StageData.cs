@@ -72,7 +72,8 @@ public class StageData
     public int [, ] GridData = new int[GameLogic.BlockCountX, GameLogic.BlockCountY];                        //关卡初始地块数据
 
 
-    public Dictionary<int, Portal> PortalMap = new Dictionary<int, Portal>();                                                                //用来储存所有的传送门，键值是传送目标的编码
+    public Dictionary<int, Portal> PortalToMap = new Dictionary<int, Portal>();                                                                //用来储存所有的传送门，键值是传送目标的编码
+    public Dictionary<int, Portal> PortalFromMap = new Dictionary<int, Portal>();                                                                //用来储存所有的传送门，键值是传送目标的编码
 
     public bool CheckFlag(int x, int y, GridFlag flag)
     {
@@ -190,7 +191,8 @@ public class StageData
             }
         }
 
-        PortalMap.Clear();
+        PortalToMap.Clear();
+        PortalFromMap.Clear();
         //Portals
         _config.GetValue<string>("PortalArray", out temp);
         if (temp != null)
@@ -202,7 +204,8 @@ public class StageData
                 portal.from = new Position((int)System.Convert.ChangeType(portalDataTokens[i], typeof(int)), (int)System.Convert.ChangeType(portalDataTokens[i + 1], typeof(int)));
                 portal.to = new Position((int)System.Convert.ChangeType(portalDataTokens[i + 2], typeof(int)), (int)System.Convert.ChangeType(portalDataTokens[i + 3], typeof(int)));
                 portal.flag = (int)System.Convert.ChangeType(portalDataTokens[i + 4], typeof(int));
-                PortalMap.Add(portal.to.ToInt(), portal);
+                PortalToMap.Add(portal.to.ToInt(), portal);
+                PortalFromMap.Add(portal.from.ToInt(), portal);
             }
         }
 
@@ -335,7 +338,7 @@ public class StageData
 
         temp = string.Empty;
 
-        foreach(KeyValuePair<int, Portal> pair in PortalMap)
+        foreach(KeyValuePair<int, Portal> pair in PortalToMap)
         {
             temp = temp + pair.Value.from.x + ",";
             temp = temp + pair.Value.from.y + ",";

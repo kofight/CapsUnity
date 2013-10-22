@@ -95,7 +95,6 @@ public class CapBlock
     public bool m_bEating;						//正在消失的标记
     public bool isDropping;
     public Position droppingFrom;                 //从某个点掉落过来
-    public bool isCanMove = true;
     public bool m_bNeedCheckEatLine;			//一旦落地就被标记，然后EatAllLine逻辑用这个变量区分是否需要检测消行
     public bool isLocked;                       //是否被锁定
     public TSpecialBlock special;				//特殊功能块
@@ -116,6 +115,8 @@ public class CapBlock
 
     public void Reset()
 	{
+        m_blockTransform.localScale = new Vector3(60, 60, 1);
+        m_blockSprite.color = new Color(1.0f, 1.0f, 1.0f, 1.0f);
 		x_move = 0;
 		y_move = 0;
 		special = TSpecialBlock.ESpecial_Normal;
@@ -126,8 +127,7 @@ public class CapBlock
     public bool SelectAble()
     {
 
-		if (isCanMove==false||
-            isLocked ||
+		if (isLocked ||
 			m_bEating||
 			isDropping==true||
 			x_move>0||

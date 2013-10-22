@@ -127,7 +127,6 @@ public class GameLogic {
     public static int gameAreaWidth = BLOCKWIDTH * BlockCountX;	//游戏区域宽度
     public static int gameAreaHeight = BLOCKWIDTH * BlockCountY + BlockCountY / 2;//游戏区域高度
     public static int TotalColorCount = 7;
-    public static bool CanMoveWhenDroping = true;			//是否支持下落的同时移动
     public static int PROGRESSTOWIN = 2000;
     public static int DROP_TIME = 120;			//下落的时间
     public static int MOVE_TIME = 250;    		//移动的时间
@@ -435,7 +434,7 @@ public class GameLogic {
 
         TimerWork();
 
-        Color curColor = new Color(1.0f, 1.0f, 1.0f, 1.0f - Mathf.Clamp01((float)timerEatBlock.GetTime() / EATBLOCK_TIME));
+        //Color curColor = new Color(1.0f, 1.0f, 1.0f, 1.0f - Mathf.Clamp01((float)timerEatBlock.GetTime() / EATBLOCK_TIME));
 		Color defaultColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
 
         //根据数据绘制Sprite
@@ -450,15 +449,11 @@ public class GameLogic {
                 if (m_blocks[i,j] != null)
                 {
                     m_blocks[i, j].m_blockTransform.localPosition = new Vector3(GetXPos(i) + m_blocks[i, j].x_move, -(m_blocks[i, j].y_move + GetYPos(i, j)), -105);
+                    m_blocks[i, j].m_blockSprite.color = defaultColor;          //Todo 实在不知道为什么加上这句动画控制Alpha才好使
 
                     if (m_blocks[i, j].IsEating())
                     {
-                        //m_blocks[i, j].m_blockSprite.color = curColor;
                         UIDrawer.Singleton.DrawNumber("Score" + i + "," + j, (int)m_blocks[i, j].m_blockTransform.localPosition.x, -(int)m_blocks[i, j].m_blockTransform.localPosition.y, 60, "HighDown", 15);
-                    }
-                    else
-                    {
-                        m_blocks[i, j].m_blockSprite.color = defaultColor;
                     }
                 }
 
@@ -539,7 +534,7 @@ public class GameLogic {
         UIDrawer.Singleton.DrawText("ScoreText:", 200, 575, "Score:" + m_progress);
 
         //绘制传送门
-        foreach(KeyValuePair<int, Portal> pair in PlayingStageData.PortalMap)
+        foreach(KeyValuePair<int, Portal> pair in PlayingStageData.PortalToMap)
         {
             if (pair.Value.flag == 1)               //可见传送门
             {
@@ -632,7 +627,6 @@ public class GameLogic {
                         if (m_blocks[i, j].isDropping)						//若正在下降且
                         {
                             m_blocks[i, j].m_bNeedCheckEatLine = true;		//完成了下落，等待检查消行
-                            m_blocks[i, j].isCanMove = true;				//清除不可移动状态
                         }
                     }
                 }
@@ -640,18 +634,50 @@ public class GameLogic {
                 //清空方块的下落标志和偏移量
                 for (int i = 0; i < BlockCountX; i++)
                 {
-                    for (int j = 0; j < BlockCountY; j++)
+                    for (int j = BlockCountY -1 ; j >= 0; --j)
                     {
                         if (m_blocks[i, j] == null)     //为空块
                         {
                             continue;
                         }
 
+                        bool dropDownEnd = false;
+
                         if (m_blocks[i, j].isDropping)
                         {
-                            m_blocks[i, j].m_animation.Play("DropDown");
+                            Position p = new Position(i, j);
+                            Position to;
+                            if (PlayingStageData.CheckFlag(i, j, GridFlag.PortalStart))             //若为传送门
+                            {
+                                to = PlayingStageData.PortalFromMap[p.ToInt()].to;
+                            }
+                            else
+                            {
+                                to = new Position(i, j+1);
+                            }
+
+                            if (to.y >= BlockCountY)                                           //若到了最下面位置
+                            {
+                                dropDownEnd = true;
+                            }
+                            else if (m_blocks[to.x, to.y] != null && !m_blocks[to.x, to.y].isDropping)      //下面有块且没在下落
+                            {
+                                dropDownEnd = true;
+                            }
+                            else if (PlayingStageData.CheckFlag(to.x, to.y, GridFlag.Stone | GridFlag.Cage | GridFlag.Chocolate))      //若下方为不可移动块
+                            {
+                                dropDownEnd = true;
+                            }
+                            else if (PlayingStageData.GridData[to.x, to.y] == 0)                            //下面是空块
+                            {
+                                dropDownEnd = true;
+                            }
                         }
 
+                        if (dropDownEnd)
+                        {
+                            m_blocks[i, j].m_animation.Play("Eat");    
+                        }
                         m_blocks[i, j].isDropping = false;
                         m_blocks[i, j].x_move = 0;
                         m_blocks[i, j].y_move = 0;
@@ -661,17 +687,6 @@ public class GameLogic {
                 if (!DropDown())		//尝试下落，若不能
                 {
                     //PlaySound(dropdown);				//先播个落地声音
-                    for (int i = 0; i < BlockCountX; i++)		//清空数据
-                    {
-                        for (int j = 0; j < BlockCountY; j++)
-                        {
-                            if (m_blocks[i, j] == null)     //为空块
-                            {
-                                continue;
-                            }
-                            m_blocks[i, j].isCanMove = true;
-                        }
-                    }
                     if (!EatAllLine())					//若没有能消了的
                     {
                         m_comboCount = 0;
@@ -681,7 +696,6 @@ public class GameLogic {
                     {
                         ++m_comboCount;                 //增加Combo
                         timerEatBlock.Play();
-                        timerEatBlock.Adjust(5);		//Bug,不知道为什么这里必须停一下，才能消所有行
                     }
                 }
 
@@ -885,7 +899,7 @@ public class GameLogic {
                         //先看是否在传送点
                         if (PlayingStageData.CheckFlag(dropDest.x, dropDest.y, GridFlag.PortalEnd))
                         {
-                            dropFrom.Assign(PlayingStageData.PortalMap[dropDest.ToInt()].from);
+                            dropFrom.Assign(PlayingStageData.PortalToMap[dropDest.ToInt()].from);
 
                             if (m_blocks[dropFrom.x, dropFrom.y] != null                    //传送门入口处有有效块
                                 && m_blocks[dropFrom.x, dropFrom.y].isLocked == false)      //可以下落 
@@ -1342,13 +1356,6 @@ public class GameLogic {
             PlayingStageData.ClearFlag(position.x, position.y, GridFlag.Jelly);
         }
 
-        for (int i = 0; i <= position.y; i++)
-        {
-            if (m_blocks[position.x, i] != null)
-            {
-                m_blocks[position.x, i].isCanMove = false;      //上方所有块都不能移动
-            }
-        }
         m_blocks[position.x, position.y].Eat();			//吃掉当前块
 
         switch (m_blocks[position.x, position.y].special)
@@ -1538,7 +1545,8 @@ public class GameLogic {
 
                 GlobalVars.EditingPortal.to = p;
 
-                PlayingStageData.PortalMap.Add(p.ToInt(), GlobalVars.EditingPortal);    //把在编辑的Portal存起来
+                PlayingStageData.PortalToMap.Add(p.ToInt(), GlobalVars.EditingPortal);    //把在编辑的Portal存起来
+                PlayingStageData.PortalFromMap.Add(GlobalVars.EditingPortal.from.ToInt(), GlobalVars.EditingPortal);    //把在编辑的Portal存起来
 
                 PlayingStageData.AddFlag(GlobalVars.EditingPortal.from.x, GlobalVars.EditingPortal.from.y, GridFlag.Portal);
                 PlayingStageData.AddFlag(GlobalVars.EditingPortal.from.x, GlobalVars.EditingPortal.from.y, GridFlag.PortalStart);
@@ -1589,7 +1597,7 @@ public class GameLogic {
 
     public void OnTouchMove(int x, int y)
     {
-        if (!CanMoveWhenDroping && timerDropDown.GetState() != TimerEnum.EStop)		//屏蔽下落时移动的代码
+        if (timerDropDown.GetState() != TimerEnum.EStop)		//屏蔽下落时移动的代码
         {
             return;
         }
@@ -1839,6 +1847,7 @@ public class GameLogic {
 
     void MakeSpriteFree(int x, int y)
     {
+        m_blocks[x, y].m_animation.Stop();
         m_capBlockFreeList.AddLast(m_blocks[x, y]);
         m_blocks[x, y].m_blockTransform.gameObject.SetActive(false);
         m_blocks[x, y].Reset();

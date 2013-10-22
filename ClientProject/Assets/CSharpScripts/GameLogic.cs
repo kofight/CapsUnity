@@ -1621,7 +1621,7 @@ public class GameLogic {
             return;
         }
 
-        if (!GetBlock(p).SelectAble())
+        if (GetBlock(p) == null || !GetBlock(p).SelectAble())
         {
             return;
         }

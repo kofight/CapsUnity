@@ -128,6 +128,22 @@ public class UIStageEditor : UIWindowNGUI
             RefreshStageGridFlagCheckBoxes(GlobalVars.EditingGrid);
         });
 
+        AddChildComponentMouseClick("ClearAllPortalBtn", delegate(object sender, UIMouseClick.ClickArgs e)
+        {
+            GlobalVars.CurGameLogic.PlayingStageData.PortalFromMap.Clear();
+            GlobalVars.CurGameLogic.PlayingStageData.PortalToMap.Clear();
+            for (int i = 0; i < GameLogic.BlockCountX; ++i )
+            {
+                for (int j = 0; j < GameLogic.BlockCountY; ++j )
+                {
+                    GlobalVars.CurGameLogic.PlayingStageData.ClearFlag(i, j, GridFlag.Portal);
+                    GlobalVars.CurGameLogic.PlayingStageData.ClearFlag(i, j, GridFlag.PortalEnd);
+                    GlobalVars.CurGameLogic.PlayingStageData.ClearFlag(i, j, GridFlag.PortalStart);
+                }
+            }
+        });
+
+
         AddChildComponentMouseClick("GridNormalBtn", delegate(object sender, UIMouseClick.ClickArgs e)
         {
             GlobalVars.EditingGrid = (int)GridFlag.GenerateCap;

@@ -971,7 +971,8 @@ public class GameLogic {
                     tag = true;
                 }
 
-                if (PlayingStageData.Target == GameTarget.BringFruitDown && PlayingStageData.CheckFlag(i, j, GridFlag.FruitExit) && m_blocks[i, j].color > TBlockColor.EColor_Grey)       //若到退出点且为坚果
+                if (PlayingStageData.Target == GameTarget.BringFruitDown && PlayingStageData.CheckFlag(i, j, GridFlag.FruitExit) && 
+                    m_blocks[i, j] != null && m_blocks[i, j].color > TBlockColor.EColor_Grey)       //若到退出点且为坚果
                 {
 					//记录吃一个坚果
 					if (m_blocks[i, j].color == TBlockColor.EColor_Nut1)
@@ -1451,7 +1452,7 @@ public class GameLogic {
     {
         if (CheckStageFinish())
         {
-            UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();
+            UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
             return;
         }
 

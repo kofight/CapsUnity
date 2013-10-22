@@ -54,6 +54,22 @@ public class UIGameEnd : UIWindowNGUI
                 m_infoLabel.text = "You didn't get enough score";
             }
         }
+		else if(GlobalVars.CurStageData.Target == GameTarget.BringFruitDown)
+		{
+            if (GlobalVars.CurGameLogic.PlayingStageData.Nut1Count == GlobalVars.CurStageData.Nut1Count
+                && GlobalVars.CurGameLogic.PlayingStageData.Nut2Count == GlobalVars.CurStageData.Nut2Count)
+            {
+                m_bWin = true;
+                m_resultLabel.text = "Win!";
+                m_infoLabel.text = "You've brought all fruit down";
+            }
+            else
+            {
+                m_bWin = false;
+                m_resultLabel.text = "Failed!";
+                m_infoLabel.text = "You didn't brought all fruit down";
+            }
+		}
 
         if (GlobalVars.CurGameLogic.GetProgress() > GlobalVars.CurStageData.StarScore[2])
         {

@@ -26,6 +26,13 @@ public class UIStageEditor : UIWindowNGUI
             GlobalVars.CurGameLogic.AutoResort();
         });
 
+        AddChildComponentMouseClick("ReSeedBtn", delegate(object sender, UIMouseClick.ClickArgs e)
+        {
+            GlobalVars.CurGameLogic.ClearGame();
+            GlobalVars.CurGameLogic.PlayingStageData.Seed = (int)(Time.realtimeSinceStartup * 1000 % 1000);
+            GlobalVars.CurGameLogic.StartGame();
+        });
+
         for (int i = 0; i < GameLogic.TotalColorCount; ++i)
         {
 			int color = i + 1;

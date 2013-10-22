@@ -136,7 +136,7 @@ public class GameLogic {
     public static readonly float CheckAvailableTimeInterval = 1.0f;       //1秒钟后尝试找是否有可消块
     public static readonly float ShowHelpTimeInterval = 5.0f;       //5秒钟后显示可消块
     public static readonly float ShowNoPossibleExhangeTextTime = 1.0f;      //没有可交换的块显示，持续1秒钟
-
+    public int CurSeed;                                     //当前的随机种子
     public StageData PlayingStageData;                      //当前的关卡数据
     public int GetProgress(){ return m_progress; }
 
@@ -215,6 +215,9 @@ public class GameLogic {
 
         m_selectedPos[0] = new Position();
         m_selectedPos[1] = new Position();
+		
+		PlayingStageData = StageData.CreateStageData();
+        PlayingStageData.LoadStageData(GlobalVars.CurStageNum);
     }
 
     bool Help(out Position p1, out Position p2)                 //查找到一个可交换的位置
@@ -331,13 +334,20 @@ public class GameLogic {
     {
         Timer.s_currentTime = Time.realtimeSinceStartup;        //更新一次时间
         long time = Timer.millisecondNow();
-        m_random = new System.Random((int)(Time.realtimeSinceStartup * 1000));
         m_lastClickTime = time;
         m_gameStartTime = time;
-        //srand(time);
 
-        PlayingStageData = StageData.CreateStageData();
-        PlayingStageData.LoadStageData(GlobalVars.CurStageNum);
+        CurSeed = PlayingStageData.Seed;
+
+        if (CurSeed > 0)
+        {
+            m_random = new System.Random(CurSeed);
+        }
+        else
+        {
+            m_random = new System.Random((int)Time.timeSinceLevelLoad * 1000);
+        }
+        
 
         for (int i = 0; i < BlockCountX; i++)
         {
@@ -464,6 +474,11 @@ public class GameLogic {
                 else if (PlayingStageData.GridData[i, j] != 0)
                 {
                     UIDrawer.Singleton.DrawSprite("Grid" + i + "," + j, GetXPos(i), GetYPos(i, j), "Grid"); 
+                }
+
+                if (PlayingStageData.CheckFlag(i, j, GridFlag.Cage))
+                {
+                    UIDrawer.Singleton.DrawSprite("Cage" + i + "," + j, GetXPos(i), GetYPos(i, j), "Cage", 3);
                 }
 
                 //绘制水果出口
@@ -1112,6 +1127,7 @@ public class GameLogic {
         if (totalSameCount == 3)		//总共就消了3个
         {
             EatBlock(position);
+            m_tempBlocks[position.x, position.y] = true;
         }
         //根据结果来生成道具////////////////////////////////////////////////////////////////////////
 		else if (maxCountInSameDir >= 5)		//若最大每行消了5个
@@ -1281,14 +1297,6 @@ public class GameLogic {
         {
             return;
         }
-        for (int i = 0; i <= position.y; i++)
-        {
-            if (m_blocks[position.x, i]!=null)
-            {
-                m_blocks[position.x, i].isCanMove = false;      //上方所有块都不能移动
-            }
-        }
-        m_blocks[position.x, position.y].Eat();			//吃掉当前块
 
         if (m_dropDownEndTime > 0 && helpP1 != null)
         {
@@ -1309,16 +1317,19 @@ public class GameLogic {
         {
             PlayingStageData.ClearFlag(position.x, position.y, GridFlag.Stone);
             m_blocks[position.x, position.y].isLocked = false;
+            return;
         }
         else if (PlayingStageData.CheckFlag(position.x, position.y, GridFlag.Chocolate))
         {
             PlayingStageData.ClearFlag(position.x, position.y, GridFlag.Chocolate);
             m_blocks[position.x, position.y].isLocked = false;
+            return;
         }
         else if (PlayingStageData.CheckFlag(position.x, position.y, GridFlag.Cage))
         {
             PlayingStageData.ClearFlag(position.x, position.y, GridFlag.Cage);
             m_blocks[position.x, position.y].isLocked = false;
+            return;
         }
         else if (PlayingStageData.CheckFlag(position.x, position.y, GridFlag.JellyDouble))
         {
@@ -1329,6 +1340,15 @@ public class GameLogic {
         {
             PlayingStageData.ClearFlag(position.x, position.y, GridFlag.Jelly);
         }
+
+        for (int i = 0; i <= position.y; i++)
+        {
+            if (m_blocks[position.x, i] != null)
+            {
+                m_blocks[position.x, i].isCanMove = false;      //上方所有块都不能移动
+            }
+        }
+        m_blocks[position.x, position.y].Eat();			//吃掉当前块
 
         switch (m_blocks[position.x, position.y].special)
         {

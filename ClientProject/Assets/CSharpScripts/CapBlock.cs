@@ -52,7 +52,7 @@ public class CapBlock
         if ((flag & (int)GridFlag.Cage) > 0)
         {
             //m_blockSprite.spriteName = "Block3-" + (int)(color - TBlockColor.EColor_None);
-            //isLocked = true;
+            isLocked = true;
 			//return;
         }
 

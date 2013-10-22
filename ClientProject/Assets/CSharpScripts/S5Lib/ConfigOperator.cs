@@ -138,11 +138,13 @@ namespace Webgame.Utility
                         description = "//" + description;
                 }
                 string[] tmps = strline.Split(new string[] { " ", "\t" }, StringSplitOptions.RemoveEmptyEntries);
-
-                string name = tmps[0];
-                string value = tmps[1];
-                if (!_dictValues.ContainsKey(name))
-                    _dictValues.Add(name, new ConfigItem { Value = value, Description = description });
+                if (tmps.Length == 2)
+                {
+                    string name = tmps[0];
+                    string value = tmps[1];
+                    if (!_dictValues.ContainsKey(name))
+                        _dictValues.Add(name, new ConfigItem { Value = value, Description = description });
+                }
                 strline = sr.ReadLine();
             }
             sr.Close();

@@ -20,7 +20,9 @@ public class ConfigAttribute : Attribute
 public class CapsConfig
 {
     public int TotalStageCount = 4;
-
+    public int DropTime = 120;
+    public int EatTime = 250;
+    public int MoveTime = 200;
     public UseFilePath useFilePath = UseFilePath.LocalPath;
 
     //[ConfigAttribute(DefaultValue = 2.0f, Name = "落水等待时间", FieldType = typeof(float))]
@@ -56,6 +58,9 @@ public class CapsConfig
     {
         _config.Read();
         _config.GetValue<int>("TotalStageCount", out TotalStageCount);
+        _config.GetValue<int>("DropTime", out DropTime);
+        _config.GetValue<int>("EatTime", out EatTime);
+        _config.GetValue<int>("MoveTime", out MoveTime);
         _config.GetValue<string>("version", out version);
     }
 
@@ -91,6 +96,9 @@ public class CapsConfig
     public void Save()
     {
         _config.Write("TotalStageCount", TotalStageCount);
+        _config.Write("DropTime", DropTime);
+        _config.Write("EatTime", EatTime);
+        _config.Write("MoveTime", MoveTime);
         _config.Write("version", version);
     }
 

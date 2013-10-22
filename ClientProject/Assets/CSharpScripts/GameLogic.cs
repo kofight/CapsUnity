@@ -119,23 +119,23 @@ public class GridData
 }
 
 public class GameLogic {
-    public static readonly int BlockCountX = 9;	//游戏区有几列
-    public static readonly int BlockCountY = 9;	//游戏区有几行
-    public static readonly int BLOCKWIDTH = 60;
-    public static readonly int gameAreaX = 0;		//游戏区域左上角坐标
-    public static readonly int gameAreaY = 0;		//游戏区域左上角坐标
-    public static readonly int gameAreaWidth = BLOCKWIDTH * BlockCountX;	//游戏区域宽度
-    public static readonly int gameAreaHeight = BLOCKWIDTH * BlockCountY + BlockCountY / 2;//游戏区域高度
-    public static readonly int TotalColorCount = 7;
-    public static readonly bool CanMoveWhenDroping = true;			//是否支持下落的同时移动
-    public static readonly int PROGRESSTOWIN = 2000;
-    public static readonly int DROP_TIME = 120;			//下落的时间
-    public static readonly int MOVE_TIME = 250;    		//移动的时间
-    public static readonly int EATBLOCK_TIME = 200;		//消块时间
-    public static readonly int GAMETIME = 6000000;		//游戏时间
-    public static readonly float CheckAvailableTimeInterval = 1.0f;       //1秒钟后尝试找是否有可消块
-    public static readonly float ShowHelpTimeInterval = 5.0f;       //5秒钟后显示可消块
-    public static readonly float ShowNoPossibleExhangeTextTime = 1.0f;      //没有可交换的块显示，持续1秒钟
+    public static int BlockCountX = 9;	//游戏区有几列
+    public static int BlockCountY = 9;	//游戏区有几行
+    public static int BLOCKWIDTH = 60;
+    public static int gameAreaX = 0;		//游戏区域左上角坐标
+    public static int gameAreaY = 0;		//游戏区域左上角坐标
+    public static int gameAreaWidth = BLOCKWIDTH * BlockCountX;	//游戏区域宽度
+    public static int gameAreaHeight = BLOCKWIDTH * BlockCountY + BlockCountY / 2;//游戏区域高度
+    public static int TotalColorCount = 7;
+    public static bool CanMoveWhenDroping = true;			//是否支持下落的同时移动
+    public static int PROGRESSTOWIN = 2000;
+    public static int DROP_TIME = 120;			//下落的时间
+    public static int MOVE_TIME = 250;    		//移动的时间
+    public static int EATBLOCK_TIME = 200;		//消块时间
+    public static int GAMETIME = 6000000;		//游戏时间
+    public static float CheckAvailableTimeInterval = 1.0f;       //1秒钟后尝试找是否有可消块
+    public static float ShowHelpTimeInterval = 5.0f;       //5秒钟后显示可消块
+    public static float ShowNoPossibleExhangeTextTime = 1.0f;      //没有可交换的块显示，持续1秒钟
     public int CurSeed;                                     //当前的随机种子
     public StageData PlayingStageData;                      //当前的关卡数据
     public int GetProgress(){ return m_progress; }

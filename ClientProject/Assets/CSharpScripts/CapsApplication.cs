@@ -69,6 +69,18 @@ public class CapsApplication : S5Application
 		UIWindowManager.Singleton.CreateWindow<UILogin>().ShowWindow();
 
         GlobalVars.TotalStageCount = CapsConfig.Instance.TotalStageCount;
+        if (CapsConfig.Instance.MoveTime > 0)
+        {
+            GameLogic.MOVE_TIME = CapsConfig.Instance.MoveTime;
+        }
+        if (CapsConfig.Instance.EatTime > 0)
+        {
+            GameLogic.EATBLOCK_TIME = CapsConfig.Instance.EatTime;
+        }
+        if (CapsConfig.Instance.DropTime > 0)
+        {
+            GameLogic.DROP_TIME = CapsConfig.Instance.DropTime;
+        }
     }
 
     protected override void DoUpdate()

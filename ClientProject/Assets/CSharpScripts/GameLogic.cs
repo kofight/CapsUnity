@@ -1505,7 +1505,10 @@ public class GameLogic {
         if (GlobalVars.EditState == TEditState.EditStageGrid)
         {
             PlayingStageData.GridData[p.x, p.y] = GlobalVars.EditingGrid;
-            m_blocks[p.x, p.y].RefreshBlockSprite(PlayingStageData.GridData[p.x, p.y]);
+            if (m_blocks[p.x, p.y] != null)
+            {
+                m_blocks[p.x, p.y].RefreshBlockSprite(PlayingStageData.GridData[p.x, p.y]);
+            }
         }
 
         if (GlobalVars.EditState == TEditState.Eat)

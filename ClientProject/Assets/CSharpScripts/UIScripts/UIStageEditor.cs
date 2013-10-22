@@ -203,6 +203,9 @@ public class UIStageEditor : UIWindowNGUI
             input = GetChildComponent<UIInput>("Star" + (i +1));
             input.text = GlobalVars.CurGameLogic.PlayingStageData.StarScore[i].ToString();
         }
+
+        UICheckbox targetCheck = GetChildComponent<UICheckbox>("TargetMode" + (int)GlobalVars.CurGameLogic.PlayingStageData.Target);
+        targetCheck.isChecked = true;
     }
 
     public override void OnUpdate()

@@ -35,7 +35,7 @@ public class UIMap : UIWindowNGUI
 		for (int i = 0; i < GlobalVars.TotalStageCount; ++i)
         {
             Transform transform = UIToolkits.FindChild(mUIObject.transform, "Stage" + (i + 1));      //找到对象
-            if (i >= GlobalVars.AvailabeStageCount)     //隐藏超出范围的按钮
+            if (!GlobalVars.DeveloperMode && i >= GlobalVars.AvailabeStageCount)     //隐藏超出范围的按钮
             {
                 transform.gameObject.SetActive(false);
                 continue;

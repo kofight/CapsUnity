@@ -32,8 +32,6 @@ Task list
 
 
 
-Animation支持RGBA变化
-
 消块后的即时分数显示
 
 结束奖励
@@ -46,8 +44,5 @@ Animation支持RGBA变化
 
 
 Bug
-  编辑器中Stage Target的自动读取
   斜方向落下Bug
   消除后会生成直线炸弹的块，不算做果冻消除
-  彩虹果冻交换问题
-  Jelly Clean模式的关卡不能自动开启下一关

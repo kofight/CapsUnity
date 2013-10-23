@@ -271,8 +271,7 @@ public class GameLogic {
         {
             for (int j = 0; j < BlockCountY; ++j)
             {
-                if (m_blocks[i, j] == null || PlayingStageData.CheckFlag(i, j, GridFlag.Stone)
-                    || PlayingStageData.CheckFlag(i, j, GridFlag.Cage) || PlayingStageData.CheckFlag(i, j, GridFlag.Chocolate))                     //空格或空块
+                if (m_blocks[i, j] == null || m_blocks[i, j].isLocked)                     //空格或被锁块
                 {
                     continue;
                 }
@@ -301,8 +300,7 @@ public class GameLogic {
         {
             for (int j = 0; j < BlockCountY; ++j)
             {
-                if (m_blocks[i, j] == null || PlayingStageData.CheckFlag(i, j, GridFlag.Stone)
-                    || PlayingStageData.CheckFlag(i, j, GridFlag.Cage) || PlayingStageData.CheckFlag(i, j, GridFlag.Chocolate))                     //空格或空块
+                if (m_blocks[i, j] == null || m_blocks[i, j].isLocked)                     //空格或空块
                 {
                     continue;
                 }
@@ -352,12 +350,10 @@ public class GameLogic {
         {
             for (int j = 0; j < BlockCountY; j++)
             {
-                if (PlayingStageData.GridData[i,j] == 0)
+                if (PlayingStageData.CheckFlag(i, j, GridFlag.GenerateCap))
                 {
-                    continue;
+                    CreateBlock(i, j, true);
                 }
-
-                CreateBlock(i, j, true);
             }
         }
 
@@ -474,6 +470,16 @@ public class GameLogic {
                 if (PlayingStageData.CheckFlag(i, j, GridFlag.Cage))
                 {
                     UIDrawer.Singleton.DrawSprite("Cage" + i + "," + j, GetXPos(i), GetYPos(i, j), "Cage", 3);
+                }
+
+                if (PlayingStageData.CheckFlag(i, j, GridFlag.Stone))
+                {
+                    UIDrawer.Singleton.DrawSprite("Stone" + i + "," + j, GetXPos(i), GetYPos(i, j), "Stone", 3);
+                }
+
+                if (PlayingStageData.CheckFlag(i, j, GridFlag.Chocolate))
+                {
+                    UIDrawer.Singleton.DrawSprite("Chocolate" + i + "," + j, GetXPos(i), GetYPos(i, j), "Chocolate", 3);
                 }
 
                 //绘制水果出口
@@ -714,7 +720,7 @@ public class GameLogic {
                 {
                     for (int j = 0; j < BlockCountY; ++j)
                     {
-                        m_tempBlocks[i, j] = false;         //清理临时数组
+                        m_tempBlocks[i, j] = 0;         //清理临时数组
                     }
                 }
 
@@ -768,22 +774,61 @@ public class GameLogic {
                         timerEatBlock.Play();												//开启消块计时器
                     }
                 }
-
-                for (int i = 0; i < BlockCountX; ++i)
-                {
-                    for (int j = 0; j < BlockCountY; ++j)
-                    {
-                        if (m_tempBlocks[i, j])
-                        {
-                            ClearStoneAround(i, j);
-                        }
-                    }
-                }
+                ProcessTempBlocks();
             }
 
             passTime = (int)timerMoveBlock.GetTime();
             int moveTime = MOVE_TIME - passTime;		//重新获取一次passtime，因为前面有可能被刷新过
             ProcessMovePic(m_selectedPos[0], m_selectedPos[1], moveTime);
+        }
+    }
+
+    void ProcessTempBlocks()
+    {
+        for (int i = 0; i < BlockCountX; ++i)
+        {
+            for (int j = 0; j < BlockCountY; ++j)
+            {
+                if (m_tempBlocks[i, j] > 0)         //若有消除（正常或功能消除）
+                {
+                    if (PlayingStageData.CheckFlag(i, j, GridFlag.Stone))
+                    {
+                        PlayingStageData.ClearFlag(i, j, GridFlag.Stone);
+                        PlayingStageData.ClearFlag(i, j, GridFlag.NotGenerateCap);
+                        PlayingStageData.AddFlag(i, j, GridFlag.GenerateCap);
+                        return;
+                    }
+                    else if (PlayingStageData.CheckFlag(i, j, GridFlag.Chocolate))
+                    {
+                        PlayingStageData.ClearFlag(i, j, GridFlag.Chocolate);
+                        PlayingStageData.ClearFlag(i, j, GridFlag.NotGenerateCap);
+                        PlayingStageData.AddFlag(i, j, GridFlag.GenerateCap);
+                        return;
+                    }
+                    else if (PlayingStageData.CheckFlag(i, j, GridFlag.Cage))
+                    {
+                        PlayingStageData.ClearFlag(i, j, GridFlag.Cage);
+                        m_blocks[i, j].isLocked = false;
+                        return;
+                    }
+                    else if (PlayingStageData.CheckFlag(i, j, GridFlag.JellyDouble))
+                    {
+                        PlayingStageData.ClearFlag(i, j, GridFlag.JellyDouble);
+                        PlayingStageData.AddFlag(i, j, GridFlag.Jelly);
+                    }
+                    else if (PlayingStageData.CheckFlag(i, j, GridFlag.Jelly))
+                    {
+                        PlayingStageData.ClearFlag(i, j, GridFlag.Jelly);
+                    }
+
+                    ClearChocolateAround(i, j);
+                }
+
+                if (m_tempBlocks[i, j] == 2)        //若有正常消除
+                {
+                    ClearStoneAround(i, j);         //清周围的石块
+                }
+            }
         }
     }
 
@@ -1005,7 +1050,7 @@ public class GameLogic {
         {
             for (int j = 0; j < BlockCountY; ++j )
             {
-                m_tempBlocks[i, j] = false;         //清理临时数组
+                m_tempBlocks[i, j] = 0;         //清理临时数组
             }
         }
         bool tag = false;
@@ -1027,20 +1072,11 @@ public class GameLogic {
             }
         }
 
-        for (int i = 0; i < BlockCountX; ++i )
-        {
-            for (int j = 0; j < BlockCountY; ++j )
-            {
-                if (m_tempBlocks[i, j])
-                {
-                    ClearStoneAround(i, j);
-                }
-            }
-        }
+        ProcessTempBlocks();
         return tag;
     }
 
-    bool [,] m_tempBlocks = new bool[BlockCountX, BlockCountY];		//一个临时数组，用来记录哪些块要消除
+    int [,] m_tempBlocks = new int[BlockCountX, BlockCountY];		//一个临时数组，用来记录哪些块要消除, 0 代表不消除 1 代表功能块消除  2代表正常消除
 
     bool EatLine(Position position)
     {
@@ -1072,11 +1108,6 @@ public class GameLogic {
                 {
                     break;
                 }
-                if (PlayingStageData.CheckFlag(curPos.x, curPos.y, GridFlag.Chocolate) ||
-                    PlayingStageData.CheckFlag(curPos.x, curPos.y, GridFlag.Stone))
-                {
-                    break;
-                }
                 eatBlockPos[countInSameLine] = curPos;								//把Block存起来（用来后面消除）
                 ++countInSameLine;
             }
@@ -1092,11 +1123,6 @@ public class GameLogic {
                 {
                     break;
                 }
-                if (PlayingStageData.CheckFlag(curPos.x, curPos.y, GridFlag.Chocolate) ||
-                    PlayingStageData.CheckFlag(curPos.x, curPos.y, GridFlag.Stone))
-                {
-                    break;
-                }
                 eatBlockPos[countInSameLine] = curPos;
                 ++countInSameLine;
             }
@@ -1108,7 +1134,7 @@ public class GameLogic {
                     if (eatBlockPos[i] != position)										//起始块放在后面处理
                     {
                         EatBlock(eatBlockPos[i]);										//吃掉
-                        m_tempBlocks[eatBlockPos[i].x, eatBlockPos[i].y] = true;
+                        m_tempBlocks[eatBlockPos[i].x, eatBlockPos[i].y] = 2;           //记录正常消除
                     }
                 }
                 totalSameCount += (countInSameLine - 1);							//记录总的消除数量，减1是因为起始块是各条线公用的
@@ -1129,7 +1155,7 @@ public class GameLogic {
         if (totalSameCount == 3)		//总共就消了3个
         {
             EatBlock(position);
-            m_tempBlocks[position.x, position.y] = true;
+            m_tempBlocks[position.x, position.y] = 2;                                  //记录正常消除
         }
         //根据结果来生成道具////////////////////////////////////////////////////////////////////////
 		else if (maxCountInSameDir >= 5)		//若最大每行消了5个
@@ -1259,25 +1285,35 @@ public class GameLogic {
         m_blocks[pos.x, pos.y].RefreshBlockSprite(PlayingStageData.GridData[pos.x, pos.y]);
     }
 
+    void ClearChocolateAround(int x, int y)      //清除周围的巧克力
+    {
+        for (int i = 0; i < 6; ++i)
+        {
+            Position pos = GoTo(new Position(x, y), (TDirection)i, 1);
+            if (CheckPosAvailable(pos))
+            {
+                if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Chocolate))
+                {
+                    PlayingStageData.ClearFlag(pos.x, pos.y, GridFlag.Chocolate);
+                    PlayingStageData.ClearFlag(x, y, GridFlag.NotGenerateCap);
+                    PlayingStageData.AddFlag(x, y, GridFlag.GenerateCap);
+                }
+            }
+        }
+    }
+
     void ClearStoneAround(int x, int y)        //消除周围的石块
     {
-        if (PlayingStageData.CheckFlag(x, y, GridFlag.Stone))
-        {
-            PlayingStageData.ClearFlag(x, y, GridFlag.Stone);
-            m_blocks[x, y].isLocked = false;
-            MakeSpriteFree(x, y);
-        }
-
         for (int i = 0; i < 6; ++i )
         {
             Position pos = GoTo(new Position(x, y), (TDirection)i, 1);
-            if (CheckPosAvailable(pos) && m_blocks[x, y] != null)
+            if (CheckPosAvailable(pos))
             {
                 if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Stone))
                 {
                     PlayingStageData.ClearFlag(pos.x, pos.y, GridFlag.Stone);
-                    m_blocks[pos.x, pos.y].isLocked = false;
-                    MakeSpriteFree(pos.x, pos.y);
+                    PlayingStageData.ClearFlag(x, y, GridFlag.NotGenerateCap);
+                    PlayingStageData.AddFlag(x, y, GridFlag.GenerateCap);
                 }
             }
         }
@@ -1313,34 +1349,6 @@ public class GameLogic {
             m_dropDownEndTime = 0;                          //清除dropDownEnd的时间记录
             helpP1 = null;                                  //清除帮助点
             helpP2 = null;                                  //清除帮助点
-        }
-
-        if (PlayingStageData.CheckFlag(position.x, position.y, GridFlag.Stone))
-        {
-            PlayingStageData.ClearFlag(position.x, position.y, GridFlag.Stone);
-            m_blocks[position.x, position.y].isLocked = false;
-            return;
-        }
-        else if (PlayingStageData.CheckFlag(position.x, position.y, GridFlag.Chocolate))
-        {
-            PlayingStageData.ClearFlag(position.x, position.y, GridFlag.Chocolate);
-            m_blocks[position.x, position.y].isLocked = false;
-            return;
-        }
-        else if (PlayingStageData.CheckFlag(position.x, position.y, GridFlag.Cage))
-        {
-            PlayingStageData.ClearFlag(position.x, position.y, GridFlag.Cage);
-            m_blocks[position.x, position.y].isLocked = false;
-            return;
-        }
-        else if (PlayingStageData.CheckFlag(position.x, position.y, GridFlag.JellyDouble))
-        {
-            PlayingStageData.ClearFlag(position.x, position.y, GridFlag.JellyDouble);
-            PlayingStageData.AddFlag(position.x, position.y, GridFlag.Jelly);
-        }
-        else if (PlayingStageData.CheckFlag(position.x, position.y, GridFlag.Jelly))
-        {
-            PlayingStageData.ClearFlag(position.x, position.y, GridFlag.Jelly);
         }
 
         m_blocks[position.x, position.y].Eat();			//吃掉当前块
@@ -1500,9 +1508,13 @@ public class GameLogic {
         if (GlobalVars.EditState == TEditState.EditStageGrid)
         {
             PlayingStageData.GridData[p.x, p.y] = GlobalVars.EditingGrid;
-            if (m_blocks[p.x, p.y] != null)
+            if ((GlobalVars.EditingGrid | (int)GridFlag.Cage) > 0)
             {
-                m_blocks[p.x, p.y].RefreshBlockSprite(PlayingStageData.GridData[p.x, p.y]);
+                m_blocks[p.x, p.y].isLocked = true;
+            }
+            if ((GlobalVars.EditingGrid | (int)GridFlag.Stone) > 0 || (GlobalVars.EditingGrid | (int)GridFlag.Chocolate) > 0)
+            {
+                MakeSpriteFree(p.x, p.y);       //把块置空
             }
         }
 

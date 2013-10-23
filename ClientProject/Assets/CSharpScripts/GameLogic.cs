@@ -678,8 +678,11 @@ public class GameLogic {
                         }
                         if (m_blocks[i, j].saveDropDownState && !m_blocks[i, j].isDropping)         //之前是下落状态，现在不是下落状态
                         {
-                            m_blocks[i, j].m_animation.Play("DropDown");                            //就播放下落动画
-                            m_blocks[i, j].saveDropDownState = false;
+                            if (!m_blocks[i, j].IsEating())         //若没被吃
+                            {
+                                m_blocks[i, j].m_animation.Play("DropDown");                            //就播放下落动画
+                                m_blocks[i, j].saveDropDownState = false;
+                            }
                         }
                     }
                 }
@@ -1709,6 +1712,10 @@ public class GameLogic {
         {
             for (int j = 0; j < BlockCountY; ++j )
             {
+                if (m_blocks[i, j] == null)
+                {
+                    continue;
+                }
                 if (color != TBlockColor.EColor_None && m_blocks[i, j].special == TSpecialBlock.ESpecial_EatAColor)
                 {
                     continue;

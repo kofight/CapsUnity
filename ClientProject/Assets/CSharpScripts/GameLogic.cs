@@ -344,7 +344,13 @@ public class GameLogic {
         {
             m_random = new System.Random((int)Time.timeSinceLevelLoad * 1000);
         }
-        
+
+        //查找坚果的出口
+        if (PlayingStageData.Target == GameTarget.BringFruitDown)
+        {
+            PlayingStageData.Nut1Count = 0;
+            PlayingStageData.Nut2Count = 0;
+        }
 
         for (int i = 0; i < BlockCountX; i++)
         {
@@ -355,24 +361,6 @@ public class GameLogic {
                     CreateBlock(i, j, true);
                 }
             }
-        }
-
-        //查找坚果的出口
-        if (PlayingStageData.Target == GameTarget.BringFruitDown)
-        {
-            for (int i = 0; i < BlockCountX; i++)
-            {
-                for (int j = BlockCountY - 1; j >= 0; j--)
-                {
-                    if (PlayingStageData.GridData[i, j] == 0)
-                    {
-                        continue;
-                    }
-                }
-            }
-
-            PlayingStageData.Nut1Count = 0;
-            PlayingStageData.Nut2Count = 0;
         }
 
         OnProgressChange();
@@ -918,15 +906,16 @@ public class GameLogic {
             {
                 for (int i = 0; i < BlockCountX; i++)				//一次遍历一行
                 {
-                    if (PlayingStageData.GridData[i, j] == 0 || PlayingStageData.CheckFlag(i, j, GridFlag.Stone | GridFlag.Cage | GridFlag.Chocolate))		//若为镂空块，石头，不判断
-                    {
-                        continue;
-                    }
                     bool bDrop = false;
                     bool UpLocked = false;              //上面被锁住
 
                     if (m_blocks[i, j] == null)       //找到空块
                     {
+                        if (PlayingStageData.GridData[i, j] == 0 || PlayingStageData.CheckFlag(i, j, GridFlag.Stone | GridFlag.Cage | GridFlag.Chocolate))		//若为镂空块，石头，不判断
+                        {
+                            continue;
+                        }
+
                         if (PlayingStageData.CheckFlag(i, j, GridFlag.Birth))
                         {
                             continue;                   //出生点空了时，不在这里处理下落
@@ -1427,7 +1416,9 @@ public class GameLogic {
         //Todo 临时加的粒子代码
         Object obj = Resources.Load("EatEffect");
         GameObject gameObj = GameObject.Instantiate(obj) as GameObject;
+		gameObj.transform.parent = m_blocks[position.x, position.y].m_blockTransform.parent;
         gameObj.transform.position = m_blocks[position.x, position.y].m_blockTransform.position;
+		gameObj.transform.LocalPositionZ(-200);
     }
 
     public bool CheckStageFinish()
@@ -1853,7 +1844,7 @@ public class GameLogic {
 
     void CreateBlock(int x, int y, bool avoidLine)
     {
-        TBlockColor color = GetRandomColor();		//最上方获取新的方块
+        TBlockColor color = GetRandomColor(PlayingStageData.CheckFlag(x, y, GridFlag.Birth));		//最上方获取新的方块
         m_blocks[x, y] = GetFreeCapBlock(color);            //创建新的块 Todo 变成用缓存
         m_blocks[x, y].color = color;               //设置颜色
 
@@ -1884,35 +1875,25 @@ public class GameLogic {
         m_selectedPos[1].x = -1;
     }
 
-    TBlockColor GetRandomColor()
+    TBlockColor GetRandomColor(bool bBirth)
     {
-        if (PlayingStageData.Target == GameTarget.BringFruitDown)
+        if (bBirth && PlayingStageData.Target == GameTarget.BringFruitDown          //若为出生点，且水果下落模式，且还没掉够坚果
+            && m_nut1Count + PlayingStageData.Nut1Count + m_nut2Count + PlayingStageData.Nut2Count < GlobalVars.CurStageData.Nut1Count + GlobalVars.CurStageData.Nut2Count)
         {
-            bool AddNut = false;        //记录是否生成坚果的结果
-            int remainNutsCount = (GlobalVars.CurStageData.Nut1Count + GlobalVars.CurStageData.Nut2Count) - PlayingStageData.Nut1Count - PlayingStageData.Nut2Count - m_nut1Count - m_nut2Count;
 
-            if (remainNutsCount > 0)
+            bool AddNut = false;        //记录是否生成坚果的结果
+
+            if (m_nut1Count + m_nut2Count + PlayingStageData.Nut2Count + PlayingStageData.Nut1Count < PlayingStageData.NutInitCount)     //若还没到初始数量
             {
-                if (m_nut1Count + m_nut2Count == 0)
+                AddNut = true;          //生成
+            }
+
+            if (m_nut1Count + m_nut2Count < PlayingStageData.NutMaxCount)       //画面上坚果数量已经小于最大数量，不生成
+            {
+                if (GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit > 
+                    (m_nut1Count + m_nut2Count + PlayingStageData.Nut1Count + PlayingStageData.Nut2Count - PlayingStageData.NutInitCount + 1) * PlayingStageData.NutStep)      //若已经到步数了
                 {
-                    if (m_random.Next() % 3 == 0)       //3分之一的概率
-                    {
-                        AddNut = true;
-                    }
-                }
-                else if (m_nut1Count + m_nut2Count == 1)
-                {
-                    if (m_random.Next() % 10 == 0)       //10分之一的概率
-                    {
-                        AddNut = true;
-                    }
-                }
-                else if (m_nut1Count + m_nut2Count == 2)
-                {
-                    if (m_random.Next() % 25 == 0)       //25分之一的概率
-                    {
-                        AddNut = true;
-                    }
+                    AddNut = true;
                 }
             }
 

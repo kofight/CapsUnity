@@ -676,7 +676,7 @@ public class GameLogic {
 
                         if (dropDownEnd)
                         {
-                            m_blocks[i, j].m_animation.Play("Eat");    
+                            m_blocks[i, j].m_animation.Play("DropDown");    
                         }
                         m_blocks[i, j].isDropping = false;
                         m_blocks[i, j].x_move = 0;

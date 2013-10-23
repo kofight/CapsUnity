@@ -634,53 +634,21 @@ public class GameLogic {
                 //清空方块的下落标志和偏移量
                 for (int i = 0; i < BlockCountX; i++)
                 {
-                    for (int j = BlockCountY -1 ; j >= 0; --j)
+                    for (int j = 0 ; j < BlockCountY; j++)
                     {
                         if (m_blocks[i, j] == null)     //为空块
                         {
                             continue;
                         }
 
-                        bool dropDownEnd = false;
-
+                        
                         if (m_blocks[i, j].isDropping)
                         {
-                            Position p = new Position(i, j);
-                            Position to;
-                            if (PlayingStageData.CheckFlag(i, j, GridFlag.PortalStart))             //若为传送门
-                            {
-                                to = PlayingStageData.PortalFromMap[p.ToInt()].to;
-                            }
-                            else
-                            {
-                                to = new Position(i, j+1);
-                            }
-
-                            if (to.y >= BlockCountY)                                           //若到了最下面位置
-                            {
-                                dropDownEnd = true;
-                            }
-                            else if (m_blocks[to.x, to.y] != null && !m_blocks[to.x, to.y].isDropping)      //下面有块且没在下落
-                            {
-                                dropDownEnd = true;
-                            }
-                            else if (PlayingStageData.CheckFlag(to.x, to.y, GridFlag.Stone | GridFlag.Cage | GridFlag.Chocolate))      //若下方为不可移动块
-                            {
-                                dropDownEnd = true;
-                            }
-                            else if (PlayingStageData.GridData[to.x, to.y] == 0)                            //下面是空块
-                            {
-                                dropDownEnd = true;
-                            }
+                            m_blocks[i, j].saveDropDownState = true;
+                            m_blocks[i, j].isDropping = false;
+                            m_blocks[i, j].x_move = 0;
+                            m_blocks[i, j].y_move = 0;
                         }
-
-                        if (dropDownEnd)
-                        {
-                            m_blocks[i, j].m_animation.Play("DropDown");    
-                        }
-                        m_blocks[i, j].isDropping = false;
-                        m_blocks[i, j].x_move = 0;
-                        m_blocks[i, j].y_move = 0;
                     }
                 }
 
@@ -699,6 +667,22 @@ public class GameLogic {
                     }
                 }
 
+                //找出之前在下落，现在已经不再下落的块
+                for (int i = 0; i < BlockCountX; i++)
+                {
+                    for (int j = 0; j < BlockCountY; j++)
+                    {
+                        if (m_blocks[i, j] == null)     //为空块
+                        {
+                            continue;
+                        }
+                        if (m_blocks[i, j].saveDropDownState && !m_blocks[i, j].isDropping)         //之前是下落状态，现在不是下落状态
+                        {
+                            m_blocks[i, j].m_animation.Play("DropDown");                            //就播放下落动画
+                            m_blocks[i, j].saveDropDownState = false;
+                        }
+                    }
+                }
             }
             //如果未到120毫秒，更新各方快的位置
             for (int i = 0; i < BlockCountX; i++)

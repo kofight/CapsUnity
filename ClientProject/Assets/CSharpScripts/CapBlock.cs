@@ -93,6 +93,7 @@ public class CapBlock
     public int x_move;
     public int y_move;
     public bool m_bEating;						//正在消失的标记
+    public bool saveDropDownState;              //保存下落状态，没有逻辑上的用途，只是为了方便计算哪些块落到底了
     public bool isDropping;
     public Position droppingFrom;                 //从某个点掉落过来
     public bool m_bNeedCheckEatLine;			//一旦落地就被标记，然后EatAllLine逻辑用这个变量区分是否需要检测消行

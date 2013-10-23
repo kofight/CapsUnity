@@ -5,12 +5,14 @@ public class UIStageEditor : UIWindowNGUI
 {
     bool editingPortal = false;         //编辑传送门的标记
     UILabel m_portalEditLabel;
+    UILabel m_seedLabel;
 
     public override void OnCreate()
     {
         base.OnCreate();
 
         m_portalEditLabel = GetChildComponent<UILabel>("EditPortalTip");
+        m_seedLabel = GetChildComponent<UILabel>("SeedLabel");
 
         AddChildComponentMouseClick("SaveBtn", OnSaveClicked);
 
@@ -34,6 +36,7 @@ public class UIStageEditor : UIWindowNGUI
             GlobalVars.CurGameLogic.ClearGame();
             GlobalVars.CurGameLogic.PlayingStageData.Seed = (int)(Time.realtimeSinceStartup * 1000 % 1000);
             GlobalVars.CurGameLogic.StartGame();
+            m_seedLabel.text = GlobalVars.CurGameLogic.PlayingStageData.Seed.ToString();
         });
 
         for (int i = 0; i < GameLogic.TotalColorCount; ++i)
@@ -227,6 +230,8 @@ public class UIStageEditor : UIWindowNGUI
 
         UICheckbox targetCheck = GetChildComponent<UICheckbox>("TargetMode" + (int)GlobalVars.CurGameLogic.PlayingStageData.Target);
         targetCheck.isChecked = true;
+
+        m_seedLabel.text = GlobalVars.CurGameLogic.PlayingStageData.Seed.ToString();
     }
 
     public override void OnUpdate()

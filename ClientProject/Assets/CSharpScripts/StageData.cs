@@ -68,6 +68,9 @@ public class StageData
     public int Seed = 0;                    //种子
     public int Nut1Count = 3;
     public int Nut2Count = 3;
+    public int NutMaxCount = 3;            //最多同屏数量
+    public int NutInitCount = 1;            //初始化数量
+    public int NutStep = 10;            //步数间隔
     public int[]    StarScore = new int[3];          //获得星星的分数
     public int [, ] GridData = new int[GameLogic.BlockCountX, GameLogic.BlockCountY];                        //关卡初始地块数据
 
@@ -162,6 +165,9 @@ public class StageData
         _config.GetValue<int>("ColorCount", out ColorCount);
         _config.GetValue<int>("Nut1Count", out Nut1Count);
         _config.GetValue<int>("Nut2Count", out Nut2Count);
+        _config.GetValue<int>("NutInitCount", out NutInitCount);
+        _config.GetValue<int>("NutMaxCount", out NutMaxCount);
+        _config.GetValue<int>("NutStep", out NutStep);
         _config.GetValue<int>("Seed", out Seed);
 
         if (ColorCount == 0)
@@ -228,6 +234,9 @@ public class StageData
         _config.GetValue<int>("ColorCount", out ColorCount);
         _config.GetValue<int>("Nut1Count", out Nut1Count);
         _config.GetValue<int>("Nut2Count", out Nut2Count);
+        _config.GetValue<int>("NutInitCount", out NutInitCount);
+        _config.GetValue<int>("NutMaxCount", out NutMaxCount);
+        _config.GetValue<int>("NutStep", out NutStep);
         int newFormat = 0;
         _config.GetValue<int>("NewFormat", out newFormat);
         if (ColorCount == 0)
@@ -315,6 +324,9 @@ public class StageData
         _config.Write("ColorCount", ColorCount);
         _config.Write("Nut1Count", Nut1Count);
         _config.Write("Nut2Count", Nut2Count);
+		_config.Write("NutInitCount", NutInitCount);
+        _config.Write("NutMaxCount", NutMaxCount);
+		_config.Write("NutStep", NutStep);
         _config.Write("Seed", Seed);
         _config.Write("NewFormat", 1);                  //新格式标记
         string temp = string.Empty;

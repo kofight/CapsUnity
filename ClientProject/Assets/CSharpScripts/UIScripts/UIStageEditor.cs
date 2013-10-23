@@ -222,6 +222,15 @@ public class UIStageEditor : UIWindowNGUI
         input = GetChildComponent<UIInput>("Nut2");
         input.text = GlobalVars.CurStageData.Nut2Count.ToString();
 
+        input = GetChildComponent<UIInput>("NutInitCount");
+        input.text = GlobalVars.CurStageData.NutInitCount.ToString();
+
+        input = GetChildComponent<UIInput>("NutMaxCount");
+        input.text = GlobalVars.CurStageData.NutMaxCount.ToString();
+
+        input = GetChildComponent<UIInput>("NutStep");
+        input.text = GlobalVars.CurStageData.NutStep.ToString();
+
         for (int i = 0; i < 3; ++i )
         {
             input = GetChildComponent<UIInput>("Star" + (i +1));
@@ -284,6 +293,18 @@ public class UIStageEditor : UIWindowNGUI
         input = GetChildComponent<UIInput>("Nut2");
         int nut2Count = (int)System.Convert.ChangeType(input.text, typeof(int));
         GlobalVars.CurGameLogic.PlayingStageData.Nut2Count = nut2Count;
+
+        input = GetChildComponent<UIInput>("NutInitCount");
+        int nutInitCount = (int)System.Convert.ChangeType(input.text, typeof(int));
+        GlobalVars.CurGameLogic.PlayingStageData.NutInitCount = nutInitCount;
+
+        input = GetChildComponent<UIInput>("NutMaxCount");
+        int nutMaxCount = (int)System.Convert.ChangeType(input.text, typeof(int));
+        GlobalVars.CurGameLogic.PlayingStageData.NutMaxCount = nutMaxCount;
+
+        input = GetChildComponent<UIInput>("NutStep");
+        int nutStep = (int)System.Convert.ChangeType(input.text, typeof(int));
+        GlobalVars.CurGameLogic.PlayingStageData.NutStep = nutStep;
 
         input = GetChildComponent<UIInput>("LevelInput");
         int levelNum = (int)System.Convert.ChangeType(input.text, typeof(int));

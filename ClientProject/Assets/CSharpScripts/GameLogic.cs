@@ -1421,9 +1421,9 @@ public class GameLogic {
 
         m_blocks[position.x, position.y].m_animation.Play("Eat");
         //Todo 临时加的粒子代码
-        //Object obj = Resources.Load("EatEffect");
-        //GameObject gameObj = GameObject.Instantiate(obj) as GameObject;
-        //gameObj.transform.position = m_blocks[position.x, position.y].m_blockTransform.position;
+        Object obj = Resources.Load("EatEffect");
+        GameObject gameObj = GameObject.Instantiate(obj) as GameObject;
+        gameObj.transform.position = m_blocks[position.x, position.y].m_blockTransform.position;
     }
 
     public bool CheckStageFinish()

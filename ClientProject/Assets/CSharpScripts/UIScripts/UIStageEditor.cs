@@ -4,10 +4,15 @@ using System.Collections;
 public class UIStageEditor : UIWindowNGUI
 {
     bool editingPortal = false;         //编辑传送门的标记
+    UILabel m_portalEditLabel;
+    UILabel m_seedLabel;
 
     public override void OnCreate()
     {
         base.OnCreate();
+
+        m_portalEditLabel = GetChildComponent<UILabel>("EditPortalTip");
+        m_seedLabel = GetChildComponent<UILabel>("SeedLabel");
 
         AddChildComponentMouseClick("SaveBtn", OnSaveClicked);
 
@@ -31,6 +36,7 @@ public class UIStageEditor : UIWindowNGUI
             GlobalVars.CurGameLogic.ClearGame();
             GlobalVars.CurGameLogic.PlayingStageData.Seed = (int)(Time.realtimeSinceStartup * 1000 % 1000);
             GlobalVars.CurGameLogic.StartGame();
+            m_seedLabel.text = GlobalVars.CurGameLogic.PlayingStageData.Seed.ToString();
         });
 
         for (int i = 0; i < GameLogic.TotalColorCount; ++i)
@@ -101,6 +107,7 @@ public class UIStageEditor : UIWindowNGUI
             GlobalVars.EditState = TEditState.EditPortal;
             GlobalVars.EditingPortal = new Portal();
             GlobalVars.EditingPortal.flag = 1;
+            GlobalVars.EditingPortalTip = "Edit Portal: 选择Pos1";
         });
 
         AddChildComponentMouseClick("EditPortalInvisible", delegate(object sender, UIMouseClick.ClickArgs e)
@@ -108,6 +115,7 @@ public class UIStageEditor : UIWindowNGUI
             GlobalVars.EditState = TEditState.EditPortal;
             GlobalVars.EditingPortal = new Portal();
             GlobalVars.EditingPortal.flag = 0;
+            GlobalVars.EditingPortalTip = "Edit Portal: 选择Pos1";
         });
 
         AddChildComponentMouseClick("GridNoneBtn", delegate(object sender, UIMouseClick.ClickArgs e)
@@ -222,11 +230,21 @@ public class UIStageEditor : UIWindowNGUI
 
         UICheckbox targetCheck = GetChildComponent<UICheckbox>("TargetMode" + (int)GlobalVars.CurGameLogic.PlayingStageData.Target);
         targetCheck.isChecked = true;
+
+        m_seedLabel.text = GlobalVars.CurGameLogic.PlayingStageData.Seed.ToString();
     }
 
     public override void OnUpdate()
     {
         base.OnUpdate();
+        if (GlobalVars.EditState == TEditState.EditPortal)
+        {
+            m_portalEditLabel.text = GlobalVars.EditingPortalTip;
+        }
+        else
+        {
+            m_portalEditLabel.text = string.Empty;
+        }
     }
 
     private void OnCloseClicked(object sender, UIMouseClick.ClickArgs e)

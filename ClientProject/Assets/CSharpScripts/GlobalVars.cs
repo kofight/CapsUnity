@@ -22,6 +22,7 @@ public class GlobalVars {
     //编辑模式的变量
     public static TEditState EditState;                        //当前的编辑状态
     public static Portal EditingPortal;                     //当前正编辑的传送门
+    public static string EditingPortalTip;                      //编辑传送门的提示
     public static TBlockColor EditingColor;                    //正在编辑的颜色
     public static TSpecialBlock EditingSpecial;                //正在编辑的颜色
     public static int     EditingGrid;                          //正在编辑的块

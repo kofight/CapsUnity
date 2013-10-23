@@ -1528,19 +1528,27 @@ public class GameLogic {
 
         if (GlobalVars.EditState == TEditState.EditPortal)
         {
-            if (PlayingStageData.CheckFlag(p.x, p.y, GridFlag.Portal))          //不能在已经有传送门的地方编写
-            {
-                return;
-            }
-
             if (GlobalVars.EditingPortal.from == null)                          //在编辑第一个点
-            {   
+            {
+                if (PlayingStageData.CheckFlag(p.x, p.y, GridFlag.PortalStart)) //若所选的位置已经是开始点了，不能编辑
+                {
+                    GlobalVars.EditingPortalTip = "选择了重复的开始点, 重新选择Pos1";
+                    return;
+                }
                 GlobalVars.EditingPortal.from = p;
+                GlobalVars.EditingPortalTip = "Edit Portal: 选择Pos2";
             }
             else
             {
                 if (p == GlobalVars.EditingPortal.from)                         //起点终点不能重合
                 {
+                    GlobalVars.EditingPortalTip = "起始点和终点不能是同一点, 重新选择Pos2";
+                    return;
+                }
+
+                if (PlayingStageData.CheckFlag(p.x, p.y, GridFlag.PortalEnd)) //若所选的位置已经是终点了，不能编辑
+                {
+                    GlobalVars.EditingPortalTip = "选择了重复的结束点, 重新选择Pos2";
                     return;
                 }
 
@@ -1557,6 +1565,8 @@ public class GameLogic {
                 int flag = GlobalVars.EditingPortal.flag;
                 GlobalVars.EditingPortal = new Portal();
                 GlobalVars.EditingPortal.flag = flag;
+
+                GlobalVars.EditingPortalTip = "Edit Portal: 添加成功， 重新选择Pos1";
             }
         }
     }

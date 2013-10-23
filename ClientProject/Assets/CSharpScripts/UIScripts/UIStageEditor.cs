@@ -4,10 +4,13 @@ using System.Collections;
 public class UIStageEditor : UIWindowNGUI
 {
     bool editingPortal = false;         //编辑传送门的标记
+    UILabel m_portalEditLabel;
 
     public override void OnCreate()
     {
         base.OnCreate();
+
+        m_portalEditLabel = GetChildComponent<UILabel>("EditPortalTip");
 
         AddChildComponentMouseClick("SaveBtn", OnSaveClicked);
 
@@ -101,6 +104,7 @@ public class UIStageEditor : UIWindowNGUI
             GlobalVars.EditState = TEditState.EditPortal;
             GlobalVars.EditingPortal = new Portal();
             GlobalVars.EditingPortal.flag = 1;
+            GlobalVars.EditingPortalTip = "Edit Portal: 选择Pos1";
         });
 
         AddChildComponentMouseClick("EditPortalInvisible", delegate(object sender, UIMouseClick.ClickArgs e)
@@ -108,6 +112,7 @@ public class UIStageEditor : UIWindowNGUI
             GlobalVars.EditState = TEditState.EditPortal;
             GlobalVars.EditingPortal = new Portal();
             GlobalVars.EditingPortal.flag = 0;
+            GlobalVars.EditingPortalTip = "Edit Portal: 选择Pos1";
         });
 
         AddChildComponentMouseClick("GridNoneBtn", delegate(object sender, UIMouseClick.ClickArgs e)
@@ -227,6 +232,14 @@ public class UIStageEditor : UIWindowNGUI
     public override void OnUpdate()
     {
         base.OnUpdate();
+        if (GlobalVars.EditState == TEditState.EditPortal)
+        {
+            m_portalEditLabel.text = GlobalVars.EditingPortalTip;
+        }
+        else
+        {
+            m_portalEditLabel.text = string.Empty;
+        }
     }
 
     private void OnCloseClicked(object sender, UIMouseClick.ClickArgs e)

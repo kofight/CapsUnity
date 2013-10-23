@@ -1326,7 +1326,9 @@ public class GameLogic {
 
         if (m_blocks[position.x, position.y] == null) return;
 
-        if (m_blocks[position.x, position.y].color > TBlockColor.EColor_Grey) return;
+        if (PlayingStageData.CheckFlag(position.x, position.y, GridFlag.Cage)) return;                       //有笼子的块不消(先消笼子)
+
+        if (m_blocks[position.x, position.y].color > TBlockColor.EColor_Grey) return;                        //
 
         if (m_blocks[position.x, position.y].x_move > 0 || m_blocks[position.x, position.y].y_move > 0)     //正在移动的不能消除
             return;
@@ -1508,11 +1510,11 @@ public class GameLogic {
         if (GlobalVars.EditState == TEditState.EditStageGrid)
         {
             PlayingStageData.GridData[p.x, p.y] = GlobalVars.EditingGrid;
-            if ((GlobalVars.EditingGrid | (int)GridFlag.Cage) > 0)
+            if ((GlobalVars.EditingGrid & (int)GridFlag.Cage) > 0)
             {
                 m_blocks[p.x, p.y].isLocked = true;
             }
-            if ((GlobalVars.EditingGrid | (int)GridFlag.Stone) > 0 || (GlobalVars.EditingGrid | (int)GridFlag.Chocolate) > 0)
+            if ((GlobalVars.EditingGrid & (int)GridFlag.Stone) > 0 || (GlobalVars.EditingGrid & (int)GridFlag.Chocolate) > 0)
             {
                 MakeSpriteFree(p.x, p.y);       //把块置空
             }

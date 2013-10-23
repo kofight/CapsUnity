@@ -927,6 +927,10 @@ public class GameLogic {
 
                     if (m_blocks[i, j] == null)       //找到空块
                     {
+                        if (PlayingStageData.CheckFlag(i, j, GridFlag.Birth))
+                        {
+                            continue;                   //出生点空了时，不在这里处理下落
+                        }
                         dropDest.Set(i, j);
                         //先看是否在传送点
                         if (PlayingStageData.CheckFlag(dropDest.x, dropDest.y, GridFlag.PortalEnd))

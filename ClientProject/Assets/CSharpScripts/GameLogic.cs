@@ -1039,13 +1039,6 @@ public class GameLogic {
 
     bool EatAllLine()
     {
-        for (int i = 0; i < BlockCountX; ++i )
-        {
-            for (int j = 0; j < BlockCountY; ++j )
-            {
-                m_tempBlocks[i, j] = 0;         //清理临时数组
-            }
-        }
         bool tag = false;
         for (int i = 0; i < BlockCountX; i++)
         {
@@ -1066,6 +1059,13 @@ public class GameLogic {
         }
 
         ProcessTempBlocks();
+		for (int i = 0; i < BlockCountX; ++i )
+        {
+            for (int j = 0; j < BlockCountY; ++j )
+            {
+                m_tempBlocks[i, j] = 0;         //清理临时数组
+            }
+        }
         return tag;
     }
 
@@ -1347,6 +1347,8 @@ public class GameLogic {
         }
 
         m_blocks[position.x, position.y].Eat();			//吃掉当前块
+
+        m_tempBlocks[position.x, position.y] = 1;       //记录吃块，用来改变Grid属性
 
         switch (m_blocks[position.x, position.y].special)
         {

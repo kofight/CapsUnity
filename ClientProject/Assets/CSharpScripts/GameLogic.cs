@@ -1148,7 +1148,6 @@ public class GameLogic {
         if (totalSameCount == 3)		//总共就消了3个
         {
             EatBlock(position);
-            m_tempBlocks[position.x, position.y] = 2;                                  //记录正常消除
         }
         //根据结果来生成道具////////////////////////////////////////////////////////////////////////
 		else if (maxCountInSameDir >= 5)		//若最大每行消了5个
@@ -1187,6 +1186,7 @@ public class GameLogic {
             kItem = 1;
         }
         m_blocks[position.x, position.y].RefreshBlockSprite(PlayingStageData.GridData[position.x, position.y]);
+        m_tempBlocks[position.x, position.y] = 2;                                  //记录正常消除
 
         //TODO 记分
         ////根据结果来记分

@@ -1158,18 +1158,30 @@ public class GameLogic {
         //根据结果来生成道具////////////////////////////////////////////////////////////////////////
 		else if (maxCountInSameDir >= 5)		//若最大每行消了5个
         {
+            if (m_blocks[position.x, position.y].special == TSpecialBlock.ESpecial_NormalPlus5)
+            {
+                m_gameStartTime += 5000;               //增加5秒时间
+            }
             m_blocks[position.x, position.y].special = TSpecialBlock.ESpecial_EatAColor;
             m_progress += 2000;                  //Todo 增加文字特效
             kItem = 3;
         }
 		else if (totalSameCount >= 6)			//若总共消除大于等于6个（3,4消除或者多个3消）
         {
+            if (m_blocks[position.x, position.y].special == TSpecialBlock.ESpecial_NormalPlus5)
+            {
+                m_gameStartTime += 5000;               //增加5秒时间
+            }
             m_blocks[position.x, position.y].special = TSpecialBlock.ESpecial_Bomb;
             m_progress += 600;                  //Todo 增加文字特效
             kItem = 2;
         }
         else if (maxCountInSameDir == 4)		//若最大每行消了4个
         {
+            if (m_blocks[position.x, position.y].special == TSpecialBlock.ESpecial_NormalPlus5)
+            {
+                m_gameStartTime += 5000;               //增加5秒时间
+            }
             if (m_moveDirection == TDirection.EDir_Up || m_moveDirection == TDirection.EDir_Down)
             {
                 m_blocks[position.x, position.y].special = TSpecialBlock.ESpecial_EatLineDir0;
@@ -1187,6 +1199,10 @@ public class GameLogic {
         }
         else if (totalSameCount > 4)			//若总共消除大于4个
         {
+            if (m_blocks[position.x, position.y].special == TSpecialBlock.ESpecial_NormalPlus5)
+            {
+                m_gameStartTime += 5000;               //增加5秒时间
+            }
             m_blocks[position.x, position.y].special = TSpecialBlock.ESpecial_Bomb;         //这里先生成炸弹，不生成染色球了
             m_progress += 600;                  //Todo 增加文字特效
             kItem = 1;
@@ -1366,6 +1382,11 @@ public class GameLogic {
                         Position newPos = GoTo(position, dir, 1);
                         EatBlock(newPos);
                     }
+                }
+                break;
+            case TSpecialBlock.ESpecial_NormalPlus5:
+                {
+                    m_gameStartTime += 5000;               //增加5秒时间
                 }
                 break;
             case TSpecialBlock.ESpecial_Painter:
@@ -1677,7 +1698,7 @@ public class GameLogic {
 
     void ProcessMove()
     {
-        if (GlobalVars.CurStageData.StepLimit > 0)
+        //if (GlobalVars.CurStageData.StepLimit > 0)
         {
             --PlayingStageData.StepLimit;
         }
@@ -1855,11 +1876,23 @@ public class GameLogic {
         return block;
     }
 
+    int m_idCount = 0;
+    int m_lastPlus5Step = 0;            //上次+5的步数
+    int m_plus5Count = 0;
+
     void CreateBlock(int x, int y, bool avoidLine)
     {
         TBlockColor color = GetRandomColor(PlayingStageData.CheckFlag(x, y, GridFlag.Birth));		//最上方获取新的方块
         m_blocks[x, y] = GetFreeCapBlock(color);            //创建新的块 Todo 变成用缓存
         m_blocks[x, y].color = color;               //设置颜色
+        m_blocks[x, y].id = m_idCount++;
+
+        //处理+5
+        if (GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit > m_lastPlus5Step + PlayingStageData.PlusStep)
+        {
+            m_blocks[x, y].special = TSpecialBlock.ESpecial_NormalPlus5;            //生成一个+5
+			m_lastPlus5Step = GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit;
+        }
 
         if (avoidLine)
         {

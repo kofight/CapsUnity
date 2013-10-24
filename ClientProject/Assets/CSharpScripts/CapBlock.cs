@@ -19,6 +19,7 @@ public enum TBlockColor
 public enum TSpecialBlock
 {
     ESpecial_Normal,			    //普通块
+    ESpecial_NormalPlus5,			//普通块加5时间
     ESpecial_EatLineDir0,			//一次消一线，方向0
     ESpecial_EatLineDir1,			//一次消一线，方向1
     ESpecial_EatLineDir2,			//一次消一线，方向2
@@ -48,6 +49,11 @@ public class CapBlock
             case TSpecialBlock.ESpecial_Normal:
                 {
                     m_blockSprite.spriteName = "Item" + (int)(color - TBlockColor.EColor_None);
+                }
+                break;
+            case TSpecialBlock.ESpecial_NormalPlus5:
+                {
+                    m_blockSprite.spriteName = "TimeAdded" + (int)(color - TBlockColor.EColor_None);
                 }
                 break;
             case TSpecialBlock.ESpecial_EatLineDir0:
@@ -86,6 +92,7 @@ public class CapBlock
     public bool m_bNeedCheckEatLine;			//一旦落地就被标记，然后EatAllLine逻辑用这个变量区分是否需要检测消行
     public bool isLocked;                       //是否被锁定
     public TSpecialBlock special;				//特殊功能块
+    public int id;                              //一个唯一id, 用来标识块
 
     public Animation m_animation;
     public UISprite m_blockSprite;		//精灵动画

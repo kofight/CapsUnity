@@ -784,6 +784,8 @@ public class GameLogic {
                         PlayingStageData.ClearFlag(i, j, GridFlag.Stone);
                         PlayingStageData.ClearFlag(i, j, GridFlag.NotGenerateCap);
                         PlayingStageData.AddFlag(i, j, GridFlag.GenerateCap);
+
+                        AddPartile("StoneEffect", i, j);
                         return;
                     }
                     else if (PlayingStageData.CheckFlag(i, j, GridFlag.Chocolate))
@@ -791,11 +793,13 @@ public class GameLogic {
                         PlayingStageData.ClearFlag(i, j, GridFlag.Chocolate);
                         PlayingStageData.ClearFlag(i, j, GridFlag.NotGenerateCap);
                         PlayingStageData.AddFlag(i, j, GridFlag.GenerateCap);
+                        AddPartile("ChocolateEffect", i, j);
                         return;
                     }
                     else if (PlayingStageData.CheckFlag(i, j, GridFlag.Cage))
                     {
                         PlayingStageData.ClearFlag(i, j, GridFlag.Cage);
+                        AddPartile("CageEffect", i, j);
                         m_blocks[i, j].isLocked = false;
                         return;
                     }
@@ -803,10 +807,12 @@ public class GameLogic {
                     {
                         PlayingStageData.ClearFlag(i, j, GridFlag.JellyDouble);
                         PlayingStageData.AddFlag(i, j, GridFlag.Jelly);
+                        AddPartile("JellyEffect", i, j);
                     }
                     else if (PlayingStageData.CheckFlag(i, j, GridFlag.Jelly))
                     {
                         PlayingStageData.ClearFlag(i, j, GridFlag.Jelly);
+                        AddPartile("JellyEffect", i, j);
                     }
 
                     ClearChocolateAround(i, j);
@@ -1181,7 +1187,7 @@ public class GameLogic {
         }
         else if (totalSameCount > 4)			//若总共消除大于4个
         {
-            m_blocks[position.x, position.y].special = TSpecialBlock.ESpecial_Painter;
+            m_blocks[position.x, position.y].special = TSpecialBlock.ESpecial_Bomb;         //这里先生成炸弹，不生成染色球了
             m_progress += 600;                  //Todo 增加文字特效
             kItem = 1;
         }
@@ -1415,12 +1421,17 @@ public class GameLogic {
         }
 
         m_blocks[position.x, position.y].m_animation.Play("Eat");
+        AddPartile("EatEffect", position.x, position.y);
+    }
+
+    public void AddPartile(string name, int x, int y)
+    {
         //Todo 临时加的粒子代码
-        Object obj = Resources.Load("EatEffect");
+        Object obj = Resources.Load(name);
         GameObject gameObj = GameObject.Instantiate(obj) as GameObject;
-		gameObj.transform.parent = m_blocks[position.x, position.y].m_blockTransform.parent;
-        gameObj.transform.position = m_blocks[position.x, position.y].m_blockTransform.position;
-		gameObj.transform.LocalPositionZ(-200);
+        gameObj.transform.parent = m_blocks[x, y].m_blockTransform.parent;
+        gameObj.transform.position = m_blocks[x, y].m_blockTransform.position;
+        gameObj.transform.LocalPositionZ(-200);
     }
 
     public bool CheckStageFinish()

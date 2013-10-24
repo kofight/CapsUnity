@@ -1,4 +1,4 @@
-﻿TotalStageCount             30
+﻿TotalStageCount             50
 DropTime                    120
 EatTime                    340
 MoveTime                    250

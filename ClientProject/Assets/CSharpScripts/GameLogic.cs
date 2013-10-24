@@ -943,7 +943,7 @@ public class GameLogic {
                                 {
                                     UpLocked = true;
                                 }
-                                else if (m_blocks[dropFrom.x, dropFrom.y] != null && !m_blocks[dropFrom.x, dropFrom.y].isDropping)           //找到有效块
+                                else if (m_blocks[dropFrom.x, dropFrom.y] != null && !m_blocks[dropFrom.x, dropFrom.y].isDropping && !m_blocks[dropFrom.x, dropFrom.y].isLocked)           //找到有效块
                                 {
                                     bDrop = true;       //可以下落
                                 }
@@ -952,7 +952,7 @@ public class GameLogic {
                         if (UpLocked)                    //若没找到掉落点，且上方的点被锁
                         {
                             dropFrom = GoTo(new Position(i, j), TDirection.EDir_LeftUp, 1);         //向左上看一格
-                            if (CheckPosAvailable(dropFrom) && m_blocks[dropFrom.x, dropFrom.y]  != null && !m_blocks[dropFrom.x, dropFrom.y].isDropping && PlayingStageData.GridData[dropFrom.x, dropFrom.y] != 0)        //若是有效点，且为空，形成掉落
+                            if (CheckPosAvailable(dropFrom) && m_blocks[dropFrom.x, dropFrom.y] != null && !m_blocks[dropFrom.x, dropFrom.y].isDropping && !m_blocks[dropFrom.x, dropFrom.y].isLocked)        //若是有效点，且为空，形成掉落
                             {
                                 bDrop = true;
                             }
@@ -960,7 +960,7 @@ public class GameLogic {
                         if (!bDrop && UpLocked)                    //若没找到掉落点，且上方的点被锁
                         {
                             dropFrom = GoTo(new Position(i, j), TDirection.EDir_UpRight, 1);         //向右上看一格
-                            if (CheckPosAvailable(dropFrom) && m_blocks[dropFrom.x, dropFrom.y] != null && !m_blocks[dropFrom.x, dropFrom.y].isDropping && PlayingStageData.GridData[dropFrom.x, dropFrom.y] != 0)        //若是有效点，且为空，形成掉落
+                            if (CheckPosAvailable(dropFrom) && m_blocks[dropFrom.x, dropFrom.y] != null && !m_blocks[dropFrom.x, dropFrom.y].isDropping && !m_blocks[dropFrom.x, dropFrom.y].isLocked)        //若是有效点，且为空，形成掉落
                             {
                                 bDrop = true;
                             }

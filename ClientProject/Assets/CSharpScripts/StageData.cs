@@ -71,6 +71,11 @@ public class StageData
     public int NutMaxCount = 3;            //最多同屏数量
     public int NutInitCount = 1;            //初始化数量
     public int NutStep = 10;            //步数间隔
+
+    public int PlusMaxCount = 3;            //最多同屏数量
+    public int PlusInitCount = 1;            //初始化数量
+    public int PlusStep = 10;            //步数间隔
+
     public int[]    StarScore = new int[3];          //获得星星的分数
     public int [, ] GridData = new int[GameLogic.BlockCountX, GameLogic.BlockCountY];                        //关卡初始地块数据
 
@@ -168,6 +173,9 @@ public class StageData
         _config.GetValue<int>("NutInitCount", out NutInitCount);
         _config.GetValue<int>("NutMaxCount", out NutMaxCount);
         _config.GetValue<int>("NutStep", out NutStep);
+        _config.GetValue<int>("PlusInitCount", out PlusInitCount);
+        _config.GetValue<int>("PlusMaxCount", out PlusMaxCount);
+        _config.GetValue<int>("PlusStep", out PlusStep);
         _config.GetValue<int>("Seed", out Seed);
 
         if (ColorCount == 0)
@@ -237,6 +245,10 @@ public class StageData
         _config.GetValue<int>("NutInitCount", out NutInitCount);
         _config.GetValue<int>("NutMaxCount", out NutMaxCount);
         _config.GetValue<int>("NutStep", out NutStep);
+
+        _config.GetValue<int>("PlusInitCount", out PlusInitCount);
+        _config.GetValue<int>("PlusMaxCount", out PlusMaxCount);
+        _config.GetValue<int>("PlusStep", out PlusStep);
         int newFormat = 0;
         _config.GetValue<int>("NewFormat", out newFormat);
         if (ColorCount == 0)
@@ -327,6 +339,11 @@ public class StageData
 		_config.Write("NutInitCount", NutInitCount);
         _config.Write("NutMaxCount", NutMaxCount);
 		_config.Write("NutStep", NutStep);
+
+        _config.Write("PlusInitCount", PlusInitCount);
+        _config.Write("PlusMaxCount", PlusMaxCount);
+        _config.Write("PlusStep", PlusStep);
+
         _config.Write("Seed", Seed);
         _config.Write("NewFormat", 1);                  //新格式标记
         string temp = string.Empty;

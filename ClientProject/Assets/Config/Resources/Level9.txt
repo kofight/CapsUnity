@@ -4,6 +4,12 @@ TimeLimit			0
 ColorCount			7				
 Nut1Count			1				
 Nut2Count			0				
+NutInitCount			1				
+NutMaxCount			0				
+NutStep			10				
+PlusInitCount			0				
+PlusMaxCount			0				
+PlusStep			0				
 Seed			0				
 NewFormat			1				
 StarScore			0,0,0,				

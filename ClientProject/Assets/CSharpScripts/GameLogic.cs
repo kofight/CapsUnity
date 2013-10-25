@@ -225,7 +225,7 @@ public class GameLogic {
         {
             for (int j = 0; j < BlockCountY; ++j )
             {
-                if (m_blocks[i, j] == null)                     //空格或空块
+                if (m_blocks[i, j] == null && m_blocks[i, j].isLocked)                     //空格或空块
                 {
                     continue;
                 }

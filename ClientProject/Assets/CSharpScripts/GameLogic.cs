@@ -786,7 +786,6 @@ public class GameLogic {
                         PlayingStageData.AddFlag(i, j, GridFlag.GenerateCap);
 
                         AddPartile("StoneEffect", i, j);
-                        return;
                     }
                     else if (PlayingStageData.CheckFlag(i, j, GridFlag.Chocolate))
                     {
@@ -794,14 +793,12 @@ public class GameLogic {
                         PlayingStageData.ClearFlag(i, j, GridFlag.NotGenerateCap);
                         PlayingStageData.AddFlag(i, j, GridFlag.GenerateCap);
                         AddPartile("ChocolateEffect", i, j);
-                        return;
                     }
                     else if (PlayingStageData.CheckFlag(i, j, GridFlag.Cage))
                     {
                         PlayingStageData.ClearFlag(i, j, GridFlag.Cage);
                         AddPartile("CageEffect", i, j);
                         m_blocks[i, j].isLocked = false;
-                        return;
                     }
                     else if (PlayingStageData.CheckFlag(i, j, GridFlag.JellyDouble))
                     {
@@ -822,6 +819,13 @@ public class GameLogic {
                 {
                     ClearStoneAround(i, j);         //清周围的石块
                 }
+            }
+        }
+        for (int i = 0; i < BlockCountX; ++i)
+        {
+            for (int j = 0; j < BlockCountY; ++j)
+            {
+                m_tempBlocks[i, j] = 0;         //清理临时数组
             }
         }
     }
@@ -1065,13 +1069,6 @@ public class GameLogic {
         }
 
         ProcessTempBlocks();
-		for (int i = 0; i < BlockCountX; ++i )
-        {
-            for (int j = 0; j < BlockCountY; ++j )
-            {
-                m_tempBlocks[i, j] = 0;         //清理临时数组
-            }
-        }
         return tag;
     }
 
@@ -1334,12 +1331,39 @@ public class GameLogic {
         }
     }
 
+    void ClearHelpPoint()
+    {
+        if (m_dropDownEndTime > 0 && helpP1 != null)
+        {
+            if (m_blocks[helpP1.x, helpP1.y] != null)
+            {
+                m_blocks[helpP1.x, helpP1.y].m_animation.Stop();
+            }
+            if (m_blocks[helpP2.x, helpP2.y] != null)
+            {
+                m_blocks[helpP2.x, helpP2.y].m_animation.Stop();
+            }
+            m_dropDownEndTime = 0;                          //清除dropDownEnd的时间记录
+            helpP1 = null;                                  //清除帮助点
+            helpP2 = null;                                  //清除帮助点
+        }
+    }
+
     void EatBlock(Position position)
     {
         if (position.x >= BlockCountX || position.y >= BlockCountY || position.x < 0 || position.y < 0)
             return;
 
         if (m_blocks[position.x, position.y] == null) return;
+
+        if (m_blocks[position.x, position.y].IsEating())        //不重复消除
+        {
+            return;
+        }
+
+        m_tempBlocks[position.x, position.y] = 1;       //记录吃块，用来改变Grid属性
+
+        ClearHelpPoint();           //Todo 这个不该放这里，应该只需要调一次
 
         if (PlayingStageData.CheckFlag(position.x, position.y, GridFlag.Cage)) return;                       //有笼子的块不消(先消笼子)
 
@@ -1348,29 +1372,7 @@ public class GameLogic {
         if (m_blocks[position.x, position.y].x_move > 0 || m_blocks[position.x, position.y].y_move > 0)     //正在移动的不能消除
             return;
 
-        if (m_blocks[position.x, position.y].IsEating())        //不重复消除
-        {
-            return;
-        }
-
-        if (m_dropDownEndTime > 0 && helpP1 != null)
-        {
-            if (m_blocks[helpP1.x, helpP1.y]!=null)
-            {
-                m_blocks[helpP1.x, helpP1.y].m_animation.Stop();
-            }
-            if (m_blocks[helpP2.x, helpP2.y]!=null)
-            {
-                m_blocks[helpP2.x, helpP2.y].m_animation.Stop();
-            }
-            m_dropDownEndTime = 0;                          //清除dropDownEnd的时间记录
-            helpP1 = null;                                  //清除帮助点
-            helpP2 = null;                                  //清除帮助点
-        }
-
         m_blocks[position.x, position.y].Eat();			//吃掉当前块
-
-        m_tempBlocks[position.x, position.y] = 1;       //记录吃块，用来改变Grid属性
 
         switch (m_blocks[position.x, position.y].special)
         {
@@ -1888,7 +1890,7 @@ public class GameLogic {
         m_blocks[x, y].id = m_idCount++;
 
         //处理+5
-        if (GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit > m_lastPlus5Step + PlayingStageData.PlusStep)
+        if (PlayingStageData.TimeLimit > 0 && GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit > m_lastPlus5Step + PlayingStageData.PlusStep)
         {
             m_blocks[x, y].special = TSpecialBlock.ESpecial_NormalPlus5;            //生成一个+5
 			m_lastPlus5Step = GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit;

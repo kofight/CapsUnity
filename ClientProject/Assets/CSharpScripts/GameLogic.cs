@@ -1326,6 +1326,8 @@ public class GameLogic {
                     PlayingStageData.ClearFlag(pos.x, pos.y, GridFlag.Stone);
                     PlayingStageData.ClearFlag(x, y, GridFlag.NotGenerateCap);
                     PlayingStageData.AddFlag(x, y, GridFlag.GenerateCap);
+					
+					AddPartile("StoneEffect", x, y);
                 }
             }
         }
@@ -1338,10 +1340,12 @@ public class GameLogic {
             if (m_blocks[helpP1.x, helpP1.y] != null)
             {
                 m_blocks[helpP1.x, helpP1.y].m_animation.Stop();
+                m_blocks[helpP1.x, helpP1.y].m_animation.transform.localScale = new Vector3(60.0f, 60.0f, 60.0f);          //恢复缩放
             }
             if (m_blocks[helpP2.x, helpP2.y] != null)
             {
                 m_blocks[helpP2.x, helpP2.y].m_animation.Stop();
+                m_blocks[helpP2.x, helpP2.y].m_animation.transform.localScale = new Vector3(60.0f, 60.0f, 60.0f);          //恢复缩放
             }
             m_dropDownEndTime = 0;                          //清除dropDownEnd的时间记录
             helpP1 = null;                                  //清除帮助点

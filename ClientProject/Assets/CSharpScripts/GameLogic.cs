@@ -177,7 +177,10 @@ public class GameLogic {
     LinkedList<CapBlock> m_capBlockFreeList = new LinkedList<CapBlock>();				//用来存放可用的Sprite
 	Dictionary<int, string> m_soundEffectMap = new Dictionary<int, string>();								    //声音
 
-    LinkedList<Paticle> m_paticleList;			//粒子列表
+    Dictionary<string, LinkedList<ParticleSystem> > m_particleMap = new Dictionary<string, LinkedList<ParticleSystem> >();
+    Dictionary<string, LinkedList<ParticleSystem>> m_freeParticleMap = new Dictionary<string, LinkedList<ParticleSystem>>();
+
+
 	//std::vector<NumberDrawer *> m_endScoreBoardNumsVec;		//结束面板上的一堆数字
 
 	//NumberDrawer * m_comboNumDrawer;		//用来绘制Combo数字
@@ -371,15 +374,46 @@ public class GameLogic {
     public void ClearGame()
     {
         m_progress = 0;
-        for (int i = 0; i < BlockCountX; i++)
-            for (int j = 0; j < BlockCountY; j++)
+        //处理粒子////////////////////////////////////////////////////////////////////////
+        foreach (KeyValuePair<string, LinkedList<ParticleSystem>> pair in m_particleMap)
+        {
+            LinkedList<ParticleSystem> list = pair.Value;
+            foreach (ParticleSystem par in list)
             {
-                if (PlayingStageData.GridData[i, j] == 0)
-                {
-                    continue;
-                }
-                MakeSpriteFree(i, j);
+                GameObject.Destroy(par.gameObject);
             }
+        }
+
+        m_particleMap.Clear();
+
+        foreach (KeyValuePair<string, LinkedList<ParticleSystem>> pair in m_freeParticleMap)
+        {
+            LinkedList<ParticleSystem> list = pair.Value;
+            foreach (ParticleSystem par in list)
+            {
+                GameObject.Destroy(par.gameObject);
+            }
+        }
+
+        m_freeParticleMap.Clear();
+
+        foreach (CapBlock block in m_capBlockFreeList)
+        {
+            GameObject.Destroy(block.m_blockTransform.gameObject);
+        }
+
+        m_capBlockFreeList.Clear();
+
+        for (int i = 0; i < BlockCountX; ++i)
+        {
+            for (int j = 0; j < BlockCountY; ++j)
+            {
+                if (m_blocks[i, j] != null)
+                {
+                    GameObject.Destroy(m_blocks[i, j].m_blockTransform.gameObject);
+                }
+            }
+        }
     }
 
     int GetXPos(int x)
@@ -563,6 +597,30 @@ public class GameLogic {
                     m_blocks[helpP1.x, helpP1.y].m_animation.Play("Help");
                     m_blocks[helpP2.x, helpP2.y].m_animation.Play("Help");
                 }
+            }
+        }
+
+        //处理粒子////////////////////////////////////////////////////////////////////////
+        foreach (KeyValuePair<string, LinkedList<ParticleSystem>> pair in m_particleMap)
+        {
+            LinkedList<ParticleSystem> list = pair.Value;
+
+            ParticleSystem parToDelete = null;
+            foreach (ParticleSystem par in list)
+            {
+                if (par.isStopped)
+                {
+                    m_freeParticleMap[pair.Key].AddLast(par);           //添加空闲的
+                    parToDelete = par;
+                    par.Stop();
+                    par.gameObject.SetActive(false);
+                    break;                                              //每帧只处理一个
+                }
+            }
+
+            if (parToDelete != null)
+            {
+                list.Remove(parToDelete);                               //在原列表中删除
             }
         }
     }
@@ -1453,11 +1511,49 @@ public class GameLogic {
 
     public void AddPartile(string name, int x, int y)
     {
-        //Todo 临时加的粒子代码
-        Object obj = Resources.Load(name);
-        GameObject gameObj = GameObject.Instantiate(obj) as GameObject;
-        gameObj.transform.parent = m_capsPool.transform;
-        gameObj.transform.localPosition = new Vector3(GetXPos(x), -GetYPos(x, y), -200);
+
+        
+
+        //先看freeParticleList里面有没有可用的
+        LinkedList<ParticleSystem> freeParticleList;
+        if (!m_freeParticleMap.TryGetValue(name, out freeParticleList))
+        {
+            freeParticleList = new LinkedList<ParticleSystem>();
+            m_freeParticleMap.Add(name, freeParticleList);
+        }
+
+        GameObject gameObj = null;
+        ParticleSystem par = null;
+
+        if (freeParticleList.Count > 0)     //若有,从列表里取用
+        {
+            par = freeParticleList.First.Value;
+            gameObj = freeParticleList.First.Value.gameObject;
+            freeParticleList.RemoveFirst();
+
+            par.gameObject.SetActive(true);
+            par.Play();                     //播放
+        }
+        else   //没有，创建新粒子
+        {
+            //Todo 临时加的粒子代码
+            Object obj = Resources.Load(name);
+            gameObj = GameObject.Instantiate(obj) as GameObject;
+            gameObj.transform.parent = m_capsPool.transform;
+            par = gameObj.GetComponent<ParticleSystem>();
+        }
+
+        gameObj.transform.localPosition = new Vector3(GetXPos(x), -GetYPos(x, y), -200);        //指定位置
+
+        //放到正在播放的列表里
+        LinkedList<ParticleSystem> particleList;
+        if (!m_particleMap.TryGetValue(name, out particleList))
+        {
+            particleList = new LinkedList<ParticleSystem>();
+            m_particleMap.Add(name, particleList);
+        }
+
+        particleList.AddLast(par);
     }
 
     public bool CheckStageFinish()

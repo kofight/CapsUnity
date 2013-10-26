@@ -237,7 +237,7 @@ public class GameLogic {
                     Position curPos = GoTo(position, dir, 1);
                     if (CheckPosAvailable(curPos))
                     {
-                        if (m_blocks[i, j] == null || m_blocks[i, j].isLocked)             //空格或空块
+                        if (m_blocks[curPos.x, curPos.y] == null || m_blocks[curPos.x, curPos.y].isLocked)             //空格或空块
                         {
                             continue;
                         }

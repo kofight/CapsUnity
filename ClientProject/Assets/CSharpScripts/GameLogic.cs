@@ -225,7 +225,7 @@ public class GameLogic {
         {
             for (int j = 0; j < BlockCountY; ++j )
             {
-                if (m_blocks[i, j] == null && m_blocks[i, j].isLocked)                     //空格或空块
+                if (m_blocks[i, j] == null || m_blocks[i, j].isLocked)                     //空格或空块
                 {
                     continue;
                 }
@@ -1354,14 +1354,14 @@ public class GameLogic {
         if (position.x >= BlockCountX || position.y >= BlockCountY || position.x < 0 || position.y < 0)
             return;
 
-        if (m_blocks[position.x, position.y] == null) return;
+        m_tempBlocks[position.x, position.y] = 1;       //记录吃块，用来改变Grid属性
+		
+		if (m_blocks[position.x, position.y] == null) return;
 
         if (m_blocks[position.x, position.y].IsEating())        //不重复消除
         {
             return;
         }
-
-        m_tempBlocks[position.x, position.y] = 1;       //记录吃块，用来改变Grid属性
 
         ClearHelpPoint();           //Todo 这个不该放这里，应该只需要调一次
 
@@ -1452,9 +1452,8 @@ public class GameLogic {
         //Todo 临时加的粒子代码
         Object obj = Resources.Load(name);
         GameObject gameObj = GameObject.Instantiate(obj) as GameObject;
-        gameObj.transform.parent = m_blocks[x, y].m_blockTransform.parent;
-        gameObj.transform.position = m_blocks[x, y].m_blockTransform.position;
-        gameObj.transform.LocalPositionZ(-200);
+        gameObj.transform.parent = m_capsPool.transform;
+        gameObj.transform.localPosition = new Vector3(GetXPos(x), -GetYPos(x, y), -200);
     }
 
     public bool CheckStageFinish()
@@ -1936,10 +1935,10 @@ public class GameLogic {
                 AddNut = true;          //生成
             }
 
-            if (m_nut1Count + m_nut2Count < PlayingStageData.NutMaxCount)       //画面上坚果数量已经小于最大数量，不生成
+            if (PlayingStageData.NutMaxCount == 0 || m_nut1Count + m_nut2Count < PlayingStageData.NutMaxCount)       //画面上坚果数量已经小于最大数量，不生成
             {
                 if (GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit > 
-                    (m_nut1Count + m_nut2Count + PlayingStageData.Nut1Count + PlayingStageData.Nut2Count - PlayingStageData.NutInitCount) * PlayingStageData.NutStep)      //若已经到步数了
+                    (m_nut1Count + m_nut2Count + PlayingStageData.Nut1Count + PlayingStageData.Nut2Count - PlayingStageData.NutInitCount + 1) * PlayingStageData.NutStep)      //若已经到步数了
                 {
                     AddNut = true;
                 }

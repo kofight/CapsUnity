@@ -384,6 +384,8 @@ public class GameLogic {
             }
         }
 
+        m_particleMap.Clear();
+
         foreach (KeyValuePair<string, LinkedList<ParticleSystem>> pair in m_freeParticleMap)
         {
             LinkedList<ParticleSystem> list = pair.Value;
@@ -393,10 +395,15 @@ public class GameLogic {
             }
         }
 
+        m_freeParticleMap.Clear();
+
         foreach (CapBlock block in m_capBlockFreeList)
         {
             GameObject.Destroy(block.m_blockTransform.gameObject);
         }
+
+        m_capBlockFreeList.Clear();
+
         for (int i = 0; i < BlockCountX; ++i)
         {
             for (int j = 0; j < BlockCountY; ++j)

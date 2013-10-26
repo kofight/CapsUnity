@@ -32,6 +32,7 @@ public class UIRetry : UIWindowNGUI
     {
         HideWindow();
         GlobalVars.CurGameLogic.ClearGame();
+        GlobalVars.CurGameLogic.Init();
         GlobalVars.CurGameLogic.StartGame();
     }
 

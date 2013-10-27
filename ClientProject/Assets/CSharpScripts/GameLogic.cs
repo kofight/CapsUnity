@@ -565,7 +565,7 @@ public class GameLogic {
         }
 
         //绘制分数
-        UIDrawer.Singleton.DrawNumber("ScoreText", 390, 864, m_progress, "BaseNum", 24);
+        UIDrawer.Singleton.DrawNumber("ScoreText", 342, 864, m_progress, "BaseNum", 24, 7);
 
         //绘制传送门
         foreach(KeyValuePair<int, Portal> pair in PlayingStageData.PortalToMap)

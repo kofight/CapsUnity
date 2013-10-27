@@ -71,15 +71,15 @@ public class UIGameEnd : UIWindowNGUI
             }
 		}
 
-        if (GlobalVars.CurGameLogic.GetProgress() > GlobalVars.CurStageData.StarScore[2])
+        if (GlobalVars.CurGameLogic.GetProgress() >= GlobalVars.CurStageData.StarScore[2])
         {
             m_starCount = 3;
         }
-        else if (GlobalVars.CurGameLogic.GetProgress() > GlobalVars.CurStageData.StarScore[1])
+        else if (GlobalVars.CurGameLogic.GetProgress() >= GlobalVars.CurStageData.StarScore[1])
         {
             m_starCount = 2;
         }
-        else if (GlobalVars.CurGameLogic.GetProgress() > GlobalVars.CurStageData.StarScore[0])
+        else if (GlobalVars.CurGameLogic.GetProgress() >= GlobalVars.CurStageData.StarScore[0])
         {
             m_starCount = 1;
         }
@@ -92,7 +92,11 @@ public class UIGameEnd : UIWindowNGUI
             }
 
             PlayerPrefs.SetInt("StageAvailableCount", GlobalVars.AvailabeStageCount);       //保存进度
-            PlayerPrefs.SetInt("Stage" + GlobalVars.CurStageNum + "Stars", m_starCount);      //保存几星过关
+            if (m_starCount > GlobalVars.StageStarArray[GlobalVars.CurStageNum - 1])
+            {
+                GlobalVars.StageStarArray[GlobalVars.CurStageNum - 1] = m_starCount;            //保存星数
+                PlayerPrefsExtend.SetIntArray("StageStars", GlobalVars.StageStarArray);
+            }
 
             m_playOnBtn.gameObject.SetActive(false);
         }

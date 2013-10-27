@@ -123,7 +123,7 @@ public class GameLogic {
     public static int BlockCountY = 9;	//游戏区有几行
     public static int BLOCKWIDTH = 60;
     public static int gameAreaX = 0;		//游戏区域左上角坐标
-    public static int gameAreaY = 0;		//游戏区域左上角坐标
+    public static int gameAreaY = 140;		//游戏区域左上角坐标
     public static int gameAreaWidth = BLOCKWIDTH * BlockCountX;	//游戏区域宽度
     public static int gameAreaHeight = BLOCKWIDTH * BlockCountY + BlockCountY / 2;//游戏区域高度
     public static int TotalColorCount = 7;
@@ -138,6 +138,11 @@ public class GameLogic {
     public int CurSeed;                                     //当前的随机种子
     public StageData PlayingStageData;                      //当前的关卡数据
     public int GetProgress(){ return m_progress; }
+    public void AddProgress(int progress)
+    {
+        m_progress += progress;
+        UIWindowManager.Singleton.GetUIWindow<UIGame>().OnChangeProgress(m_progress);
+    }
 
     ///游戏逻辑变量/////////////////////////////////////////////////////////////////
 	TDirection m_moveDirection;							                //选择的块1向块2移动的方向
@@ -369,6 +374,8 @@ public class GameLogic {
         OnProgressChange();
 
         m_dropDownEndTime = Time.realtimeSinceStartup;
+		
+		UIWindowManager.Singleton.GetUIWindow<UIGame>().Reset();
     }
 
     public void ClearGame()
@@ -471,7 +478,7 @@ public class GameLogic {
 
                     if (m_blocks[i, j].IsEating())
                     {
-                        UIDrawer.Singleton.DrawNumber("Score" + i + "," + j, (int)m_blocks[i, j].m_blockTransform.localPosition.x, -(int)m_blocks[i, j].m_blockTransform.localPosition.y, 60, "HighDown", 15);
+                        UIDrawer.Singleton.DrawNumber("Score" + i + "," + j, (int)m_blocks[i, j].m_blockTransform.localPosition.x, -(int)m_blocks[i, j].m_blockTransform.localPosition.y, 60, "BaseNum", 15, 4);
                     }
                 }
 
@@ -523,8 +530,7 @@ public class GameLogic {
 
         if (GlobalVars.CurStageData.StepLimit > 0)          //限制步数的关卡
         {
-            UIDrawer.Singleton.DrawText("StepLimitText", 100, 575, "Steps:");
-            UIDrawer.Singleton.DrawNumber("SetpLimit", 140, 586, PlayingStageData.StepLimit, "HighDown", 14);
+            UIDrawer.Singleton.DrawNumber("SetpLimit", 210, 864, PlayingStageData.StepLimit, "BaseNum", 24);
             if (PlayingStageData.StepLimit == 0)            //
             {
                 if (timerDropDown.GetState() == TimerEnum.EStop && timerEatBlock.GetState() == TimerEnum.EStop && timerMoveBlock.GetState() == TimerEnum.EStop)   //若没步数了，触发游戏结束
@@ -536,7 +542,7 @@ public class GameLogic {
         }
         if (GlobalVars.CurStageData.TimeLimit > 0)          //限制时间的关卡
         {
-            UIDrawer.Singleton.DrawText("TimeLimitText", 100, 575, "Time:");
+            UIDrawer.Singleton.DrawText("TimeLimitText", 160, 864, "Time:");
             float timeRemain = GlobalVars.CurStageData.TimeLimit - (Timer.millisecondNow() - m_gameStartTime) / 1000.0f;
 
             if (timeRemain < 0)     
@@ -549,7 +555,7 @@ public class GameLogic {
                 }
             }
 
-            UIDrawer.Singleton.DrawNumber("TimeLimit", 140, 586, timeRemain, "HighDown", 14, 2, 2);
+            UIDrawer.Singleton.DrawNumber("TimeLimit", 210, 864, timeRemain, "HighDown", 14, 3, 1);
         }
 
         if (GlobalVars.CurStageData.Target == GameTarget.BringFruitDown)
@@ -559,7 +565,7 @@ public class GameLogic {
         }
 
         //绘制分数
-        UIDrawer.Singleton.DrawText("ScoreText:", 200, 575, "Score:" + m_progress);
+        UIDrawer.Singleton.DrawNumber("ScoreText", 390, 864, m_progress, "BaseNum", 24);
 
         //绘制传送门
         foreach(KeyValuePair<int, Portal> pair in PlayingStageData.PortalToMap)
@@ -1218,7 +1224,7 @@ public class GameLogic {
                 m_gameStartTime += 5000;               //增加5秒时间
             }
             m_blocks[position.x, position.y].special = TSpecialBlock.ESpecial_EatAColor;
-            m_progress += 2000;                  //Todo 增加文字特效
+            AddProgress(2000);
             kItem = 3;
         }
 		else if (totalSameCount >= 6)			//若总共消除大于等于6个（3,4消除或者多个3消）
@@ -1228,7 +1234,7 @@ public class GameLogic {
                 m_gameStartTime += 5000;               //增加5秒时间
             }
             m_blocks[position.x, position.y].special = TSpecialBlock.ESpecial_Bomb;
-            m_progress += 600;                  //Todo 增加文字特效
+            AddProgress(600);
             kItem = 2;
         }
         else if (maxCountInSameDir == 4)		//若最大每行消了4个
@@ -1249,7 +1255,7 @@ public class GameLogic {
             {
                 m_blocks[position.x, position.y].special = TSpecialBlock.ESpecial_EatLineDir2;
             }
-            m_progress += 500;                  //Todo 增加文字特效
+            AddProgress(500);
             kItem = 1;
         }
         else if (totalSameCount > 4)			//若总共消除大于4个
@@ -1259,7 +1265,7 @@ public class GameLogic {
                 m_gameStartTime += 5000;               //增加5秒时间
             }
             m_blocks[position.x, position.y].special = TSpecialBlock.ESpecial_Bomb;         //这里先生成炸弹，不生成染色球了
-            m_progress += 600;                  //Todo 增加文字特效
+            AddProgress(600);
             kItem = 1;
         }
         m_blocks[position.x, position.y].RefreshBlockSprite(PlayingStageData.GridData[position.x, position.y]);
@@ -1289,7 +1295,7 @@ public class GameLogic {
             kCombo = CapsConfig.Instance.KComboTable[m_comboCount + 1];
         }
 
-        m_progress += 50 * (kQuantity + kCombo + kItem + kLevel);
+        AddProgress(50 * (kQuantity + kCombo + kItem + kLevel)); 
         OnProgressChange();
         return true;
     }

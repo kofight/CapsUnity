@@ -9,6 +9,7 @@ public class UIGameEnd : UIWindowNGUI
     int m_starCount;
     UIButton m_playOnBtn;
     UIButton m_EndGameBtn;
+    UISprite[] m_starsSprites = new UISprite[3];
     public override void OnCreate()
     {
         base.OnCreate();
@@ -19,6 +20,11 @@ public class UIGameEnd : UIWindowNGUI
         m_EndGameBtn = UIToolkits.GetChildComponent<UIButton>(mUIObject.transform, "EndGameBtn");
         AddChildComponentMouseClick("EndGameBtn", OnEndGameClicked);
         AddChildComponentMouseClick("PlayOnBtn", OnPlayOnClicked);
+
+        for (int i = 0; i < 3; ++i)
+        {
+            m_starsSprites[i] = GetChildComponent<UISprite>("Star" + (i + 1));      //查找sprite
+        }
     }
     public override void OnShow()
     {
@@ -71,17 +77,30 @@ public class UIGameEnd : UIWindowNGUI
             }
 		}
 
-        if (GlobalVars.CurGameLogic.GetProgress() > GlobalVars.CurStageData.StarScore[2])
+        if (GlobalVars.CurGameLogic.GetProgress() >= GlobalVars.CurStageData.StarScore[2])
         {
             m_starCount = 3;
         }
-        else if (GlobalVars.CurGameLogic.GetProgress() > GlobalVars.CurStageData.StarScore[1])
+        else if (GlobalVars.CurGameLogic.GetProgress() >= GlobalVars.CurStageData.StarScore[1])
         {
             m_starCount = 2;
         }
-        else if (GlobalVars.CurGameLogic.GetProgress() > GlobalVars.CurStageData.StarScore[0])
+        else if (GlobalVars.CurGameLogic.GetProgress() >= GlobalVars.CurStageData.StarScore[0])
         {
             m_starCount = 1;
+        }
+
+        //根据starCount显示星星
+        for (int i = 0; i < 3; ++i )
+        {
+            if (i < m_starCount)
+            {
+                m_starsSprites[i].gameObject.SetActive(true);
+            }
+            else
+            {
+                m_starsSprites[i].gameObject.SetActive(false);
+            }
         }
 
         if (m_bWin)
@@ -92,7 +111,11 @@ public class UIGameEnd : UIWindowNGUI
             }
 
             PlayerPrefs.SetInt("StageAvailableCount", GlobalVars.AvailabeStageCount);       //保存进度
-            PlayerPrefs.SetInt("Stage" + GlobalVars.CurStageNum + "Stars", m_starCount);      //保存几星过关
+            if (m_starCount > GlobalVars.StageStarArray[GlobalVars.CurStageNum - 1])
+            {
+                GlobalVars.StageStarArray[GlobalVars.CurStageNum - 1] = m_starCount;            //保存星数
+                PlayerPrefsExtend.SetIntArray("StageStars", GlobalVars.StageStarArray);
+            }
 
             m_playOnBtn.gameObject.SetActive(false);
         }

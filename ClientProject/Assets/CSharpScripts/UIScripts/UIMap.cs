@@ -25,8 +25,7 @@ public class UIMap : UIWindowNGUI
         {
             GlobalVars.AvailabeStageCount = 1;
         }
-
-
+		GlobalVars.StageStarArray = PlayerPrefsExtend.GetIntArray("StageStars", 0, 100);
     }
     public override void OnShow()
     {
@@ -35,6 +34,13 @@ public class UIMap : UIWindowNGUI
 		for (int i = 0; i < GlobalVars.TotalStageCount; ++i)
         {
             Transform transform = UIToolkits.FindChild(mUIObject.transform, "Stage" + (i + 1));      //找到对象
+
+            if (transform == null)
+            {
+                Debug.LogError("There's no " + "Stage" + (i + 1).ToString() + " Button");
+                continue;
+            }
+
             if (!GlobalVars.DeveloperMode && i >= GlobalVars.AvailabeStageCount)     //隐藏超出范围的按钮
             {
                 transform.gameObject.SetActive(false);
@@ -42,10 +48,26 @@ public class UIMap : UIWindowNGUI
             }
             
             transform.gameObject.SetActive(true);                                                    //显示对象
-            if (transform == null)
+
+            for (int j=1; j<=3; ++j)
             {
-                Debug.LogError("There's no " + "Stage" + (i + 1).ToString() + " Button");
-                continue;
+                if (GlobalVars.StageStarArray[i] >= j)       //若得到了星星
+                {
+                    Transform starTrans = UIToolkits.FindChild(transform, "Star" + j);
+                    if (starTrans)
+                    {
+                        starTrans.gameObject.SetActive(true);
+                    }
+                }
+                else
+                {
+                    Transform starTrans = UIToolkits.FindChild(transform, "Star" + j);
+                    if (starTrans)
+                    {
+                        starTrans.gameObject.SetActive(false);
+                    }
+                }
+                
             }
 
             m_stageBtns[i] = transform;

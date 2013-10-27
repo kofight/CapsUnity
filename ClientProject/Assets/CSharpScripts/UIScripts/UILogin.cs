@@ -9,6 +9,10 @@ public class UILogin : UIWindowNGUI
         base.OnCreate();
         AddChildComponentMouseClick("PlayBtn", OnPlayBtnClick);
         AddChildComponentMouseClick("LoginBtn", OnLoginBtnClick);
+        AddChildComponentMouseClick("ClearBtn", delegate(object sender, UIMouseClick.ClickArgs e)
+        {
+            PlayerPrefs.DeleteAll();            //删除进度
+        });
         m_developerMode = UIToolkits.FindComponent<UICheckbox>(mUIObject.transform, "DeveloperCheck");
     }
     public override void OnShow()

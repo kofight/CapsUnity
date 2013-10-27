@@ -24,7 +24,7 @@ public class LoginState : State
 		base.DoInitState();
         UIWindowManager.Singleton.CreateWindow<UISplash>();
         UIWindowManager.Singleton.CreateWindow<UILogin>();
-        UIWindowManager.Singleton.CreateWindow<UIGame>();
+        UIWindowManager.Singleton.CreateWindow<UIGame>(UIWindowManager.Anchor.TopLeft);
         UIWindowManager.Singleton.CreateWindow<UIHowToPlay>();
         UIWindowManager.Singleton.CreateWindow<UIMainMenu>(UIWindowManager.Anchor.BottomLeft);
         UIWindowManager.Singleton.CreateWindow<UIOption>();

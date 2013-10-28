@@ -13,6 +13,12 @@ public class UILogin : UIWindowNGUI
         {
             PlayerPrefs.DeleteAll();            //删除进度
         });
+
+        AddChildComponentMouseClick("RecoverHeartBtn", delegate(object sender, UIMouseClick.ClickArgs e)
+        {
+            PlayerPrefs.SetInt("HeartCount", 5);            //恢复爱心
+        });
+
         m_developerMode = UIToolkits.FindComponent<UICheckbox>(mUIObject.transform, "DeveloperCheck");
     }
     public override void OnShow()

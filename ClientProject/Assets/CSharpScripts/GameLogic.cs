@@ -1145,9 +1145,9 @@ public class GameLogic {
         int countInSameLine = 1;					//在同一条线上相同的颜色的数量
         int totalSameCount = 1;						//总共相同颜色的数量
         int maxCountInSameDir = 1;					//最大的在同一个方向上相同颜色的数量
-        int step = 1;
         Position[] eatBlockPos = new Position[10];
         eatBlockPos[0] = position;
+        Position availablePos = null;
 
         TBlockColor color = GetBlockColor(position);
         if (color > TBlockColor.EColor_Grey)
@@ -1188,22 +1188,38 @@ public class GameLogic {
                 eatBlockPos[countInSameLine] = curPos;
                 ++countInSameLine;
             }
+            if (countInSameLine > maxCountInSameDir)
+            {
+                maxCountInSameDir = countInSameLine;								//记录在单行中的最大消除数量
+                if (maxCountInSameDir > 3)          //若可以生成特殊块
+                {
+                    //先查找一个可以生成特殊块的位置
+                    if (m_blocks[position.x, position.y].special == TSpecialBlock.ESpecial_Normal)
+                    {
+                        availablePos = position;
+                    }
+                    else
+                    {
+                        for (int i = 0; i < countInSameLine; ++i)
+                        {
+                            if (m_blocks[eatBlockPos[i].x, eatBlockPos[i].y].special == TSpecialBlock.ESpecial_Normal)
+                            {
+                                availablePos = eatBlockPos[i];
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
             //一条线处理一次消除
             if (countInSameLine >= 3)
             {
                 for (int i = 0; i < countInSameLine; ++i)
                 {
-                    if (eatBlockPos[i] != position)										//起始块放在后面处理
-                    {
-                        EatBlock(eatBlockPos[i]);										//吃掉
-                        m_tempBlocks[eatBlockPos[i].x, eatBlockPos[i].y] = 2;           //记录正常消除
-                    }
+                    m_tempBlocks[eatBlockPos[i].x, eatBlockPos[i].y] = 2;           //记录正常消除
                 }
                 totalSameCount += (countInSameLine - 1);							//记录总的消除数量，减1是因为起始块是各条线公用的
-            }
-            if (countInSameLine > maxCountInSameDir)
-            {
-                maxCountInSameDir = countInSameLine;								//记录在单行中的最大消除数量
             }
         }
 
@@ -1214,9 +1230,11 @@ public class GameLogic {
 
         int kItem = 0;                  //自然消除为0
 
+        TSpecialBlock generateSpecial = TSpecialBlock.ESpecial_Normal;      //用来记录生成的特殊块
+
         if (totalSameCount == 3)		//总共就消了3个
         {
-            EatBlock(position);
+            m_tempBlocks[position.x, position.y] = 2;           //记录正常消除
         }
         //根据结果来生成道具////////////////////////////////////////////////////////////////////////
 		else if (maxCountInSameDir >= 5)		//若最大每行消了5个
@@ -1225,19 +1243,9 @@ public class GameLogic {
             {
                 m_gameStartTime += 5000;               //增加5秒时间
             }
-            m_blocks[position.x, position.y].special = TSpecialBlock.ESpecial_EatAColor;
+            generateSpecial = TSpecialBlock.ESpecial_EatAColor;         //生成彩虹
             AddProgress(2000);
             kItem = 3;
-        }
-		else if (totalSameCount >= 6)			//若总共消除大于等于6个（3,4消除或者多个3消）
-        {
-            if (m_blocks[position.x, position.y].special == TSpecialBlock.ESpecial_NormalPlus5)
-            {
-                m_gameStartTime += 5000;               //增加5秒时间
-            }
-            m_blocks[position.x, position.y].special = TSpecialBlock.ESpecial_Bomb;
-            AddProgress(600);
-            kItem = 2;
         }
         else if (maxCountInSameDir == 4)		//若最大每行消了4个
         {
@@ -1247,18 +1255,28 @@ public class GameLogic {
             }
             if (m_moveDirection == TDirection.EDir_Up || m_moveDirection == TDirection.EDir_Down)
             {
-                m_blocks[position.x, position.y].special = TSpecialBlock.ESpecial_EatLineDir0;
+                generateSpecial = TSpecialBlock.ESpecial_EatLineDir0;
             }
             if (m_moveDirection == TDirection.EDir_UpRight || m_moveDirection == TDirection.EDir_LeftDown)
             {
-                m_blocks[position.x, position.y].special = TSpecialBlock.ESpecial_EatLineDir1;
+                generateSpecial = TSpecialBlock.ESpecial_EatLineDir1;
             }
             if (m_moveDirection == TDirection.EDir_DownRight || m_moveDirection == TDirection.EDir_LeftUp)
             {
-                m_blocks[position.x, position.y].special = TSpecialBlock.ESpecial_EatLineDir2;
+                generateSpecial = TSpecialBlock.ESpecial_EatLineDir2;
             }
             AddProgress(500);
             kItem = 1;
+        }
+        else if (totalSameCount >= 6)			//若总共消除大于等于6个（3,4消除或者多个3消）
+        {
+            if (m_blocks[position.x, position.y].special == TSpecialBlock.ESpecial_NormalPlus5)
+            {
+                m_gameStartTime += 5000;               //增加5秒时间
+            }
+            generateSpecial = TSpecialBlock.ESpecial_Bomb;
+            AddProgress(600);
+            kItem = 2;
         }
         else if (totalSameCount > 4)			//若总共消除大于4个
         {
@@ -1266,12 +1284,28 @@ public class GameLogic {
             {
                 m_gameStartTime += 5000;               //增加5秒时间
             }
-            m_blocks[position.x, position.y].special = TSpecialBlock.ESpecial_Bomb;         //这里先生成炸弹，不生成染色球了
+            generateSpecial = TSpecialBlock.ESpecial_Bomb;
             AddProgress(600);
             kItem = 1;
         }
-        m_blocks[position.x, position.y].RefreshBlockSprite(PlayingStageData.GridData[position.x, position.y]);
-        m_tempBlocks[position.x, position.y] = 2;                                  //记录正常消除
+
+        if (availablePos != null && generateSpecial != TSpecialBlock.ESpecial_Normal)              //若生成了特殊块，且有可放的地方
+        {
+            m_blocks[availablePos.x, availablePos.y].special = generateSpecial;                                                 //生成特殊块
+            m_blocks[availablePos.x, availablePos.y].RefreshBlockSprite(PlayingStageData.GridData[position.x, position.y]);     //刷新图标
+            m_tempBlocks[availablePos.x, availablePos.y] = 2;                                                                   //记录正常消除
+        }
+
+        for (int i = 0; i < BlockCountX; ++i )
+        {
+            for (int j = 0; j < BlockCountY; ++j )
+            {
+                if (m_tempBlocks[i, j] == 2 && (availablePos == null || i != availablePos.x || j != availablePos.y))      //正常消除且不为新生成块部位
+                {
+                    EatBlock(new Position(i, j));       //吃掉
+                }
+            }
+        }
 
         //TODO 记分
         ////根据结果来记分
@@ -1392,8 +1426,8 @@ public class GameLogic {
                     PlayingStageData.ClearFlag(pos.x, pos.y, GridFlag.Stone);
                     PlayingStageData.ClearFlag(x, y, GridFlag.NotGenerateCap);
                     PlayingStageData.AddFlag(x, y, GridFlag.GenerateCap);
-					
-					AddPartile("StoneEffect", x, y);
+
+                    AddPartile("StoneEffect", pos.x, pos.y);
                 }
             }
         }
@@ -1902,6 +1936,7 @@ public class GameLogic {
                 }
             }
         }
+        ProcessTempBlocks();
     }
 
     void EatAColor(TBlockColor color)

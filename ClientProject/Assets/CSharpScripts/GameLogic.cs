@@ -1546,7 +1546,7 @@ public class GameLogic {
                 break;
             case TSpecialBlock.ESpecial_EatAColor:
                 {
-                    EatAColor(m_blocks[position.x, position.y].color);
+                    EatAColor(GetRandomColor(false));
                 }
                 break;
         }

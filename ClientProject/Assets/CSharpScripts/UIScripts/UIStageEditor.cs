@@ -240,6 +240,9 @@ public class UIStageEditor : UIWindowNGUI
         input = GetChildComponent<UIInput>("PlusStep");
         input.text = GlobalVars.CurStageData.PlusStep.ToString();
 
+        input = GetChildComponent<UIInput>("PlusStartTime");
+        input.text = GlobalVars.CurStageData.PlusStartTime.ToString();
+
         for (int i = 0; i < 3; ++i )
         {
             input = GetChildComponent<UIInput>("Star" + (i +1));
@@ -322,6 +325,10 @@ public class UIStageEditor : UIWindowNGUI
         input = GetChildComponent<UIInput>("PlusMaxCount");
         int plusMaxCount = (int)System.Convert.ChangeType(input.text, typeof(int));
         GlobalVars.CurGameLogic.PlayingStageData.PlusMaxCount = plusMaxCount;
+
+        input = GetChildComponent<UIInput>("PlusStartTime");
+        int plusStartTime = (int)System.Convert.ChangeType(input.text, typeof(int));
+        GlobalVars.CurGameLogic.PlayingStageData.PlusStartTime = plusStartTime;
 
         input = GetChildComponent<UIInput>("PlusStep");
         int plusStep = (int)System.Convert.ChangeType(input.text, typeof(int));

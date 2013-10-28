@@ -362,13 +362,17 @@ public class GameLogic {
             PlayingStageData.Nut2Count = 0;
         }
 
+        //从随机位置开始
+        int randomPos = m_random.Next() % BlockCountX;
+
         for (int i = 0; i < BlockCountX; i++)
         {
+            int xPos = (randomPos + i) % BlockCountX;
             for (int j = 0; j < BlockCountY; j++)
             {
-                if (PlayingStageData.CheckFlag(i, j, GridFlag.GenerateCap))
+                if (PlayingStageData.CheckFlag(xPos, j, GridFlag.GenerateCap))
                 {
-                    CreateBlock(i, j, true);
+                    CreateBlock(xPos, j, true);
                 }
             }
         }
@@ -2067,11 +2071,14 @@ public class GameLogic {
         m_blocks[x, y].color = color;               //设置颜色
         m_blocks[x, y].id = m_idCount++;
 
-        //处理+5
-        if (PlayingStageData.TimeLimit > 0 && GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit > m_lastPlus5Step + PlayingStageData.PlusStep)
+        if (Time.realtimeSinceStartup - m_gameStartTime > PlayingStageData.PlusStartTime)       //若超过了开始掉+5的时间
         {
-            m_blocks[x, y].special = TSpecialBlock.ESpecial_NormalPlus5;            //生成一个+5
-			m_lastPlus5Step = GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit;
+            //处理+5
+            if (PlayingStageData.TimeLimit > 0 && GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit > m_lastPlus5Step + PlayingStageData.PlusStep)
+            {
+                m_blocks[x, y].special = TSpecialBlock.ESpecial_NormalPlus5;            //生成一个+5
+                m_lastPlus5Step = GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit;
+            }
         }
 
         if (avoidLine)

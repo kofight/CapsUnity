@@ -17,6 +17,7 @@ public class UILogin : UIWindowNGUI
         AddChildComponentMouseClick("RecoverHeartBtn", delegate(object sender, UIMouseClick.ClickArgs e)
         {
             PlayerPrefs.SetInt("HeartCount", 5);            //恢复爱心
+            GlobalVars.HeartCount = 5;
         });
 
         m_developerMode = UIToolkits.FindComponent<UICheckbox>(mUIObject.transform, "DeveloperCheck");

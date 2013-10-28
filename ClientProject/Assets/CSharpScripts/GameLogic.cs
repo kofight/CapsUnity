@@ -1799,7 +1799,7 @@ public class GameLogic {
         }
 
         float lenth = Vector2.Distance(new Vector2(x, y), new Vector2(touchBeginPos.x, touchBeginPos.y));       //移动距离
-        if (lenth < BLOCKWIDTH * 0.8f)             //移动距离不够不行
+        if (lenth < BLOCKWIDTH * 0.6f)             //移动距离不够不行
         {
             return;
         }

@@ -23,6 +23,7 @@ public class CapsConfig
     public int DropTime = 120;
     public int EatTime = 250;
     public int MoveTime = 200;
+    public int GetHeartInterval = 300;          //获得心的时间间隔，目前是5分钟，单位是秒
     public UseFilePath useFilePath = UseFilePath.LocalPath;
 
     //[ConfigAttribute(DefaultValue = 2.0f, Name = "落水等待时间", FieldType = typeof(float))]
@@ -61,6 +62,7 @@ public class CapsConfig
         _config.GetValue<int>("DropTime", out DropTime);
         _config.GetValue<int>("EatTime", out EatTime);
         _config.GetValue<int>("MoveTime", out MoveTime);
+        _config.GetValue<int>("GetHeartInterval", out GetHeartInterval);
         _config.GetValue<string>("version", out version);
     }
 
@@ -100,6 +102,7 @@ public class CapsConfig
         _config.Write("EatTime", EatTime);
         _config.Write("MoveTime", MoveTime);
         _config.Write("version", version);
+        _config.Write("GetHeartInterval", GetHeartInterval);
     }
 
     public void ReadDefault()

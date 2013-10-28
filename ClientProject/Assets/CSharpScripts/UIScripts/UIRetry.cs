@@ -30,6 +30,11 @@ public class UIRetry : UIWindowNGUI
 
     private void OnRetryClicked(object sender, UIMouseClick.ClickArgs e)
     {
+        if (GlobalVars.HeartCount == 0)
+        {
+            return;
+        }
+
         HideWindow();
         GlobalVars.CurGameLogic.ClearGame();
         GlobalVars.CurGameLogic.Init();

@@ -3,3 +3,4 @@ DropTime                    120
 EatTime                    300
 MoveTime                    250
 Version                     Pre-Alpha-0.1
+GetHeartInterval            300

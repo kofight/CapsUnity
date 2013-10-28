@@ -121,6 +121,15 @@ public class UIGameEnd : UIWindowNGUI
         }
         else
         {
+            if (GlobalVars.HeartCount > 0)
+            {
+                if (GlobalVars.HeartCount == 5)     //若还没用过心
+                {
+                    GlobalVars.GetHeartTime = System.DateTime.Now;          //初始化获得心的时间
+                }
+                --GlobalVars.HeartCount;            //消耗一个心
+            }
+
             m_playOnBtn.gameObject.SetActive(true);
         }
     }

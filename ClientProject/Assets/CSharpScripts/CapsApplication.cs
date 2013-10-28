@@ -81,6 +81,14 @@ public class CapsApplication : S5Application
         {
             GameLogic.DROP_TIME = CapsConfig.Instance.DropTime;
         }
+
+        //读取心数相关
+		if(PlayerPrefs.HasKey("HeartCount"))
+		{
+        	GlobalVars.HeartCount = PlayerPrefs.GetInt("HeartCount");
+        	string heartTimeString = PlayerPrefs.GetString("GetHeartTime");
+        	GlobalVars.GetHeartTime = Convert.ToDateTime(heartTimeString);
+		}
     }
 
     protected override void DoUpdate()
@@ -92,6 +100,10 @@ public class CapsApplication : S5Application
     {
         base.OnApplicationQuit();
         Application.Quit();
+
+        //保存心数相关
+        PlayerPrefs.SetInt("HeartCount", GlobalVars.HeartCount);
+        PlayerPrefs.SetString("GetHeartTime", Convert.ToString(GlobalVars.GetHeartTime));
     }
 
     protected override State CreateState(int statEnum)

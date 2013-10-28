@@ -19,6 +19,8 @@ public class GlobalVars {
     public static bool EditStageMode = false;           //是否关卡编辑模式
     public static int CurStageNum = 1;                  //当前关卡编号
     public static bool DeveloperMode = false;           //开发者模式
+    public static int HeartCount = 5;                   //爱心数量
+    public static System.DateTime GetHeartTime;         //获得爱心的时间
 
     //编辑模式的变量
     public static TEditState EditState;                        //当前的编辑状态

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public enum TGameState
 {
     EGameState_Playing,                         //游戏中
+    EGameState_SugarCrushAnim,                  //进入特殊奖励前的动画
     EGameState_EndEatingSpecial,                //结束后开始逐个吃屏幕上的特殊块
     EGameState_EndStepRewarding,                //结束后根据步数奖励
     EGameState_End,
@@ -136,6 +137,7 @@ public class GameLogic {
     public static float ShowHelpTimeInterval = 5.0f;       //5秒钟后显示可消块
     public static float ShowNoPossibleExhangeTextTime = 1.0f;      //没有可交换的块显示，持续1秒钟
     public static int StepRewardInterval = 500;             //步数奖励的时间间隔
+    public static int SugarCrushAnimTime = 1200;            //SugarCrush动画的时间长度
     public int CurSeed;                                     //当前的随机种子
     public StageData PlayingStageData;                      //当前的关卡数据
     public int GetProgress(){ return m_progress; }
@@ -155,7 +157,7 @@ public class GameLogic {
 	bool m_changeBack;		//在交换方块动画中标志是否为换回动画
     System.Random m_random;
     long m_gameStartTime = 0;                              //游戏开始时间
-
+    long m_sugarCurshAnimStartTime = 0;                    //sugarCrush动画的开始时间
     long m_lastStepRewardTime = 0;                         //上次生成StepReward的时间
 
     ///统计数据///////////////////////////////////////////////////////////////////////
@@ -446,6 +448,16 @@ public class GameLogic {
     public void Update()
     {
         Timer.s_currentTime = Time.realtimeSinceStartup;
+
+        if (m_gameState == TGameState.EGameState_SugarCrushAnim)        //播放sugarcrush动画状态
+        {
+            UIDrawer.Singleton.DrawText("SugarCrush", 100, 100, "Sugar Crush!!!!!!!!!!!!!!!!");
+            if (Timer.millisecondNow() - m_sugarCurshAnimStartTime > SugarCrushAnimTime)        //若时间到
+            {
+                m_gameState = TGameState.EGameState_EndEatingSpecial;                           //切下一状态
+                return;
+            }
+        }
 
         //游戏结束后自动吃特殊块的状态，且当前没在消块或下落状态
         if (m_gameState == TGameState.EGameState_EndEatingSpecial && timerEatBlock.GetState() == TimerEnum.EStop && timerDropDown.GetState() == TimerEnum.EStop)          
@@ -1690,7 +1702,30 @@ public class GameLogic {
     {
         if (CheckStageFinish())                 //检查游戏是否结束
         {
-            m_gameState = TGameState.EGameState_EndEatingSpecial;
+            bool foundSpecial = false;
+            for (int i = 0; i < BlockCountX; ++i )
+            {
+                for (int j = 0; j < BlockCountY; ++j )
+                {
+                    if (m_blocks[i, j] != null && m_blocks[i, j].special != TSpecialBlock.ESpecial_Normal)
+                    {
+                        foundSpecial = true;
+                        break;
+                    }
+                }
+            }
+            if (foundSpecial || PlayingStageData.StepLimit > 0)     //若能进SugarCrush
+            {
+                m_gameState = TGameState.EGameState_SugarCrushAnim;
+                m_sugarCurshAnimStartTime = Timer.millisecondNow();
+            }
+            else
+            {
+                //否则结束游戏
+                m_gameStartTime = 0;
+                m_gameState = TGameState.EGameState_End;
+                UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
+            }
             return;
         }
 

@@ -36,6 +36,11 @@ public enum PortalFlag
     Invisible,          //不可见
 }
 
+public enum TStepReward
+{
+    Dir,
+    Eat,
+}
 
 public enum GameTarget
 {
@@ -76,6 +81,8 @@ public class StageData
     public int PlusInitCount = 1;            //初始化数量
     public int PlusStep = 10;            //步数间隔
     public int PlusStartTime = 0;           //开始出现+5的时间
+
+    public TStepReward StepReward = TStepReward.Dir;        //
 
     public int[]    StarScore = new int[3];          //获得星星的分数
     public int [, ] GridData = new int[GameLogic.BlockCountX, GameLogic.BlockCountY];                        //关卡初始地块数据

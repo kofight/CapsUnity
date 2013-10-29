@@ -29,7 +29,13 @@ public class UIGameEnd : UIWindowNGUI
     public override void OnShow()
     {
         base.OnShow();
-        if (GlobalVars.CurStageData.Target == GameTarget.ClearJelly)
+        if (GlobalVars.CurGameLogic.GetProgress() < GlobalVars.CurStageData.StarScore[0])       //没到基础的分数要求的情况
+        {
+            m_bWin = false;
+            m_resultLabel.text = "Failed!";
+            m_infoLabel.text = "Did not get any star";
+        }
+        else if (GlobalVars.CurStageData.Target == GameTarget.ClearJelly)
         {
             if (GlobalVars.CurGameLogic.PlayingStageData.GetJellyCount() != 0)
             {

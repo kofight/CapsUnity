@@ -4,10 +4,9 @@ using System.Collections.Generic;
 
 public enum TGameState
 {
-    EGameState_Waitting,
-    EGameState_Playing,
-    EGameState_EndWaitingDropingDown,			//游戏已经满足结束条件，等待下落结束
-    EGameState_PlayingEndAni,
+    EGameState_Playing,                         //游戏中
+    EGameState_EndEatingSpecial,                //结束后开始逐个吃屏幕上的特殊块
+    EGameState_EndStepRewarding,                //结束后根据步数奖励
     EGameState_End,
 };
 
@@ -136,6 +135,7 @@ public class GameLogic {
     public static float CheckAvailableTimeInterval = 1.0f;       //1秒钟后尝试找是否有可消块
     public static float ShowHelpTimeInterval = 5.0f;       //5秒钟后显示可消块
     public static float ShowNoPossibleExhangeTextTime = 1.0f;      //没有可交换的块显示，持续1秒钟
+    public static int StepRewardInterval = 500;             //步数奖励的时间间隔
     public int CurSeed;                                     //当前的随机种子
     public StageData PlayingStageData;                      //当前的关卡数据
     public int GetProgress(){ return m_progress; }
@@ -155,6 +155,8 @@ public class GameLogic {
 	bool m_changeBack;		//在交换方块动画中标志是否为换回动画
     System.Random m_random;
     long m_gameStartTime = 0;                              //游戏开始时间
+
+    long m_lastStepRewardTime = 0;                         //上次生成StepReward的时间
 
     ///统计数据///////////////////////////////////////////////////////////////////////
     long m_lastClickTime;				//上次点击时间
@@ -382,6 +384,8 @@ public class GameLogic {
         m_dropDownEndTime = Time.realtimeSinceStartup;
 		
 		UIWindowManager.Singleton.GetUIWindow<UIGame>().Reset();
+
+        m_gameState = TGameState.EGameState_Playing;                //开始游戏
     }
 
     public void ClearGame()
@@ -442,6 +446,61 @@ public class GameLogic {
     public void Update()
     {
         Timer.s_currentTime = Time.realtimeSinceStartup;
+
+        //游戏结束后自动吃特殊块的状态，且当前没在消块或下落状态
+        if (m_gameState == TGameState.EGameState_EndEatingSpecial && timerEatBlock.GetState() == TimerEnum.EStop && timerDropDown.GetState() == TimerEnum.EStop)          
+        {
+            for (int i = 0; i < BlockCountX; ++i )
+            {
+                for (int j = 0; j < BlockCountY; ++j )
+                {
+                    if (m_blocks[i, j] != null && m_blocks[i, j].special != TSpecialBlock.ESpecial_Normal)
+                    {
+                        EatBlock(new Position(i, j));
+                        timerEatBlock.Play();
+                        return;         //消一个特殊块就返回
+                    }
+                }
+            }
+
+            //若执行到这里证明已经没特殊块可以消了
+            if (PlayingStageData.StepLimit > 0)     //若剩余步数大于0，进入步数奖励
+            {
+                m_gameState = TGameState.EGameState_EndStepRewarding;
+                m_lastStepRewardTime = Timer.millisecondNow();
+            }
+            else
+            {
+                m_gameStartTime = 0;
+                m_gameState = TGameState.EGameState_End;
+                UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
+            }
+            return;
+        }
+
+        //步数奖励状态
+        if (m_gameState == TGameState.EGameState_EndStepRewarding)
+        {
+            if (Timer.millisecondNow() - m_lastStepRewardTime > StepRewardInterval)     //若到了时间间隔， 生成一个步数奖励
+            {
+                if (PlayingStageData.StepLimit > 0)
+                {
+                    if (PlayingStageData.StepReward == TStepReward.Dir)
+                    {
+                        Position pos = FindRandomPos(TBlockColor.EColor_None, null, true);
+                        m_blocks[pos.x, pos.y].special = TSpecialBlock.ESpecial_EatLineDir0 + (m_random.Next() % 3);
+                        m_blocks[pos.x, pos.y].RefreshBlockSprite(PlayingStageData.GridData[pos.x, pos.y]);
+                        --PlayingStageData.StepLimit;           //步数减一
+                    }
+                }
+                else
+                {
+                    m_gameState = TGameState.EGameState_EndEatingSpecial;
+                }
+
+                m_lastStepRewardTime = Timer.millisecondNow();
+            }
+        }
 
         if (m_gameStartTime == 0)           //游戏没到开始状态
         {
@@ -537,30 +596,12 @@ public class GameLogic {
         if (GlobalVars.CurStageData.StepLimit > 0)          //限制步数的关卡
         {
             UIDrawer.Singleton.DrawNumber("SetpLimit", 210, 864, PlayingStageData.StepLimit, "BaseNum", 24);
-            if (PlayingStageData.StepLimit == 0)            //
-            {
-                if (timerDropDown.GetState() == TimerEnum.EStop && timerEatBlock.GetState() == TimerEnum.EStop && timerMoveBlock.GetState() == TimerEnum.EStop)   //若没步数了，触发游戏结束
-                {
-                    UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
-                    m_gameStartTime = 0;
-                }
-            }
         }
         if (GlobalVars.CurStageData.TimeLimit > 0)          //限制时间的关卡
         {
             UIDrawer.Singleton.DrawText("TimeLimitText", 160, 864, "Time:");
             float timeRemain = GlobalVars.CurStageData.TimeLimit - (Timer.millisecondNow() - m_gameStartTime) / 1000.0f;
-
-            if (timeRemain < 0)     
-            {
-                timeRemain = 0;
-                if (timerDropDown.GetState() == TimerEnum.EStop && timerEatBlock.GetState() == TimerEnum.EStop && timerMoveBlock.GetState() == TimerEnum.EStop)   //若没时间了，触发游戏结束
-                {
-                    UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
-                    m_gameStartTime = 0;
-                }
-            }
-
+            timeRemain = Mathf.Max(0, timeRemain);
             UIDrawer.Singleton.DrawNumber("TimeLimit", 210, 864, timeRemain, "HighDown", 14, 3, 1);
         }
 
@@ -1340,7 +1381,7 @@ public class GameLogic {
         return true;
     }
 
-    Position FindRandomPos(TBlockColor excludeColor, Position [] excludePos)       //找到某个颜色的随机一个块, 简易算法，性能不好
+    Position FindRandomPos(TBlockColor excludeColor, Position [] excludePos,bool excludeSpecial = false)       //找到某个颜色的随机一个块, 简易算法，性能不好
     {
         int ranNum = m_random.Next()%(BlockCountX*BlockCountY);
         int count = 0;
@@ -1348,7 +1389,7 @@ public class GameLogic {
         {
             for (int j = 0; j < BlockCountY; j++)		//遍历一列
             {
-				if (count < ranNum)
+				if (count < ranNum)     //先找开始位置
                 {
 					++count;
                     continue;
@@ -1364,14 +1405,28 @@ public class GameLogic {
 					}
                     continue;
                 }
+
+                if (excludeSpecial && m_blocks[i, j].special != TSpecialBlock.ESpecial_Normal)      //检查不是Speical
+                {
+                    if (i == BlockCountX - 1 && j == BlockCountY - 1)//Repeat the loop till get a result
+                    {
+                        i = 0;
+                        j = 0;
+                    }
+                    continue;
+                }
+
                 Position pos = new Position(i, j);
                 bool bFind = false;
-                for (int k = 0; k < excludePos.Length; ++k )
+                if (excludePos != null)
                 {
-                    if (excludePos[k] == pos)
+                    for (int k = 0; k < excludePos.Length; ++k)
                     {
-                        bFind = true;
-                        continue;
+                        if (excludePos[k] == pos)
+                        {
+                            bFind = true;
+                            break;
+                        }
                     }
                 }
                 if (!bFind)
@@ -1602,7 +1657,7 @@ public class GameLogic {
         particleList.AddLast(par);
     }
 
-    public bool CheckStageFinish()
+    public bool CheckStageFinish()                  //检测关卡结束条件
     {
         if (PlayingStageData.Target == GameTarget.ClearJelly)       //若目标为清果冻，计算果冻数量
         {
@@ -1618,21 +1673,24 @@ public class GameLogic {
                 return true;
             }
         }
-        //else if (PlayingStageData.Target == GameTarget.GetScore)
-        //{
-        //    if (m_progress > PlayingStageData.StarScore[0])                 //大于1星就算完成
-        //    {
-        //        return true;
-        //    }
-        //}
+
+        if (GlobalVars.CurStageData.StepLimit > 0 && PlayingStageData.StepLimit == 0)            //限制步数的关卡步用完了
+        {
+            return true;
+        }
+
+        if (GlobalVars.CurStageData.TimeLimit > 0 && (Timer.millisecondNow() - m_gameStartTime) / 1000.0f > GlobalVars.CurStageData.TimeLimit)
+        {
+            return true;
+        }
         return false;
     }
 
     void OnDropEnd()            //所有下落和移动结束时被调用
     {
-        if (CheckStageFinish())
+        if (CheckStageFinish())                 //检查游戏是否结束
         {
-            UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
+            m_gameState = TGameState.EGameState_EndEatingSpecial;
             return;
         }
 
@@ -2071,7 +2129,7 @@ public class GameLogic {
         m_blocks[x, y].color = color;               //设置颜色
         m_blocks[x, y].id = m_idCount++;
 
-        if (Time.realtimeSinceStartup - m_gameStartTime > PlayingStageData.PlusStartTime)       //若超过了开始掉+5的时间
+        if (Timer.millisecondNow() - m_gameStartTime > PlayingStageData.PlusStartTime * 1000)       //若超过了开始掉+5的时间
         {
             //处理+5
             if (PlayingStageData.TimeLimit > 0 && GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit > m_lastPlus5Step + PlayingStageData.PlusStep)

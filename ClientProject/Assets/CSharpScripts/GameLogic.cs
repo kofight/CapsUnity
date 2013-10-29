@@ -485,7 +485,7 @@ public class GameLogic {
             {
                 if (PlayingStageData.StepLimit > 0)
                 {
-                    if (PlayingStageData.StepReward == TStepReward.Dir)
+                    //if (PlayingStageData.Target == GameTarget.BringFruitDown)
                     {
                         Position pos = FindRandomPos(TBlockColor.EColor_None, null, true);
                         m_blocks[pos.x, pos.y].special = TSpecialBlock.ESpecial_EatLineDir0 + (m_random.Next() % 3);

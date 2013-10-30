@@ -13,9 +13,14 @@ public class UIMap : UIWindowNGUI
 
     Transform[] m_stageBtns;
 
+    UIWindow m_heartUI;
+
     public override void OnCreate()
     {
         base.OnCreate();
+
+        m_heartUI = UIWindowManager.Singleton.CreateNGUIWindow("UIMapHeart", UIWindowManager.Anchor.TopLeft);
+
         m_backGroundTrans = mUIObject.transform;
         
         m_stageBtns = new Transform[GlobalVars.TotalStageCount];
@@ -30,7 +35,9 @@ public class UIMap : UIWindowNGUI
     public override void OnShow()
     {
         base.OnShow();
-		
+
+        m_heartUI.ShowWindow();
+
 		for (int i = 0; i < GlobalVars.TotalStageCount; ++i)
         {
             Transform transform = UIToolkits.FindChild(mUIObject.transform, "Stage" + (i + 1));      //找到对象
@@ -84,20 +91,29 @@ public class UIMap : UIWindowNGUI
 		
         MoveTo(new Vector2(0, 0));
     }
+
+    public override void OnHide()
+    {
+        base.OnHide();
+        m_heartUI.HideWindow();
+    }
+
     public override void OnUpdate()
     {
         base.OnUpdate();
 		if(GlobalVars.HeartCount > 5) GlobalVars.HeartCount = 5;
-        UIDrawer.Singleton.DrawNumber("Heart", 10, 10, GlobalVars.HeartCount, "BaseNum", 20);
+
+        UISprite heartNum = m_heartUI.GetChildComponent<UISprite>("HeartNum");
+        heartNum.spriteName = "Large_" + GlobalVars.HeartCount;
 
         if (GlobalVars.HeartCount < 5)          //若心没有满，处理心数量变化
         {
-            long ticks = System.DateTime.Now.Ticks - GlobalVars.GetHeartTime.Ticks;
+            int ticks = (int)((System.DateTime.Now.Ticks - GlobalVars.GetHeartTime.Ticks) / 10000);
             int GetHeartCount = 0;
-            if (ticks > (long)CapsConfig.Instance.GetHeartInterval * 10000000)        //若已经到了得心时间
+            if (ticks > CapsConfig.Instance.GetHeartInterval * 1000)        //若已经到了得心时间
             {
-                GetHeartCount = (int)(ticks / (CapsConfig.Instance.GetHeartInterval * 10000000));
-                GlobalVars.HeartCount += GetHeartCount;                     //增加心数
+                GetHeartCount = (ticks / (CapsConfig.Instance.GetHeartInterval * 1000));
+                GlobalVars.HeartCount += (int)GetHeartCount;                     //增加心数
                 GlobalVars.GetHeartTime = GlobalVars.GetHeartTime.AddSeconds(GetHeartCount * CapsConfig.Instance.GetHeartInterval);          //更改获取心的时间记录
             }
 
@@ -109,14 +125,18 @@ public class UIMap : UIWindowNGUI
 		
 		if(GlobalVars.HeartCount < 5)               //若心没满，要显示时间
 		{
-			long ticks = System.DateTime.Now.Ticks - GlobalVars.GetHeartTime.Ticks;
-			long ticksToGetHeart = ((long)CapsConfig.Instance.GetHeartInterval * 10000000 - ticks);
-			int min = (int)(ticksToGetHeart / 10000000) / 60;
-			int second = (int)(ticksToGetHeart / 10000000) % 60;
-            UIDrawer.Singleton.DrawNumber("MinutesToHeart", 80, 10, min, "HighDown", 14);
-
-            UIDrawer.Singleton.DrawNumber("SecondsToHeart", 120, 10, second, "HighDown", 14);
+			int ticks = (int)((System.DateTime.Now.Ticks - GlobalVars.GetHeartTime.Ticks) / 10000);
+			int ticksToGetHeart = CapsConfig.Instance.GetHeartInterval * 1000 - ticks;
+			int min = ticksToGetHeart / 1000 / 60;
+			int second = ticksToGetHeart / 1000 % 60;
+            UIDrawer.Singleton.DrawNumber("MinutesToHeart", 98, 53, min, "", 24);
+            UIDrawer.Singleton.DrawSprite("Colon", 166, 53, "colon");
+            UIDrawer.Singleton.DrawNumber("SecondsToHeart", 160, 53, second, "", 24);
 		}
+        else
+        {
+            UIDrawer.Singleton.DrawSprite("Full", 173, 53, "Full");
+        }
     }
 
     private void OnStageClicked(object sender, UIMouseClick.ClickArgs e)

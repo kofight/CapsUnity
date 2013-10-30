@@ -17,8 +17,8 @@ public class S5Application
     public MonoBehaviour mCoroutineStarter { private get; set; }				  //Any Exist MonoBehaviour could be a starter, usually is AppLaugher
     public S5Application()
     {
-        Height = 960;
-        Width = Screen.width * 960 / Screen.height;
+        Height = 1136;
+        Width = Screen.width * 1136 / Screen.height;
     }
 
     protected virtual void ExceptionProcessor(Exception e)

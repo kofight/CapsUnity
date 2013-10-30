@@ -144,7 +144,14 @@ public class GameLogic {
     public void AddProgress(int progress)
     {
         m_progress += progress;
-        UIWindowManager.Singleton.GetUIWindow<UIGame>().OnChangeProgress(m_progress);
+        UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().OnChangeProgress(m_progress);
+    }
+
+    public float GetTimeRemain()
+    {
+        float timeRemain = GlobalVars.CurStageData.TimeLimit - (Timer.millisecondNow() - m_gameStartTime) / 1000.0f; 
+        timeRemain = Mathf.Max(0, timeRemain);
+        return timeRemain;
     }
 
     ///游戏逻辑变量/////////////////////////////////////////////////////////////////
@@ -385,7 +392,7 @@ public class GameLogic {
 
         m_dropDownEndTime = Time.realtimeSinceStartup;
 		
-		UIWindowManager.Singleton.GetUIWindow<UIGame>().Reset();
+		UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().Reset();
 
         m_gameState = TGameState.EGameState_Playing;                //开始游戏
     }
@@ -605,26 +612,11 @@ public class GameLogic {
             Debug.Log("DeltaTime = " + Time.deltaTime);
         }
 
-        if (GlobalVars.CurStageData.StepLimit > 0)          //限制步数的关卡
-        {
-            UIDrawer.Singleton.DrawNumber("SetpLimit", 210, 864, PlayingStageData.StepLimit, "BaseNum", 24);
-        }
-        if (GlobalVars.CurStageData.TimeLimit > 0)          //限制时间的关卡
-        {
-            UIDrawer.Singleton.DrawText("TimeLimitText", 160, 864, "Time:");
-            float timeRemain = GlobalVars.CurStageData.TimeLimit - (Timer.millisecondNow() - m_gameStartTime) / 1000.0f;
-            timeRemain = Mathf.Max(0, timeRemain);
-            UIDrawer.Singleton.DrawNumber("TimeLimit", 210, 864, timeRemain, "HighDown", 14, 3, 1);
-        }
-
         if (GlobalVars.CurStageData.Target == GameTarget.BringFruitDown)
         {
             UIDrawer.Singleton.DrawText("Nut1Count", 100, 600, "Nut1:" + PlayingStageData.Nut1Count + "/" + GlobalVars.CurStageData.Nut1Count);
             UIDrawer.Singleton.DrawText("Nut2Count", 180, 600, "Nut2:" + PlayingStageData.Nut2Count + "/" + GlobalVars.CurStageData.Nut2Count);
         }
-
-        //绘制分数
-        UIDrawer.Singleton.DrawNumber("ScoreText", 342, 864, m_progress, "BaseNum", 24, 7);
 
         //绘制传送门
         foreach(KeyValuePair<int, Portal> pair in PlayingStageData.PortalToMap)

@@ -136,6 +136,38 @@ public class StageData
         return count;
     }
 
+    public int GetSingleJellyCount()
+    {
+        int count = 0;
+        for (int i = 0; i < GameLogic.BlockCountX; i++)				//遍历一行
+        {
+            for (int j = 0; j < GameLogic.BlockCountY; j++)		//遍历一列
+            {
+                if (CheckFlag(i, j, GridFlag.Jelly))
+                {
+                    ++count;
+                }
+            }
+        }
+        return count;
+    }
+
+    public int GetDoubleJellyCount()
+    {
+        int count = 0;
+        for (int i = 0; i < GameLogic.BlockCountX; i++)				//遍历一行
+        {
+            for (int j = 0; j < GameLogic.BlockCountY; j++)		//遍历一列
+            {
+                if (CheckFlag(i, j, GridFlag.JellyDouble))
+                {
+                    ++count;
+                }
+            }
+        }
+        return count;
+    }
+
     int GridDataToInt(GridData data)
     {
         return (int)data.grid * 10 + (int)data.gridBlock;

@@ -1,28 +1,38 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class UIGame : UIWindowNGUI
+public class UIGameBottom : UIWindowNGUI
 {
     UISprite[] m_starsSprites = new UISprite[3];
     UISprite m_progressSprite;
-    static readonly int ProgressLenth = 272;
-    static readonly int ProgressStartX = 225;
+    static readonly int ProgressLenth = 348;
+    static readonly int ProgressStartX = -89;
+
+    UISprite stageBoard;
 
     public override void OnCreate()
     {
         base.OnCreate();
-
-        AddChildComponentMouseClick("EditorBtn", OnEditStageClicked);
 
         for (int i = 0; i < 3; ++i )
         {
             m_starsSprites[i] = GetChildComponent<UISprite>("Star" + (i + 1));      //查找sprite
         }
         m_progressSprite = GetChildComponent<UISprite>("Progress");      //查找sprite
+
+        stageBoard = GetChildComponent<UISprite>("StageBoard");
     }
     public override void OnShow()
     {
         base.OnShow();
+        if (GlobalVars.CurGameLogic.PlayingStageData.TimeLimit > 0)
+        {
+            stageBoard.spriteName = "TimeBoard";
+        }
+        else
+        {
+            stageBoard.spriteName = "StepBoard";
+        }
     }
 	
 	public void Reset()
@@ -57,6 +67,26 @@ public class UIGame : UIWindowNGUI
             m_progressSprite.transform.LocalScaleX(ProgressLenth * completeRatio);
         }
         //GlobalVars.CurGameLogic.GetProgress()
+
+        UIDrawer.Singleton.DefaultAnchor = UIWindowManager.Anchor.Bottom;
+        if (GlobalVars.CurStageData.StepLimit > 0)          //限制步数的关卡
+        {
+            UIDrawer.Singleton.DrawNumber("SetpLimit", -134, -170, GlobalVars.CurGameLogic.PlayingStageData.StepLimit, "BaseNum", 24);
+        }
+        if (GlobalVars.CurStageData.TimeLimit > 0)          //限制时间的关卡
+        {
+            int ticks = (int)((System.DateTime.Now.Ticks - GlobalVars.GetHeartTime.Ticks) / 10000);
+            int ticksToGetHeart = CapsConfig.Instance.GetHeartInterval * 1000 - ticks;
+            int min = (int)GlobalVars.CurGameLogic.GetTimeRemain() / 60;
+            int second = (int)GlobalVars.CurGameLogic.GetTimeRemain() % 60;
+            UIDrawer.Singleton.DrawNumber("MinutesLeft", -180, -170, min, "", 24);
+            UIDrawer.Singleton.DrawSprite("TimeColon", -112, -170, "colon");
+            UIDrawer.Singleton.DrawNumber("SecondsLeft", -120, -170, second, "", 24);
+        }
+
+        //绘制分数
+        UIDrawer.Singleton.DrawNumber("ScoreText", 90, -170, GlobalVars.CurGameLogic.GetProgress(), "BaseNum", 24, 7);
+        UIDrawer.Singleton.DefaultAnchor = UIWindowManager.Anchor.TopLeft;
     }
 
     public void OnChangeProgress(int progress)
@@ -68,15 +98,5 @@ public class UIGame : UIWindowNGUI
                 m_starsSprites[i].spriteName = "LightStar";
             }
         }
-    }
-
-    private void OnEditStageClicked(object sender, UIMouseClick.ClickArgs e)
-    {
-        if (UIWindowManager.Singleton.GetUIWindow<UIStageEditor>() == null)
-        {
-            UIWindowManager.Singleton.CreateWindow<UIStageEditor>(UIWindowManager.Anchor.Right);
-        }
-        UIWindowManager.Singleton.GetUIWindow<UIStageEditor>().ShowWindow();        //显示编辑窗口
-        GlobalVars.EditStageMode = true;        //编辑器里自动进入关卡编辑模式
     }
 }

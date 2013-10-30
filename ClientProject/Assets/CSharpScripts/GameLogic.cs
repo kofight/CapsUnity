@@ -1338,11 +1338,32 @@ public class GameLogic {
             kItem = 1;
         }
 
-        if (availablePos != null && generateSpecial != TSpecialBlock.ESpecial_Normal)              //若生成了特殊块，且有可放的地方
+        if (generateSpecial != TSpecialBlock.ESpecial_Normal)              //若生成了特殊块
         {
-            m_blocks[availablePos.x, availablePos.y].special = generateSpecial;                                                 //生成特殊块
-            m_blocks[availablePos.x, availablePos.y].RefreshBlockSprite(PlayingStageData.GridData[position.x, position.y]);     //刷新图标
-            m_tempBlocks[availablePos.x, availablePos.y] = 2;                                                                   //记录正常消除
+            if (availablePos == null)                                       //还没找到生成位置的情况
+            {
+                if (m_blocks[position.x, position.y].special == TSpecialBlock.ESpecial_Normal)
+                {
+                    availablePos = position;
+                }
+                else
+                {
+                    for (int i = 0; i < countInSameLine; ++i)
+                    {
+                        if (m_blocks[eatBlockPos[i].x, eatBlockPos[i].y].special == TSpecialBlock.ESpecial_Normal)
+                        {
+                            availablePos = eatBlockPos[i];          //找个位置放置
+                            break;
+                        }
+                    }
+                }
+            }
+            if (availablePos != null)
+            {
+                m_blocks[availablePos.x, availablePos.y].special = generateSpecial;                                                 //生成特殊块
+                m_blocks[availablePos.x, availablePos.y].RefreshBlockSprite(PlayingStageData.GridData[position.x, position.y]);     //刷新图标
+                m_tempBlocks[availablePos.x, availablePos.y] = 2;                                                                   //记录正常消除
+            }
         }
 
         for (int i = 0; i < BlockCountX; ++i )
@@ -1520,8 +1541,9 @@ public class GameLogic {
     {
         if (position.x >= BlockCountX || position.y >= BlockCountY || position.x < 0 || position.y < 0)
             return;
-
-        m_tempBlocks[position.x, position.y] = 1;       //记录吃块，用来改变Grid属性
+		
+		if(m_tempBlocks[position.x, position.y] == 0)
+        	m_tempBlocks[position.x, position.y] = 1;       //记录吃块，用来改变Grid属性
 		
 		if (m_blocks[position.x, position.y] == null) return;
 
@@ -1749,6 +1771,7 @@ public class GameLogic {
             {
                 for (int j = 0; j < BlockCountY; ++j )
                 {
+					if(m_blocks[i, j] == null) continue;
                     if (m_blocks[i, j].color == TBlockColor.EColor_Nut1)
                     {
                         m_nut1Count++;

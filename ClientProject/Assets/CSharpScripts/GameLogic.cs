@@ -143,6 +143,7 @@ public class GameLogic {
     public void AddProgress(int progress)
     {
         m_progress += progress;
+        Debug.Log("Score = " + m_progress);
         UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().OnChangeProgress(m_progress);
     }
 
@@ -219,7 +220,7 @@ public class GameLogic {
         PlayingStageData.LoadStageData(GlobalVars.CurStageNum);
     }
 
-    bool Help(out Position p1, out Position p2)                 //查找到一个可交换的位置
+    public bool Help()                 //查找到一个可交换的位置
     {
         for (int i = 0; i < BlockCountX; ++i )
         {
@@ -245,8 +246,8 @@ public class GameLogic {
                         ExchangeBlock(curPos, position);        //临时交换
                         if (IsHaveLine(curPos) || IsHaveLine(position))
                         {
-                            p1 = curPos;
-                            p2 = position;
+                            helpP1 = curPos;
+                            helpP2 = position;
                             ExchangeBlock(curPos, position);        //换回
                             return true;
                         }
@@ -257,8 +258,8 @@ public class GameLogic {
 
             }
         }
-        p1 = null;
-        p2 = null;
+        helpP1 = null;
+        helpP2 = null;
         return false;
     }
 
@@ -605,6 +606,7 @@ public class GameLogic {
                         Position pos = FindRandomPos(TBlockColor.EColor_None, null, true);
                         m_blocks[pos.x, pos.y].special = TSpecialBlock.ESpecial_EatLineDir0 + (m_random.Next() % 3);
                         m_blocks[pos.x, pos.y].RefreshBlockSprite(PlayingStageData.GridData[pos.x, pos.y]);
+                        AddProgress(CapsConfig.DirBombPoint);
                         --PlayingStageData.StepLimit;           //步数减一
                     }
                 }
@@ -650,9 +652,7 @@ public class GameLogic {
             {
                 if (Time.realtimeSinceStartup > m_dropDownEndTime + CheckAvailableTimeInterval)
                 {
-                    helpP1 = new Position();
-                    helpP2 = new Position();
-                    if(!Help(out helpP1, out helpP2))
+                    if(!Help())
                     {
                         m_showNoPossibleExhangeTextTime = Timer.millisecondNow();                       //显示需要重排
                     }
@@ -660,11 +660,7 @@ public class GameLogic {
             }
             else if (Time.realtimeSinceStartup > m_dropDownEndTime + ShowHelpTimeInterval)
             {
-                if (m_blocks[helpP1.x, helpP1.y]!=null && !m_blocks[helpP1.x, helpP1.y].m_animation.isPlaying)
-                {
-                    m_blocks[helpP1.x, helpP1.y].m_animation.Play("Help");
-                    m_blocks[helpP2.x, helpP2.y].m_animation.Play("Help");
-                }
+                ShowHelpAnim();
             }
         }
 
@@ -690,6 +686,15 @@ public class GameLogic {
             {
                 list.Remove(parToDelete);                               //在原列表中删除
             }
+        }
+    }
+
+    public void ShowHelpAnim()
+    {
+        if (m_blocks[helpP1.x, helpP1.y] != null && !m_blocks[helpP1.x, helpP1.y].m_animation.isPlaying)
+        {
+            m_blocks[helpP1.x, helpP1.y].m_animation.Play("Help");
+            m_blocks[helpP2.x, helpP2.y].m_animation.Play("Help");
         }
     }
 
@@ -911,6 +916,7 @@ public class GameLogic {
                         PlayingStageData.AddFlag(i, j, GridFlag.GenerateCap);
 
                         AddPartile("StoneEffect", i, j);
+                        AddProgress(CapsConfig.EatStonePoint);
                     }
                     else if (PlayingStageData.CheckFlag(i, j, GridFlag.Chocolate))
                     {
@@ -918,23 +924,27 @@ public class GameLogic {
                         PlayingStageData.ClearFlag(i, j, GridFlag.NotGenerateCap);
                         PlayingStageData.AddFlag(i, j, GridFlag.GenerateCap);
                         AddPartile("ChocolateEffect", i, j);
+                        AddProgress(CapsConfig.EatChocolate);
                     }
                     else if (PlayingStageData.CheckFlag(i, j, GridFlag.Cage))
                     {
                         PlayingStageData.ClearFlag(i, j, GridFlag.Cage);
                         AddPartile("CageEffect", i, j);
                         m_blocks[i, j].isLocked = false;
+                        AddProgress(CapsConfig.EatCagePoint);
                     }
                     else if (PlayingStageData.CheckFlag(i, j, GridFlag.JellyDouble))
                     {
                         PlayingStageData.ClearFlag(i, j, GridFlag.JellyDouble);
                         PlayingStageData.AddFlag(i, j, GridFlag.Jelly);
                         AddPartile("JellyEffect", i, j);
+                        AddProgress(CapsConfig.EatJellyDouble);
                     }
                     else if (PlayingStageData.CheckFlag(i, j, GridFlag.Jelly))
                     {
                         PlayingStageData.ClearFlag(i, j, GridFlag.Jelly);
                         AddPartile("JellyEffect", i, j);
+                        AddProgress(CapsConfig.EatJelly);
                     }
 
                     ClearChocolateAround(i, j);
@@ -1160,6 +1170,8 @@ public class GameLogic {
                         PlayingStageData.Nut2Count++;
                         --m_nut2Count;
                     }
+
+                    AddProgress(CapsConfig.FruitDropDown);
 					
                     MakeSpriteFree(i, j);           //离开点吃掉坚果
                 }
@@ -1303,7 +1315,7 @@ public class GameLogic {
                 m_gameStartTime += 5000;               //增加5秒时间
             }
             generateSpecial = TSpecialBlock.ESpecial_EatAColor;         //生成彩虹
-            AddProgress(2000);
+            AddProgress(CapsConfig.EatAColorPoint);
             kItem = 3;
         }
         else if (maxCountInSameDir == 4)		//若最大每行消了4个
@@ -1324,7 +1336,7 @@ public class GameLogic {
             {
                 generateSpecial = TSpecialBlock.ESpecial_EatLineDir2;
             }
-            AddProgress(500);
+            AddProgress(CapsConfig.DirBombPoint);
             kItem = 1;
         }
         else if (totalSameCount >= 6)			//若总共消除大于等于6个（3,4消除或者多个3消）
@@ -1334,7 +1346,7 @@ public class GameLogic {
                 m_gameStartTime += 5000;               //增加5秒时间
             }
             generateSpecial = TSpecialBlock.ESpecial_Bomb;
-            AddProgress(600);
+            AddProgress(CapsConfig.BombPoint);
             kItem = 2;
         }
         else if (totalSameCount > 4)			//若总共消除大于4个
@@ -1344,7 +1356,7 @@ public class GameLogic {
                 m_gameStartTime += 5000;               //增加5秒时间
             }
             generateSpecial = TSpecialBlock.ESpecial_Bomb;
-            AddProgress(600);
+            AddProgress(CapsConfig.Plus5Point);
             kItem = 1;
         }
 
@@ -1411,7 +1423,7 @@ public class GameLogic {
             kCombo = CapsConfig.Instance.KComboTable[m_comboCount + 1];
         }
 
-        AddProgress(50 * (kQuantity + kCombo + kItem + kLevel)); 
+        AddProgress(50 * kQuantity *(kCombo + kItem + kLevel + 1)); 
         OnProgressChange();
         return true;
     }
@@ -1527,9 +1539,9 @@ public class GameLogic {
         }
     }
 
-    void ClearHelpPoint()
+    public void ClearHelpPoint()
     {
-        if (m_dropDownEndTime > 0 && helpP1 != null)
+        if (helpP1 != null)
         {
             if (m_blocks[helpP1.x, helpP1.y] != null)
             {
@@ -1561,8 +1573,6 @@ public class GameLogic {
         {
             return;
         }
-
-        ClearHelpPoint();           //Todo 这个不该放这里，应该只需要调一次
 
         if (PlayingStageData.CheckFlag(position.x, position.y, GridFlag.Cage)) return;                       //有笼子的块不消(先消笼子)
 
@@ -2126,6 +2136,8 @@ public class GameLogic {
 
     void MoveBlockPair(Position position1, Position position2)
     {
+        ClearHelpPoint();
+
         ExchangeBlock(position1, position2);			//交换方块
 
         //PlaySound(capsmove);							//移动

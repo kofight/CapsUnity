@@ -31,6 +31,13 @@ public class UIStageEditor : UIWindowNGUI
             GlobalVars.CurGameLogic.AutoResort();
         });
 
+        AddChildComponentMouseClick("HelpBtn", delegate(object sender, UIMouseClick.ClickArgs e)
+        {
+            GlobalVars.CurGameLogic.ClearHelpPoint();
+            GlobalVars.CurGameLogic.Help();
+            GlobalVars.CurGameLogic.ShowHelpAnim();
+        });
+
         AddChildComponentMouseClick("ReSeedBtn", delegate(object sender, UIMouseClick.ClickArgs e)
         {
             GlobalVars.CurGameLogic.ClearGame();

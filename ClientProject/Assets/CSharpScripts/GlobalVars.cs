@@ -32,14 +32,4 @@ public class GlobalVars {
 
     public static StageData CurStageData;                       //当前正在查看或玩的关卡数据
     public static GameLogic CurGameLogic;                       //当前的游戏逻辑
-
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
 }

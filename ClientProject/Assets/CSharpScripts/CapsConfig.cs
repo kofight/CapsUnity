@@ -34,6 +34,16 @@ public class CapsConfig
     public int MaxKCombo = 9;
     public int[] KQuanlityTable = { 0, 1, 2, 3, 3, 3, 3, 3, 3 };
     public int[] KComboTable = {0, 1, 2, 3, 4, 5, 6, 6, 6};
+    public static readonly int Plus5Point = 500;
+    public static readonly int DirBombPoint = 500;
+    public static readonly int BombPoint = 600;
+    public static readonly int EatAColorPoint = 2000;
+    public static readonly int FruitDropDown = 1000;
+    public static readonly int EatJelly = 500;
+    public static readonly int EatJellyDouble = 400;
+    public static readonly int EatCagePoint = 400;
+    public static readonly int EatStonePoint = 400;
+    public static readonly int EatChocolate = 400;
 
     private ConfigOperator _config;
 

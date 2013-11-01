@@ -32,7 +32,7 @@ public class CapsConfig
     //用来计算分数的常量
     public int MaxKQuanlity = 10;
     public int MaxKCombo = 9;
-    public int[] KQuanlityTable = { 0, 1, 2, 3, 3, 3, 3, 3, 3 };
+    public int[] KQuanlityTable = { 1, 2, 3, 3, 3, 3, 3, 3, 3 };
     public int[] KComboTable = {0, 1, 2, 3, 4, 5, 6, 6, 6};
     public static readonly int Plus5Point = 500;
     public static readonly int DirBombPoint = 500;

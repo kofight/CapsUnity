@@ -143,6 +143,7 @@ public class GameLogic {
     public void AddProgress(int progress)
     {
         m_progress += progress;
+        Debug.Log("Score = " + m_progress);
         UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().OnChangeProgress(m_progress);
     }
 
@@ -605,6 +606,7 @@ public class GameLogic {
                         Position pos = FindRandomPos(TBlockColor.EColor_None, null, true);
                         m_blocks[pos.x, pos.y].special = TSpecialBlock.ESpecial_EatLineDir0 + (m_random.Next() % 3);
                         m_blocks[pos.x, pos.y].RefreshBlockSprite(PlayingStageData.GridData[pos.x, pos.y]);
+                        AddProgress(CapsConfig.DirBombPoint);
                         --PlayingStageData.StepLimit;           //步数减一
                     }
                 }
@@ -1421,7 +1423,7 @@ public class GameLogic {
             kCombo = CapsConfig.Instance.KComboTable[m_comboCount + 1];
         }
 
-        AddProgress(50 * kQuantity *(kCombo + kItem + kLevel)); 
+        AddProgress(50 * kQuantity *(kCombo + kItem + kLevel + 1)); 
         OnProgressChange();
         return true;
     }

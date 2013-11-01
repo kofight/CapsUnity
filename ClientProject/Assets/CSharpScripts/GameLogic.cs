@@ -138,7 +138,6 @@ public class GameLogic {
     public static float ShowNoPossibleExhangeTextTime = 1.0f;      //没有可交换的块显示，持续1秒钟
     public static int StepRewardInterval = 500;             //步数奖励的时间间隔
     public static int SugarCrushAnimTime = 1200;            //SugarCrush动画的时间长度
-    public int CurSeed;                                     //当前的随机种子
     public StageData PlayingStageData;                      //当前的关卡数据
     public int GetProgress(){ return m_progress; }
     public void AddProgress(int progress)
@@ -167,18 +166,6 @@ public class GameLogic {
     long m_sugarCurshAnimStartTime = 0;                    //sugarCrush动画的开始时间
     long m_lastStepRewardTime = 0;                         //上次生成StepReward的时间
 
-    ///统计数据///////////////////////////////////////////////////////////////////////
-    long m_lastClickTime;				//上次点击时间
-    long m_rhythmMark;				//节奏感得分
-    long m_gameTakeTime;				//一局游戏所用时间
-    int m_totalClickCount;		//总共点击次数
-    int m_workedClickCount;	//有效点击次数
-    int m_maxComboCount;		//最大combo数
-    int m_totalComboCount;			//本局总连击数
-
-    LinkedList<long> m_perClickTakeTime = new LinkedList<long>();				//每次点击所用时间记录
-    int m_rpMark;								//人品得分
-
     //计时器
     Timer timerMoveBlock = new Timer();
     Timer timerEatBlock = new Timer();
@@ -197,14 +184,6 @@ public class GameLogic {
 
     Dictionary<string, LinkedList<ParticleSystem> > m_particleMap = new Dictionary<string, LinkedList<ParticleSystem> >();
     Dictionary<string, LinkedList<ParticleSystem>> m_freeParticleMap = new Dictionary<string, LinkedList<ParticleSystem>>();
-
-
-	//std::vector<NumberDrawer *> m_endScoreBoardNumsVec;		//结束面板上的一堆数字
-
-	//NumberDrawer * m_comboNumDrawer;		//用来绘制Combo数字
-	NumberDrawer m_progressNumDrawer = new NumberDrawer();		//用来绘制进度数字
-	NumberDrawer m_pSecNum = new NumberDrawer();				//用来绘制秒数
-	NumberDrawer m_pMicroSecNum = new NumberDrawer();			//用来绘制微秒数
 
     GameObject m_freePool;
     GameObject m_capsPool;
@@ -297,6 +276,11 @@ public class GameLogic {
                     continue;
                 }
 
+                if (m_blocks[i, j].color > TBlockColor.EColor_Grey)                        //坚果
+                {
+                    continue;
+                }
+
                 array[count] = new Position(i, j);          //先找出可以交换的位置
                 ++count;
             }
@@ -352,14 +336,11 @@ public class GameLogic {
     {
         Timer.s_currentTime = Time.realtimeSinceStartup;        //更新一次时间
         long time = Timer.millisecondNow();
-        m_lastClickTime = time;
         m_gameStartTime = time;
 
-        CurSeed = PlayingStageData.Seed;
-
-        if (CurSeed > 0)
+        if (PlayingStageData.Seed > 0)
         {
-            m_random = new System.Random(CurSeed);
+            m_random = new System.Random(PlayingStageData.Seed);
         }
         else
         {
@@ -376,14 +357,27 @@ public class GameLogic {
         //从随机位置开始
         int randomPos = m_random.Next() % BlockCountX;
 
-        for (int i = 0; i < BlockCountX; i++)
+        bool startOver = true;
+        while (startOver)
         {
-            int xPos = (randomPos + i) % BlockCountX;
-            for (int j = 0; j < BlockCountY; j++)
+            startOver = false;
+            for (int i = 0; i < BlockCountX; i++)
             {
-                if (PlayingStageData.CheckFlag(xPos, j, GridFlag.GenerateCap))
+                int xPos = (randomPos + i) % BlockCountX;
+                for (int j = 0; j < BlockCountY; j++)
                 {
-                    CreateBlock(xPos, j, true);
+                    if (PlayingStageData.CheckFlag(xPos, j, GridFlag.GenerateCap))
+                    {
+                        if (!CreateBlock(xPos, j, true))
+                        {
+                            startOver = true;       //重新生成所有块 
+                            break;
+                        }
+                    }
+                }
+                if (startOver)
+                {
+                    break;
                 }
             }
         }
@@ -440,6 +434,12 @@ public class GameLogic {
                 }
             }
         }
+		m_nut1Count = 0;
+		m_nut2Count = 0;
+        m_sugarCurshAnimStartTime = 0;
+        m_lastStepRewardTime = 0;
+        m_dropDownEndTime = 0;
+        m_showNoPossibleExhangeTextTime = 0;
     }
 
     int GetXPos(int x)
@@ -452,13 +452,109 @@ public class GameLogic {
         return gameAreaY + y * BLOCKHEIGHT + (x + 1) % 2 * BLOCKHEIGHT / 2 + BLOCKHEIGHT / 2;
     }
 
-    public void Update()
+    void DrawGraphics()
     {
-        Timer.s_currentTime = Time.realtimeSinceStartup;
+        Color defaultColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
 
+        //根据数据绘制Sprite
+        for (int i = 0; i < BlockCountX; i++)
+        {
+            for (int j = 0; j < BlockCountY; j++)
+            {
+                if (PlayingStageData.GridData[i, j] == 0)
+                {
+                    continue;
+                }
+                if (m_blocks[i, j] != null)
+                {
+                    m_blocks[i, j].m_blockTransform.localPosition = new Vector3(GetXPos(i) + m_blocks[i, j].x_move, -(m_blocks[i, j].y_move + GetYPos(i, j)), -105);
+                    m_blocks[i, j].m_blockSprite.color = defaultColor;          //Todo 实在不知道为什么加上这句动画控制Alpha才好使
+
+                    if (m_blocks[i, j].IsEating())
+                    {
+                        UIDrawer.Singleton.DrawNumber("Score" + i + "," + j, (int)m_blocks[i, j].m_blockTransform.localPosition.x, -(int)m_blocks[i, j].m_blockTransform.localPosition.y, 60, "BaseNum", 15, 4);
+                    }
+                }
+
+                //绘制底图
+                if (PlayingStageData.CheckFlag(i, j, GridFlag.Jelly))
+                {
+                    UIDrawer.Singleton.DrawSprite("Jelly" + i + "," + j, GetXPos(i), GetYPos(i, j), "Jelly");
+                }
+                else if (PlayingStageData.CheckFlag(i, j, GridFlag.JellyDouble))
+                {
+                    UIDrawer.Singleton.DrawSprite("Jelly2" + i + "," + j, GetXPos(i), GetYPos(i, j), "JellyDouble");
+                }
+                else if (PlayingStageData.GridData[i, j] != 0)
+                {
+                    UIDrawer.Singleton.DrawSprite("Grid" + i + "," + j, GetXPos(i), GetYPos(i, j), "Grid");
+                }
+
+                if (PlayingStageData.CheckFlag(i, j, GridFlag.Cage))
+                {
+                    UIDrawer.Singleton.DrawSprite("Cage" + i + "," + j, GetXPos(i), GetYPos(i, j), "Cage", 3);
+                }
+
+                if (PlayingStageData.CheckFlag(i, j, GridFlag.Stone))
+                {
+                    UIDrawer.Singleton.DrawSprite("Stone" + i + "," + j, GetXPos(i), GetYPos(i, j), "Stone", 3);
+                }
+
+                if (PlayingStageData.CheckFlag(i, j, GridFlag.Chocolate))
+                {
+                    UIDrawer.Singleton.DrawSprite("Chocolate" + i + "," + j, GetXPos(i), GetYPos(i, j), "Chocolate", 3);
+                }
+
+                //绘制水果出口
+                if (PlayingStageData.Target == GameTarget.BringFruitDown && PlayingStageData.CheckFlag(i, j, GridFlag.FruitExit))
+                {
+                    UIDrawer.Singleton.DrawSprite("Exit" + i + "," + j, GetXPos(i), GetYPos(i, j), "FruitExit", 3);
+                }
+
+                if (GlobalVars.EditStageMode && PlayingStageData.CheckFlag(i, j, GridFlag.Birth))     //若在关卡编辑状态
+                {
+                    UIDrawer.Singleton.DrawSprite("Birth" + i + "," + j, GetXPos(i), GetYPos(i, j), "Birth", 3);       //出生点
+                }
+            }
+        }
+        if (Time.deltaTime > 0.02f)
+        {
+            Debug.Log("DeltaTime = " + Time.deltaTime);
+        }
+
+        if (GlobalVars.CurStageData.Target == GameTarget.BringFruitDown)
+        {
+            UIDrawer.Singleton.DrawText("Nut1Count", 100, 600, "Nut1:" + PlayingStageData.Nut1Count + "/" + GlobalVars.CurStageData.Nut1Count);
+            UIDrawer.Singleton.DrawText("Nut2Count", 180, 600, "Nut2:" + PlayingStageData.Nut2Count + "/" + GlobalVars.CurStageData.Nut2Count);
+        }
+
+        //绘制传送门
+        foreach (KeyValuePair<int, Portal> pair in PlayingStageData.PortalToMap)
+        {
+            if (pair.Value.flag == 1)               //可见传送门
+            {
+                UIDrawer.Singleton.DrawSprite("PortalStart" + pair.Key, GetXPos(pair.Value.from.x), GetYPos(pair.Value.from.x, pair.Value.from.y) + BLOCKHEIGHT / 2, "PortalStart", 3);
+                UIDrawer.Singleton.DrawSprite("PortalEnd" + pair.Key, GetXPos(pair.Value.to.x), GetYPos(pair.Value.to.x, pair.Value.to.y) - BLOCKHEIGHT / 2 + 15, "PortalEnd", 3);
+            }
+            else if (GlobalVars.EditStageMode)      //编辑器模式，画不可见传送门
+            {
+                UIDrawer.Singleton.DrawSprite("InviPortalStart" + pair.Key, GetXPos(pair.Value.from.x), GetYPos(pair.Value.from.x, pair.Value.from.y), "InviPortalStart", 3);
+                UIDrawer.Singleton.DrawSprite("InviPortalEnd" + pair.Key, GetXPos(pair.Value.to.x), GetYPos(pair.Value.to.x, pair.Value.to.y), "InviPortalEnd", 3);
+            }
+        }
+
+        //处理流程////////////////////////////////////////////////////////////////////////
         if (m_gameState == TGameState.EGameState_SugarCrushAnim)        //播放sugarcrush动画状态
         {
             UIDrawer.Singleton.DrawText("SugarCrush", 100, 100, "Sugar Crush!!!!!!!!!!!!!!!!");
+        }
+    }
+
+    void ProcessState()     //处理各个状态
+    {
+        //处理流程////////////////////////////////////////////////////////////////////////
+        if (m_gameState == TGameState.EGameState_SugarCrushAnim)        //播放sugarcrush动画状态
+        {
             if (Timer.millisecondNow() - m_sugarCurshAnimStartTime > SugarCrushAnimTime)        //若时间到
             {
                 m_gameState = TGameState.EGameState_EndEatingSpecial;                           //切下一状态
@@ -467,11 +563,11 @@ public class GameLogic {
         }
 
         //游戏结束后自动吃特殊块的状态，且当前没在消块或下落状态
-        if (m_gameState == TGameState.EGameState_EndEatingSpecial && timerEatBlock.GetState() == TimerEnum.EStop && timerDropDown.GetState() == TimerEnum.EStop)          
+        if (m_gameState == TGameState.EGameState_EndEatingSpecial && timerEatBlock.GetState() == TimerEnum.EStop && timerDropDown.GetState() == TimerEnum.EStop)
         {
-            for (int i = 0; i < BlockCountX; ++i )
+            for (int i = 0; i < BlockCountX; ++i)
             {
-                for (int j = 0; j < BlockCountY; ++j )
+                for (int j = 0; j < BlockCountY; ++j)
                 {
                     if (m_blocks[i, j] != null && m_blocks[i, j].special != TSpecialBlock.ESpecial_Normal)
                     {
@@ -520,12 +616,14 @@ public class GameLogic {
                 m_lastStepRewardTime = Timer.millisecondNow();
             }
         }
+    }
 
-        if (m_gameStartTime == 0)           //游戏没到开始状态
-        {
-            return;
-        }
-		//Timer.s_currentTime = Timer.s_currentTime + 0.02f;		//
+    public void Update()
+    {
+        Timer.s_currentTime = Time.realtimeSinceStartup;
+        //Timer.s_currentTime = Timer.s_currentTime + 0.02f;		//
+
+        ProcessState();
 
         if (m_showNoPossibleExhangeTextTime > 0)        //正在显示“没有可交换块，需要重排”
         {
@@ -543,97 +641,10 @@ public class GameLogic {
 
         TimerWork();
 
-        //Color curColor = new Color(1.0f, 1.0f, 1.0f, 1.0f - Mathf.Clamp01((float)timerEatBlock.GetTime() / EATBLOCK_TIME));
-		Color defaultColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+        DrawGraphics();     //绘制图形
 
-        //根据数据绘制Sprite
-        for (int i = 0; i < BlockCountX; i++)
-        {
-            for (int j = 0; j < BlockCountY; j++)
-            {
-                if (PlayingStageData.GridData[i, j] == 0)
-                {
-                    continue;
-                }
-                if (m_blocks[i,j] != null)
-                {
-                    m_blocks[i, j].m_blockTransform.localPosition = new Vector3(GetXPos(i) + m_blocks[i, j].x_move, -(m_blocks[i, j].y_move + GetYPos(i, j)), -105);
-                    m_blocks[i, j].m_blockSprite.color = defaultColor;          //Todo 实在不知道为什么加上这句动画控制Alpha才好使
-
-                    if (m_blocks[i, j].IsEating())
-                    {
-                        UIDrawer.Singleton.DrawNumber("Score" + i + "," + j, (int)m_blocks[i, j].m_blockTransform.localPosition.x, -(int)m_blocks[i, j].m_blockTransform.localPosition.y, 60, "BaseNum", 15, 4);
-                    }
-                }
-
-                //绘制底图
-                if (PlayingStageData.CheckFlag(i, j, GridFlag.Jelly))
-                {
-                    UIDrawer.Singleton.DrawSprite("Jelly" + i + "," + j, GetXPos(i), GetYPos(i, j), "Jelly");
-                }
-                else if (PlayingStageData.CheckFlag(i, j, GridFlag.JellyDouble))
-                {
-                    UIDrawer.Singleton.DrawSprite("Jelly2" + i + "," + j, GetXPos(i), GetYPos(i, j), "JellyDouble");
-                }
-                else if (PlayingStageData.GridData[i, j] != 0)
-                {
-                    UIDrawer.Singleton.DrawSprite("Grid" + i + "," + j, GetXPos(i), GetYPos(i, j), "Grid"); 
-                }
-
-                if (PlayingStageData.CheckFlag(i, j, GridFlag.Cage))
-                {
-                    UIDrawer.Singleton.DrawSprite("Cage" + i + "," + j, GetXPos(i), GetYPos(i, j), "Cage", 3);
-                }
-
-                if (PlayingStageData.CheckFlag(i, j, GridFlag.Stone))
-                {
-                    UIDrawer.Singleton.DrawSprite("Stone" + i + "," + j, GetXPos(i), GetYPos(i, j), "Stone", 3);
-                }
-
-                if (PlayingStageData.CheckFlag(i, j, GridFlag.Chocolate))
-                {
-                    UIDrawer.Singleton.DrawSprite("Chocolate" + i + "," + j, GetXPos(i), GetYPos(i, j), "Chocolate", 3);
-                }
-
-                //绘制水果出口
-                if (PlayingStageData.Target == GameTarget.BringFruitDown && PlayingStageData.CheckFlag(i, j, GridFlag.FruitExit))
-                {
-                    UIDrawer.Singleton.DrawSprite("Exit" + i + "," + j, GetXPos(i), GetYPos(i, j), "FruitExit", 3); 
-                }
-
-                if (GlobalVars.EditStageMode && PlayingStageData.CheckFlag(i, j, GridFlag.Birth))     //若在关卡编辑状态
-                {
-                    UIDrawer.Singleton.DrawSprite("Birth" + i + "," + j, GetXPos(i), GetYPos(i, j), "Birth", 3);       //出生点
-                }
-            }
-        }
-        if (Time.deltaTime > 0.02f)
-        {
-            Debug.Log("DeltaTime = " + Time.deltaTime);
-        }
-
-        if (GlobalVars.CurStageData.Target == GameTarget.BringFruitDown)
-        {
-            UIDrawer.Singleton.DrawText("Nut1Count", 100, 600, "Nut1:" + PlayingStageData.Nut1Count + "/" + GlobalVars.CurStageData.Nut1Count);
-            UIDrawer.Singleton.DrawText("Nut2Count", 180, 600, "Nut2:" + PlayingStageData.Nut2Count + "/" + GlobalVars.CurStageData.Nut2Count);
-        }
-
-        //绘制传送门
-        foreach(KeyValuePair<int, Portal> pair in PlayingStageData.PortalToMap)
-        {
-            if (pair.Value.flag == 1)               //可见传送门
-            {
-                UIDrawer.Singleton.DrawSprite("PortalStart" + pair.Key, GetXPos(pair.Value.from.x), GetYPos(pair.Value.from.x, pair.Value.from.y) + BLOCKHEIGHT / 2, "PortalStart", 3);
-                UIDrawer.Singleton.DrawSprite("PortalEnd" + pair.Key, GetXPos(pair.Value.to.x), GetYPos(pair.Value.to.x, pair.Value.to.y) - BLOCKHEIGHT / 2 + 15, "PortalEnd", 3);
-            }
-            else if (GlobalVars.EditStageMode)      //编辑器模式，画不可见传送门
-            {
-                UIDrawer.Singleton.DrawSprite("InviPortalStart" + pair.Key, GetXPos(pair.Value.from.x), GetYPos(pair.Value.from.x, pair.Value.from.y), "InviPortalStart", 3);
-                UIDrawer.Singleton.DrawSprite("InviPortalEnd" + pair.Key, GetXPos(pair.Value.to.x), GetYPos(pair.Value.to.x, pair.Value.to.y), "InviPortalEnd", 3);
-            }
-        }
-
-        if (m_dropDownEndTime > 0)
+        //处理帮助
+        if (m_dropDownEndTime > 0)      //下落完成的状态
         {
             if (helpP1 == null)     //还没找帮助点
             {
@@ -868,7 +879,6 @@ public class GameLogic {
                     }
                     else
                     {					//如果交换成功
-                        m_workedClickCount++;
                         //PlaySound(eat);
 
                         if (m_selectedPos[0].x == -1 || m_selectedPos[1].x == -1) return;
@@ -1524,12 +1534,12 @@ public class GameLogic {
             if (m_blocks[helpP1.x, helpP1.y] != null)
             {
                 m_blocks[helpP1.x, helpP1.y].m_animation.Stop();
-                m_blocks[helpP1.x, helpP1.y].m_animation.transform.localScale = new Vector3(60.0f, 60.0f, 60.0f);          //恢复缩放
+                m_blocks[helpP1.x, helpP1.y].m_animation.transform.localScale = new Vector3(60.0f, 60.0f, 1.0f);          //恢复缩放
             }
             if (m_blocks[helpP2.x, helpP2.y] != null)
             {
                 m_blocks[helpP2.x, helpP2.y].m_animation.Stop();
-                m_blocks[helpP2.x, helpP2.y].m_animation.transform.localScale = new Vector3(60.0f, 60.0f, 60.0f);          //恢复缩放
+                m_blocks[helpP2.x, helpP2.y].m_animation.transform.localScale = new Vector3(60.0f, 60.0f, 1.0f);          //恢复缩放
             }
             m_dropDownEndTime = 0;                          //清除dropDownEnd的时间记录
             helpP1 = null;                                  //清除帮助点
@@ -1683,6 +1693,21 @@ public class GameLogic {
         particleList.AddLast(par);
     }
 
+    public bool CheckLimit()
+    {
+        if (GlobalVars.CurStageData.StepLimit > 0 && PlayingStageData.StepLimit == 0)            //限制步数的关卡步用完了
+        {
+            return true;
+        }
+
+        //时间到了
+        if (GlobalVars.CurStageData.TimeLimit > 0 && (Timer.millisecondNow() - m_gameStartTime) / 1000.0f > GlobalVars.CurStageData.TimeLimit)
+        {
+            return true;
+        }
+        return false;
+    }
+
     public bool CheckStageFinish()                  //检测关卡结束条件
     {
         if (PlayingStageData.Target == GameTarget.ClearJelly)       //若目标为清果冻，计算果冻数量
@@ -1699,22 +1724,29 @@ public class GameLogic {
                 return true;
             }
         }
-
-        if (GlobalVars.CurStageData.StepLimit > 0 && PlayingStageData.StepLimit == 0)            //限制步数的关卡步用完了
+        else if (PlayingStageData.Target == GameTarget.GetScore && m_progress >= PlayingStageData.StarScore[0])     //分数满足最低要求了
         {
-            return true;
-        }
+            if (GlobalVars.CurStageData.StepLimit > 0 && PlayingStageData.StepLimit == 0)            //限制步数的关卡步用完了
+            {
+                return true;
+            }
 
-        if (GlobalVars.CurStageData.TimeLimit > 0 && (Timer.millisecondNow() - m_gameStartTime) / 1000.0f > GlobalVars.CurStageData.TimeLimit)
-        {
-            return true;
+            if (GlobalVars.CurStageData.TimeLimit > 0 && (Timer.millisecondNow() - m_gameStartTime) / 1000.0f > GlobalVars.CurStageData.TimeLimit)
+            {
+                return true;
+            }
         }
         return false;
     }
 
     void OnDropEnd()            //所有下落和移动结束时被调用
     {
-        if (CheckStageFinish())                 //检查游戏是否结束
+        if (m_gameState != TGameState.EGameState_Playing)
+        {
+            return;
+        }
+
+        if (CheckStageFinish())                 //检查关卡是否完成
         {
             bool foundSpecial = false;
             for (int i = 0; i < BlockCountX; ++i )
@@ -1735,12 +1767,19 @@ public class GameLogic {
             }
             else
             {
-                //否则结束游戏
+                //否则直接结束游戏
                 m_gameStartTime = 0;
                 m_gameState = TGameState.EGameState_End;
                 UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
             }
             return;
+        }
+        else if (CheckLimit())
+        {
+            //否则直接结束游戏
+            m_gameStartTime = 0;
+            m_gameState = TGameState.EGameState_End;
+            UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
         }
 
         m_dropDownEndTime = Time.realtimeSinceStartup;
@@ -1883,16 +1922,18 @@ public class GameLogic {
         touchBeginPos = new Position(x, y);
         m_selectedPos[0] = p;
         if (m_selectedPos[0].x == -1) return;
-        m_totalClickCount++;
         m_selectedPos[1].x = -1;
         long clickTime = Timer.millisecondNow();
-        m_perClickTakeTime.AddLast(clickTime - m_lastClickTime);
-        m_lastClickTime = clickTime;
         //SetSelectAni(p.x, p.y);
     }
 
     public void OnTouchMove(int x, int y)
     {
+        if (touchBeginPos == null)
+        {
+            return;
+        }
+
         if (timerDropDown.GetState() != TimerEnum.EStop)
         {
             return;
@@ -2172,7 +2213,7 @@ public class GameLogic {
     int m_lastPlus5Step = 0;            //上次+5的步数
     int m_plus5Count = 0;
 
-    void CreateBlock(int x, int y, bool avoidLine)
+    bool CreateBlock(int x, int y, bool avoidLine)
     {
         TBlockColor color = GetRandomColor(PlayingStageData.CheckFlag(x, y, GridFlag.Birth));		//最上方获取新的方块
         m_blocks[x, y] = GetFreeCapBlock(color);            //创建新的块 Todo 变成用缓存
@@ -2191,9 +2232,21 @@ public class GameLogic {
 
         if (avoidLine)
         {
-            while (IsHaveLine(new Position(x, y))) m_blocks[x, y].color = GetNextColor(m_blocks[x, y].color);		//若新生成瓶盖的造成消行，换一个颜色
+            int count = 0;
+            while (IsHaveLine(new Position(x, y)))
+            {
+                if (count >= PlayingStageData.ColorCount)
+                {
+                    return false;
+                }
+
+                m_blocks[x, y].color = GetNextColor(m_blocks[x, y].color);		//若新生成瓶盖的造成消行，换一个颜色
+                ++count;
+            }
         }
         m_blocks[x, y].RefreshBlockSprite(PlayingStageData.GridData[x, y]);                                         //刷新下显示内容
+
+        return true;
     }
 
     void MakeSpriteFree(int x, int y)

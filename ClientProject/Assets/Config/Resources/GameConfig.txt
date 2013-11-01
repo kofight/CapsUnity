@@ -1,6 +1,6 @@
 ﻿TotalStageCount             50
-DropTime                    120
+DropTime                    170
 EatTime                    300
-MoveTime                    250
+MoveTime                    300
 Version                     Pre-Alpha-0.1
 GetHeartInterval            300

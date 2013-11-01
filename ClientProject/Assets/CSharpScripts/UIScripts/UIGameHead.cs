@@ -26,12 +26,12 @@ public class UIGameHead : UIWindowNGUI
 
         if (GlobalVars.CurStageData.Target == GameTarget.BringFruitDown)
         {
-            UIDrawer.Singleton.DrawSprite("Fruit1Icon", -40, 46, "Cherry_Icon");
+            UIDrawer.Singleton.DrawSprite("Fruit1Icon", -40, 46, "Kiwifruit_Icon");
             UIDrawer.Singleton.DrawNumber("Fruit1Count", 0, 50, GlobalVars.CurGameLogic.PlayingStageData.Nut1Count, "", 24, 1);
             UIDrawer.Singleton.DrawSprite("Fruit1CountSplash", 40, 50, "backslash");
             UIDrawer.Singleton.DrawNumber("Fruit1Total", 60, 50, GlobalVars.CurStageData.Nut1Count, "", 24, 1);
 
-            UIDrawer.Singleton.DrawSprite("Fruit2Icon", 140, 46, "Kiwifruit_Icon");
+            UIDrawer.Singleton.DrawSprite("Fruit2Icon", 140, 46, "Cherry_Icon");
             UIDrawer.Singleton.DrawNumber("Fruit2Count", 180, 50, GlobalVars.CurGameLogic.PlayingStageData.Nut2Count, "", 24, 1);
             UIDrawer.Singleton.DrawSprite("Fruit2CountSplash", 220, 50, "backslash");
             UIDrawer.Singleton.DrawNumber("Fruit2Total", 240, 50, GlobalVars.CurStageData.Nut2Count, "", 24, 1);

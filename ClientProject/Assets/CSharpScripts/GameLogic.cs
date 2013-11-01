@@ -219,7 +219,7 @@ public class GameLogic {
         PlayingStageData.LoadStageData(GlobalVars.CurStageNum);
     }
 
-    bool Help(out Position p1, out Position p2)                 //查找到一个可交换的位置
+    public bool Help()                 //查找到一个可交换的位置
     {
         for (int i = 0; i < BlockCountX; ++i )
         {
@@ -245,8 +245,8 @@ public class GameLogic {
                         ExchangeBlock(curPos, position);        //临时交换
                         if (IsHaveLine(curPos) || IsHaveLine(position))
                         {
-                            p1 = curPos;
-                            p2 = position;
+                            helpP1 = curPos;
+                            helpP2 = position;
                             ExchangeBlock(curPos, position);        //换回
                             return true;
                         }
@@ -257,8 +257,8 @@ public class GameLogic {
 
             }
         }
-        p1 = null;
-        p2 = null;
+        helpP1 = null;
+        helpP2 = null;
         return false;
     }
 
@@ -650,9 +650,7 @@ public class GameLogic {
             {
                 if (Time.realtimeSinceStartup > m_dropDownEndTime + CheckAvailableTimeInterval)
                 {
-                    helpP1 = new Position();
-                    helpP2 = new Position();
-                    if(!Help(out helpP1, out helpP2))
+                    if(!Help())
                     {
                         m_showNoPossibleExhangeTextTime = Timer.millisecondNow();                       //显示需要重排
                     }
@@ -660,11 +658,7 @@ public class GameLogic {
             }
             else if (Time.realtimeSinceStartup > m_dropDownEndTime + ShowHelpTimeInterval)
             {
-                if (m_blocks[helpP1.x, helpP1.y]!=null && !m_blocks[helpP1.x, helpP1.y].m_animation.isPlaying)
-                {
-                    m_blocks[helpP1.x, helpP1.y].m_animation.Play("Help");
-                    m_blocks[helpP2.x, helpP2.y].m_animation.Play("Help");
-                }
+                ShowHelpAnim();
             }
         }
 
@@ -690,6 +684,15 @@ public class GameLogic {
             {
                 list.Remove(parToDelete);                               //在原列表中删除
             }
+        }
+    }
+
+    public void ShowHelpAnim()
+    {
+        if (m_blocks[helpP1.x, helpP1.y] != null && !m_blocks[helpP1.x, helpP1.y].m_animation.isPlaying)
+        {
+            m_blocks[helpP1.x, helpP1.y].m_animation.Play("Help");
+            m_blocks[helpP2.x, helpP2.y].m_animation.Play("Help");
         }
     }
 
@@ -1527,9 +1530,9 @@ public class GameLogic {
         }
     }
 
-    void ClearHelpPoint()
+    public void ClearHelpPoint()
     {
-        if (m_dropDownEndTime > 0 && helpP1 != null)
+        if (helpP1 != null)
         {
             if (m_blocks[helpP1.x, helpP1.y] != null)
             {
@@ -1561,8 +1564,6 @@ public class GameLogic {
         {
             return;
         }
-
-        ClearHelpPoint();           //Todo 这个不该放这里，应该只需要调一次
 
         if (PlayingStageData.CheckFlag(position.x, position.y, GridFlag.Cage)) return;                       //有笼子的块不消(先消笼子)
 
@@ -2126,6 +2127,8 @@ public class GameLogic {
 
     void MoveBlockPair(Position position1, Position position2)
     {
+        ClearHelpPoint();
+
         ExchangeBlock(position1, position2);			//交换方块
 
         //PlaySound(capsmove);							//移动

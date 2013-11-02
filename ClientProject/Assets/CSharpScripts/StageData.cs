@@ -173,19 +173,6 @@ public class StageData
         return count;
     }
 
-    int GridDataToInt(GridData data)
-    {
-        return (int)data.grid * 10 + (int)data.gridBlock;
-    }
-
-    GridData IntToGridData(int value)
-    {
-        GridData data = new GridData();
-        data.grid = (TGridType)(value / 10);
-        data.gridBlock = (TGridBlockType)(value % 10);
-        return data;
-    }
-
     private ConfigOperator _config;
 
     public void LoadStageData(int levelNum)
@@ -196,14 +183,6 @@ public class StageData
             Debug.LogError("Trying to load an file not exist! filename = Level" + levelNum);
             return;
         }
-		
-		int newFormat = 0;
-		_config.GetValue<int>("NewFormat", out newFormat);
-		if(newFormat == 0)
-		{
-			LoadOldStageData(levelNum);
-			return;
-		}
 		
         int targetInt = 0;
         _config.GetValue<int>("Target", out targetInt);
@@ -264,108 +243,6 @@ public class StageData
                 portal.flag = (int)System.Convert.ChangeType(portalDataTokens[i + 4], typeof(int));
                 PortalToMap.Add(portal.to.ToInt(), portal);
                 PortalFromMap.Add(portal.from.ToInt(), portal);
-            }
-        }
-
-        Debug.Log("Level " + levelNum + " Loaded");
-    }
-
-    public void LoadOldStageData(int levelNum)
-    {
-        _config = new ConfigOperator("Level" + levelNum);
-        if (!_config.Read())
-        {
-            Debug.LogError("Trying to load an file not exist! filename = Level" + levelNum);
-            return;
-        }
-        int targetInt = 0;
-        _config.GetValue<int>("Target", out targetInt);
-        Target = (GameTarget)targetInt;
-        _config.GetValue<int>("StepLimit", out StepLimit);
-        _config.GetValue<int>("TimeLimit", out TimeLimit);
-        _config.GetValue<int>("ColorCount", out ColorCount);
-        _config.GetValue<int>("Nut1Count", out Nut1Count);
-        _config.GetValue<int>("Nut2Count", out Nut2Count);
-        _config.GetValue<int>("NutInitCount", out NutInitCount);
-        _config.GetValue<int>("NutMaxCount", out NutMaxCount);
-        _config.GetValue<int>("NutStep", out NutStep);
-
-        _config.GetValue<int>("PlusInitCount", out PlusInitCount);
-        _config.GetValue<int>("PlusMaxCount", out PlusMaxCount);
-        _config.GetValue<int>("PlusStartTime", out PlusStartTime);
-        _config.GetValue<int>("PlusStep", out PlusStep);
-        int newFormat = 0;
-        _config.GetValue<int>("NewFormat", out newFormat);
-        if (ColorCount == 0)
-        {
-            ColorCount = 7;
-        }
-
-        string temp;
-        _config.GetValue<string>("StarScore", out temp);
-        string[] scoreTokens = temp.Split(',');
-        for (int i = 0; i < 3; ++i)
-        {
-            StarScore[i] = (int)System.Convert.ChangeType(scoreTokens[i], typeof(int));
-        }
-
-        _config.GetValue<string>("GridDataArray", out temp);
-
-        string[] gridDataTokens = temp.Split(',');
-        for (int i = 0; i < GameLogic.BlockCountX; ++i)
-        {
-            for (int j = 0; j < GameLogic.BlockCountY; ++j)
-            {
-                int number = (int)System.Convert.ChangeType(gridDataTokens[j * GameLogic.BlockCountX + i], typeof(int));
-
-                if (newFormat > 0)
-                {
-                    GridData[i, j] = number;
-                    continue;
-                }
-
-                GridData data = IntToGridData(number);
-
-                int flags = 0;
-
-                if (data.grid == TGridType.Jelly)
-                {
-                    flags |= (int)GridFlag.Jelly;
-                    flags |= (int)GridFlag.GenerateCap;
-                }
-                if (data.grid == TGridType.JellyDouble)
-                {
-                    flags |= (int)GridFlag.JellyDouble;
-                    flags |= (int)GridFlag.GenerateCap;
-                }
-
-                if (data.gridBlock == TGridBlockType.Cage)
-                {
-                    flags |= (int)GridFlag.GenerateCap;
-                    flags |= (int)GridFlag.Cage;
-                }
-
-                if (data.gridBlock == TGridBlockType.Chocolate)
-                {
-                    flags |= (int)GridFlag.NotGenerateCap;
-                    flags |= (int)GridFlag.Chocolate;
-                }
-
-                if (data.gridBlock == TGridBlockType.Stone)
-                {
-                    flags |= (int)GridFlag.Stone;
-                    flags |= (int)GridFlag.NotGenerateCap;
-                }
-
-                if (data.gridBlock == TGridBlockType.None)
-                {
-                    if (data.grid == TGridType.Normal)
-                    {
-                        flags |= (int)GridFlag.GenerateCap;
-                    }
-                }
-
-                GridData[i, j] = flags;
             }
         }
 

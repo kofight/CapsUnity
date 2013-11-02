@@ -88,6 +88,7 @@ public class UIDrawer
 
     string[] DataToRemove = new string[moveDataCapibility];
     Dictionary<string, UIDrawerData> mDrawDataMap = new Dictionary<string, UIDrawerData>();
+    Dictionary<int, UIDrawerData> mDrawDataNumMap = new Dictionary<int, UIDrawerData>();        //为了优化性能，加入用数字做索引的Map
     Dictionary<int, GameObject> mPrefabs = new Dictionary<int, GameObject>();
     public int fontDefaultPrefabID = 0;
     public int spriteDefaultPrefabID = 0;

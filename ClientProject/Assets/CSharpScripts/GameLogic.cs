@@ -76,12 +76,12 @@ public enum TGridBlockType     //固定障碍
     Cage,               //笼子
 }
 
-public class GridData
+public class GridSprites
 {
-    public TGridType grid;
-    public TGridBlockType gridBlock;
-    public bool bBirth;                          //是否为出生点
-    public bool bExit;                           //坚果的出口
+    public UISprite layer0;            //普通块/果冻
+    public UISprite layer1;            //石头/笼子/巧克力
+    public UISprite layer2;            //出生点
+    public UISprite layer3;            //结束点
 }
 
 public class GameLogic {
@@ -109,7 +109,6 @@ public class GameLogic {
     public void AddProgress(int progress)
     {
         m_progress += progress;
-        Debug.Log("Score = " + m_progress);
         UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().OnChangeProgress(m_progress);
     }
 
@@ -129,6 +128,7 @@ public class GameLogic {
 	TDirection m_moveDirection;							                //选择的块1向块2移动的方向
 	Position [] m_selectedPos = new Position[2];		                //记录两次点击选择的方块
     CapBlock[,] m_blocks = new CapBlock[BlockCountX, BlockCountY];		//屏幕上方块的数组
+    GridSprites[,] m_gridBackImage = new GridSprites[BlockCountX, BlockCountY];        //用来记录背景块
 	int m_progress;										//当前进度
 	TGameFlow m_gameFlow;								//游戏状态
 	int m_comboCount;				//记录当前连击数
@@ -163,6 +163,8 @@ public class GameLogic {
     int m_nut1Count;
     int m_nut2Count;
 
+    GameObject m_gridInstance;              //把Grid的实例存起来，用来优化
+
     public GameLogic()
     {
         m_freePool = GameObject.Find("FreePool");
@@ -172,11 +174,8 @@ public class GameLogic {
     public void Init()
     {
         //初始化瓶盖图片池
-        string name;
         for (int i = 0; i < TotalColorCount + 2; ++i)            //最多7种颜色，固定死
         {
-            name = "Item" + (i + 1);
-            GameObject capObj = GameObject.Find("CapInstance");
             for (int j = 0; j < 100; ++j )
             {
                 CapBlock capBlock = new CapBlock();
@@ -186,6 +185,74 @@ public class GameLogic {
 		
 		PlayingStageData = StageData.CreateStageData();
         PlayingStageData.LoadStageData(GlobalVars.CurStageNum);
+
+        //绘制底图
+        m_gridInstance = GameObject.Find("GridInstance");
+        for (int i = 0; i < BlockCountX; ++i)
+        {
+            for (int j = 0; j < BlockCountY; ++j)
+            {
+                if (PlayingStageData.GridData[i, j] == 0)
+                {
+                    continue;
+                }
+				m_gridBackImage[i, j] = new GridSprites();
+                ProcessGridSprites(i, j);
+            }
+        }
+    }
+
+    void ProcessGridSprites(int x, int y)
+    {
+        //处理第一层////////////////////////////////////////////////////////////////////////
+        GameObject newObj = GameObject.Instantiate(m_gridInstance) as GameObject;
+        m_gridBackImage[x, y].layer0 = newObj.GetComponent<UISprite>();
+        m_gridBackImage[x, y].layer0.transform.parent = m_gridInstance.transform.parent;
+        m_gridBackImage[x, y].layer0.transform.localScale = m_gridInstance.transform.localScale;
+        if (PlayingStageData.CheckFlag(x, y, GridFlag.Jelly))
+        {
+            m_gridBackImage[x, y].layer0.spriteName = "Jelly";
+        }
+        else if (PlayingStageData.CheckFlag(x, y, GridFlag.JellyDouble))
+        {
+            m_gridBackImage[x, y].layer0.spriteName = "JellyDouble";
+        }
+        else
+        {
+            m_gridBackImage[x, y].layer0.spriteName = "Grid";
+        }
+
+        m_gridBackImage[x, y].layer0.transform.localPosition = new Vector3(GetXPos(x), -GetYPos(x, y), 0);
+        m_gridBackImage[x, y].layer0.depth = 0;
+
+        //处理第二层
+        if (PlayingStageData.CheckFlag(x, y, GridFlag.Stone))
+        {
+            newObj = GameObject.Instantiate(m_gridInstance) as GameObject;
+            m_gridBackImage[x, y].layer1 = newObj.GetComponent<UISprite>();
+            m_gridBackImage[x, y].layer1.spriteName = "Stone";
+        }
+        else if (PlayingStageData.CheckFlag(x, y, GridFlag.Chocolate))
+        {
+            newObj = GameObject.Instantiate(m_gridInstance) as GameObject;
+            m_gridBackImage[x, y].layer1 = newObj.GetComponent<UISprite>();
+            m_gridBackImage[x, y].layer1.spriteName = "Chocolate";
+
+        }
+        else if (PlayingStageData.CheckFlag(x, y, GridFlag.Cage))
+        {
+            newObj = GameObject.Instantiate(m_gridInstance) as GameObject;
+            m_gridBackImage[x, y].layer1 = newObj.GetComponent<UISprite>();
+            m_gridBackImage[x, y].layer1.spriteName = "Cage";
+        }
+
+        if (m_gridBackImage[x, y].layer1 != null)
+        {
+            m_gridBackImage[x, y].layer1.transform.parent = m_gridInstance.transform.parent;
+            m_gridBackImage[x, y].layer1.transform.localScale = m_gridInstance.transform.localScale;
+            m_gridBackImage[x, y].layer1.transform.localPosition = new Vector3(GetXPos(x), -GetYPos(x, y), -110);
+            m_gridBackImage[x, y].layer1.depth = 3;
+        }
     }
 
     public bool Help()                 //查找到一个可交换的位置
@@ -402,6 +469,27 @@ public class GameLogic {
                     GameObject.Destroy(m_blocks[i, j].m_blockTransform.gameObject);
                     m_blocks[i, j] = null;
                 }
+
+                if (m_gridBackImage[i, j] != null)
+                {
+                    if (m_gridBackImage[i, j].layer0 != null)
+                    {
+                        GameObject.Destroy(m_gridBackImage[i, j].layer0.gameObject);
+                    }
+                    if (m_gridBackImage[i, j].layer1 != null)
+                    {
+                        GameObject.Destroy(m_gridBackImage[i, j].layer0.gameObject);
+                    }
+                    if (m_gridBackImage[i, j].layer2 != null)
+                    {
+                        GameObject.Destroy(m_gridBackImage[i, j].layer0.gameObject);
+                    }
+                    if (m_gridBackImage[i, j].layer3 != null)
+                    {
+                        GameObject.Destroy(m_gridBackImage[i, j].layer0.gameObject);
+                    }
+                    m_gridBackImage[i, j] = null;
+                }
             }
         }
 		m_nut1Count = 0;
@@ -410,6 +498,8 @@ public class GameLogic {
         m_lastStepRewardTime = 0;
         m_dropDownEndTime = 0;
         m_showNoPossibleExhangeTextTime = 0;
+
+        System.GC.Collect();
     }
 
     int GetXPos(int x)
@@ -447,54 +537,25 @@ public class GameLogic {
 
                     if (m_blocks[i, j].IsEating())
                     {
-                        UIDrawer.Singleton.DrawNumber("Score" + i + "," + j, (int)m_blocks[i, j].m_blockTransform.localPosition.x, -(int)m_blocks[i, j].m_blockTransform.localPosition.y, 60, "BaseNum", 15, 4);
+                        UIDrawer.Singleton.DrawNumber("Score" + (j * 10 + i), (int)m_blocks[i, j].m_blockTransform.localPosition.x, -(int)m_blocks[i, j].m_blockTransform.localPosition.y, 60, "BaseNum", 15, 4);
                     }
-                }
-
-                //绘制底图
-                if (PlayingStageData.CheckFlag(i, j, GridFlag.Jelly))
-                {
-                    UIDrawer.Singleton.DrawSprite("Jelly" + i + "," + j, GetXPos(i), GetYPos(i, j), "Jelly");
-                }
-                else if (PlayingStageData.CheckFlag(i, j, GridFlag.JellyDouble))
-                {
-                    UIDrawer.Singleton.DrawSprite("Jelly2" + i + "," + j, GetXPos(i), GetYPos(i, j), "JellyDouble");
-                }
-                else if (PlayingStageData.GridData[i, j] != 0)
-                {
-                    UIDrawer.Singleton.DrawSprite("Grid" + i + "," + j, GetXPos(i), GetYPos(i, j), "Grid");
-                }
-
-                if (PlayingStageData.CheckFlag(i, j, GridFlag.Cage))
-                {
-                    UIDrawer.Singleton.DrawSprite("Cage" + i + "," + j, GetXPos(i), GetYPos(i, j), "Cage", 3);
-                }
-
-                if (PlayingStageData.CheckFlag(i, j, GridFlag.Stone))
-                {
-                    UIDrawer.Singleton.DrawSprite("Stone" + i + "," + j, GetXPos(i), GetYPos(i, j), "Stone", 3);
-                }
-
-                if (PlayingStageData.CheckFlag(i, j, GridFlag.Chocolate))
-                {
-                    UIDrawer.Singleton.DrawSprite("Chocolate" + i + "," + j, GetXPos(i), GetYPos(i, j), "Chocolate", 3);
                 }
 
                 //绘制水果出口
                 if (PlayingStageData.Target == GameTarget.BringFruitDown && PlayingStageData.CheckFlag(i, j, GridFlag.FruitExit))
                 {
-                    UIDrawer.Singleton.DrawSprite("Exit" + i + "," + j, GetXPos(i), GetYPos(i, j), "FruitExit", 3);
+                    UIDrawer.Singleton.DrawSprite("Exit" + (j * 10 + i), GetXPos(i), GetYPos(i, j), "FruitExit", 3);
                 }
 
                 if (GlobalVars.EditStageMode && PlayingStageData.CheckFlag(i, j, GridFlag.Birth))     //若在关卡编辑状态
                 {
-                    UIDrawer.Singleton.DrawSprite("Birth" + i + "," + j, GetXPos(i), GetYPos(i, j), "Birth", 3);       //出生点
+                    UIDrawer.Singleton.DrawSprite("Birth" + (j * 10 + i), GetXPos(i), GetYPos(i, j), "Birth", 3);       //出生点
                 }
             }
         }
         if (Time.deltaTime > 0.02f)
         {
-            Debug.Log("DeltaTime = " + Time.deltaTime);
+            //Debug.Log("DeltaTime = " + Time.deltaTime);
         }
 
         if (GlobalVars.CurStageData.Target == GameTarget.BringFruitDown)
@@ -603,6 +664,7 @@ public class GameLogic {
 
     public void Update()
     {
+        //Profiler.BeginSample("GameLogic");
         Timer.s_currentTime = Time.realtimeSinceStartup;
         //Timer.s_currentTime = Timer.s_currentTime + 0.02f;		//
 
@@ -668,6 +730,7 @@ public class GameLogic {
                 list.Remove(parToDelete);                               //在原列表中删除
             }
         }
+       // Profiler.EndSample();
     }
 
     public void ShowHelpAnim()
@@ -898,6 +961,8 @@ public class GameLogic {
 
                         AddPartile("StoneEffect", i, j);
                         AddProgress(CapsConfig.EatStonePoint);
+
+                        m_gridBackImage[i, j].layer1.gameObject.SetActive(false);
                     }
                     else if (PlayingStageData.CheckFlag(i, j, GridFlag.Chocolate))
                     {
@@ -906,6 +971,7 @@ public class GameLogic {
                         PlayingStageData.AddFlag(i, j, GridFlag.GenerateCap);
                         AddPartile("ChocolateEffect", i, j);
                         AddProgress(CapsConfig.EatChocolate);
+                        m_gridBackImage[i, j].layer1.gameObject.SetActive(false);
                     }
                     else if (PlayingStageData.CheckFlag(i, j, GridFlag.Cage))
                     {
@@ -913,6 +979,7 @@ public class GameLogic {
                         AddPartile("CageEffect", i, j);
                         m_blocks[i, j].isLocked = false;
                         AddProgress(CapsConfig.EatCagePoint);
+                        m_gridBackImage[i, j].layer1.gameObject.SetActive(false);
                     }
                     else if (PlayingStageData.CheckFlag(i, j, GridFlag.JellyDouble))
                     {
@@ -920,12 +987,14 @@ public class GameLogic {
                         PlayingStageData.AddFlag(i, j, GridFlag.Jelly);
                         AddPartile("JellyEffect", i, j);
                         AddProgress(CapsConfig.EatJellyDouble);
+                        m_gridBackImage[i, j].layer0.spriteName = "Jelly";
                     }
                     else if (PlayingStageData.CheckFlag(i, j, GridFlag.Jelly))
                     {
                         PlayingStageData.ClearFlag(i, j, GridFlag.Jelly);
                         AddPartile("JellyEffect", i, j);
                         AddProgress(CapsConfig.EatJelly);
+                        m_gridBackImage[i, j].layer0.spriteName = "Grid";
                     }
 
                     ClearChocolateAround(i, j);
@@ -1645,9 +1714,6 @@ public class GameLogic {
 
     public void AddPartile(string name, int x, int y)
     {
-
-        
-
         //先看freeParticleList里面有没有可用的
         LinkedList<ParticleSystem> freeParticleList;
         if (!m_freeParticleMap.TryGetValue(name, out freeParticleList))

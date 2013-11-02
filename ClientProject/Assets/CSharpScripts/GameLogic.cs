@@ -537,7 +537,7 @@ public class GameLogic {
 
                     if (m_blocks[i, j].IsEating())
                     {
-                        UIDrawer.Singleton.DrawNumber("Score" + (j * 10 + i), (int)m_blocks[i, j].m_blockTransform.localPosition.x, -(int)m_blocks[i, j].m_blockTransform.localPosition.y, 60, "BaseNum", 15, 4);
+                        //UIDrawer.Singleton.DrawNumber("Score" + (j * 10 + i), (int)m_blocks[i, j].m_blockTransform.localPosition.x, -(int)m_blocks[i, j].m_blockTransform.localPosition.y, 60, "BaseNum", 15, 4);
                     }
                 }
 
@@ -1992,6 +1992,11 @@ public class GameLogic {
 
     public void OnTouchMove(int x, int y)
     {
+        if (m_gameFlow != TGameFlow.EGameState_Playing)
+        {
+            return;
+        }
+
         if (!touchBeginPos.IsAvailable())
         {
             return;
@@ -2252,11 +2257,6 @@ public class GameLogic {
                 }
             }
         }
-        //播放动画
-        //PlayAni(position1.x, position1.y,m_moveDirection);
-        //PlayAni(position2.x, position2.y,GetOtherDirection(m_moveDirection));
-
-        //SetSelectAni(-1, -1);
     }
 
     void ExchangeBlock(Position position1, Position position2)

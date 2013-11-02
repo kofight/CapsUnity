@@ -51,11 +51,16 @@ public enum GameTarget
 
 public class Portal
 {
-	public Portal(){}
+    public Portal()
+    {
+        from.MakeItUnAvailable();
+        to.MakeItUnAvailable();
+    }
+
 	public Portal(Portal p)
 	{
-		from = new Position(p.from);
-		to = new Position(p.to);
+		from = p.from;
+		to = p.to;
 		flag = p.flag;
 	}
     public Position from;

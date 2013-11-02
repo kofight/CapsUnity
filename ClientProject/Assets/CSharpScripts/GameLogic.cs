@@ -22,65 +22,20 @@ enum TDirection
     EDir_LeftUp,
 };
 
-struct Paticle
-{
-    int xSpeed;
-    int ySpeed;
-    int startX;
-    int startY;
-    long startTime;
-    float gravity;			//重力值
-    float lifeTime;			//生命期
-    bool changeAlphaByLifeTime;		//是否改变Alpha
-    TBlockColor color;
-    UISprite pBlockSprite;
-};
-
-public class Position{
+public struct Position{
 	public int x;
 	public int y;
-	public Position()
-	{
-        x = 0;
-        y = 0;
-	}
+
 	public Position(int xPos, int yPos)
     {
         x = xPos;
         y = yPos;
-    }
-	
-	public Position(Position pos)
-    {
-        x = pos.x;
-        y = pos.y;
-    }
-
-    public override bool Equals(object ob)
-    {
-        if (this == ob)
-        {
-            return true;
-        }
-        if ((ob == null) || !this.GetType().Equals(ob.GetType()))
-        {
-            return false;
-        }
-
-        Position oth = (Position)ob;
-        return this.x == oth.x && this.y == oth.y;
     }
 
     public void Set(int xPos, int yPos)
     {
         x = xPos;
         y = yPos;
-    }
-
-    public void Assign(Position p)
-    {
-        x = p.x;
-        y = p.y;
     }
 
     public int ToInt()
@@ -93,6 +48,16 @@ public class Position{
         x = val % 10;
         y = val / 10;
     }
+	
+	public bool IsAvailable()
+	{
+		return x > -99999;
+	}
+	
+	public void MakeItUnAvailable()
+	{
+		x = -99999;
+	}
 };
 
 public enum TGridType
@@ -218,9 +183,6 @@ public class GameLogic {
                 m_capBlockFreeList.AddLast(capBlock);
             }
         }
-
-        m_selectedPos[0] = new Position();
-        m_selectedPos[1] = new Position();
 		
 		PlayingStageData = StageData.CreateStageData();
         PlayingStageData.LoadStageData(GlobalVars.CurStageNum);
@@ -264,8 +226,8 @@ public class GameLogic {
 
             }
         }
-        helpP1 = null;
-        helpP2 = null;
+        helpP1.MakeItUnAvailable();
+        helpP2.MakeItUnAvailable();
         return false;
     }
 
@@ -288,7 +250,7 @@ public class GameLogic {
                     continue;
                 }
 
-                array[count] = new Position(i, j);          //先找出可以交换的位置
+                array[count].Set(i, j);          //先找出可以交换的位置
                 ++count;
             }
         }
@@ -667,7 +629,7 @@ public class GameLogic {
         //处理帮助
         if (m_gameFlow == TGameFlow.EGameState_Playing && m_dropDownEndTime > 0)      //下落完成的状态
         {
-            if (helpP1 == null)     //还没找帮助点
+            if (!helpP1.IsAvailable())     //还没找帮助点
             {
                 if (Time.realtimeSinceStartup > m_dropDownEndTime + CheckAvailableTimeInterval)
                 {
@@ -1022,7 +984,7 @@ public class GameLogic {
 
     void ProcessDropPic(Position from, Position to, int dropTime)
     {
-        if (from == null)        //生成点，只能垂直向下移动
+        if (!from.IsAvailable())        //生成点，只能垂直向下移动
         {
             m_blocks[to.x, to.y].y_move = dropTime * BLOCKHEIGHT / DROP_TIME - BLOCKHEIGHT;
             return;
@@ -1088,7 +1050,7 @@ public class GameLogic {
                         //先看是否在传送点
                         if (PlayingStageData.CheckFlag(dropDest.x, dropDest.y, GridFlag.PortalEnd))
                         {
-                            dropFrom.Assign(PlayingStageData.PortalToMap[dropDest.ToInt()].from);
+                            dropFrom = PlayingStageData.PortalToMap[dropDest.ToInt()].from;
 
                             if (m_blocks[dropFrom.x, dropFrom.y] != null                    //传送门入口处有有效块
                                 && m_blocks[dropFrom.x, dropFrom.y].isLocked == false)      //可以下落 
@@ -1134,7 +1096,7 @@ public class GameLogic {
                         {
                             m_blocks[dropDest.x, dropDest.y] = m_blocks[dropFrom.x, dropFrom.y];
                             m_blocks[dropDest.x, dropDest.y].isDropping = true;
-                            m_blocks[dropDest.x, dropDest.y].droppingFrom = new Position(dropFrom);
+                            m_blocks[dropDest.x, dropDest.y].droppingFrom = dropFrom;
 
                             //若是出生点，生成新块////////////////////////////////////////////////////////////////////////
                             if (PlayingStageData.CheckFlag(dropFrom.x, dropFrom.y, GridFlag.Birth))
@@ -1142,7 +1104,7 @@ public class GameLogic {
                                 //补充新的方块
                                 CreateBlock(dropFrom.x, dropFrom.y, false);
                                 m_blocks[dropFrom.x, dropFrom.y].isDropping = true;
-                                m_blocks[dropFrom.x, dropFrom.y].droppingFrom = null;       //droppingFrom置空代表从上方掉落
+                                m_blocks[dropFrom.x, dropFrom.y].droppingFrom.MakeItUnAvailable();       //droppingFrom置空代表从上方掉落
                             }
                             else
                             {
@@ -1170,7 +1132,7 @@ public class GameLogic {
                 {
                     CreateBlock(i, j, false);
                     m_blocks[i, j].isDropping = true;
-					m_blocks[i, j].droppingFrom = null;
+					m_blocks[i, j].droppingFrom.MakeItUnAvailable();
                     tag = true;
                 }
 
@@ -1237,7 +1199,8 @@ public class GameLogic {
         int maxCountInSameDir = 1;					//最大的在同一个方向上相同颜色的数量
         Position[] eatBlockPos = new Position[10];
         eatBlockPos[0] = position;
-        Position availablePos = null;
+        Position availablePos = new Position(0, 0 );
+		availablePos.MakeItUnAvailable();
 
         TBlockColor color = GetBlockColor(position);
         if (color > TBlockColor.EColor_Grey)
@@ -1381,7 +1344,7 @@ public class GameLogic {
 
         if (generateSpecial != TSpecialBlock.ESpecial_Normal)              //若生成了特殊块
         {
-            if (availablePos == null)                                       //还没找到生成位置的情况
+            if (!availablePos.IsAvailable())                                       //还没找到生成位置的情况
             {
                 if (m_blocks[position.x, position.y].special == TSpecialBlock.ESpecial_Normal)
                 {
@@ -1399,7 +1362,7 @@ public class GameLogic {
                     }
                 }
             }
-            if (availablePos != null)
+            if (availablePos.IsAvailable())
             {
                 m_blocks[availablePos.x, availablePos.y].special = generateSpecial;                                                 //生成特殊块
                 m_blocks[availablePos.x, availablePos.y].RefreshBlockSprite(PlayingStageData.GridData[position.x, position.y]);     //刷新图标
@@ -1411,7 +1374,7 @@ public class GameLogic {
         {
             for (int j = 0; j < BlockCountY; ++j )
             {
-                if (m_tempBlocks[i, j] == 2 && (availablePos == null || i != availablePos.x || j != availablePos.y))      //正常消除且不为新生成块部位
+                if (m_tempBlocks[i, j] == 2 && (!availablePos.IsAvailable() || i != availablePos.x || j != availablePos.y))      //正常消除且不为新生成块部位
                 {
                     EatBlock(new Position(i, j));       //吃掉
                 }
@@ -1488,7 +1451,7 @@ public class GameLogic {
                 {
                     for (int k = 0; k < excludePos.Length; ++k)
                     {
-                        if (excludePos[k] == pos)
+                        if (excludePos[k].Equals(pos))
                         {
                             bFind = true;
                             break;
@@ -1560,7 +1523,7 @@ public class GameLogic {
 
     public void ClearHelpPoint()
     {
-        if (helpP1 != null)
+        if (helpP1.IsAvailable())
         {
             if (m_blocks[helpP1.x, helpP1.y] != null)
             {
@@ -1573,8 +1536,8 @@ public class GameLogic {
                 m_blocks[helpP2.x, helpP2.y].m_animation.transform.localScale = new Vector3(57.0f, 57.0f, 1.0f);          //恢复缩放
             }
             m_dropDownEndTime = 0;                          //清除dropDownEnd的时间记录
-            helpP1 = null;                                  //清除帮助点
-            helpP2 = null;                                  //清除帮助点
+            helpP1.MakeItUnAvailable();                                  //清除帮助点
+            helpP2.MakeItUnAvailable();                                  //清除帮助点
         }
     }
 
@@ -1885,7 +1848,7 @@ public class GameLogic {
 
         if (GlobalVars.EditState == TEditState.EditPortal)
         {
-            if (GlobalVars.EditingPortal.from == null)                          //在编辑第一个点
+            if (!GlobalVars.EditingPortal.from.IsAvailable())                          //在编辑第一个点
             {
                 if (PlayingStageData.CheckFlag(p.x, p.y, GridFlag.PortalStart)) //若所选的位置已经是开始点了，不能编辑
                 {
@@ -1897,7 +1860,7 @@ public class GameLogic {
             }
             else
             {
-                if (p == GlobalVars.EditingPortal.from)                         //起点终点不能重合
+                if (p.Equals(GlobalVars.EditingPortal.from))                         //起点终点不能重合
                 {
                     GlobalVars.EditingPortalTip = "起始点和终点不能是同一点, 重新选择Pos2";
                     return;
@@ -1953,7 +1916,7 @@ public class GameLogic {
             return;
         }
 
-        touchBeginPos = new Position(x, y);
+        touchBeginPos.Set(x, y);
         m_selectedPos[0] = p;
         if (m_selectedPos[0].x == -1) return;
         m_selectedPos[1].x = -1;
@@ -1963,7 +1926,7 @@ public class GameLogic {
 
     public void OnTouchMove(int x, int y)
     {
-        if (touchBeginPos == null)
+        if (!touchBeginPos.IsAvailable())
         {
             return;
         }

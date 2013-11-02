@@ -27,7 +27,6 @@ public class UIGameEnd : UIWindowNGUI
     {
         HideWindow();
         UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();
-        GlobalVars.CurGameLogic.ChangeGameFlow(TGameFlow.EGameState_Clear);           //切换到结束状态
     }
 
     private void OnPlayOnClicked(object sender, UIMouseClick.ClickArgs e)

@@ -17,8 +17,17 @@ public class S5Application
     public MonoBehaviour mCoroutineStarter { private get; set; }				  //Any Exist MonoBehaviour could be a starter, usually is AppLaugher
     public S5Application()
     {
-        Height = 1136;
-        Width = Screen.width * 1136 / Screen.height;
+        GameObject obj = GameObject.Find("UI Root (2D)");
+        UIRoot root = obj.GetComponent<UIRoot>();
+
+        float factor = Screen.width / 640.0f;
+
+        root.manualHeight = (int)(Screen.height / factor);
+        root.maximumHeight = root.manualHeight;
+        root.minimumHeight = root.manualHeight;
+
+        Height = root.manualHeight;
+        Width = 640;
     }
 
     protected virtual void ExceptionProcessor(Exception e)

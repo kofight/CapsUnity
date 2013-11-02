@@ -122,10 +122,10 @@ public class GridData
 public class GameLogic {
     public static int BlockCountX = 9;	//游戏区有几列
     public static int BlockCountY = 9;	//游戏区有几行
-    public static int BLOCKWIDTH = 60;      //宽度
-    public static int BLOCKHEIGHT = 69;     //高度
+    public static int BLOCKWIDTH = 71;      //宽度
+    public static int BLOCKHEIGHT = 81;     //高度
     public static int gameAreaX = 0;		//游戏区域左上角坐标
-    public static int gameAreaY = 140;		//游戏区域左上角坐标
+    public static int gameAreaY = 90;		//游戏区域左上角坐标
     public static int gameAreaWidth = BLOCKWIDTH * BlockCountX;	//游戏区域宽度
     public static int gameAreaHeight = BLOCKHEIGHT * BlockCountY + BLOCKHEIGHT / 2;//游戏区域高度
     public static int TotalColorCount = 7;
@@ -1612,6 +1612,7 @@ public class GameLogic {
                         Position newPos = GoTo(position, dir, 1);
                         EatBlock(newPos);
                     }
+                    AddPartile("EatColorEffect", position.x, position.y);
                 }
                 break;
             case TSpecialBlock.ESpecial_NormalPlus5:
@@ -1644,6 +1645,7 @@ public class GameLogic {
                         EatBlock(GoTo(position, TDirection.EDir_Down, i));
                         EatBlock(GoTo(position, TDirection.EDir_Up, i));
                     }
+                    AddPartile("Dir0Effect", position.x, position.y);
                 }
                 break;
             case TSpecialBlock.ESpecial_EatLineDir1:
@@ -1653,6 +1655,7 @@ public class GameLogic {
                         EatBlock(GoTo(position, TDirection.EDir_UpRight, i));
                         EatBlock(GoTo(position, TDirection.EDir_LeftDown, i));
                     }
+                    AddPartile("Dir1Effect", position.x, position.y);
                 }
                 break;
             case TSpecialBlock.ESpecial_EatLineDir2:
@@ -1662,11 +1665,13 @@ public class GameLogic {
                         EatBlock(GoTo(position, TDirection.EDir_LeftUp, i));
                         EatBlock(GoTo(position, TDirection.EDir_DownRight, i));
                     }
+                    AddPartile("Dir2Effect", position.x, position.y);
                 }
                 break;
             case TSpecialBlock.ESpecial_EatAColor:
                 {
                     EatAColor(GetRandomColor(false));
+                    AddPartile("EatColorEffect", position.x, position.y);
                 }
                 break;
         }

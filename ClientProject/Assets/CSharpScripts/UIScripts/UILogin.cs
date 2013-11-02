@@ -7,6 +7,7 @@ public class UILogin : UIWindowNGUI
     public override void OnCreate()
     {
         base.OnCreate();
+
         AddChildComponentMouseClick("PlayBtn", OnPlayBtnClick);
         AddChildComponentMouseClick("LoginBtn", OnLoginBtnClick);
         AddChildComponentMouseClick("ClearBtn", delegate(object sender, UIMouseClick.ClickArgs e)

@@ -32,4 +32,6 @@ public class GlobalVars {
 
     public static StageData CurStageData;                       //当前正在查看或玩的关卡数据
     public static GameLogic CurGameLogic;                       //当前的游戏逻辑
+
+    public static int LastStage = 1;                            //当前在玩的关
 }

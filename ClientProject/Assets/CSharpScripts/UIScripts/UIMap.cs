@@ -31,6 +31,7 @@ public class UIMap : UIWindowNGUI
             GlobalVars.AvailabeStageCount = 1;
         }
 		GlobalVars.StageStarArray = PlayerPrefsExtend.GetIntArray("StageStars", 0, 100);
+        GlobalVars.LastStage = GlobalVars.AvailabeStageCount;
     }
     public override void OnShow()
     {
@@ -88,8 +89,9 @@ public class UIMap : UIWindowNGUI
             click.Click += OnStageClicked;
             click.UserState = i+1;                                          //存储关卡数
         }
-		
-        MoveTo(new Vector2(0, 0));
+
+        Transform curStageTrans = UIToolkits.FindChild(mUIObject.transform, "Stage" + GlobalVars.LastStage);      //找到对象
+        MoveTo(new Vector2(curStageTrans.localPosition.x, curStageTrans.localPosition.y));
     }
 
     public override void OnHide()
@@ -149,6 +151,7 @@ public class UIMap : UIWindowNGUI
         GlobalVars.CurStageData = StageData.CreateStageData();
         GlobalVars.CurStageData.LoadStageData(GlobalVars.CurStageNum);
         UIWindowManager.Singleton.GetUIWindow<UIStageInfo>().ShowWindow();
+        GlobalVars.LastStage = GlobalVars.CurStageNum;
     }
 
     public void MoveTo(Vector2 pos) //移动到某个位置

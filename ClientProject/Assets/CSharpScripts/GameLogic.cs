@@ -2,13 +2,14 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public enum TGameState
+public enum TGameFlow
 {
     EGameState_Playing,                         //游戏中
     EGameState_SugarCrushAnim,                  //进入特殊奖励前的动画
     EGameState_EndEatingSpecial,                //结束后开始逐个吃屏幕上的特殊块
     EGameState_EndStepRewarding,                //结束后根据步数奖励
     EGameState_End,
+    EGameState_Clear,                           //过了结束画面进入这个状态，清掉画面显示
 };
 
 enum TDirection
@@ -154,12 +155,17 @@ public class GameLogic {
         return timeRemain;
     }
 
+    public void ChangeGameFlow(TGameFlow gameFlow)
+    {
+        m_gameFlow = gameFlow;
+    }
+
     ///游戏逻辑变量/////////////////////////////////////////////////////////////////
 	TDirection m_moveDirection;							                //选择的块1向块2移动的方向
 	Position [] m_selectedPos = new Position[2];		                //记录两次点击选择的方块
     CapBlock[,] m_blocks = new CapBlock[BlockCountX, BlockCountY];		//屏幕上方块的数组
 	int m_progress;										//当前进度
-	TGameState m_gameState;								//游戏状态
+	TGameFlow m_gameFlow;								//游戏状态
 	int m_comboCount;				//记录当前连击数
 	bool m_changeBack;		//在交换方块动画中标志是否为换回动画
     System.Random m_random;
@@ -389,7 +395,7 @@ public class GameLogic {
 		
 		UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().Reset();
 
-        m_gameState = TGameState.EGameState_Playing;                //开始游戏
+        m_gameFlow = TGameFlow.EGameState_Playing;                //开始游戏
     }
 
     public void ClearGame()
@@ -432,6 +438,7 @@ public class GameLogic {
                 if (m_blocks[i, j] != null)
                 {
                     GameObject.Destroy(m_blocks[i, j].m_blockTransform.gameObject);
+                    m_blocks[i, j] = null;
                 }
             }
         }
@@ -455,6 +462,11 @@ public class GameLogic {
 
     void DrawGraphics()
     {
+        if (m_gameFlow == TGameFlow.EGameState_Clear)
+        {
+            return;
+        }
+
         Color defaultColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
 
         //根据数据绘制Sprite
@@ -545,7 +557,7 @@ public class GameLogic {
         }
 
         //处理流程////////////////////////////////////////////////////////////////////////
-        if (m_gameState == TGameState.EGameState_SugarCrushAnim)        //播放sugarcrush动画状态
+        if (m_gameFlow == TGameFlow.EGameState_SugarCrushAnim)        //播放sugarcrush动画状态
         {
             UIDrawer.Singleton.DrawText("SugarCrush", 100, 100, "Sugar Crush!!!!!!!!!!!!!!!!");
         }
@@ -554,17 +566,17 @@ public class GameLogic {
     void ProcessState()     //处理各个状态
     {
         //处理流程////////////////////////////////////////////////////////////////////////
-        if (m_gameState == TGameState.EGameState_SugarCrushAnim)        //播放sugarcrush动画状态
+        if (m_gameFlow == TGameFlow.EGameState_SugarCrushAnim)        //播放sugarcrush动画状态
         {
             if (Timer.millisecondNow() - m_sugarCurshAnimStartTime > SugarCrushAnimTime)        //若时间到
             {
-                m_gameState = TGameState.EGameState_EndEatingSpecial;                           //切下一状态
+                m_gameFlow = TGameFlow.EGameState_EndEatingSpecial;                           //切下一状态
                 return;
             }
         }
 
         //游戏结束后自动吃特殊块的状态，且当前没在消块或下落状态
-        if (m_gameState == TGameState.EGameState_EndEatingSpecial && timerEatBlock.GetState() == TimerEnum.EStop && timerDropDown.GetState() == TimerEnum.EStop)
+        if (m_gameFlow == TGameFlow.EGameState_EndEatingSpecial && timerEatBlock.GetState() == TimerEnum.EStop && timerDropDown.GetState() == TimerEnum.EStop)
         {
             for (int i = 0; i < BlockCountX; ++i)
             {
@@ -582,20 +594,27 @@ public class GameLogic {
             //若执行到这里证明已经没特殊块可以消了
             if (PlayingStageData.StepLimit > 0)     //若剩余步数大于0，进入步数奖励
             {
-                m_gameState = TGameState.EGameState_EndStepRewarding;
+                m_gameFlow = TGameFlow.EGameState_EndStepRewarding;
                 m_lastStepRewardTime = Timer.millisecondNow();
             }
             else
             {
                 m_gameStartTime = 0;
-                m_gameState = TGameState.EGameState_End;
-                UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
+                if (CheckStageFinish())
+                {
+                    UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();
+                }
+                else
+                {
+                    m_gameFlow = TGameFlow.EGameState_End;
+                    UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
+                }
             }
             return;
         }
 
         //步数奖励状态
-        if (m_gameState == TGameState.EGameState_EndStepRewarding)
+        if (m_gameFlow == TGameFlow.EGameState_EndStepRewarding)
         {
             if (Timer.millisecondNow() - m_lastStepRewardTime > StepRewardInterval)     //若到了时间间隔， 生成一个步数奖励
             {
@@ -612,7 +631,7 @@ public class GameLogic {
                 }
                 else
                 {
-                    m_gameState = TGameState.EGameState_EndEatingSpecial;
+                    m_gameFlow = TGameFlow.EGameState_EndEatingSpecial;
                 }
 
                 m_lastStepRewardTime = Timer.millisecondNow();
@@ -646,7 +665,7 @@ public class GameLogic {
         DrawGraphics();     //绘制图形
 
         //处理帮助
-        if (m_dropDownEndTime > 0)      //下落完成的状态
+        if (m_gameFlow == TGameFlow.EGameState_Playing && m_dropDownEndTime > 0)      //下落完成的状态
         {
             if (helpP1 == null)     //还没找帮助点
             {
@@ -1751,7 +1770,7 @@ public class GameLogic {
 
     void OnDropEnd()            //所有下落和移动结束时被调用
     {
-        if (m_gameState != TGameState.EGameState_Playing)
+        if (m_gameFlow != TGameFlow.EGameState_Playing)
         {
             return;
         }
@@ -1772,15 +1791,15 @@ public class GameLogic {
             }
             if (foundSpecial || PlayingStageData.StepLimit > 0)     //若能进SugarCrush
             {
-                m_gameState = TGameState.EGameState_SugarCrushAnim;
+                m_gameFlow = TGameFlow.EGameState_SugarCrushAnim;
+                ClearHelpPoint();
                 m_sugarCurshAnimStartTime = Timer.millisecondNow();
             }
             else
             {
                 //否则直接结束游戏
                 m_gameStartTime = 0;
-                m_gameState = TGameState.EGameState_End;
-                UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
+                UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();
             }
             return;
         }
@@ -1788,7 +1807,7 @@ public class GameLogic {
         {
             //否则直接结束游戏
             m_gameStartTime = 0;
-            m_gameState = TGameState.EGameState_End;
+            m_gameFlow = TGameFlow.EGameState_End;
             UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
         }
 

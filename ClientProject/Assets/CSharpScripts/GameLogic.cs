@@ -72,8 +72,11 @@ struct ShowingNumberEffect
 {
     Transform trans;
     UISprite [] sprites;     //最多6位
-    Vector3 position;                           //位置
-    void Init(GameObject numInstance)
+    Position position;                           //位置
+    long startTime;          //开始时间
+    static long effectTime = 1000;              //特效显示时间
+
+    public void Init(GameObject numInstance)
     {
         sprites = new UISprite [5];
         GameObject newObj = GameObject.Instantiate(numInstance) as GameObject;
@@ -88,11 +91,11 @@ struct ShowingNumberEffect
         }
     }
 
-    void SetNumber(int num)
+    public void SetNumber(int num, int x, int y)
     {
         trans.gameObject.SetActive(true);
         int numIndex = 0;
-        while (num > 10)
+        while (num > 0)
         {
             sprites[numIndex].spriteName = "YardNumBall" + (num % 10);
             sprites[numIndex].gameObject.SetActive(true);
@@ -100,10 +103,46 @@ struct ShowingNumberEffect
             ++numIndex;
         }
 
-        for (int i = numIndex + 1; i < 5; ++i )
+        for (int i = numIndex; i < 5; ++i )
         {
             sprites[i].gameObject.SetActive(false);
         }
+		
+		position = new Position(x, y);
+        trans.localPosition = new Vector3(x, -y, -120);
+        startTime = Timer.millisecondNow();
+    }
+
+    public void SetFree()
+    {
+		for(int i=0; i<5; ++i)
+		{
+			sprites[i].alpha = 1.0f;
+		}
+        trans.gameObject.SetActive(false);
+    }
+
+    public void Update()
+    {
+        if (!IsEnd())
+        {
+			long yOffset = (Timer.millisecondNow() - startTime) * 50 / effectTime;
+            trans.localPosition = new Vector3(position.x, -(position.y - yOffset), -120);
+			
+			for(int i=0; i<5; ++i)
+			{
+				sprites[i].alpha = (1.0f - (Timer.millisecondNow() - startTime) * 1.0f / effectTime);
+			}
+        }
+        else
+        {
+            SetFree();
+        }
+    }
+
+    public bool IsEnd()
+    {
+        return Timer.millisecondNow() - startTime > effectTime;
     }
 }
 
@@ -179,13 +218,15 @@ public class GameLogic {
     {
         m_progress += progress;
         UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().OnChangeProgress(m_progress);
-
+		AddNumber(progress, GetXPos(x), GetYPos(x, y));
     }
 
     void AddNumber(int number, int x, int y)                //添加一个数字特效
     {
-        //ShowingNumberEffect numEffect = new ShowingNumberEffect();
-
+        ShowingNumberEffect numEffect = m_freeNumberList.Last.Value;
+        m_freeNumberList.RemoveLast();
+        numEffect.SetNumber(number, x, y);
+        m_showingNumberEffectList.AddLast(numEffect);
     }
 
     public float GetTimeRemain()
@@ -214,7 +255,9 @@ public class GameLogic {
 
         for (int i = 0; i < 81; ++i )
         {
-            m_freeNumberList.AddLast(new ShowingNumberEffect());
+            ShowingNumberEffect numEffect = new ShowingNumberEffect();
+            numEffect.Init(m_numInstance);
+            m_freeNumberList.AddLast(numEffect);
         }
 		
 		PlayingStageData = StageData.CreateStageData();
@@ -763,6 +806,19 @@ public class GameLogic {
                 list.Remove(parToDelete);                               //在原列表中删除
             }
         }
+
+        //处理数字
+        foreach (ShowingNumberEffect numEffect in m_showingNumberEffectList)
+        {
+            numEffect.Update();
+            if (numEffect.IsEnd())
+            {
+                m_freeNumberList.AddLast(numEffect);
+                m_showingNumberEffectList.Remove(numEffect);
+                break;
+            }
+        }
+
        // Profiler.EndSample();
     }
 
@@ -786,6 +842,7 @@ public class GameLogic {
 
                 //消块逻辑，把正在消失的块变成粒子，原块置空
                 for (int i = 0; i < BlockCountX; i++)
+                {
                     for (int j = 0; j < BlockCountY; j++)
                     {
                         if (m_blocks[i, j] == null)     //为空块
@@ -794,14 +851,11 @@ public class GameLogic {
                         }
                         if (m_blocks[i, j].IsEating())
                         {
-                            //PlayAni(i, j, 0, true);
-                            //CreateCapParticle(i, j);
                             //清空block信息
                             MakeSpriteFree(i, j);
                         }
                     }
-
-                //AddCombo();
+                }
 
                 if (timerDropDown.GetState() == TimerEnum.EStop)		//若没在下落状态，调用下落。（若在下落状态，等下落计时器到了自然会处理）
                 {
@@ -1608,6 +1662,10 @@ public class GameLogic {
                     PlayingStageData.ClearFlag(pos.x, pos.y, GridFlag.Chocolate);
                     PlayingStageData.ClearFlag(x, y, GridFlag.NotGenerateCap);
                     PlayingStageData.AddFlag(x, y, GridFlag.GenerateCap);
+
+                    m_gridBackImage[pos.x, pos.y].layer1.gameObject.SetActive(false);
+
+                    AddPartile("ChocolateEffect", pos.x, pos.y);
                 }
             }
         }
@@ -1625,6 +1683,9 @@ public class GameLogic {
                     PlayingStageData.ClearFlag(pos.x, pos.y, GridFlag.Stone);
                     PlayingStageData.ClearFlag(x, y, GridFlag.NotGenerateCap);
                     PlayingStageData.AddFlag(x, y, GridFlag.GenerateCap);
+
+
+                    m_gridBackImage[pos.x, pos.y].layer1.gameObject.SetActive(false);
 
                     AddPartile("StoneEffect", pos.x, pos.y);
                 }

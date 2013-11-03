@@ -60,22 +60,6 @@ public struct Position{
 	}
 };
 
-public enum TGridType
-{
-    Normal,         //普通
-    None,           //空格子
-    Jelly,          //果冻
-    JellyDouble,    //两层果冻
-}
-
-public enum TGridBlockType     //固定障碍
-{
-    None,               //没有
-    Stone,              //石头
-    Chocolate,          //巧克力
-    Cage,               //笼子
-}
-
 public class GridSprites
 {
     public UISprite layer0;            //普通块/果冻
@@ -104,25 +88,8 @@ public class GameLogic {
     public static float ShowNoPossibleExhangeTextTime = 1.0f;      //没有可交换的块显示，持续1秒钟
     public static int StepRewardInterval = 500;             //步数奖励的时间间隔
     public static int SugarCrushAnimTime = 1200;            //SugarCrush动画的时间长度
-    public StageData PlayingStageData;                      //当前的关卡数据
-    public int GetProgress(){ return m_progress; }
-    public void AddProgress(int progress)
-    {
-        m_progress += progress;
-        UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().OnChangeProgress(m_progress);
-    }
 
-    public float GetTimeRemain()
-    {
-        float timeRemain = GlobalVars.CurStageData.TimeLimit - (Timer.millisecondNow() - m_gameStartTime) / 1000.0f; 
-        timeRemain = Mathf.Max(0, timeRemain);
-        return timeRemain;
-    }
 
-    public void ChangeGameFlow(TGameFlow gameFlow)
-    {
-        m_gameFlow = gameFlow;
-    }
 
     ///游戏逻辑变量/////////////////////////////////////////////////////////////////
 	TDirection m_moveDirection;							                //选择的块1向块2移动的方向
@@ -137,6 +104,7 @@ public class GameLogic {
     long m_gameStartTime = 0;                              //游戏开始时间
     long m_sugarCurshAnimStartTime = 0;                    //sugarCrush动画的开始时间
     long m_lastStepRewardTime = 0;                         //上次生成StepReward的时间
+    public StageData PlayingStageData;                      //当前的关卡数据
 
     //计时器
     Timer timerMoveBlock = new Timer();
@@ -147,28 +115,40 @@ public class GameLogic {
     Position helpP1, helpP2;
     Position touchBeginPos;                                 //触控开始的位置
 
-    	//资源物件
-	//CCAnimation *m_blockMoveAni[6][6];			//六种方块向六个方向移动的动画
-	//CCSprite * m_selectAni;						//选中动画
-	//BlockSprite * m_pComboSprite[5];			//Combo粒子的精灵
+    //物件池
     LinkedList<CapBlock> m_capBlockFreeList = new LinkedList<CapBlock>();				//用来存放可用的Sprite
-	Dictionary<int, string> m_soundEffectMap = new Dictionary<int, string>();								    //声音
-
     Dictionary<string, LinkedList<ParticleSystem> > m_particleMap = new Dictionary<string, LinkedList<ParticleSystem> >();
     Dictionary<string, LinkedList<ParticleSystem>> m_freeParticleMap = new Dictionary<string, LinkedList<ParticleSystem>>();
 
-    GameObject m_freePool;
-    GameObject m_capsPool;
+    GameObject m_capsPool;                  //瓶盖池
+    GameObject m_gridInstance;              //把Grid的实例存起来，用来优化性能
 
-    int m_nut1Count;
-    int m_nut2Count;
-
-    GameObject m_gridInstance;              //把Grid的实例存起来，用来优化
+    int m_nut1Count;                        //当前屏幕上的坚果数量
+    int m_nut2Count;                        //当前屏幕上的坚果数量
 
     public GameLogic()
     {
-        m_freePool = GameObject.Find("FreePool");
         m_capsPool = GameObject.Find("CapsPool");
+    }
+
+    public int GetProgress() { return m_progress; }
+    public void AddProgress(int progress, int x, int y)     //增加分数，同时在某位置显示一个得分的数字特效
+    {
+        m_progress += progress;
+        UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().OnChangeProgress(m_progress);
+
+    }
+
+    public float GetTimeRemain()
+    {
+        float timeRemain = GlobalVars.CurStageData.TimeLimit - (Timer.millisecondNow() - m_gameStartTime) / 1000.0f;
+        timeRemain = Mathf.Max(0, timeRemain);
+        return timeRemain;
+    }
+
+    public void ChangeGameFlow(TGameFlow gameFlow)
+    {
+        m_gameFlow = gameFlow;
     }
 
     public void Init()
@@ -648,7 +628,7 @@ public class GameLogic {
                         Position pos = FindRandomPos(TBlockColor.EColor_None, null, true);
                         m_blocks[pos.x, pos.y].special = TSpecialBlock.ESpecial_EatLineDir0 + (m_random.Next() % 3);
                         m_blocks[pos.x, pos.y].RefreshBlockSprite(PlayingStageData.GridData[pos.x, pos.y]);
-                        AddProgress(CapsConfig.DirBombPoint);
+                        AddProgress(CapsConfig.DirBombPoint, pos.x, pos.y);
                         --PlayingStageData.StepLimit;           //步数减一
                     }
                 }
@@ -960,7 +940,7 @@ public class GameLogic {
                         PlayingStageData.AddFlag(i, j, GridFlag.GenerateCap);
 
                         AddPartile("StoneEffect", i, j);
-                        AddProgress(CapsConfig.EatStonePoint);
+                        AddProgress(CapsConfig.EatStonePoint, i, j);
 
                         m_gridBackImage[i, j].layer1.gameObject.SetActive(false);
                     }
@@ -970,7 +950,7 @@ public class GameLogic {
                         PlayingStageData.ClearFlag(i, j, GridFlag.NotGenerateCap);
                         PlayingStageData.AddFlag(i, j, GridFlag.GenerateCap);
                         AddPartile("ChocolateEffect", i, j);
-                        AddProgress(CapsConfig.EatChocolate);
+                        AddProgress(CapsConfig.EatChocolate, i, j);
                         m_gridBackImage[i, j].layer1.gameObject.SetActive(false);
                     }
                     else if (PlayingStageData.CheckFlag(i, j, GridFlag.Cage))
@@ -978,7 +958,7 @@ public class GameLogic {
                         PlayingStageData.ClearFlag(i, j, GridFlag.Cage);
                         AddPartile("CageEffect", i, j);
                         m_blocks[i, j].isLocked = false;
-                        AddProgress(CapsConfig.EatCagePoint);
+                        AddProgress(CapsConfig.EatCagePoint, i, j);
                         m_gridBackImage[i, j].layer1.gameObject.SetActive(false);
                     }
                     else if (PlayingStageData.CheckFlag(i, j, GridFlag.JellyDouble))
@@ -986,14 +966,14 @@ public class GameLogic {
                         PlayingStageData.ClearFlag(i, j, GridFlag.JellyDouble);
                         PlayingStageData.AddFlag(i, j, GridFlag.Jelly);
                         AddPartile("JellyEffect", i, j);
-                        AddProgress(CapsConfig.EatJellyDouble);
+                        AddProgress(CapsConfig.EatJellyDouble, i, j);
                         m_gridBackImage[i, j].layer0.spriteName = "Jelly";
                     }
                     else if (PlayingStageData.CheckFlag(i, j, GridFlag.Jelly))
                     {
                         PlayingStageData.ClearFlag(i, j, GridFlag.Jelly);
                         AddPartile("JellyEffect", i, j);
-                        AddProgress(CapsConfig.EatJelly);
+                        AddProgress(CapsConfig.EatJelly, i, j);
                         m_gridBackImage[i, j].layer0.spriteName = "Grid";
                     }
 
@@ -1221,7 +1201,7 @@ public class GameLogic {
                         --m_nut2Count;
                     }
 
-                    AddProgress(CapsConfig.FruitDropDown);
+                    AddProgress(CapsConfig.FruitDropDown, i, j);
 					
                     MakeSpriteFree(i, j);           //离开点吃掉坚果
                 }
@@ -1256,6 +1236,18 @@ public class GameLogic {
         }
 
         ProcessTempBlocks();
+
+        for (int i = 0; i < BlockCountX; ++i )
+        {
+            for (int j = 0; j < BlockCountY; ++j )
+            {
+                if (m_blocks[i, j] != null)
+                {
+                    m_blocks[i, j].m_bNeedCheckEatLine = false;
+                }
+            }
+        }
+
         return tag;
     }
 
@@ -1292,6 +1284,9 @@ public class GameLogic {
                 {
                     break;
                 }
+
+                m_blocks[curPos.x, curPos.y].m_bNeedCheckEatLine = false;       //走过的块就不再检查了
+
                 eatBlockPos[countInSameLine] = curPos;								//把Block存起来（用来后面消除）
                 ++countInSameLine;
             }
@@ -1307,6 +1302,7 @@ public class GameLogic {
                 {
                     break;
                 }
+                m_blocks[curPos.x, curPos.y].m_bNeedCheckEatLine = false;       //走过的块就不再检查了
                 eatBlockPos[countInSameLine] = curPos;
                 ++countInSameLine;
             }
@@ -1366,7 +1362,6 @@ public class GameLogic {
                 m_gameStartTime += 5000;               //增加5秒时间
             }
             generateSpecial = TSpecialBlock.ESpecial_EatAColor;         //生成彩虹
-            AddProgress(CapsConfig.EatAColorPoint);
             kItem = 3;
         }
         else if (maxCountInSameDir == 4)		//若最大每行消了4个
@@ -1387,7 +1382,6 @@ public class GameLogic {
             {
                 generateSpecial = TSpecialBlock.ESpecial_EatLineDir2;
             }
-            AddProgress(CapsConfig.DirBombPoint);
             kItem = 1;
         }
         else if (totalSameCount >= 6)			//若总共消除大于等于6个（3,4消除或者多个3消）
@@ -1397,7 +1391,6 @@ public class GameLogic {
                 m_gameStartTime += 5000;               //增加5秒时间
             }
             generateSpecial = TSpecialBlock.ESpecial_Bomb;
-            AddProgress(CapsConfig.BombPoint);
             kItem = 2;
         }
         else if (totalSameCount > 4)			//若总共消除大于4个
@@ -1407,7 +1400,6 @@ public class GameLogic {
                 m_gameStartTime += 5000;               //增加5秒时间
             }
             generateSpecial = TSpecialBlock.ESpecial_Bomb;
-            AddProgress(CapsConfig.Plus5Point);
             kItem = 1;
         }
 
@@ -1474,7 +1466,7 @@ public class GameLogic {
             kCombo = CapsConfig.Instance.KComboTable[m_comboCount + 1];
         }
 
-        AddProgress(50 * kQuantity *(kCombo + kItem + kLevel + 1)); 
+        AddProgress(50 * kQuantity *(kCombo + kItem + kLevel + 1), position.x, position.y);
         OnProgressChange();
         return true;
     }

@@ -68,6 +68,45 @@ public class GridSprites
     public UISprite layer3;            //结束点
 }
 
+struct ShowingNumberEffect
+{
+    Transform trans;
+    UISprite [] sprites;     //最多6位
+    Vector3 position;                           //位置
+    void Init(GameObject numInstance)
+    {
+        sprites = new UISprite [5];
+        GameObject newObj = GameObject.Instantiate(numInstance) as GameObject;
+        trans = newObj.transform;
+        trans.parent = numInstance.transform.parent;
+        trans.localScale = numInstance.transform.localScale;
+        newObj.SetActive(false);
+
+        for (int i = 0; i < trans.childCount; ++i )
+        {
+            sprites[i] = trans.GetChild(i).GetComponent<UISprite>();
+        }
+    }
+
+    void SetNumber(int num)
+    {
+        trans.gameObject.SetActive(true);
+        int numIndex = 0;
+        while (num > 10)
+        {
+            sprites[numIndex].spriteName = "YardNumBall" + (num % 10);
+            sprites[numIndex].gameObject.SetActive(true);
+            num /= 10;
+            ++numIndex;
+        }
+
+        for (int i = numIndex + 1; i < 5; ++i )
+        {
+            sprites[i].gameObject.SetActive(false);
+        }
+    }
+}
+
 public class GameLogic {
     public static int BlockCountX = 9;	//游戏区有几列
     public static int BlockCountY = 9;	//游戏区有几行
@@ -119,9 +158,13 @@ public class GameLogic {
     LinkedList<CapBlock> m_capBlockFreeList = new LinkedList<CapBlock>();				//用来存放可用的Sprite
     Dictionary<string, LinkedList<ParticleSystem> > m_particleMap = new Dictionary<string, LinkedList<ParticleSystem> >();
     Dictionary<string, LinkedList<ParticleSystem>> m_freeParticleMap = new Dictionary<string, LinkedList<ParticleSystem>>();
+    LinkedList<ShowingNumberEffect> m_freeNumberList = new LinkedList<ShowingNumberEffect>();                 //用来存放数字图片的池
+
+    LinkedList<ShowingNumberEffect> m_showingNumberEffectList = new LinkedList<ShowingNumberEffect>();      //用来管理正在播放的数字
 
     GameObject m_capsPool;                  //瓶盖池
     GameObject m_gridInstance;              //把Grid的实例存起来，用来优化性能
+    GameObject m_numInstance;              //把数字的实例存起来，用来优化性能
 
     int m_nut1Count;                        //当前屏幕上的坚果数量
     int m_nut2Count;                        //当前屏幕上的坚果数量
@@ -139,6 +182,12 @@ public class GameLogic {
 
     }
 
+    void AddNumber(int number, int x, int y)                //添加一个数字特效
+    {
+        //ShowingNumberEffect numEffect = new ShowingNumberEffect();
+
+    }
+
     public float GetTimeRemain()
     {
         float timeRemain = GlobalVars.CurStageData.TimeLimit - (Timer.millisecondNow() - m_gameStartTime) / 1000.0f;
@@ -153,21 +202,25 @@ public class GameLogic {
 
     public void Init()
     {
+        m_gridInstance = GameObject.Find("GridInstance");
+        m_numInstance = GameObject.Find("NumberInstance");
+
         //初始化瓶盖图片池
-        for (int i = 0; i < TotalColorCount + 2; ++i)            //最多7种颜色，固定死
+        for (int j = 0; j < 100; ++j )              //一百个够了
         {
-            for (int j = 0; j < 100; ++j )
-            {
-                CapBlock capBlock = new CapBlock();
-                m_capBlockFreeList.AddLast(capBlock);
-            }
+            CapBlock capBlock = new CapBlock();
+            m_capBlockFreeList.AddLast(capBlock);
+        }
+
+        for (int i = 0; i < 81; ++i )
+        {
+            m_freeNumberList.AddLast(new ShowingNumberEffect());
         }
 		
 		PlayingStageData = StageData.CreateStageData();
         PlayingStageData.LoadStageData(GlobalVars.CurStageNum);
 
         //绘制底图
-        m_gridInstance = GameObject.Find("GridInstance");
         for (int i = 0; i < BlockCountX; ++i)
         {
             for (int j = 0; j < BlockCountY; ++j)
@@ -1285,8 +1338,6 @@ public class GameLogic {
                     break;
                 }
 
-                m_blocks[curPos.x, curPos.y].m_bNeedCheckEatLine = false;       //走过的块就不再检查了
-
                 eatBlockPos[countInSameLine] = curPos;								//把Block存起来（用来后面消除）
                 ++countInSameLine;
             }
@@ -1302,7 +1353,6 @@ public class GameLogic {
                 {
                     break;
                 }
-                m_blocks[curPos.x, curPos.y].m_bNeedCheckEatLine = false;       //走过的块就不再检查了
                 eatBlockPos[countInSameLine] = curPos;
                 ++countInSameLine;
             }

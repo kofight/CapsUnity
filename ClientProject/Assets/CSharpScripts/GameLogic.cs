@@ -149,9 +149,10 @@ struct ShowingNumberEffect
 public class GameLogic {
     public static int BlockCountX = 9;	//游戏区有几列
     public static int BlockCountY = 9;	//游戏区有几行
-    public static int BLOCKWIDTH = 71;      //宽度
-    public static int BLOCKHEIGHT = 81;     //高度
-    public static int gameAreaX = 0;		//游戏区域左上角坐标
+    public static int BLOCKWIDTH = 69;      //宽度
+    public static int BLOCKHEIGHT = 79;     //高度
+    public static float BlockScale = 62.0f; //
+    public static int gameAreaX = 10;		//游戏区域左上角坐标
     public static int gameAreaY = 90;		//游戏区域左上角坐标
     public static int gameAreaWidth = BLOCKWIDTH * BlockCountX;	//游戏区域宽度
     public static int gameAreaHeight = BLOCKHEIGHT * BlockCountY + BLOCKHEIGHT / 2;//游戏区域高度
@@ -580,7 +581,7 @@ public class GameLogic {
 
     int GetXPos(int x)
     {
-        return x * BLOCKWIDTH + BLOCKWIDTH / 2;
+        return gameAreaX + x * BLOCKWIDTH + BLOCKWIDTH / 2;
     }
 
     int GetYPos(int x, int y)
@@ -1700,12 +1701,12 @@ public class GameLogic {
             if (m_blocks[helpP1.x, helpP1.y] != null)
             {
                 m_blocks[helpP1.x, helpP1.y].m_animation.Stop();
-                m_blocks[helpP1.x, helpP1.y].m_animation.transform.localScale = new Vector3(57.0f, 57.0f, 1.0f);          //恢复缩放
+                m_blocks[helpP1.x, helpP1.y].m_animation.transform.localScale = new Vector3(GameLogic.BlockScale, GameLogic.BlockScale, 1.0f);          //恢复缩放
             }
             if (m_blocks[helpP2.x, helpP2.y] != null)
             {
                 m_blocks[helpP2.x, helpP2.y].m_animation.Stop();
-                m_blocks[helpP2.x, helpP2.y].m_animation.transform.localScale = new Vector3(57.0f, 57.0f, 1.0f);          //恢复缩放
+                m_blocks[helpP2.x, helpP2.y].m_animation.transform.localScale = new Vector3(GameLogic.BlockScale, GameLogic.BlockScale, 1.0f);          //恢复缩放
             }
             m_dropDownEndTime = 0;                          //清除dropDownEnd的时间记录
             helpP1.MakeItUnAvailable();                                  //清除帮助点

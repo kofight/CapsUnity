@@ -184,6 +184,7 @@ public class GameLogic {
     long m_sugarCurshAnimStartTime = 0;                    //sugarCrush动画的开始时间
     long m_lastStepRewardTime = 0;                         //上次生成StepReward的时间
     public StageData PlayingStageData;                      //当前的关卡数据
+    bool m_bDropFromLeft = true;                            //用来控制左右斜下落的开关
 
     //计时器
     Timer timerMoveBlock = new Timer();
@@ -1208,51 +1209,86 @@ public class GameLogic {
                         if (PlayingStageData.CheckFlag(dropDest.x, dropDest.y, GridFlag.PortalEnd))
                         {
                             dropFrom = PlayingStageData.PortalToMap[dropDest.ToInt()].from;
+                        }
+                        else
+                        {
+                            dropFrom.Set(i, j - 1);     //向上看一格
+                        }
 
-                            if (m_blocks[dropFrom.x, dropFrom.y] != null                    //传送门入口处有有效块
-                                && m_blocks[dropFrom.x, dropFrom.y].isLocked == false)      //可以下落 
+                        if (!bDrop)                    //若没找到掉落点
+                        {
+                            //检查上面是否被锁住
+                            Position curPos = dropFrom;
+                            while (true)       //若这格有效
+                            {
+                                if (!CheckPosAvailable(curPos) || PlayingStageData.GridData[curPos.x, curPos.y] == 0)     //上面是无效格，或者空格
+                                {
+                                    UpLocked = true;
+                                    break;
+                                }
+                                if (PlayingStageData.CheckFlag(curPos.x, curPos.y, GridFlag.Stone | GridFlag.Cage | GridFlag.Chocolate))        //检查是否被锁了
+                                {
+                                    UpLocked = true;
+                                    break;
+                                }
+                                if (PlayingStageData.CheckFlag(curPos.x, curPos.y, GridFlag.Birth) || m_blocks[curPos.x, curPos.y] != null)     //若有块或为出生点，不用再检查了
+                                {
+                                    break;
+                                }
+
+                                if (PlayingStageData.CheckFlag(curPos.x, curPos.y, GridFlag.PortalEnd))     //若为传送门终点，找传送门起点
+                                {
+                                    curPos = PlayingStageData.PortalToMap[curPos.ToInt()].from;
+                                }
+                                else
+                                {
+                                    curPos.Set(curPos.x, curPos.y - 1);     //再向上走一格
+                                }
+                            }
+                        }
+
+                        if (!UpLocked)            //如果上面没被锁
+                        {
+                            if (CheckPosAvailable(dropFrom) &&
+                                m_blocks[dropFrom.x, dropFrom.y] != null && !m_blocks[dropFrom.x, dropFrom.y].isLocked && !m_blocks[dropFrom.x, dropFrom.y].isDropping)           //找到有效块
                             {
                                 bDrop = true;       //可以下落
                             }
                         }
 
-                        if (!bDrop)                    //若没找到掉落点
+                        if (UpLocked)                    //若上方的点被锁
                         {
-                            ////检查上面是否被锁住
-                            //int goUp = 1;
-                            //dropFrom.Set(i, j - goUp);     //向上看一格
-                            //while (CheckPosAvailable(dropFrom))
-                            //{
+                            TDirection dir;
+                            if (m_bDropFromLeft)
+                            {
+                                dir = TDirection.EDir_LeftUp;
+                            }
+                            else
+                            {
+                                dir = TDirection.EDir_UpRight;
+                            }
+                            dropFrom = GoTo(new Position(i, j), dir, 1);         //向左上看一格
+                            if (CheckPosAvailable(dropFrom) && m_blocks[dropFrom.x, dropFrom.y] != null && !m_blocks[dropFrom.x, dropFrom.y].isLocked && !m_blocks[dropFrom.x, dropFrom.y].isDropping)        //若是有效点，且为空，形成掉落
+                            {
+                                bDrop = true;
+                            }
 
-                            //}
-                            dropFrom.Set(i, j - 1);     //向上看一格
-                            if (CheckPosAvailable(dropFrom))            //先看看格子是否有效
+                            if (!bDrop)     //若没找到掉落点
                             {
-                                if (PlayingStageData.GridData[dropFrom.x, dropFrom.y] == 0 ||
-                                    PlayingStageData.CheckFlag(dropFrom.x, dropFrom.y, GridFlag.Stone | GridFlag.Cage | GridFlag.Chocolate))
+                                if (m_bDropFromLeft)
                                 {
-                                    UpLocked = true;
+                                    dir = TDirection.EDir_UpRight;
                                 }
-                                else if (m_blocks[dropFrom.x, dropFrom.y] != null && !m_blocks[dropFrom.x, dropFrom.y].isDropping && !m_blocks[dropFrom.x, dropFrom.y].isLocked)           //找到有效块
+                                else
                                 {
-                                    bDrop = true;       //可以下落
+                                    dir = TDirection.EDir_LeftUp;
                                 }
-                            }
-                        }
-                        if (UpLocked)                    //若没找到掉落点，且上方的点被锁
-                        {
-                            dropFrom = GoTo(new Position(i, j), TDirection.EDir_LeftUp, 1);         //向左上看一格
-                            if (CheckPosAvailable(dropFrom) && m_blocks[dropFrom.x, dropFrom.y] != null && !m_blocks[dropFrom.x, dropFrom.y].isDropping && !m_blocks[dropFrom.x, dropFrom.y].isLocked)        //若是有效点，且为空，形成掉落
-                            {
-                                bDrop = true;
-                            }
-                        }
-                        if (!bDrop && UpLocked)                    //若没找到掉落点，且上方的点被锁
-                        {
-                            dropFrom = GoTo(new Position(i, j), TDirection.EDir_UpRight, 1);         //向右上看一格
-                            if (CheckPosAvailable(dropFrom) && m_blocks[dropFrom.x, dropFrom.y] != null && !m_blocks[dropFrom.x, dropFrom.y].isDropping && !m_blocks[dropFrom.x, dropFrom.y].isLocked)        //若是有效点，且为空，形成掉落
-                            {
-                                bDrop = true;
+
+                                dropFrom = GoTo(new Position(i, j), dir, 1);         //向右上看一格
+                                if (CheckPosAvailable(dropFrom) && m_blocks[dropFrom.x, dropFrom.y] != null && !m_blocks[dropFrom.x, dropFrom.y].isLocked && !m_blocks[dropFrom.x, dropFrom.y].isDropping)        //若是有效点，且为空，形成掉落
+                                {
+                                    bDrop = true;
+                                }
                             }
                         }
 
@@ -1324,7 +1360,10 @@ public class GameLogic {
         }
 
         if (tag)
+        {
             timerDropDown.Play();								//开启自由下落计时器
+            m_bDropFromLeft = !m_bDropFromLeft;
+        }
 
         return tag;			//返回是否发生了掉落
     }

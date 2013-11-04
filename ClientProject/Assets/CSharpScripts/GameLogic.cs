@@ -982,47 +982,59 @@ public class GameLogic {
                 m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].y_move = 0;
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].x_move = 0;
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].y_move = 0; ;
-                if (m_changeBack)//如果处于换回状态
+
+                TSpecialBlock special0 = m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special;
+                TSpecialBlock special1 = m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special;
+                //处理两个条状交换
+                if ((special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir1 || special0 == TSpecialBlock.ESpecial_EatLineDir2) &&
+                    (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir1 || special1 == TSpecialBlock.ESpecial_EatLineDir2))
                 {
-                    m_changeBack = false;	//清除换回标志
-                    if (m_selectedPos[0].x == -1 || m_selectedPos[1].x == -1) return;
-
-                    bool hasEatLine1 = EatLine(m_selectedPos[0]);
-                    bool hasEatLine2 = EatLine(m_selectedPos[1]);
-
-                    if (hasEatLine1 || hasEatLine2)				//若有能消的
-                    {
-                        //PlaySound(eat);
-
-                        if (m_selectedPos[0].x == -1 || m_selectedPos[1].x == -1) return;			//若什么都没选这里返回
-
-                        timerEatBlock.Play();												//开启消块计时器
-                    }
-
-                    //清空选择的方块
-                    ClearSelected();
+                    EatALLDirLine(m_selectedPos[1], false);
                 }
                 else
                 {
-                    bool hasEatLine1 = EatLine(m_selectedPos[0]);
-                    bool hasEatLine2 = EatLine(m_selectedPos[1]);
-                    if (!hasEatLine1 && !hasEatLine2)//如果交换不成功,播放交换回来的动画
+                    if (m_changeBack)//如果处于换回状态
                     {
-                        ++PlayingStageData.StepLimit;           //步数恢复
-                        ExchangeBlock(m_selectedPos[0], m_selectedPos[1]);
-                        timerMoveBlock.Play();
-                        //PlayAni(m_selectedPos[1].x, m_selectedPos[1].y,GetOtherDirection(m_moveDirection));
-                        //PlayAni(m_selectedPos[0].x, m_selectedPos[0].y,m_moveDirection);
-                        m_changeBack = true;
-                    }
-                    else
-                    {					//如果交换成功
-                        //PlaySound(eat);
-
+                        m_changeBack = false;	//清除换回标志
                         if (m_selectedPos[0].x == -1 || m_selectedPos[1].x == -1) return;
 
+                        bool hasEatLine1 = EatLine(m_selectedPos[0]);
+                        bool hasEatLine2 = EatLine(m_selectedPos[1]);
+
+                        if (hasEatLine1 || hasEatLine2)				//若有能消的
+                        {
+                            //PlaySound(eat);
+
+                            if (m_selectedPos[0].x == -1 || m_selectedPos[1].x == -1) return;			//若什么都没选这里返回
+
+                            timerEatBlock.Play();												//开启消块计时器
+                        }
+
+                        //清空选择的方块
                         ClearSelected();
-                        timerEatBlock.Play();												//开启消块计时器
+                    }
+                    else
+                    {
+                        bool hasEatLine1 = EatLine(m_selectedPos[0]);
+                        bool hasEatLine2 = EatLine(m_selectedPos[1]);
+                        if (!hasEatLine1 && !hasEatLine2)//如果交换不成功,播放交换回来的动画
+                        {
+                            ++PlayingStageData.StepLimit;           //步数恢复
+                            ExchangeBlock(m_selectedPos[0], m_selectedPos[1]);
+                            timerMoveBlock.Play();
+                            //PlayAni(m_selectedPos[1].x, m_selectedPos[1].y,GetOtherDirection(m_moveDirection));
+                            //PlayAni(m_selectedPos[0].x, m_selectedPos[0].y,m_moveDirection);
+                            m_changeBack = true;
+                        }
+                        else
+                        {					//如果交换成功
+                            //PlaySound(eat);
+
+                            if (m_selectedPos[0].x == -1 || m_selectedPos[1].x == -1) return;
+
+                            ClearSelected();
+                            timerEatBlock.Play();												//开启消块计时器
+                        }
                     }
                 }
                 ProcessTempBlocks();
@@ -1793,6 +1805,9 @@ public class GameLogic {
                         //TODO 这里要放特效
                         Position newPos = GoTo(position, dir, 1);
                         EatBlock(newPos);
+
+                        newPos = GoTo(position, dir, 2);
+                        EatBlock(newPos);
                     }
                     AddPartile("EatColorEffect", position.x, position.y);
                 }
@@ -2263,51 +2278,97 @@ public class GameLogic {
         else
         {
             //处理五彩块
-            if (special0 == TSpecialBlock.ESpecial_EatAColor)
+            if (special0 == TSpecialBlock.ESpecial_EatAColor && special1 == TSpecialBlock.ESpecial_EatAColor)       //两个五彩块
             {
-                if (special1 == TSpecialBlock.ESpecial_Normal)
-                {
-                    m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat(); //自己消失
-                    EatAColor(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color);
-                }
-                if (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||
-                    special1 == TSpecialBlock.ESpecial_EatLineDir1)
-                {
-                    ChangeColorToLine(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color);
-                }
-                if (special1 == TSpecialBlock.ESpecial_EatAColor)
-                {
-                    EatAColor(TBlockColor.EColor_None);         //消全部
-                }
+                EatAColor(TBlockColor.EColor_None);         //消全部
             }
-            else if (special1 == TSpecialBlock.ESpecial_EatAColor)
+
+            else if ((special0 == TSpecialBlock.ESpecial_EatAColor && special1 == TSpecialBlock.ESpecial_Normal) ||
+                (special1 == TSpecialBlock.ESpecial_EatAColor && special0 == TSpecialBlock.ESpecial_Normal))
             {
-                if (special0 == TSpecialBlock.ESpecial_Normal)
-                {
-                    m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat(); //自己消失
-                    EatAColor(m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color);      //消颜色
-                }
-                if (special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir2 ||
-                    special0 == TSpecialBlock.ESpecial_EatLineDir1)
-                {
-                    ChangeColorToLine(m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color);
-                }
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat(); //自己消失
+                EatAColor(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color);
+            }
+
+            else if (special0 == TSpecialBlock.ESpecial_EatAColor &&
+                (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
+                    special1 == TSpecialBlock.ESpecial_EatLineDir1))
+            {
+                EatALLDirLine(m_selectedPos[1], true);
+            }
+
+            else if ((special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
+                    special0 == TSpecialBlock.ESpecial_EatLineDir1) &&
+                (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
+                    special1 == TSpecialBlock.ESpecial_EatLineDir1))
+            {
+                EatALLDirLine(m_selectedPos[1], false);
             }
             else
             {
                 MoveBlockPair(m_selectedPos[0], m_selectedPos[1]);
             }
-
-            //处理条状块
-            if (special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir1 || special0 == TSpecialBlock.ESpecial_EatLineDir2)
-            {
-                if (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir1 || special1 == TSpecialBlock.ESpecial_EatLineDir2)
-                {
-
-                }
-            }
         }
         ProcessTempBlocks();
+    }
+
+    void EatALLDirLine(Position startPos, bool extraEat)
+    {
+        //6方向加粗
+        for (int i = 1; i < BlockCountX - 1; ++i)
+        {
+            Position pos = startPos;
+            EatBlock(GoTo(pos, TDirection.EDir_UpRight, i));
+            EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i));
+
+            if (extraEat)
+            {
+                pos.Set(pos.x, pos.y + 1);
+                EatBlock(GoTo(pos, TDirection.EDir_UpRight, i));
+                EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i));
+
+                pos.Set(pos.x, pos.y - 1);
+                EatBlock(GoTo(pos, TDirection.EDir_UpRight, i));
+                EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i));
+            }
+        }
+        for (int i = 1; i < BlockCountX - 1; ++i)
+        {
+            Position pos = startPos;
+            EatBlock(GoTo(pos, TDirection.EDir_Up, i));
+            EatBlock(GoTo(pos, TDirection.EDir_Down, i));
+            if (extraEat)
+            {
+                pos.Set(pos.x + 1, pos.y);
+                EatBlock(GoTo(pos, TDirection.EDir_Up, i));
+                EatBlock(GoTo(pos, TDirection.EDir_Down, i));
+
+                pos.Set(pos.x - 1, pos.y);
+                EatBlock(GoTo(pos, TDirection.EDir_Up, i));
+                EatBlock(GoTo(pos, TDirection.EDir_Down, i));
+            }
+        }
+        for (int i = 1; i < BlockCountX - 1; ++i)
+        {
+            Position pos = startPos;
+            EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i));
+            EatBlock(GoTo(pos, TDirection.EDir_DownRight, i));
+
+            if (extraEat)
+            {
+                pos.Set(pos.x, pos.y + 1);
+                EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i));
+                EatBlock(GoTo(pos, TDirection.EDir_DownRight, i));
+
+                pos.Set(pos.x, pos.y - 1);
+                EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i));
+                EatBlock(GoTo(pos, TDirection.EDir_DownRight, i));
+            }
+        }
+        AddPartile("Dir1Effect", startPos.x, startPos.y);
+        AddPartile("Dir2Effect", startPos.x, startPos.y);
+        AddPartile("Dir2Effect", startPos.x, startPos.y);
+        timerEatBlock.Play();
     }
 
     void EatAColor(TBlockColor color)
@@ -2337,7 +2398,7 @@ public class GameLogic {
 		timerEatBlock.Play();
     }
 
-    void ChangeColorToLine(TBlockColor color)
+    void ChangeColorToBomb(TBlockColor color)
     {
 
     }

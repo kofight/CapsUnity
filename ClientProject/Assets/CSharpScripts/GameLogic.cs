@@ -555,15 +555,15 @@ public class GameLogic {
                     }
                     if (m_gridBackImage[i, j].layer1 != null)
                     {
-                        GameObject.Destroy(m_gridBackImage[i, j].layer0.gameObject);
+                        GameObject.Destroy(m_gridBackImage[i, j].layer1.gameObject);
                     }
                     if (m_gridBackImage[i, j].layer2 != null)
                     {
-                        GameObject.Destroy(m_gridBackImage[i, j].layer0.gameObject);
+                        GameObject.Destroy(m_gridBackImage[i, j].layer2.gameObject);
                     }
                     if (m_gridBackImage[i, j].layer3 != null)
                     {
-                        GameObject.Destroy(m_gridBackImage[i, j].layer0.gameObject);
+                        GameObject.Destroy(m_gridBackImage[i, j].layer3.gameObject);
                     }
                     m_gridBackImage[i, j] = null;
                 }
@@ -1218,6 +1218,13 @@ public class GameLogic {
 
                         if (!bDrop)                    //若没找到掉落点
                         {
+                            ////检查上面是否被锁住
+                            //int goUp = 1;
+                            //dropFrom.Set(i, j - goUp);     //向上看一格
+                            //while (CheckPosAvailable(dropFrom))
+                            //{
+
+                            //}
                             dropFrom.Set(i, j - 1);     //向上看一格
                             if (CheckPosAvailable(dropFrom))            //先看看格子是否有效
                             {

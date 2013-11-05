@@ -2070,6 +2070,37 @@ public class GameLogic {
             {
                 MakeSpriteFree(p.x, p.y);       //把块置空
             }
+            if (m_gridBackImage[p.x, p.y] != null)
+            {
+                if (m_gridBackImage[p.x, p.y].layer0 != null)
+                {
+                    GameObject.Destroy(m_gridBackImage[p.x, p.y].layer0.gameObject);
+                }
+                if (m_gridBackImage[p.x, p.y].layer1 != null)
+                {
+                    GameObject.Destroy(m_gridBackImage[p.x, p.y].layer1.gameObject);
+                }
+                if (m_gridBackImage[p.x, p.y].layer2 != null)
+                {
+                    GameObject.Destroy(m_gridBackImage[p.x, p.y].layer2.gameObject);
+                }
+                if (m_gridBackImage[p.x, p.y].layer3 != null)
+                {
+                    GameObject.Destroy(m_gridBackImage[p.x, p.y].layer3.gameObject);
+                }
+                if (PlayingStageData.GridData[p.x, p.y] == 0)
+                {
+                    m_gridBackImage[p.x, p.y] = null;
+                }
+            }
+            if (PlayingStageData.GridData[p.x, p.y] != 0)
+            {
+                if (m_gridBackImage[p.x, p.y] == null)
+                {
+                    m_gridBackImage[p.x, p.y] = new GridSprites();
+                }
+                ProcessGridSprites(p.x, p.y);
+            }
         }
 
         if (GlobalVars.EditState == TEditState.Eat)

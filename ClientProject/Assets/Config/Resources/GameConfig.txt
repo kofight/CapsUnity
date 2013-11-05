@@ -1,5 +1,5 @@
 ﻿TotalStageCount             50
-DropTime                    170
+DropTime                    150
 EatTime                    300
 MoveTime                    300
 Version                     Pre-Alpha-0.1

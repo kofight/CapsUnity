@@ -1809,7 +1809,7 @@ public class GameLogic {
                         newPos = GoTo(position, dir, 2);
                         EatBlock(newPos);
                     }
-                    AddPartile("EatColorEffect", position.x, position.y);
+                    AddPartile("BombEffect", position.x, position.y);
                 }
                 break;
             case TSpecialBlock.ESpecial_NormalPlus5:
@@ -2304,6 +2304,32 @@ public class GameLogic {
             {
                 EatALLDirLine(m_selectedPos[1], false);
             }
+            
+            else if (special0 == TSpecialBlock.ESpecial_Bomb && (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||     //炸弹跟条状交换，单方向加粗
+                    special1 == TSpecialBlock.ESpecial_EatLineDir1))
+            {
+                EatALLDirLine(m_selectedPos[1], true, (int)special1);
+            }
+            
+            else if (special1 == TSpecialBlock.ESpecial_Bomb && (special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir2 ||     
+                    special0 == TSpecialBlock.ESpecial_EatLineDir1))
+            {
+                EatALLDirLine(m_selectedPos[1], true, (int)special0);
+            }
+            else if (special0 == TSpecialBlock.ESpecial_Bomb && special1 == TSpecialBlock.ESpecial_EatAColor)              //炸弹和彩虹交换，相同颜色变炸弹
+            {
+                ChangeColorToBomb(m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color);
+            }
+            else if (special1 == TSpecialBlock.ESpecial_Bomb && special0 == TSpecialBlock.ESpecial_EatAColor)                //炸弹和彩虹交换，相同颜色变炸弹
+            {
+                ChangeColorToBomb(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color);
+            }
+            else if (special0 == TSpecialBlock.ESpecial_Bomb && special1 == TSpecialBlock.ESpecial_Bomb)
+            {
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
+                BigBomb(m_selectedPos[1]);
+            }
             else
             {
                 MoveBlockPair(m_selectedPos[0], m_selectedPos[1]);
@@ -2312,62 +2338,112 @@ public class GameLogic {
         ProcessTempBlocks();
     }
 
-    void EatALLDirLine(Position startPos, bool extraEat)
+    void BigBomb(Position pos)
     {
-        //6方向加粗
-        for (int i = 1; i < BlockCountX - 1; ++i)
+        EatBlock(pos);
+        for (TDirection dir = TDirection.EDir_Up; dir <= TDirection.EDir_LeftUp; ++dir)
         {
-            Position pos = startPos;
-            EatBlock(GoTo(pos, TDirection.EDir_UpRight, i));
-            EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i));
+            Position newPos = GoTo(pos, dir, 1);                            //第一层
+            EatBlock(newPos);
 
-            if (extraEat)
+            newPos = GoTo(pos, dir, 2);                                     //第二层
+            EatBlock(newPos);
+
+            newPos = GoTo(newPos, (TDirection)(((int)dir + 2) % 6), 1);     //第二层向下一个方向走一步
+            EatBlock(newPos);
+
+            Position newPos3 = GoTo(pos, dir, 3);                                     //第三层
+            EatBlock(newPos3);
+
+            newPos = GoTo(newPos3, (TDirection)(((int)dir + 2) % 6), 1);     //第三层向下一个方向走一步
+            EatBlock(newPos);
+
+            newPos = GoTo(newPos3, (TDirection)(((int)dir - 2 + 6) % 6), 1); //第三层向上一个方向走一步
+            EatBlock(newPos);
+        }
+
+        AddPartile("BigBombEffect", pos.x, pos.y);
+        timerEatBlock.Play();
+    }
+
+    void EatALLDirLine(Position startPos, bool extraEat, int dir = -1)
+    {
+        if (dir == -1 || dir == (int)TSpecialBlock.ESpecial_EatLineDir1)
+        {
+            //6方向加粗
+            for (int i = 1; i < BlockCountX - 1; ++i)
             {
-                pos.Set(pos.x, pos.y + 1);
+                Position pos = startPos;
                 EatBlock(GoTo(pos, TDirection.EDir_UpRight, i));
                 EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i));
 
-                pos.Set(pos.x, pos.y - 1);
-                EatBlock(GoTo(pos, TDirection.EDir_UpRight, i));
-                EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i));
+
+                if (extraEat)
+                {
+                    pos.Set(pos.x, pos.y + 1);
+                    EatBlock(GoTo(pos, TDirection.EDir_UpRight, i));
+                    EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i));
+
+                    pos.Set(pos.x, pos.y - 1);
+                    EatBlock(GoTo(pos, TDirection.EDir_UpRight, i));
+                    EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i));
+                    AddPartile("Dir1BigEffect", startPos.x, startPos.y);
+                }
+                else
+                {
+                    AddPartile("Dir1Effect", startPos.x, startPos.y);
+                }
             }
         }
-        for (int i = 1; i < BlockCountX - 1; ++i)
+        if (dir == -1 || dir == (int)TSpecialBlock.ESpecial_EatLineDir0)
         {
-            Position pos = startPos;
-            EatBlock(GoTo(pos, TDirection.EDir_Up, i));
-            EatBlock(GoTo(pos, TDirection.EDir_Down, i));
-            if (extraEat)
+            for (int i = 1; i < BlockCountX - 1; ++i)
             {
-                pos.Set(pos.x + 1, pos.y);
+                Position pos = startPos;
                 EatBlock(GoTo(pos, TDirection.EDir_Up, i));
                 EatBlock(GoTo(pos, TDirection.EDir_Down, i));
+                if (extraEat)
+                {
+                    pos.Set(pos.x + 1, pos.y);
+                    EatBlock(GoTo(pos, TDirection.EDir_Up, i));
+                    EatBlock(GoTo(pos, TDirection.EDir_Down, i));
 
-                pos.Set(pos.x - 1, pos.y);
-                EatBlock(GoTo(pos, TDirection.EDir_Up, i));
-                EatBlock(GoTo(pos, TDirection.EDir_Down, i));
+                    pos.Set(pos.x - 1, pos.y);
+                    EatBlock(GoTo(pos, TDirection.EDir_Up, i));
+                    EatBlock(GoTo(pos, TDirection.EDir_Down, i));
+                    AddPartile("Dir0BigEffect", startPos.x, startPos.y);
+                }
+                else
+                {
+                    AddPartile("Dir0Effect", startPos.x, startPos.y);
+                }
             }
         }
-        for (int i = 1; i < BlockCountX - 1; ++i)
+        if (dir == -1 || dir == (int)TSpecialBlock.ESpecial_EatLineDir2)
         {
-            Position pos = startPos;
-            EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i));
-            EatBlock(GoTo(pos, TDirection.EDir_DownRight, i));
-
-            if (extraEat)
+            for (int i = 1; i < BlockCountX - 1; ++i)
             {
-                pos.Set(pos.x, pos.y + 1);
+                Position pos = startPos;
                 EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i));
                 EatBlock(GoTo(pos, TDirection.EDir_DownRight, i));
 
-                pos.Set(pos.x, pos.y - 1);
-                EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i));
-                EatBlock(GoTo(pos, TDirection.EDir_DownRight, i));
+                if (extraEat)
+                {
+                    pos.Set(pos.x, pos.y + 1);
+                    EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i));
+                    EatBlock(GoTo(pos, TDirection.EDir_DownRight, i));
+
+                    pos.Set(pos.x, pos.y - 1);
+                    EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i));
+                    EatBlock(GoTo(pos, TDirection.EDir_DownRight, i));
+                    AddPartile("Dir2BigEffect", startPos.x, startPos.y);
+                }
+                else
+                {
+                    AddPartile("Dir2Effect", startPos.x, startPos.y);
+                }
             }
         }
-        AddPartile("Dir1Effect", startPos.x, startPos.y);
-        AddPartile("Dir2Effect", startPos.x, startPos.y);
-        AddPartile("Dir2Effect", startPos.x, startPos.y);
         timerEatBlock.Play();
     }
 
@@ -2400,7 +2476,31 @@ public class GameLogic {
 
     void ChangeColorToBomb(TBlockColor color)
     {
+        for (int i = 0; i < BlockCountX; ++i )
+        {
+            for (int j = 0; j < BlockCountY; ++j )
+            {
+                if (m_blocks[i, j] != null && m_blocks[i, j].color == color)
+                {
+                    if (m_blocks[i, j].special == TSpecialBlock.ESpecial_Normal)
+                    {
+                        m_blocks[i, j].special = TSpecialBlock.ESpecial_Bomb;
+                    }
+                }
+            }
+        }
 
+        for (int i = 0; i < BlockCountX; ++i)
+        {
+            for (int j = 0; j < BlockCountY; ++j)
+            {
+                if (m_blocks[i, j] != null && m_blocks[i, j].color == color)
+                {
+                    EatBlock(new Position(i, j));
+                }
+            }
+        }
+        timerEatBlock.Play();
     }
 
     void MoveBlockPair(Position position1, Position position2)

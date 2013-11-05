@@ -781,6 +781,7 @@ public class GameLogic {
             }
             else if (Time.realtimeSinceStartup > m_dropDownEndTime + ShowHelpTimeInterval)
             {
+                Help();
                 ShowHelpAnim();
             }
         }
@@ -1766,7 +1767,7 @@ public class GameLogic {
                 m_blocks[helpP2.x, helpP2.y].m_animation.Stop();
                 m_blocks[helpP2.x, helpP2.y].m_animation.transform.localScale = new Vector3(GameLogic.BlockScale, GameLogic.BlockScale, 1.0f);          //恢复缩放
             }
-            m_dropDownEndTime = 0;                          //清除dropDownEnd的时间记录
+            m_dropDownEndTime = Time.realtimeSinceStartup;                          //清除dropDownEnd的时间记录
             helpP1.MakeItUnAvailable();                                  //清除帮助点
             helpP2.MakeItUnAvailable();                                  //清除帮助点
         }
@@ -2068,6 +2069,37 @@ public class GameLogic {
             if ((GlobalVars.EditingGrid & (int)GridFlag.Stone) > 0 || (GlobalVars.EditingGrid & (int)GridFlag.Chocolate) > 0)
             {
                 MakeSpriteFree(p.x, p.y);       //把块置空
+            }
+            if (m_gridBackImage[p.x, p.y] != null)
+            {
+                if (m_gridBackImage[p.x, p.y].layer0 != null)
+                {
+                    GameObject.Destroy(m_gridBackImage[p.x, p.y].layer0.gameObject);
+                }
+                if (m_gridBackImage[p.x, p.y].layer1 != null)
+                {
+                    GameObject.Destroy(m_gridBackImage[p.x, p.y].layer1.gameObject);
+                }
+                if (m_gridBackImage[p.x, p.y].layer2 != null)
+                {
+                    GameObject.Destroy(m_gridBackImage[p.x, p.y].layer2.gameObject);
+                }
+                if (m_gridBackImage[p.x, p.y].layer3 != null)
+                {
+                    GameObject.Destroy(m_gridBackImage[p.x, p.y].layer3.gameObject);
+                }
+                if (PlayingStageData.GridData[p.x, p.y] == 0)
+                {
+                    m_gridBackImage[p.x, p.y] = null;
+                }
+            }
+            if (PlayingStageData.GridData[p.x, p.y] != 0)
+            {
+                if (m_gridBackImage[p.x, p.y] == null)
+                {
+                    m_gridBackImage[p.x, p.y] = new GridSprites();
+                }
+                ProcessGridSprites(p.x, p.y);
             }
         }
 

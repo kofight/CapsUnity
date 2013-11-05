@@ -781,6 +781,7 @@ public class GameLogic {
             }
             else if (Time.realtimeSinceStartup > m_dropDownEndTime + ShowHelpTimeInterval)
             {
+                Help();
                 ShowHelpAnim();
             }
         }
@@ -1766,7 +1767,7 @@ public class GameLogic {
                 m_blocks[helpP2.x, helpP2.y].m_animation.Stop();
                 m_blocks[helpP2.x, helpP2.y].m_animation.transform.localScale = new Vector3(GameLogic.BlockScale, GameLogic.BlockScale, 1.0f);          //恢复缩放
             }
-            m_dropDownEndTime = 0;                          //清除dropDownEnd的时间记录
+            m_dropDownEndTime = Time.realtimeSinceStartup;                          //清除dropDownEnd的时间记录
             helpP1.MakeItUnAvailable();                                  //清除帮助点
             helpP2.MakeItUnAvailable();                                  //清除帮助点
         }

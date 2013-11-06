@@ -2299,6 +2299,8 @@ public class GameLogic {
         {
             --PlayingStageData.StepLimit;
         }
+
+        ClearHelpPoint();
         
         TSpecialBlock special0 = m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special;
         TSpecialBlock special1 = m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special;
@@ -2326,6 +2328,8 @@ public class GameLogic {
                 (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
                     special1 == TSpecialBlock.ESpecial_EatLineDir1))
             {
+				m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
                 EatALLDirLine(m_selectedPos[1], true);
             }
 
@@ -2334,32 +2338,46 @@ public class GameLogic {
                 (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
                     special1 == TSpecialBlock.ESpecial_EatLineDir1))
             {
+				m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
                 EatALLDirLine(m_selectedPos[1], false);
             }
             
             else if (special0 == TSpecialBlock.ESpecial_Bomb && (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||     //炸弹跟条状交换，单方向加粗
                     special1 == TSpecialBlock.ESpecial_EatLineDir1))
             {
+				m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
                 EatALLDirLine(m_selectedPos[1], true, (int)special1);
             }
             
             else if (special1 == TSpecialBlock.ESpecial_Bomb && (special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir2 ||     
                     special0 == TSpecialBlock.ESpecial_EatLineDir1))
             {
+				m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
                 EatALLDirLine(m_selectedPos[1], true, (int)special0);
             }
             else if (special0 == TSpecialBlock.ESpecial_Bomb && special1 == TSpecialBlock.ESpecial_EatAColor)              //炸弹和彩虹交换，相同颜色变炸弹
             {
+				m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
                 ChangeColorToBomb(m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color);
             }
             else if (special1 == TSpecialBlock.ESpecial_Bomb && special0 == TSpecialBlock.ESpecial_EatAColor)                //炸弹和彩虹交换，相同颜色变炸弹
             {
+				m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
+				m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
+				m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();
                 ChangeColorToBomb(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color);
             }
             else if (special0 == TSpecialBlock.ESpecial_Bomb && special1 == TSpecialBlock.ESpecial_Bomb)
             {
                 m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
+				m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
+				m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();
                 BigBomb(m_selectedPos[1]);
             }
             else
@@ -2400,10 +2418,11 @@ public class GameLogic {
 
     void EatALLDirLine(Position startPos, bool extraEat, int dir = -1)
     {
+        Debug.Log("EatAllLine");
         if (dir == -1 || dir == (int)TSpecialBlock.ESpecial_EatLineDir1)
         {
             //6方向加粗
-            for (int i = 1; i < BlockCountX - 1; ++i)
+            for (int i = 0; i < BlockCountX - 1; ++i)
             {
                 Position pos = startPos;
                 EatBlock(GoTo(pos, TDirection.EDir_UpRight, i));
@@ -2412,11 +2431,11 @@ public class GameLogic {
 
                 if (extraEat)
                 {
-                    pos.Set(pos.x, pos.y + 1);
+                    pos.Set(startPos.x, startPos.y + 1);
                     EatBlock(GoTo(pos, TDirection.EDir_UpRight, i));
                     EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i));
 
-                    pos.Set(pos.x, pos.y - 1);
+                    pos.Set(startPos.x, startPos.y - 1);
                     EatBlock(GoTo(pos, TDirection.EDir_UpRight, i));
                     EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i));
                     AddPartile("Dir1BigEffect", startPos.x, startPos.y);
@@ -2429,18 +2448,18 @@ public class GameLogic {
         }
         if (dir == -1 || dir == (int)TSpecialBlock.ESpecial_EatLineDir0)
         {
-            for (int i = 1; i < BlockCountX - 1; ++i)
+            for (int i = 0; i < BlockCountX - 1; ++i)
             {
                 Position pos = startPos;
                 EatBlock(GoTo(pos, TDirection.EDir_Up, i));
                 EatBlock(GoTo(pos, TDirection.EDir_Down, i));
                 if (extraEat)
                 {
-                    pos.Set(pos.x + 1, pos.y);
+                    pos.Set(startPos.x + 1, startPos.y);
                     EatBlock(GoTo(pos, TDirection.EDir_Up, i));
                     EatBlock(GoTo(pos, TDirection.EDir_Down, i));
 
-                    pos.Set(pos.x - 1, pos.y);
+                    pos.Set(startPos.x - 1, startPos.y);
                     EatBlock(GoTo(pos, TDirection.EDir_Up, i));
                     EatBlock(GoTo(pos, TDirection.EDir_Down, i));
                     AddPartile("Dir0BigEffect", startPos.x, startPos.y);
@@ -2453,7 +2472,7 @@ public class GameLogic {
         }
         if (dir == -1 || dir == (int)TSpecialBlock.ESpecial_EatLineDir2)
         {
-            for (int i = 1; i < BlockCountX - 1; ++i)
+            for (int i = 0; i < BlockCountX - 1; ++i)
             {
                 Position pos = startPos;
                 EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i));
@@ -2461,11 +2480,11 @@ public class GameLogic {
 
                 if (extraEat)
                 {
-                    pos.Set(pos.x, pos.y + 1);
+                    pos.Set(startPos.x, startPos.y + 1);
                     EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i));
                     EatBlock(GoTo(pos, TDirection.EDir_DownRight, i));
 
-                    pos.Set(pos.x, pos.y - 1);
+                    pos.Set(startPos.x, startPos.y - 1);
                     EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i));
                     EatBlock(GoTo(pos, TDirection.EDir_DownRight, i));
                     AddPartile("Dir2BigEffect", startPos.x, startPos.y);
@@ -2537,8 +2556,6 @@ public class GameLogic {
 
     void MoveBlockPair(Position position1, Position position2)
     {
-        ClearHelpPoint();
-
         ExchangeBlock(position1, position2);			//交换方块
 
         //PlaySound(capsmove);							//移动

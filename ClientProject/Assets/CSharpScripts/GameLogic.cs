@@ -1528,6 +1528,15 @@ public class GameLogic {
             generateSpecial = TSpecialBlock.ESpecial_EatAColor;         //生成彩虹
             kItem = 3;
         }
+        else if (totalSameCount >= 5)			//若总共消除大于等于6个（3,4消除或者多个3消）
+        {
+            if (m_blocks[position.x, position.y].special == TSpecialBlock.ESpecial_NormalPlus5)
+            {
+                m_gameStartTime += 5000;               //增加5秒时间
+            }
+            generateSpecial = TSpecialBlock.ESpecial_Bomb;
+            kItem = 2;
+        }
         else if (maxCountInSameDir == 4)		//若最大每行消了4个
         {
             if (m_blocks[position.x, position.y].special == TSpecialBlock.ESpecial_NormalPlus5)
@@ -1546,24 +1555,6 @@ public class GameLogic {
             {
                 generateSpecial = TSpecialBlock.ESpecial_EatLineDir2;
             }
-            kItem = 1;
-        }
-        else if (totalSameCount >= 6)			//若总共消除大于等于6个（3,4消除或者多个3消）
-        {
-            if (m_blocks[position.x, position.y].special == TSpecialBlock.ESpecial_NormalPlus5)
-            {
-                m_gameStartTime += 5000;               //增加5秒时间
-            }
-            generateSpecial = TSpecialBlock.ESpecial_Bomb;
-            kItem = 2;
-        }
-        else if (totalSameCount > 4)			//若总共消除大于4个
-        {
-            if (m_blocks[position.x, position.y].special == TSpecialBlock.ESpecial_NormalPlus5)
-            {
-                m_gameStartTime += 5000;               //增加5秒时间
-            }
-            generateSpecial = TSpecialBlock.ESpecial_Bomb;
             kItem = 1;
         }
 
@@ -2329,6 +2320,15 @@ public class GameLogic {
                     special1 == TSpecialBlock.ESpecial_EatLineDir1))
             {
 				m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
+                EatALLDirLine(m_selectedPos[1], true);
+            }
+
+            else if (special1 == TSpecialBlock.ESpecial_EatAColor &&
+                    (special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
+                    special0 == TSpecialBlock.ESpecial_EatLineDir1))
+            {
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
                 EatALLDirLine(m_selectedPos[1], true);
             }

@@ -77,9 +77,13 @@ public class CapsApplication : S5Application
         {
             GameLogic.EATBLOCK_TIME = CapsConfig.Instance.EatTime;
         }
-        if (CapsConfig.Instance.DropTime > 0)
+        if (CapsConfig.Instance.DropAcc > 0)
         {
-            GameLogic.DROP_TIME = CapsConfig.Instance.DropTime;
+            GameLogic.DROP_ACC = CapsConfig.Instance.DropAcc;
+        }
+        if (CapsConfig.Instance.DropSpeed > 0)
+        {
+            GameLogic.DROP_SPEED = CapsConfig.Instance.DropSpeed;
         }
 
         //读取心数相关

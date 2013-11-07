@@ -20,7 +20,8 @@ public class ConfigAttribute : Attribute
 public class CapsConfig
 {
     public int TotalStageCount = 4;
-    public int DropTime = 120;
+    public float DropAcc = 5.0f;
+    public float DropSpeed = 3.0f;
     public int EatTime = 250;
     public int MoveTime = 200;
     public int GetHeartInterval = 300;          //获得心的时间间隔，目前是5分钟，单位是秒
@@ -69,7 +70,8 @@ public class CapsConfig
     {
         _config.Read();
         _config.GetValue<int>("TotalStageCount", out TotalStageCount);
-        _config.GetValue<int>("DropTime", out DropTime);
+        _config.GetValue<float>("DropAccelarate", out DropAcc);
+        _config.GetValue<float>("DropSpeed", out DropSpeed);
         _config.GetValue<int>("EatTime", out EatTime);
         _config.GetValue<int>("MoveTime", out MoveTime);
         _config.GetValue<int>("GetHeartInterval", out GetHeartInterval);
@@ -108,7 +110,8 @@ public class CapsConfig
     public void Save()
     {
         _config.Write("TotalStageCount", TotalStageCount);
-        _config.Write("DropTime", DropTime);
+        _config.Write("DropAccelarate", DropAcc);
+        _config.Write("DropSpeed", DropSpeed);
         _config.Write("EatTime", EatTime);
         _config.Write("MoveTime", MoveTime);
         _config.Write("version", version);

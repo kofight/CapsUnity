@@ -1,5 +1,6 @@
 ﻿TotalStageCount             50
-DropTime                    150
+DropAccelarate              3.0
+DropSpeed                   5.0
 EatTime                    300
 MoveTime                    300
 Version                     Pre-Alpha-0.1

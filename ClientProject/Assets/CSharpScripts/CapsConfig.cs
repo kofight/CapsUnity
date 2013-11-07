@@ -23,7 +23,7 @@ public class CapsConfig
     public float DropAcc = 5.0f;
     public float DropSpeed = 3.0f;
     public float SlideSpeed = 3.0f;
-    public int EatTime = 250;
+    public float EatTime = 0.2f;
     public int MoveTime = 200;
     public int GetHeartInterval = 300;          //获得心的时间间隔，目前是5分钟，单位是秒
     public UseFilePath useFilePath = UseFilePath.LocalPath;
@@ -74,7 +74,7 @@ public class CapsConfig
         _config.GetValue<float>("DropAccelarate", out DropAcc);
         _config.GetValue<float>("DropSpeed", out DropSpeed);
         _config.GetValue<float>("SlideSpeed", out SlideSpeed);
-        _config.GetValue<int>("EatTime", out EatTime);
+        _config.GetValue<float>("EatTime", out EatTime);
         _config.GetValue<int>("MoveTime", out MoveTime);
         _config.GetValue<int>("GetHeartInterval", out GetHeartInterval);
         _config.GetValue<string>("version", out version);

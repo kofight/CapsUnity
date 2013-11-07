@@ -85,8 +85,10 @@ public class CapBlock
 
     public int x_move;
     public int y_move;
+
+    public float m_eatStartTime;                //开始消失的时间
     public bool m_bEating;						//正在消失的标记
-    
+
     public bool isDropping;                     //下落状态
     public Position droppingFrom;               //从某个点掉落过来
     public float DropingStartTime;              //下落的开始时间
@@ -100,9 +102,14 @@ public class CapBlock
     public UISprite m_blockSprite;		//精灵动画
     public Transform m_blockTransform;         //
 
+    public static int EatingBlockCount = 0;     //正在消除的块的数量
+    public static int DropingBlockCount = 0;    //下落中的块的数量
+
     public void Eat()							//吃掉这个块
 	{
 		m_bEating = true;
+        m_eatStartTime = Time.realtimeSinceStartup;
+        ++EatingBlockCount;
 	}
 
     public bool IsEating()
@@ -118,7 +125,12 @@ public class CapBlock
 		y_move = 0;
 		special = TSpecialBlock.ESpecial_Normal;
 		m_bEating = false;
+        if (isDropping)
+        {
+            --DropingBlockCount;
+        }
 		isDropping = false;
+        m_eatStartTime = 0;
 	}
 
     public bool SelectAble()

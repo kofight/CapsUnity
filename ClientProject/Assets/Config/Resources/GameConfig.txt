@@ -2,7 +2,7 @@
 DropAccelarate              3.0
 SlideSpeed	            3.0
 DropSpeed                   5.0
-EatTime                    300
+EatTime                     0.2
 MoveTime                    300
 Version                     Pre-Alpha-0.1
 GetHeartInterval            300

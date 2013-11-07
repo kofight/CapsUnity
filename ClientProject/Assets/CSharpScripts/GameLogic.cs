@@ -162,7 +162,7 @@ public class GameLogic {
     public static float DROP_SPEED = 3.0f;        //下落初速度
     public static float SLIDE_SPEED = 3.0f;        //下落初速度
     public static int MOVE_TIME = 250;    		//移动的时间
-    public static int EATBLOCK_TIME = 200;		//消块时间
+    public static float EATBLOCK_TIME = 0.2f;		//消块时间
     public static int GAMETIME = 6000000;		//游戏时间
     public static float CheckAvailableTimeInterval = 1.0f;       //1秒钟后尝试找是否有可消块
     public static float ShowHelpTimeInterval = 5.0f;       //5秒钟后显示可消块
@@ -190,8 +190,7 @@ public class GameLogic {
 
     //计时器
     Timer timerMoveBlock = new Timer();
-    Timer timerEatBlock = new Timer();
-    Timer timerDropDown = new Timer();
+
     int m_dropingBlockCount = 0;                            //正在下落的块的数量
     float m_dropDownEndTime;
     float m_showNoPossibleExhangeTextTime = 0;              //显示
@@ -601,7 +600,7 @@ public class GameLogic {
         }
 
         //处理下落
-        if (m_dropingBlockCount > 0)            //若有块在下落
+        if (CapBlock.DropingBlockCount > 0)            //若有块在下落
         {
             //如果未到120毫秒，更新各方快的位置
             for (int i = 0; i < BlockCountX; i++)
@@ -700,7 +699,7 @@ public class GameLogic {
         }
 
         //游戏结束后自动吃特殊块的状态，且当前没在消块或下落状态
-        if (m_gameFlow == TGameFlow.EGameState_EndEatingSpecial && timerEatBlock.GetState() == TimerEnum.EStop && m_dropingBlockCount == 0)
+        if (m_gameFlow == TGameFlow.EGameState_EndEatingSpecial && CapBlock.EatingBlockCount == 0 && CapBlock.DropingBlockCount == 0)
         {
             for (int i = 0; i < BlockCountX; ++i)
             {
@@ -709,7 +708,6 @@ public class GameLogic {
                     if (m_blocks[i, j] != null && m_blocks[i, j].special != TSpecialBlock.ESpecial_Normal)
                     {
                         EatBlock(new Position(i, j));
-                        timerEatBlock.Play();
                         return;         //消一个特殊块就返回
                     }
                 }
@@ -763,6 +761,102 @@ public class GameLogic {
         }
     }
 
+    //处理下落完成后的判断////////////////////////////////////////////////////////////////////////
+    void ProcessBlocksDropDown()
+    {
+        bool bDroped = false;
+        bool bEat = false;      //记录是否形成了消块
+        for (int i = 0; i < BlockCountX; ++i)
+        {
+            for (int j = 0; j < BlockCountY; ++j)
+            {
+                if (m_blocks[i, j] != null && m_blocks[i, j].m_bNeedCheckEatLine)
+                {
+                    m_blocks[i, j].m_bNeedCheckEatLine = false;
+
+                    --CapBlock.DropingBlockCount;
+                    m_blocks[i, j].isDropping = false;
+                    m_blocks[i, j].m_animation.Play("DropDown");                            //播放下落动画
+
+
+                    if (m_blocks[i, j].color > TBlockColor.EColor_Grey)                     //若为坚果
+                    {
+                        //到了消失点
+                        if (PlayingStageData.Target == GameTarget.BringFruitDown && PlayingStageData.CheckFlag(i, j, GridFlag.FruitExit))
+                        {
+                            //记录吃一个坚果
+                            if (m_blocks[i, j].color == TBlockColor.EColor_Nut1)
+                            {
+                                PlayingStageData.Nut1Count++;
+                                --m_nut1Count;
+                            }
+
+                            if (m_blocks[i, j].color == TBlockColor.EColor_Nut2)
+                            {
+                                PlayingStageData.Nut2Count++;
+                                --m_nut2Count;
+                            }
+
+                            AddProgress(CapsConfig.FruitDropDown, i, j);
+
+                            MakeSpriteFree(i, j);           //离开点吃掉坚果
+                            bEat = true;
+                        }
+                    }
+                    else                   //若为普通块
+                    {
+                        if (m_blocks[i, j].droppingFrom.x == i)     //若斜方向掉落，掉落过程完毕不消块
+                        {
+							if(EatLine(new Position(i, j)))
+							{
+								bEat = true;
+							}
+                        }
+                        else
+                        {
+                            Position leftDown = GoTo(new Position(i, j), TDirection.EDir_DownRight, 1);
+                            Position rightDown = GoTo(new Position(i, j), TDirection.EDir_LeftDown, 1);
+                            if (!CheckPosCanDropDown(i, j + 1)
+                                && (CheckPosAvailable(leftDown) && !CheckPosCanDropDown(leftDown.x, leftDown.y))
+                                && (CheckPosAvailable(rightDown) &&!CheckPosCanDropDown(rightDown.x, rightDown.y)))
+                            {
+                                bEat = EatLine(new Position(i, j));
+                            }
+                        }
+                    }
+
+                    bDroped = true;
+                }
+            }
+        }
+
+
+
+        if (bDroped)        //若有下落
+        {
+			if (bEat)       //若有消块
+	        {
+	            ProcessTempBlocks();
+	        }
+            else       //若没有消块
+            {
+                if (!DropDownStraight())										//下落逻辑
+                {
+                    bDroped = DropDownIndirect();                               //斜向下落
+                }
+                else
+                {
+                    bDroped = true;
+                }
+            }
+        }
+		
+		if(!bDroped)
+		{
+			OnDropEnd();
+		}
+    }
+
     public void Update()
     {
         //Profiler.BeginSample("GameLogic");
@@ -784,6 +878,8 @@ public class GameLogic {
                 UIDrawer.Singleton.DrawText("NoExchangeText", 100, 100, "No Block To Exchange! Auto Resort...");
             }
         }
+		
+		ProcessBlocksDropDown();
 
         TimerWork();
 
@@ -859,34 +955,34 @@ public class GameLogic {
 
     void TimerWork()
     {
+        float timeNow = Time.realtimeSinceStartup;
         /*------------------处理timerEatBlock------------------*/
-        if (timerEatBlock.GetState() == TimerEnum.ERunning)
-        {			//如果消块计时器状态为开启
-            if (timerEatBlock.GetTime() > EATBLOCK_TIME)
-            {		//消块计时器到400毫秒
-                timerEatBlock.Stop();
-
-                //消块逻辑，把正在消失的块变成粒子，原块置空
-                for (int i = 0; i < BlockCountX; i++)
+        if (CapBlock.EatingBlockCount > 0)      //若有在消块的
+        {
+            //消块逻辑，把正在消失的块变成粒子，原块置空
+            for (int i = 0; i < BlockCountX; i++)
+            {
+                for (int j = 0; j < BlockCountY; j++)
                 {
-                    for (int j = 0; j < BlockCountY; j++)
+                    if (m_blocks[i, j] == null)     //为空块
                     {
-                        if (m_blocks[i, j] == null)     //为空块
-                        {
-                            continue;
-                        }
-                        if (m_blocks[i, j].IsEating())
-                        {
-                            //清空block信息
-                            MakeSpriteFree(i, j);
-                        }
+                        continue;
+                    }
+                    if (m_blocks[i, j].IsEating())       //若消块时间到了
+                    {
+						if(timeNow - m_blocks[i, j].m_eatStartTime > EATBLOCK_TIME)
+						{
+							--CapBlock.EatingBlockCount;
+                        	//清空block信息
+                        	MakeSpriteFree(i, j);
+						}
                     }
                 }
+            }
 
-                if (!DropDownStraight())										//下落逻辑
-                {
-                    DropDownIndirect();                                         //斜向下落
-                }
+            if (!DropDownStraight())										//下落逻辑
+            {
+                DropDownIndirect();                                         //斜向下落
             }
         }
 
@@ -934,8 +1030,6 @@ public class GameLogic {
                             //PlaySound(eat);
 
                             if (m_selectedPos[0].x == -1 || m_selectedPos[1].x == -1) return;			//若什么都没选这里返回
-
-                            timerEatBlock.Play();												//开启消块计时器
                         }
 
                         //清空选择的方块
@@ -961,7 +1055,6 @@ public class GameLogic {
                             if (m_selectedPos[0].x == -1 || m_selectedPos[1].x == -1) return;
 
                             ClearSelected();
-                            timerEatBlock.Play();												//开启消块计时器
                         }
                     }
                 }
@@ -1101,7 +1194,7 @@ public class GameLogic {
         {
             m_blocks[to.x, to.y].x_move = 0;        //清除x_move
             m_blocks[to.x, to.y].y_move = 0;        //清除y_move
-            OnBlockDropDown(to.x, to.y);
+            m_blocks[to.x, to.y].m_bNeedCheckEatLine = true;      //需要检测消行
         }
     }
 
@@ -1116,7 +1209,7 @@ public class GameLogic {
         return true;
     }
 
-    bool DropDownIndirect()            //其他下落（传送门，斜坡）
+    public bool DropDownIndirect()            //其他下落（传送门，斜坡）
     {
         bool tag = false;
 
@@ -1182,23 +1275,20 @@ public class GameLogic {
                         m_blocks[dropDest.x, dropDest.y].isDropping = true;
                         m_blocks[dropDest.x, dropDest.y].droppingFrom = dropFrom;
                         m_blocks[dropDest.x, dropDest.y].DropingStartTime = Time.realtimeSinceStartup;
-                        ++m_dropingBlockCount;              //计数
+                        ++CapBlock.DropingBlockCount;              //计数
 
                         m_blocks[dropFrom.x, dropFrom.y] = null;            //原先点置空
 
-                        ProcessDropPic(dropFrom, dropDest);
-
                         tag = true;
-                        break;      //每列只斜落一个
+                        return true;
                     }
                 }
             }
         }
-
         return tag;
     }
 
-    bool DropDownStraight()         //直线下落
+    public bool DropDownStraight()         //直线下落
     {
         //下落块，所有可下落区域下落一行////////////////////////////////////////////////////////////////////////
         bool tag = false;
@@ -1229,15 +1319,14 @@ public class GameLogic {
                     m_blocks[i, y].droppingFrom.Set(i, j);       //记录从哪里落过来的
                     m_blocks[i, j] = null;                       //原块置空
                     m_blocks[i, y].DropingStartTime = Time.realtimeSinceStartup;    //记录下落开始时间
-					ProcessDropPic(m_blocks[i, y].droppingFrom, new Position(i, y));		//
                     tag = true;
-                    ++m_dropingBlockCount;
+                    ++CapBlock.DropingBlockCount;
                 }
             }
         }
 
 
-        //需要补充遍历所有出生点和离开点（坚果）
+        //需要补充遍历所有出生点
         for (int j = BlockCountY - 1; j >= 0; j--)		//从最下面开始遍历
         {
             for (int i = 0; i < BlockCountX; i++)				//一次遍历一行
@@ -1262,49 +1351,12 @@ public class GameLogic {
                         m_blocks[i, destY].droppingFrom.Set(i, destY - (y - j) - 1);            //记录从哪里落过来的
                         m_blocks[i, destY].DropingStartTime = Time.realtimeSinceStartup;    //记录下落开始时间
                         tag = true;
-                        ++m_dropingBlockCount;
+                        ++CapBlock.DropingBlockCount;
                     }
                 }
             }
         }
         return tag;			//返回是否发生了掉落
-    }
-
-    bool EatAllLine()
-    {
-        bool tag = false;
-        for (int i = 0; i < BlockCountX; i++)
-        {
-            for (int j = 0; j < BlockCountY; j++)
-            {
-                if (m_blocks[i, j] == null)
-                {
-                    continue;
-                }
-                if (m_blocks[i, j].m_bNeedCheckEatLine && !m_blocks[i, j].IsEating())		//只有没在消除状态的块才遍历，防止重复记分
-                {
-                    if (EatLine(new Position(i, j)))
-                    {
-                        tag = true;
-                    }
-                }
-            }
-        }
-
-        ProcessTempBlocks();
-
-        for (int i = 0; i < BlockCountX; ++i )
-        {
-            for (int j = 0; j < BlockCountY; ++j )
-            {
-                if (m_blocks[i, j] != null)
-                {
-                    m_blocks[i, j].m_bNeedCheckEatLine = false;
-                }
-            }
-        }
-
-        return tag;
     }
 
     int [,] m_tempBlocks = new int[BlockCountX, BlockCountY];		//一个临时数组，用来记录哪些块要消除, 0 代表不消除 1 代表功能块消除  2代表正常消除
@@ -1849,60 +1901,6 @@ public class GameLogic {
         return false;
     }
 
-    void OnBlockDropDown(int x, int y)
-    {
-        --m_dropingBlockCount;
-        m_blocks[x, y].isDropping = false;
-        m_blocks[x, y].m_bNeedCheckEatLine = true;
-        m_blocks[x, y].m_animation.Play("DropDown");                            //播放下落动画
-
-        if (m_blocks[x, y].color > TBlockColor.EColor_Grey)                     //若为坚果
-        {
-            //到了消失点
-            if (PlayingStageData.Target == GameTarget.BringFruitDown && PlayingStageData.CheckFlag(x, y, GridFlag.FruitExit))
-            {
-                //记录吃一个坚果
-                if (m_blocks[x, y].color == TBlockColor.EColor_Nut1)
-                {
-                    PlayingStageData.Nut1Count++;
-                    --m_nut1Count;
-                }
-
-                if (m_blocks[x, y].color == TBlockColor.EColor_Nut2)
-                {
-                    PlayingStageData.Nut2Count++;
-                    --m_nut2Count;
-                }
-
-                AddProgress(CapsConfig.FruitDropDown, x, y);
-
-                MakeSpriteFree(x, y);           //离开点吃掉坚果
-            }
-        }
-        else                   //若为普通块
-        {
-
-        }
-
-        if (m_dropingBlockCount == 0)		//尝试下落，若不不能下落了
-        {
-            if (!DropDownStraight())        //尝试一次直线下落
-            {
-                if (!DropDownIndirect())         //尝试一次斜线下落
-                {
-                    if (!EatAllLine())					//若没有能消了的
-                    {
-                        OnDropEnd();
-                    }
-                    else								//若有能直接消除的块
-                    {
-                        timerEatBlock.Play();
-                    }
-                }
-            }
-        }
-    }
-
     void OnDropEnd()            //所有下落和移动结束时被调用
     {
         m_comboCount = 0;
@@ -2042,7 +2040,6 @@ public class GameLogic {
         if (GlobalVars.EditState == TEditState.Eat)
         {
             EatBlock(p);
-            timerEatBlock.Play();												//开启消块计时器
         }
 
         if (GlobalVars.EditState == TEditState.EditPortal)
@@ -2135,7 +2132,7 @@ public class GameLogic {
             return;
         }
 
-        if (m_dropingBlockCount > 0)
+        if (CapBlock.DropingBlockCount > 0)
         {
             return;
         }
@@ -2358,7 +2355,6 @@ public class GameLogic {
         }
 
         AddPartile("BigBombEffect", pos.x, pos.y);
-        timerEatBlock.Play();
     }
 
     void EatALLDirLine(Position startPos, bool extraEat, int dir = -1)
@@ -2440,7 +2436,6 @@ public class GameLogic {
                 }
             }
         }
-        timerEatBlock.Play();
     }
 
     void EatAColor(TBlockColor color)
@@ -2467,7 +2462,6 @@ public class GameLogic {
                 }
             }
         }
-		timerEatBlock.Play();
     }
 
     void ChangeColorToBomb(TBlockColor color)
@@ -2496,7 +2490,6 @@ public class GameLogic {
                 }
             }
         }
-        timerEatBlock.Play();
     }
 
     void MoveBlockPair(Position position1, Position position2)

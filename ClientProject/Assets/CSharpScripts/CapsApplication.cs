@@ -85,6 +85,10 @@ public class CapsApplication : S5Application
         {
             GameLogic.DROP_SPEED = CapsConfig.Instance.DropSpeed;
         }
+        if (CapsConfig.Instance.DropSpeed > 0)
+        {
+            GameLogic.SLIDE_SPEED = CapsConfig.Instance.DropSpeed;
+        }
 
         //读取心数相关
 		if(PlayerPrefs.HasKey("HeartCount"))

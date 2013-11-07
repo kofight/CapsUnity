@@ -160,6 +160,7 @@ public class GameLogic {
     public static int PROGRESSTOWIN = 2000;
     public static float DROP_ACC = 5.0f;        //下落加速度
     public static float DROP_SPEED = 3.0f;        //下落初速度
+    public static float SLIDE_SPEED = 3.0f;        //下落初速度
     public static int MOVE_TIME = 250;    		//移动的时间
     public static int EATBLOCK_TIME = 200;		//消块时间
     public static int GAMETIME = 6000000;		//游戏时间
@@ -1085,7 +1086,7 @@ public class GameLogic {
 
         if (from.x != to.x)		//若x方向上的值不一样，就有x方向上的移动
         {
-            m_blocks[to.x, to.y].x_move = (int)((to.x - from.x) * (dropTime * DROP_SPEED * BLOCKWIDTH - BLOCKWIDTH));
+            m_blocks[to.x, to.y].x_move = (int)((to.x - from.x) * (dropTime * SLIDE_SPEED * BLOCKWIDTH - BLOCKWIDTH));
         }
         if (from.x - to.x == 0)
         {
@@ -1093,7 +1094,7 @@ public class GameLogic {
         }
         else
         {
-            m_blocks[to.x, to.y].y_move = (int)(DROP_SPEED * dropTime * (BLOCKHEIGHT / 2) - BLOCKHEIGHT / 2);
+            m_blocks[to.x, to.y].y_move = (int)(SLIDE_SPEED * dropTime * (BLOCKHEIGHT / 2) - BLOCKHEIGHT / 2);
         }
 
         if (m_blocks[to.x, to.y].y_move >= 0)       //落到底了
@@ -1133,7 +1134,11 @@ public class GameLogic {
                     //先看是否在传送点
                     if (PlayingStageData.CheckFlag(dropDest.x, dropDest.y, GridFlag.PortalEnd))
                     {
-                        dropFrom = PlayingStageData.PortalToMap[dropDest.ToInt()].from;
+						dropFrom = PlayingStageData.PortalToMap[dropDest.ToInt()].from;
+						if(m_blocks[dropFrom.x, dropFrom.y] != null && !m_blocks[dropFrom.x, dropFrom.y].isLocked && !m_blocks[dropFrom.x, dropFrom.y].isDropping)
+						{
+							bDrop = true;
+						}
                     }
                     else  //看可以斜掉落的两格
                     {
@@ -1851,8 +1856,9 @@ public class GameLogic {
         m_blocks[x, y].m_bNeedCheckEatLine = true;
         m_blocks[x, y].m_animation.Play("DropDown");                            //播放下落动画
 
-        if (m_blocks[x, y].color > TBlockColor.EColor_Grey)                     //若坚果到了消失点
+        if (m_blocks[x, y].color > TBlockColor.EColor_Grey)                     //若为坚果
         {
+            //到了消失点
             if (PlayingStageData.Target == GameTarget.BringFruitDown && PlayingStageData.CheckFlag(x, y, GridFlag.FruitExit))
             {
                 //记录吃一个坚果
@@ -1872,6 +1878,10 @@ public class GameLogic {
 
                 MakeSpriteFree(x, y);           //离开点吃掉坚果
             }
+        }
+        else                   //若为普通块
+        {
+
         }
 
         if (m_dropingBlockCount == 0)		//尝试下落，若不不能下落了

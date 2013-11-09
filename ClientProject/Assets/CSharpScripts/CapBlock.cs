@@ -108,7 +108,7 @@ public class CapBlock
     public void Eat()							//吃掉这个块
 	{
 		m_bEating = true;
-        m_eatStartTime = Time.realtimeSinceStartup;
+        m_eatStartTime = Timer.GetRealTimeSinceStartUp();
         ++EatingBlockCount;
 	}
 

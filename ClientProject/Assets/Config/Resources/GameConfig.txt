@@ -2,6 +2,7 @@
 DropAccelarate              3.0
 SlideSpeed	            3.0
 DropSpeed                   5.0
+GameSpeed                   1.0
 EatTime                     0.2
 MoveTime                    300
 Version                     Pre-Alpha-0.1

@@ -500,7 +500,7 @@ public class GameLogic {
 
         OnProgressChange();
 
-        m_dropDownEndTime = Time.realtimeSinceStartup;
+        m_dropDownEndTime = Timer.GetRealTimeSinceStartUp();
 		
 		UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().Reset();
 
@@ -865,8 +865,8 @@ public class GameLogic {
     public void Update()
     {
         //Profiler.BeginSample("GameLogic");
-        Timer.s_currentTime = Time.realtimeSinceStartup;
-        //Timer.s_currentTime = Timer.s_currentTime + 0.02f;		//
+        //Timer.s_currentTime = Time.realtimeSinceStartup;
+        Timer.s_currentTime = Timer.s_currentTime + Time.deltaTime * CapsConfig.Instance.GameSpeed;		//
 
         ProcessState();
 
@@ -895,7 +895,7 @@ public class GameLogic {
         {
             if (!helpP1.IsAvailable())     //还没找帮助点
             {
-                if (Time.realtimeSinceStartup > m_dropDownEndTime + CheckAvailableTimeInterval)
+                if (Timer.GetRealTimeSinceStartUp() > m_dropDownEndTime + CheckAvailableTimeInterval)
                 {
                     if(!Help())
                     {
@@ -903,7 +903,7 @@ public class GameLogic {
                     }
                 }
             }
-            else if (Time.realtimeSinceStartup > m_dropDownEndTime + ShowHelpTimeInterval)
+            else if (Timer.GetRealTimeSinceStartUp() > m_dropDownEndTime + ShowHelpTimeInterval)
             {
                 Help();
                 ShowHelpAnim();
@@ -960,7 +960,6 @@ public class GameLogic {
 
     void TimerWork()
     {
-        float timeNow = Time.realtimeSinceStartup;
         /*------------------处理timerEatBlock------------------*/
         if (CapBlock.EatingBlockCount > 0)      //若有在消块的
         {
@@ -975,7 +974,7 @@ public class GameLogic {
                     }
                     if (m_blocks[i, j].IsEating())       //若消块时间到了
                     {
-						if(timeNow - m_blocks[i, j].m_eatStartTime > EATBLOCK_TIME)
+                        if (Timer.GetRealTimeSinceStartUp() - m_blocks[i, j].m_eatStartTime > EATBLOCK_TIME)
 						{
 							--CapBlock.EatingBlockCount;
                         	//清空block信息
@@ -1180,7 +1179,7 @@ public class GameLogic {
 
     void ProcessDropPic(Position from, Position to)
     {
-        float dropTime =Time.realtimeSinceStartup - m_blocks[to.x, to.y].DropingStartTime;
+        float dropTime =Timer.GetRealTimeSinceStartUp() - m_blocks[to.x, to.y].DropingStartTime;
 
         if (from.x != to.x)		//若x方向上的值不一样，就有x方向上的移动
         {
@@ -1279,7 +1278,7 @@ public class GameLogic {
                         m_blocks[dropDest.x, dropDest.y] = m_blocks[dropFrom.x, dropFrom.y];
                         m_blocks[dropDest.x, dropDest.y].isDropping = true;
                         m_blocks[dropDest.x, dropDest.y].droppingFrom = dropFrom;
-                        m_blocks[dropDest.x, dropDest.y].DropingStartTime = Time.realtimeSinceStartup;
+                        m_blocks[dropDest.x, dropDest.y].DropingStartTime = Timer.GetRealTimeSinceStartUp();
                         ++CapBlock.DropingBlockCount;              //计数
 
                         m_blocks[dropFrom.x, dropFrom.y] = null;            //原先点置空
@@ -1323,7 +1322,7 @@ public class GameLogic {
                     m_blocks[i, y].isDropping = true;
                     m_blocks[i, y].droppingFrom.Set(i, j);       //记录从哪里落过来的
                     m_blocks[i, j] = null;                       //原块置空
-                    m_blocks[i, y].DropingStartTime = Time.realtimeSinceStartup;    //记录下落开始时间
+                    m_blocks[i, y].DropingStartTime = Timer.GetRealTimeSinceStartUp();    //记录下落开始时间
                     tag = true;
                     ++CapBlock.DropingBlockCount;
                 }
@@ -1354,7 +1353,7 @@ public class GameLogic {
                         CreateBlock(i, destY, false);                                           //在目标位置生成块
                         m_blocks[i, destY].isDropping = true;
                         m_blocks[i, destY].droppingFrom.Set(i, destY - (y - j) - 1);            //记录从哪里落过来的
-                        m_blocks[i, destY].DropingStartTime = Time.realtimeSinceStartup;    //记录下落开始时间
+                        m_blocks[i, destY].DropingStartTime = Timer.GetRealTimeSinceStartUp();    //记录下落开始时间
                         tag = true;
                         ++CapBlock.DropingBlockCount;
                     }
@@ -1705,7 +1704,7 @@ public class GameLogic {
                 m_blocks[helpP2.x, helpP2.y].m_animation.Stop();
                 m_blocks[helpP2.x, helpP2.y].m_animation.transform.localScale = new Vector3(GameLogic.BlockScale, GameLogic.BlockScale, 1.0f);          //恢复缩放
             }
-            m_dropDownEndTime = Time.realtimeSinceStartup;                          //清除dropDownEnd的时间记录
+            m_dropDownEndTime = Timer.GetRealTimeSinceStartUp();                          //清除dropDownEnd的时间记录
             helpP1.MakeItUnAvailable();                                  //清除帮助点
             helpP2.MakeItUnAvailable();                                  //清除帮助点
         }
@@ -1950,7 +1949,7 @@ public class GameLogic {
             UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
         }
 
-        m_dropDownEndTime = Time.realtimeSinceStartup;
+        m_dropDownEndTime = Timer.GetRealTimeSinceStartUp();
     }
 
     public void OnTap(int x, int y)

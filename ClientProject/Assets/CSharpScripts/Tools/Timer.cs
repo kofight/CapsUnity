@@ -15,6 +15,11 @@ public class Timer {
         return (long)(s_currentTime * 1000);
     }
 
+    public static float GetRealTimeSinceStartUp()
+    {
+        return s_currentTime;
+    }
+
 	public static float s_currentTime = 0;
 	public Timer()
     {

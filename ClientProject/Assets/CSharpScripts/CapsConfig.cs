@@ -23,6 +23,7 @@ public class CapsConfig
     public float DropAcc = 5.0f;
     public float DropSpeed = 3.0f;
     public float SlideSpeed = 3.0f;
+    public float GameSpeed = 1.0f;
     public float EatTime = 0.2f;
     public int MoveTime = 200;
     public int GetHeartInterval = 300;          //获得心的时间间隔，目前是5分钟，单位是秒
@@ -74,6 +75,7 @@ public class CapsConfig
         _config.GetValue<float>("DropAccelarate", out DropAcc);
         _config.GetValue<float>("DropSpeed", out DropSpeed);
         _config.GetValue<float>("SlideSpeed", out SlideSpeed);
+        _config.GetValue<float>("GameSpeed", out GameSpeed);
         _config.GetValue<float>("EatTime", out EatTime);
         _config.GetValue<int>("MoveTime", out MoveTime);
         _config.GetValue<int>("GetHeartInterval", out GetHeartInterval);
@@ -115,6 +117,7 @@ public class CapsConfig
         _config.Write("DropAccelarate", DropAcc);
         _config.Write("DropSpeed", DropSpeed);
         _config.Write("SlideSpeed", SlideSpeed);
+        _config.Write("GameSpeed", GameSpeed);
         _config.Write("EatTime", EatTime);
         _config.Write("MoveTime", MoveTime);
         _config.Write("version", version);

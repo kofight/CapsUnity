@@ -761,6 +761,26 @@ public class GameLogic {
         }
     }
 
+    void EatFruit(int x, int y)
+    {
+        //记录吃一个坚果
+        if (m_blocks[x, y].color == TBlockColor.EColor_Nut1)
+        {
+            PlayingStageData.Nut1Count++;
+            --m_nut1Count;
+        }
+
+        if (m_blocks[x, y].color == TBlockColor.EColor_Nut2)
+        {
+            PlayingStageData.Nut2Count++;
+            --m_nut2Count;
+        }
+
+        AddProgress(CapsConfig.FruitDropDown, x, y);
+        m_blocks[x, y].Eat();
+        //MakeSpriteFree(x, y);           //离开点吃掉坚果
+    }
+
     //处理下落完成后的判断////////////////////////////////////////////////////////////////////////
     void ProcessBlocksDropDown()
     {
@@ -784,35 +804,20 @@ public class GameLogic {
                         //到了消失点
                         if (PlayingStageData.Target == GameTarget.BringFruitDown && PlayingStageData.CheckFlag(i, j, GridFlag.FruitExit))
                         {
-                            //记录吃一个坚果
-                            if (m_blocks[i, j].color == TBlockColor.EColor_Nut1)
-                            {
-                                PlayingStageData.Nut1Count++;
-                                --m_nut1Count;
-                            }
-
-                            if (m_blocks[i, j].color == TBlockColor.EColor_Nut2)
-                            {
-                                PlayingStageData.Nut2Count++;
-                                --m_nut2Count;
-                            }
-
-                            AddProgress(CapsConfig.FruitDropDown, i, j);
-
-                            MakeSpriteFree(i, j);           //离开点吃掉坚果
+                            EatFruit(i, j);
                             bEat = true;
                         }
                     }
                     else                   //若为普通块
                     {
-                        if (m_blocks[i, j].droppingFrom.x == i)     //若斜方向掉落，掉落过程完毕不消块
+                        if (m_blocks[i, j].droppingFrom.x == i)     //若为直线掉落，直接判断是否能消块
                         {
 							if(EatLine(new Position(i, j)))
 							{
 								bEat = true;
 							}
                         }
-                        else
+                        else  //若为斜掉落，需要判断是否还能再掉落，才判断是否能消块
                         {
                             Position leftDown = GoTo(new Position(i, j), TDirection.EDir_DownRight, 1);
                             Position rightDown = GoTo(new Position(i, j), TDirection.EDir_LeftDown, 1);
@@ -1020,18 +1025,6 @@ public class GameLogic {
                     if (m_changeBack)//如果处于换回状态
                     {
                         m_changeBack = false;	//清除换回标志
-                        if (m_selectedPos[0].x == -1 || m_selectedPos[1].x == -1) return;
-
-                        bool hasEatLine1 = EatLine(m_selectedPos[0]);
-                        bool hasEatLine2 = EatLine(m_selectedPos[1]);
-
-                        if (hasEatLine1 || hasEatLine2)				//若有能消的
-                        {
-                            //PlaySound(eat);
-
-                            if (m_selectedPos[0].x == -1 || m_selectedPos[1].x == -1) return;			//若什么都没选这里返回
-                        }
-
                         //清空选择的方块
                         ClearSelected();
                     }
@@ -1041,16 +1034,28 @@ public class GameLogic {
                         bool hasEatLine2 = EatLine(m_selectedPos[1]);
                         if (!hasEatLine1 && !hasEatLine2)//如果交换不成功,播放交换回来的动画
                         {
-                            ++PlayingStageData.StepLimit;           //步数恢复
                             ExchangeBlock(m_selectedPos[0], m_selectedPos[1]);
                             timerMoveBlock.Play();
-                            //PlayAni(m_selectedPos[1].x, m_selectedPos[1].y,GetOtherDirection(m_moveDirection));
-                            //PlayAni(m_selectedPos[0].x, m_selectedPos[0].y,m_moveDirection);
                             m_changeBack = true;
                         }
                         else
                         {					//如果交换成功
                             //PlaySound(eat);
+                            --PlayingStageData.StepLimit;           //步数恢复
+                            //若有水果可以吃掉
+                            if (PlayingStageData.Target == GameTarget.BringFruitDown)
+                            {
+                                if (m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color > TBlockColor.EColor_Grey &&
+                                PlayingStageData.CheckFlag(m_selectedPos[0].x, m_selectedPos[0].y, GridFlag.FruitExit))
+                                {
+                                    EatFruit(m_selectedPos[0].x, m_selectedPos[0].y);
+                                } 
+                                if (m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color > TBlockColor.EColor_Grey &&
+                                 PlayingStageData.CheckFlag(m_selectedPos[1].x, m_selectedPos[1].y, GridFlag.FruitExit))
+                                {
+                                    EatFruit(m_selectedPos[1].x, m_selectedPos[1].y);
+                                }
+                            }
 
                             if (m_selectedPos[0].x == -1 || m_selectedPos[1].x == -1) return;
 
@@ -2228,11 +2233,6 @@ public class GameLogic {
 
     void ProcessMove()
     {
-        //if (GlobalVars.CurStageData.StepLimit > 0)
-        {
-            --PlayingStageData.StepLimit;
-        }
-
         ClearHelpPoint();
         
         TSpecialBlock special0 = m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special;

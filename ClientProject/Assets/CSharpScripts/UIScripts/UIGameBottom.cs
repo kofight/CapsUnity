@@ -9,6 +9,8 @@ public class UIGameBottom : UIWindowNGUI
     static readonly int ProgressStartX = -89;
 
     UISprite stageBoard;
+    UISlider m_speedSlider;
+    UILabel m_speedLabel;
 
     public override void OnCreate()
     {
@@ -21,6 +23,9 @@ public class UIGameBottom : UIWindowNGUI
         m_progressSprite = GetChildComponent<UISprite>("Progress");      //查找sprite
 
         stageBoard = GetChildComponent<UISprite>("StageBoard");
+
+        m_speedSlider = GetChildComponent<UISlider>("SpeedSlider");
+        m_speedLabel = GetChildComponent<UILabel>("SpeedLabel");
     }
     public override void OnShow()
     {
@@ -32,6 +37,19 @@ public class UIGameBottom : UIWindowNGUI
         else
         {
             stageBoard.spriteName = "StepBoard";
+        }
+
+        if (GlobalVars.DeveloperMode)
+        {
+            m_speedSlider.gameObject.SetActive(true);
+            m_speedSlider.onValueChange = OnValueChange;
+            m_speedSlider.sliderValue = CapsConfig.Instance.GameSpeed;
+            m_speedLabel.gameObject.SetActive(true);
+        }
+        else
+        {
+            m_speedSlider.gameObject.SetActive(true);
+            m_speedLabel.gameObject.SetActive(false);
         }
     }
 	
@@ -87,6 +105,12 @@ public class UIGameBottom : UIWindowNGUI
         //绘制分数
         UIDrawer.Singleton.DrawNumber("ScoreText", 90, -170, GlobalVars.CurGameLogic.GetProgress(), "BaseNum", 24, 7);
         UIDrawer.Singleton.DefaultAnchor = UIWindowManager.Anchor.TopLeft;
+    }
+
+    public void OnValueChange(float valueChange)
+    {
+        CapsConfig.Instance.GameSpeed = valueChange;
+        m_speedLabel.text = CapsConfig.Instance.GameSpeed.ToString();
     }
 
     public void OnChangeProgress(int progress)

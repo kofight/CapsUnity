@@ -854,12 +854,12 @@ public class GameLogic {
                     bDroped = true;
                 }
             }
+			
+			if(CapBlock.DropingBlockCount == 0 && !bEat)
+			{
+				OnDropEnd();
+			}
         }
-		
-		if(!bDroped)
-		{
-			OnDropEnd();
-		}
     }
 
     public void Update()
@@ -884,7 +884,8 @@ public class GameLogic {
             }
         }
 		
-		ProcessBlocksDropDown();
+		if(CapBlock.DropingBlockCount > 0)
+			ProcessBlocksDropDown();
 
         TimerWork();
 
@@ -1224,6 +1225,7 @@ public class GameLogic {
             for (int j = 0; j < BlockCountY; j++)		    //从上往下遍历
             {
                 bool bDrop = false;
+                bool bPortal = false;
                 if (m_blocks[i, j] == null && PlayingStageData.CheckFlag(i, j, GridFlag.GenerateCap))       //找到空块
                 {
                     dropDest.Set(i, j);
@@ -1235,6 +1237,7 @@ public class GameLogic {
 						if(m_blocks[dropFrom.x, dropFrom.y] != null && !m_blocks[dropFrom.x, dropFrom.y].isLocked && !m_blocks[dropFrom.x, dropFrom.y].isDropping)
 						{
 							bDrop = true;
+                            bPortal = true;
 						}
                     }
                     else  //看可以斜掉落的两格
@@ -1277,14 +1280,20 @@ public class GameLogic {
                     {
                         m_blocks[dropDest.x, dropDest.y] = m_blocks[dropFrom.x, dropFrom.y];
                         m_blocks[dropDest.x, dropDest.y].isDropping = true;
-                        m_blocks[dropDest.x, dropDest.y].droppingFrom = dropFrom;
+                        if (bPortal)
+                        {
+                            m_blocks[dropDest.x, dropDest.y].droppingFrom.Set(dropDest.x, dropDest.y -1);
+                        }
+                        else
+                        {
+                            m_blocks[dropDest.x, dropDest.y].droppingFrom = dropFrom;
+                        }
                         m_blocks[dropDest.x, dropDest.y].DropingStartTime = Timer.GetRealTimeSinceStartUp();
                         ++CapBlock.DropingBlockCount;              //计数
 
                         m_blocks[dropFrom.x, dropFrom.y] = null;            //原先点置空
 
                         tag = true;
-                        return true;
                     }
                 }
             }

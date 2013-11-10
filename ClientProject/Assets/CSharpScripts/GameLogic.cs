@@ -796,7 +796,10 @@ public class GameLogic {
 
                     --CapBlock.DropingBlockCount;
                     m_blocks[i, j].isDropping = false;
-                    m_blocks[i, j].m_animation.Play("DropDown");                            //播放下落动画
+					if(!m_blocks[i, j].IsEating())
+					{
+                    	m_blocks[i, j].m_animation.Play("DropDown");                            //播放下落动画
+					}
 
 
                     if (m_blocks[i, j].color > TBlockColor.EColor_Grey)                     //若为坚果

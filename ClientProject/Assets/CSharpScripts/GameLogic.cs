@@ -192,7 +192,7 @@ public class GameLogic {
     Timer timerMoveBlock = new Timer();
 
     int m_dropingBlockCount = 0;                            //正在下落的块的数量
-    float m_dropDownEndTime;
+    float m_lastHelpTime;
     float m_showNoPossibleExhangeTextTime = 0;              //显示
     Position helpP1, helpP2;
     Position touchBeginPos;                                 //触控开始的位置
@@ -500,7 +500,7 @@ public class GameLogic {
 
         OnProgressChange();
 
-        m_dropDownEndTime = Timer.GetRealTimeSinceStartUp();
+        m_lastHelpTime = Timer.GetRealTimeSinceStartUp();
 		
 		UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().Reset();
 
@@ -576,7 +576,7 @@ public class GameLogic {
 		m_nut2Count = 0;
         m_sugarCurshAnimStartTime = 0;
         m_lastStepRewardTime = 0;
-        m_dropDownEndTime = 0;
+        m_lastHelpTime = 0;
         m_showNoPossibleExhangeTextTime = 0;
 
         System.GC.Collect();
@@ -840,7 +840,7 @@ public class GameLogic {
 
 
 
-        if (bDroped)        //若有下落
+        if (CapBlock.DropingBlockCount == 0)        //若有下落
         {
 			if (bEat)       //若有消块
 	        {
@@ -895,11 +895,11 @@ public class GameLogic {
         DrawGraphics();     //绘制图形
 
         //处理帮助
-        if (m_gameFlow == TGameFlow.EGameState_Playing && m_dropDownEndTime > 0)      //下落完成的状态
+        if (m_gameFlow == TGameFlow.EGameState_Playing && m_lastHelpTime > 0)      //下落完成的状态
         {
             if (!helpP1.IsAvailable())     //还没找帮助点
             {
-                if (Timer.GetRealTimeSinceStartUp() > m_dropDownEndTime + CheckAvailableTimeInterval)
+                if (Timer.GetRealTimeSinceStartUp() > m_lastHelpTime + CheckAvailableTimeInterval)
                 {
                     if(!Help())
                     {
@@ -907,7 +907,7 @@ public class GameLogic {
                     }
                 }
             }
-            else if (Timer.GetRealTimeSinceStartUp() > m_dropDownEndTime + ShowHelpTimeInterval)
+            else if (Timer.GetRealTimeSinceStartUp() > m_lastHelpTime + ShowHelpTimeInterval)
             {
                 Help();
                 ShowHelpAnim();
@@ -1232,6 +1232,10 @@ public class GameLogic {
         {
             for (int j = 0; j < BlockCountY; j++)		    //从上往下遍历
             {
+                if (PlayingStageData.GridData[i, j] == 0)
+                {
+                    continue;
+                }
                 bool bDrop = false;
                 bool bPortal = false;
                 if (m_blocks[i, j] == null && !PlayingStageData.CheckFlag(i, j, GridFlag.Chocolate | GridFlag.Stone))       //找到空块
@@ -1721,7 +1725,7 @@ public class GameLogic {
                 m_blocks[helpP2.x, helpP2.y].m_animation.Stop();
                 m_blocks[helpP2.x, helpP2.y].m_animation.transform.localScale = new Vector3(GameLogic.BlockScale, GameLogic.BlockScale, 1.0f);          //恢复缩放
             }
-            m_dropDownEndTime = Timer.GetRealTimeSinceStartUp();                          //清除dropDownEnd的时间记录
+            m_lastHelpTime = 0;                          //清除dropDownEnd的时间记录
             helpP1.MakeItUnAvailable();                                  //清除帮助点
             helpP2.MakeItUnAvailable();                                  //清除帮助点
         }
@@ -1966,7 +1970,7 @@ public class GameLogic {
             UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
         }
 
-        m_dropDownEndTime = Timer.GetRealTimeSinceStartUp();
+        m_lastHelpTime = Timer.GetRealTimeSinceStartUp();
     }
 
     public void OnTap(int x, int y)

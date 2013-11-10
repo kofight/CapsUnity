@@ -967,6 +967,7 @@ public class GameLogic {
         /*------------------处理timerEatBlock------------------*/
         if (CapBlock.EatingBlockCount > 0)      //若有在消块的
         {
+            bool bEat = false;
             //消块逻辑，把正在消失的块变成粒子，原块置空
             for (int i = 0; i < BlockCountX; i++)
             {
@@ -983,14 +984,18 @@ public class GameLogic {
 							--CapBlock.EatingBlockCount;
                         	//清空block信息
                         	MakeSpriteFree(i, j);
+                            bEat = true;
 						}
                     }
                 }
             }
 
-            if (!DropDownStraight())										//下落逻辑
+            if (bEat)
             {
-                DropDownIndirect();                                         //斜向下落
+                if (!DropDownStraight())										//下落逻辑
+                {
+                    DropDownIndirect();                                         //斜向下落
+                }
             }
         }
 
@@ -1229,7 +1234,7 @@ public class GameLogic {
             {
                 bool bDrop = false;
                 bool bPortal = false;
-                if (m_blocks[i, j] == null && PlayingStageData.CheckFlag(i, j, GridFlag.GenerateCap))       //找到空块
+                if (m_blocks[i, j] == null && !PlayingStageData.CheckFlag(i, j, GridFlag.Chocolate | GridFlag.Stone))       //找到空块
                 {
                     dropDest.Set(i, j);
 

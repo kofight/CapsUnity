@@ -23,6 +23,7 @@ public class UIStageEditor : UIWindowNGUI
         AddChildComponentMouseClick("RestartBtn", delegate(object sender, UIMouseClick.ClickArgs e)
             {
                 GlobalVars.CurGameLogic.ClearGame();
+				GlobalVars.CurGameLogic.Init();
                 GlobalVars.CurGameLogic.StartGame();
             });
 
@@ -41,7 +42,8 @@ public class UIStageEditor : UIWindowNGUI
         AddChildComponentMouseClick("ReSeedBtn", delegate(object sender, UIMouseClick.ClickArgs e)
         {
             GlobalVars.CurGameLogic.ClearGame();
-            GlobalVars.CurGameLogic.PlayingStageData.Seed = (int)(Time.realtimeSinceStartup * 1000 % 1000);
+			GlobalVars.CurGameLogic.Init();
+			GlobalVars.CurGameLogic.PlayingStageData.Seed = (int)(Time.realtimeSinceStartup * 1000 % 1000);
             GlobalVars.CurGameLogic.StartGame();
             m_seedLabel.text = GlobalVars.CurGameLogic.PlayingStageData.Seed.ToString();
         });

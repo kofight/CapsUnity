@@ -151,7 +151,7 @@ public class GameLogic {
     public static int BlockCountY = 9;	//游戏区有几行
     public static int BLOCKWIDTH = 65;      //宽度
     public static int BLOCKHEIGHT = 75;     //高度
-    public static float BlockScale = 62.0f; //
+    public static float BlockScale = 58.0f; //
     public static int gameAreaX = 10;		//游戏区域左上角坐标
     public static int gameAreaY = 90;		//游戏区域左上角坐标
     public static int gameAreaWidth = BLOCKWIDTH * BlockCountX;	//游戏区域宽度

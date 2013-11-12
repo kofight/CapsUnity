@@ -177,6 +177,7 @@ public class GameLogic {
 	Position [] m_selectedPos = new Position[2];		                //记录两次点击选择的方块
     CapBlock[,] m_blocks = new CapBlock[BlockCountX, BlockCountY];		//屏幕上方块的数组
     GridSprites[,] m_gridBackImage = new GridSprites[BlockCountX, BlockCountY];        //用来记录背景块
+    int[,] m_slopeDropLock = new int[BlockCountX, BlockCountY];         //斜下落的锁定
 	int m_progress;										//当前进度
 	TGameFlow m_gameFlow;								//游戏状态
 	int m_comboCount;				//记录当前连击数
@@ -579,6 +580,14 @@ public class GameLogic {
         m_lastHelpTime = 0;
         m_showNoPossibleExhangeTextTime = 0;
 
+        for (int i = 0; i < BlockCountX; ++i )
+        {
+            for (int j = 0; j < BlockCountY; ++j )
+            {
+                m_slopeDropLock[i, j] = 0;
+            }
+        }
+
         System.GC.Collect();
     }
 
@@ -848,14 +857,7 @@ public class GameLogic {
 	        }
             else       //若没有消块
             {
-                if (!DropDownStraight())										//下落逻辑
-                {
-                    bDroped = DropDownIndirect();                               //斜向下落
-                }
-                else
-                {
-                    bDroped = true;
-                }
+                DropDown();
             }
 			
 			if(CapBlock.DropingBlockCount == 0 && !bEat)
@@ -992,10 +994,7 @@ public class GameLogic {
 
             if (bEat)
             {
-                if (!DropDownStraight())										//下落逻辑
-                {
-                    DropDownIndirect();                                         //斜向下落
-                }
+                DropDown();
             }
         }
 
@@ -1203,17 +1202,36 @@ public class GameLogic {
             m_blocks[to.x, to.y].y_move = (int)(SLIDE_SPEED * dropTime * (BLOCKHEIGHT / 2) - BLOCKHEIGHT / 2);
         }
 
-        if (m_blocks[to.x, to.y].y_move >= 0)       //落到底了
+        if (m_blocks[to.x, to.y].y_move >= 0)       //下落完毕
         {
             m_blocks[to.x, to.y].x_move = 0;        //清除x_move
             m_blocks[to.x, to.y].y_move = 0;        //清除y_move
+
+            if (m_blocks[to.x, to.y].droppingFrom.x == to.x)      //垂直下落
+            {
+                for (int j = m_blocks[to.x, to.y].droppingFrom.y; j <= to.y;++j )
+                {
+                    if (j >=0)
+                    {
+                        --m_slopeDropLock[to.x, j];                     //把锁定的数字减掉
+                    }
+                }
+            }
+            else                                                  //斜下落
+            {
+                for (int j = to.y; j < BlockCountY; ++j)
+                {
+                    --m_slopeDropLock[to.x, j];                     //把锁定的数字减掉
+                }
+            }
+
             m_blocks[to.x, to.y].m_bNeedCheckEatLine = true;      //需要检测消行
         }
     }
 
     bool CheckPosCanDropDown(int x, int y)
     {
-        if (y >= BlockCountY) return false;        //若落到底了，不掉落
+        if (!CheckPosAvailable(new Position(x, y))) return false;        //若落到底了，不掉落
         if (m_blocks[x, y] != null || PlayingStageData.GridData[x, y] == 0) return false;           //若下面有块或为空格，不掉落
         if (PlayingStageData.CheckFlag(x, y, GridFlag.Stone | GridFlag.Chocolate | GridFlag.Cage))   //若下面锁住了，不掉落
         {
@@ -1222,128 +1240,75 @@ public class GameLogic {
         return true;
     }
 
-    public bool DropDownIndirect()            //其他下落（传送门，斜坡）
+    bool DropDown()
     {
-        bool tag = false;
+        bool bDrop = false;             //是否有下落
+        bool bNewSpace = true;          //是否有直线下落
 
-        Position dropDest = new Position();          //掉落的目标点
-        Position dropFrom = new Position();          //从哪里开始掉落
-        for (int i = 0; i < BlockCountX; i++)				//一次遍历一行
+        while(bNewSpace)                //若有新空间，就循环处理下落，直到没有新的空间出现为止
         {
-            for (int j = 0; j < BlockCountY; j++)		    //从上往下遍历
+            bNewSpace = false;
+
+            for (int i = 0; i < BlockCountX; ++i )
             {
-                if (PlayingStageData.GridData[i, j] == 0)
+                if (DropDownStraight(i))                //垂直下落
                 {
-                    continue;
+                    bDrop = true;                       //有可以下落的
+                    bNewSpace = true;                   //有新空间形成
                 }
-                bool bDrop = false;
-                bool bPortal = false;
-                if (m_blocks[i, j] == null && !PlayingStageData.CheckFlag(i, j, GridFlag.Chocolate | GridFlag.Stone))       //找到空块
+            }
+
+            for (int i = 0; i < BlockCountX; ++i)
+            {
+                if (DropDownIndirect(i))                //斜向下落
                 {
-                    dropDest.Set(i, j);
-
-                    //先看是否在传送点
-                    if (PlayingStageData.CheckFlag(dropDest.x, dropDest.y, GridFlag.PortalEnd))
-                    {
-						dropFrom = PlayingStageData.PortalToMap[dropDest.ToInt()].from;
-						if(m_blocks[dropFrom.x, dropFrom.y] != null && !m_blocks[dropFrom.x, dropFrom.y].isLocked && !m_blocks[dropFrom.x, dropFrom.y].isDropping)
-						{
-							bDrop = true;
-                            bPortal = true;
-						}
-                    }
-                    else  //看可以斜掉落的两格
-                    {
-                        TDirection dir;
-                        if (m_bDropFromLeft)
-                        {
-                            dir = TDirection.EDir_LeftUp;
-                        }
-                        else
-                        {
-                            dir = TDirection.EDir_UpRight;
-                        }
-                        dropFrom = GoTo(new Position(i, j), dir, 1);         //向左上看一格
-                        if (CheckPosAvailable(dropFrom) && m_blocks[dropFrom.x, dropFrom.y] != null && !m_blocks[dropFrom.x, dropFrom.y].isLocked && !m_blocks[dropFrom.x, dropFrom.y].isDropping)        //若是有效点，且为空，形成掉落
-                        {
-                            bDrop = true;
-                        }
-
-                        if (!bDrop)     //若没找到掉落点
-                        {
-                            if (m_bDropFromLeft)
-                            {
-                                dir = TDirection.EDir_UpRight;
-                            }
-                            else
-                            {
-                                dir = TDirection.EDir_LeftUp;
-                            }
-
-                            dropFrom = GoTo(new Position(i, j), dir, 1);         //向右上看一格
-                            if (CheckPosAvailable(dropFrom) && m_blocks[dropFrom.x, dropFrom.y] != null && !m_blocks[dropFrom.x, dropFrom.y].isLocked && !m_blocks[dropFrom.x, dropFrom.y].isDropping)        //若是有效点，且为空，形成掉落
-                            {
-                                bDrop = true;
-                            }
-                        }
-                    }
-
-                    if (bDrop)      //处理下落
-                    {
-                        m_blocks[dropDest.x, dropDest.y] = m_blocks[dropFrom.x, dropFrom.y];
-                        m_blocks[dropDest.x, dropDest.y].isDropping = true;
-                        if (bPortal)
-                        {
-                            m_blocks[dropDest.x, dropDest.y].droppingFrom.Set(dropDest.x, dropDest.y -1);
-                        }
-                        else
-                        {
-                            m_blocks[dropDest.x, dropDest.y].droppingFrom = dropFrom;
-                        }
-                        m_blocks[dropDest.x, dropDest.y].DropingStartTime = Timer.GetRealTimeSinceStartUp();
-                        ++CapBlock.DropingBlockCount;              //计数
-
-                        m_blocks[dropFrom.x, dropFrom.y] = null;            //原先点置空
-
-                        tag = true;
-                    }
+                    bDrop = true;
+                    bNewSpace = true;                       //有新空间形成
                 }
             }
         }
-        return tag;
+        return bDrop;
     }
 
-    public bool DropDownStraight()         //直线下落
+    public bool DropDownStraight(int x)
     {
         //下落块，所有可下落区域下落一行////////////////////////////////////////////////////////////////////////
         bool tag = false;
         for (int j = BlockCountY - 1; j >= 0; j--)		//从最下面开始遍历
         {
-            for (int i = 0; i < BlockCountX; i++)
+            Position destPos = new Position();
+            if (m_blocks[x, j] != null && !m_blocks[x, j].isDropping && !m_blocks[x, j].isLocked)       //若有效块没在下落且没被锁定
             {
-                if (m_blocks[i, j] != null && !m_blocks[i, j].isDropping && !m_blocks[i, j].isLocked)       //若有效块没在下落且没被锁定
+                bool bDrop = false;
+                int y = j;
+                if (CheckPosCanDropDown(x, y + 1))          //下面的格若能掉落
                 {
-                    int y = j;
-                    if (!CheckPosCanDropDown(i, y + 1))          //下面的格若不能掉落
-                    {
-                        continue;
-                    }
                     ++y;                                         //向下一格
                     //看看可以掉落到什么地方
                     while (true)
                     {
-                        if (!CheckPosCanDropDown(i, y + 1))      //向下看一格
+                        if (!CheckPosCanDropDown(x, y + 1))      //向下看一格
                         {
                             break;
                         }
                         ++y;                               //向下一格
                     }
+                    destPos.Set(x, y);                      //设置掉落目标点
+                    bDrop = true;
+                }
+
+                if (bDrop)
+                {
                     //处理下落////////////////////////////////////////////////////////////////////////
-                    m_blocks[i, y] = m_blocks[i, j];             //往下移块
-                    m_blocks[i, y].isDropping = true;
-                    m_blocks[i, y].droppingFrom.Set(i, j);       //记录从哪里落过来的
-                    m_blocks[i, j] = null;                       //原块置空
-                    m_blocks[i, y].DropingStartTime = Timer.GetRealTimeSinceStartUp();    //记录下落开始时间
+                    m_blocks[destPos.x, destPos.y] = m_blocks[x, j];             //往下移块
+                    m_blocks[destPos.x, destPos.y].isDropping = true;
+                    m_blocks[destPos.x, destPos.y].droppingFrom.Set(x, j);       //记录从哪里落过来的
+                    m_blocks[x, j] = null;                       //原块置空
+                    for (int k = j; k <= destPos.y; ++k)
+                    {
+                        ++m_slopeDropLock[x, k];                 //锁上
+                    }
+                    m_blocks[destPos.x, destPos.y].DropingStartTime = Timer.GetRealTimeSinceStartUp();    //记录下落开始时间
                     tag = true;
                     ++CapBlock.DropingBlockCount;
                 }
@@ -1354,34 +1319,97 @@ public class GameLogic {
         //需要补充遍历所有出生点
         for (int j = BlockCountY - 1; j >= 0; j--)		//从最下面开始遍历
         {
-            for (int i = 0; i < BlockCountX; i++)				//一次遍历一行
+            if (PlayingStageData.CheckFlag(x, j, GridFlag.Birth) && m_blocks[x, j] == null)     //若为出生点，且为空
             {
-                if (PlayingStageData.CheckFlag(i, j, GridFlag.Birth) && m_blocks[i, j] == null)     //若为出生点，且为空
+                int y = j;
+                //看看可以掉落到什么地方
+                while (true)
                 {
-                    int y = j;
-                    //看看可以掉落到什么地方
-                    while (true)
+                    if (!CheckPosCanDropDown(x, y + 1))      //向下看一格，若可以下落
                     {
-                        if (!CheckPosCanDropDown(i, y + 1))      //向下看一格，若可以下落
+                        break;
+                    }
+                    ++y;                               //向下一格
+                }
+                //处理下落////////////////////////////////////////////////////////////////////////
+                for (int destY = y; destY >= j; --destY)
+                {
+                    CreateBlock(x, destY, false);                                           //在目标位置生成块
+                    m_blocks[x, destY].isDropping = true;
+                    m_blocks[x, destY].droppingFrom.Set(x, destY - (y - j) - 1);            //记录从哪里落过来的
+                    m_blocks[x, destY].DropingStartTime = Timer.GetRealTimeSinceStartUp();    //记录下落开始时间
+                    for (int k = m_blocks[x, destY].droppingFrom.y; k <= destY; ++k )
+                    {
+                        if (k >=0)
                         {
-                            break;
+                            ++m_slopeDropLock[x, k];
                         }
-                        ++y;                               //向下一格
                     }
-                    //处理下落////////////////////////////////////////////////////////////////////////
-                    for (int destY = y; destY >= j; --destY)
-                    {
-                        CreateBlock(i, destY, false);                                           //在目标位置生成块
-                        m_blocks[i, destY].isDropping = true;
-                        m_blocks[i, destY].droppingFrom.Set(i, destY - (y - j) - 1);            //记录从哪里落过来的
-                        m_blocks[i, destY].DropingStartTime = Timer.GetRealTimeSinceStartUp();    //记录下落开始时间
-                        tag = true;
-                        ++CapBlock.DropingBlockCount;
-                    }
+                    tag = true;
+                    ++CapBlock.DropingBlockCount;
                 }
             }
         }
         return tag;			//返回是否发生了掉落
+    }
+
+    public bool DropDownIndirect(int x)
+    {
+        for (int j = 0; j < BlockCountY; j++)       //查找第一个正在下落的块
+        {
+            if (m_blocks[x, j] != null && m_blocks[x, j].isDropping)        //找到在下落的块
+            {
+                return false;       //若有在下落的块，这列不斜下落
+            }
+        }
+
+        //下落块，所有可下落区域下落一行////////////////////////////////////////////////////////////////////////
+        for (int j = 0; j <BlockCountY; j++)		//从上往下遍历
+        {
+            if (m_slopeDropLock[x, j] > 0)
+            {
+                continue;
+            }
+                Position fromPos = new Position();
+                if (CheckPosCanDropDown(x, j))       //找到空格
+                {
+                    bool bDrop = false;
+
+                    Position pos = new Position(x, j);
+                    fromPos = GoTo(pos, TDirection.EDir_LeftUp, 1);
+                    if (CheckPosAvailable(fromPos) && m_blocks[fromPos.x, fromPos.y] != null && !m_blocks[fromPos.x, fromPos.y].isLocked && !m_blocks[fromPos.x, fromPos.y].isDropping)
+                    {
+                        bDrop = true;
+                    }
+                    else
+                    {
+                        fromPos = GoTo(pos, TDirection.EDir_UpRight, 1);
+                        if (CheckPosAvailable(fromPos) && m_blocks[fromPos.x, fromPos.y] != null && !m_blocks[fromPos.x, fromPos.y].isLocked && !m_blocks[fromPos.x, fromPos.y].isDropping)
+                        {
+                            bDrop = true;
+                        }
+                    }
+
+                    if (bDrop)
+                    {
+                        //处理下落////////////////////////////////////////////////////////////////////////
+                        m_blocks[x, j] = m_blocks[fromPos.x, fromPos.y];             //往下移块
+                        m_blocks[x, j].isDropping = true;
+                        m_blocks[x, j].droppingFrom.Set(fromPos.x, fromPos.y);       //记录从哪里落过来的
+                        m_blocks[fromPos.x, fromPos.y] = null;                       //原块置空
+                        m_blocks[x, j].DropingStartTime = Timer.GetRealTimeSinceStartUp();    //记录下落开始时间
+
+                        for (int k = j; k < BlockCountY; ++k)               //下面全锁住
+                        {
+                            ++m_slopeDropLock[x, k];                 //锁上
+                        }
+
+                        ++CapBlock.DropingBlockCount;
+						return true;
+                    }
+                }
+        }
+        return false;			//返回是否发生了掉落
     }
 
     int [,] m_tempBlocks = new int[BlockCountX, BlockCountY];		//一个临时数组，用来记录哪些块要消除, 0 代表不消除 1 代表功能块消除  2代表正常消除

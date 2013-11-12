@@ -628,18 +628,18 @@ public class GameLogic {
             }
         }
 
-        //如果未到120毫秒，更新各方快的位置
-        for (int i = 0; i < BlockCountX; i++)
-        {
-            for (int j = 0; j < BlockCountY; j++)
-            {
-                //if (m_slopeDropLock[i, j] > 0)
-                if(PlayingStageData.GridData[i, j] != 0)
-                {
-                    UIDrawer.Singleton.DrawNumber("lock" + (j * 10 + i), GetXPos(i) - 30, GetYPos(i, j) - 30, m_slopeDropLock[i, j], "", 24);
-                }
-            }
-        }
+        ////如果未到120毫秒，更新各方快的位置
+        //for (int i = 0; i < BlockCountX; i++)
+        //{
+        //    for (int j = 0; j < BlockCountY; j++)
+        //    {
+        //        //if (m_slopeDropLock[i, j] > 0)
+        //        if(PlayingStageData.GridData[i, j] != 0)
+        //        {
+        //            UIDrawer.Singleton.DrawNumber("lock" + (j * 10 + i), GetXPos(i) - 30, GetYPos(i, j) - 30, m_slopeDropLock[i, j], "", 24);
+        //        }
+        //    }
+        //}
 
         Color defaultColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
 

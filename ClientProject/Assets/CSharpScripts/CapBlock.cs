@@ -79,6 +79,10 @@ public class CapBlock
             default:
                 break;
         }
+		if(m_addColorTranform != null)
+		{
+			m_addColorTranform.renderer.material.mainTexture = Resources.Load(m_blockSprite.spriteName, typeof(Texture)) as Texture;	
+		}
     }
 
     public TBlockColor color;							//颜色
@@ -101,6 +105,7 @@ public class CapBlock
     public Animation m_animation;
     public UISprite m_blockSprite;		//精灵动画
     public Transform m_blockTransform;         //
+	public Transform m_addColorTranform;		//
 
     public static int EatingBlockCount = 0;     //正在消除的块的数量
     public static int DropingBlockCount = 0;    //下落中的块的数量
@@ -160,6 +165,7 @@ public class CapBlock
         m_blockTransform = newObj.transform;
         m_blockSprite = UIToolkits.FindComponentInAllChild<UISprite>(m_blockTransform);
         m_animation = UIToolkits.FindComponentInAllChild<Animation>(m_blockTransform);
+        m_addColorTranform = m_blockSprite.transform.Find("AddColor");
 
         m_blockSprite.transform.localScale = new Vector3(GameLogic.BlockScale, GameLogic.BlockScale, 1.0f);
         m_blockSprite.transform.localPosition = Vector3.zero;

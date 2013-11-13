@@ -829,22 +829,6 @@ public class GameLogic {
                     }
                     else                   //若为普通块
                     {
-                        if (m_blocks[i, j].droppingFrom.x == i)     //若为直线掉落，直接判断是否能消块
-                        {
-							if(!CheckPosCanDropDown(i, j + 1))
-							{
-								if(EatLine(new Position(i, j)))
-								{
-									bEat = true;
-								}
-								else
-								{
-									m_blocks[i, j].m_animation.Play("DropDown");                            //播放下落动画
-								}
-							}
-                        }
-                        else  //若为斜掉落，需要判断是否还能再掉落，才判断是否能消块
-                        {
                             Position leftDown = GoTo(new Position(i, j), TDirection.EDir_DownRight, 1);
                             Position rightDown = GoTo(new Position(i, j), TDirection.EDir_LeftDown, 1);
                             if (!CheckPosCanDropDown(i, j + 1)
@@ -860,7 +844,6 @@ public class GameLogic {
 									m_blocks[i, j].m_animation.Play("DropDown");                            //播放下落动画
 								}
                             }
-                        }
                     }
 
                     bDroped = true;

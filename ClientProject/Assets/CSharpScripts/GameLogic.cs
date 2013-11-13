@@ -2865,6 +2865,11 @@ public class GameLogic {
         {
             return TBlockColor.EColor_None;
         }
+		if(m_blocks[p.x, p.y].isDropping || m_blocks[p.x, p.y].IsEating())
+		{
+			return TBlockColor.EColor_None;
+		}
+		
 		return m_blocks[p.x, p.y].color;
 	}
 

@@ -629,17 +629,16 @@ public class GameLogic {
         }
 
         ////如果未到120毫秒，更新各方快的位置
-        //for (int i = 0; i < BlockCountX; i++)
-        //{
-        //    for (int j = 0; j < BlockCountY; j++)
-        //    {
-        //        //if (m_slopeDropLock[i, j] > 0)
-        //        if(PlayingStageData.GridData[i, j] != 0)
-        //        {
-        //            UIDrawer.Singleton.DrawNumber("lock" + (j * 10 + i), GetXPos(i) - 30, GetYPos(i, j) - 30, m_slopeDropLock[i, j], "", 24);
-        //        }
-        //    }
-        //}
+        /*for (int i = 0; i < BlockCountX; i++)
+        {
+            for (int j = 0; j < BlockCountY; j++)
+            {
+                if (m_slopeDropLock[i, j] > 0)
+                {
+                   UIDrawer.Singleton.DrawNumber("lock" + (j * 10 + i), GetXPos(i) - 30, GetYPos(i, j) - 30, m_slopeDropLock[i, j], "", 24);
+                }
+           }
+        }*/
 
         Color defaultColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -818,11 +817,6 @@ public class GameLogic {
 
                     --CapBlock.DropingBlockCount;
                     m_blocks[i, j].isDropping = false;
-					if(!m_blocks[i, j].IsEating())
-					{
-                    	m_blocks[i, j].m_animation.Play("DropDown");                            //播放下落动画
-					}
-
 
                     if (m_blocks[i, j].color > TBlockColor.EColor_Grey)                     //若为坚果
                     {
@@ -837,9 +831,16 @@ public class GameLogic {
                     {
                         if (m_blocks[i, j].droppingFrom.x == i)     //若为直线掉落，直接判断是否能消块
                         {
-							if(EatLine(new Position(i, j)))
+							if(!CheckPosCanDropDown(i, j + 1))
 							{
-								bEat = true;
+								if(EatLine(new Position(i, j)))
+								{
+									bEat = true;
+								}
+								else
+								{
+									m_blocks[i, j].m_animation.Play("DropDown");                            //播放下落动画
+								}
 							}
                         }
                         else  //若为斜掉落，需要判断是否还能再掉落，才判断是否能消块
@@ -850,7 +851,14 @@ public class GameLogic {
                                 && (CheckPosAvailable(leftDown) && !CheckPosCanDropDown(leftDown.x, leftDown.y))
                                 && (CheckPosAvailable(rightDown) &&!CheckPosCanDropDown(rightDown.x, rightDown.y)))
                             {
-                                bEat = EatLine(new Position(i, j));
+                                if(EatLine(new Position(i, j)))
+								{
+									bEat = true;
+								}
+								else
+								{
+									m_blocks[i, j].m_animation.Play("DropDown");                            //播放下落动画
+								}
                             }
                         }
                     }
@@ -862,7 +870,7 @@ public class GameLogic {
 
 
 
-        if (CapBlock.DropingBlockCount == 0)        //若有下落
+        if (bDroped)        //若有下落
         {
 			if (bEat)       //若有消块
 	        {
@@ -1222,7 +1230,7 @@ public class GameLogic {
 
             if (m_blocks[to.x, to.y].droppingFrom.x == to.x)      //垂直下落
             {
-                for (int j = m_blocks[to.x, to.y].droppingFrom.y; j <= to.y;++j )
+                for (int j = m_blocks[to.x, to.y].droppingFrom.y + 1; j <= to.y;++j )
                 {
                     if (j >=0)
                     {
@@ -1232,7 +1240,7 @@ public class GameLogic {
             }
             else                                                  //斜下落
             {
-                for (int j = to.y; j < BlockCountY; ++j)
+                for (int j = to.y + 1; j < BlockCountY; ++j)
                 {
                     --m_slopeDropLock[to.x, j];                     //把锁定的数字减掉
                 }
@@ -1317,7 +1325,7 @@ public class GameLogic {
                     m_blocks[destPos.x, destPos.y].isDropping = true;
                     m_blocks[destPos.x, destPos.y].droppingFrom.Set(x, j);       //记录从哪里落过来的
                     m_blocks[x, j] = null;                       //原块置空
-                    for (int k = j; k <= destPos.y; ++k)
+                    for (int k = j + 1; k <= destPos.y; ++k)
                     {
                         ++m_slopeDropLock[x, k];                 //锁上
 						if(x == 4 && k == 0)
@@ -1356,7 +1364,7 @@ public class GameLogic {
                     m_blocks[x, destY].isDropping = true;
                     m_blocks[x, destY].droppingFrom.Set(x, destY - (y - j) - 1);            //记录从哪里落过来的
                     m_blocks[x, destY].DropingStartTime = Timer.GetRealTimeSinceStartUp();    //记录下落开始时间
-                    for (int k = m_blocks[x, destY].droppingFrom.y; k <= destY; ++k )
+                    for (int k = m_blocks[x, destY].droppingFrom.y + 1; k <= destY; ++k )
                     {
                         if (k >=0)
                         {
@@ -1378,14 +1386,6 @@ public class GameLogic {
 
     public bool DropDownIndirect(int x)
     {
-        for (int j = 0; j < BlockCountY; j++)       //查找第一个正在下落的块
-        {
-            if (m_blocks[x, j] != null && m_blocks[x, j].isDropping)        //找到在下落的块
-            {
-                return false;       //若有在下落的块，这列不斜下落
-            }
-        }
-
         bool bDrop = false;
         bool bPortal = false;
         Position fromPos = new Position() ;
@@ -1444,7 +1444,7 @@ public class GameLogic {
 
             if (!bPortal)
             {
-                for (int k = toPos.y; k < BlockCountY; ++k)               //下面全锁住
+                for (int k = toPos.y + 1; k < BlockCountY; ++k)               //下面全锁住
                 {
                     ++m_slopeDropLock[x, k];                 //锁上]
                     if (x == 4 && k == 0)

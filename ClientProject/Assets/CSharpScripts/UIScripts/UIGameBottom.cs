@@ -89,7 +89,7 @@ public class UIGameBottom : UIWindowNGUI
         UIDrawer.Singleton.DefaultAnchor = UIWindowManager.Anchor.Bottom;
         if (GlobalVars.CurStageData.StepLimit > 0)          //限制步数的关卡
         {
-            UIDrawer.Singleton.DrawNumber("SetpLimit", -134, -170, GlobalVars.CurGameLogic.PlayingStageData.StepLimit, "BaseNum", 24);
+            UIDrawer.Singleton.DrawNumber("SetpLimit", -134, -170, GlobalVars.CurGameLogic.PlayingStageData.StepLimit, "", 24);
         }
         if (GlobalVars.CurStageData.TimeLimit > 0)          //限制时间的关卡
         {
@@ -103,7 +103,7 @@ public class UIGameBottom : UIWindowNGUI
         }
 
         //绘制分数
-        UIDrawer.Singleton.DrawNumber("ScoreText", 90, -170, GlobalVars.CurGameLogic.GetProgress(), "BaseNum", 24, 7);
+        UIDrawer.Singleton.DrawNumber("ScoreText", 90, -170, GlobalVars.CurGameLogic.GetProgress(), "", 24, 7);
         UIDrawer.Singleton.DefaultAnchor = UIWindowManager.Anchor.TopLeft;
     }
 

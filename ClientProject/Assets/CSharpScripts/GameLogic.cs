@@ -659,6 +659,14 @@ public class GameLogic {
 
                     if (m_blocks[i, j].IsEating())
                     {
+                        if (m_blocks[i, j].EatDelay > 0)
+                        {
+                            if (Timer.GetRealTimeSinceStartUp() > m_blocks[i, j].m_eatStartTime)        //到达了开始时间
+                            {
+                                m_blocks[i, j].EatDelay = 0;
+                                m_blocks[i, j].m_animation.Play("Eat");
+                            }
+                        }
                         //UIDrawer.Singleton.DrawNumber("Score" + (j * 10 + i), (int)m_blocks[i, j].m_blockTransform.localPosition.x, -(int)m_blocks[i, j].m_blockTransform.localPosition.y, 60, "BaseNum", 15, 4);
                     }
                 }
@@ -799,7 +807,7 @@ public class GameLogic {
         }
 
         AddProgress(CapsConfig.FruitDropDown, x, y);
-        m_blocks[x, y].Eat();
+        m_blocks[x, y].Eat(0);
         //MakeSpriteFree(x, y);           //离开点吃掉坚果
     }
 
@@ -1795,7 +1803,7 @@ public class GameLogic {
         }
     }
 
-    void EatBlock(Position position)
+    void EatBlock(Position position, float delay = 0)
     {
         if (position.x >= BlockCountX || position.y >= BlockCountY || position.x < 0 || position.y < 0)
             return;
@@ -1822,7 +1830,7 @@ public class GameLogic {
         if (m_blocks[position.x, position.y].x_move > 0 || m_blocks[position.x, position.y].y_move > 0)     //正在移动的不能消除
             return;
 
-        m_blocks[position.x, position.y].Eat();			//吃掉当前块
+        m_blocks[position.x, position.y].Eat(delay);			//吃掉当前块
 
         switch (m_blocks[position.x, position.y].special)
         {
@@ -1867,8 +1875,8 @@ public class GameLogic {
                 {
                     for (int i = 0; i < BlockCountX; ++i )
                     {
-                        EatBlock(GoTo(position, TDirection.EDir_Down, i));
-                        EatBlock(GoTo(position, TDirection.EDir_Up, i));
+                        EatBlock(GoTo(position, TDirection.EDir_Down, i), i * 0.1f);
+                        EatBlock(GoTo(position, TDirection.EDir_Up, i), i * 0.1f);
                     }
                     AddPartile("Dir0Effect", position.x, position.y);
                 }
@@ -1877,8 +1885,8 @@ public class GameLogic {
                 {
                     for (int i = 1; i < BlockCountX - 1; ++i)
                     {
-                        EatBlock(GoTo(position, TDirection.EDir_UpRight, i));
-                        EatBlock(GoTo(position, TDirection.EDir_LeftDown, i));
+                        EatBlock(GoTo(position, TDirection.EDir_UpRight, i), i * 0.1f);
+                        EatBlock(GoTo(position, TDirection.EDir_LeftDown, i), i * 0.1f);
                     }
                     AddPartile("Dir1Effect", position.x, position.y);
                 }
@@ -1887,8 +1895,8 @@ public class GameLogic {
                 {
                     for (int i = 0; i < BlockCountX; ++i)
                     {
-                        EatBlock(GoTo(position, TDirection.EDir_LeftUp, i));
-                        EatBlock(GoTo(position, TDirection.EDir_DownRight, i));
+                        EatBlock(GoTo(position, TDirection.EDir_LeftUp, i), i * 0.1f);
+                        EatBlock(GoTo(position, TDirection.EDir_DownRight, i), i * 0.1f);
                     }
                     AddPartile("Dir2Effect", position.x, position.y);
                 }
@@ -1901,7 +1909,10 @@ public class GameLogic {
                 break;
         }
 
-        m_blocks[position.x, position.y].m_animation.Play("Eat");
+        if (delay == 0)
+        {
+            m_blocks[position.x, position.y].m_animation.Play("Eat");
+        }
         AddPartile("EatEffect", position.x, position.y);
     }
 
@@ -2197,7 +2208,7 @@ public class GameLogic {
             p.y = (y - gameAreaY - BLOCKHEIGHT / 2) / BLOCKHEIGHT;
 	    else
             p.y = (y - gameAreaY) / BLOCKHEIGHT;
-	    if(p.y>BlockCountY)p.y=BlockCountY;
+	    if(p.y>=BlockCountY)p.y=BlockCountY-1;
 
         //如果选中一个状态处于不可移动的块，或者一个特殊块，置选中标志为空，返回
         if (m_blocks[p.x, p.y] == null || !m_blocks[p.x, p.y].SelectAble())
@@ -2342,7 +2353,7 @@ public class GameLogic {
             else if ((special0 == TSpecialBlock.ESpecial_EatAColor && special1 == TSpecialBlock.ESpecial_Normal) ||
                 (special1 == TSpecialBlock.ESpecial_EatAColor && special0 == TSpecialBlock.ESpecial_Normal))
             {
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat(); //自己消失
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat(0); //自己消失
                 EatAColor(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color);
             }
 
@@ -2398,17 +2409,17 @@ public class GameLogic {
             else if (special1 == TSpecialBlock.ESpecial_Bomb && special0 == TSpecialBlock.ESpecial_EatAColor)                //炸弹和彩虹交换，相同颜色变炸弹
             {
 				m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
-				m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();
+				m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat(0);
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
-				m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();
+				m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat(0);
                 ChangeColorToBomb(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color);
             }
             else if (special0 == TSpecialBlock.ESpecial_Bomb && special1 == TSpecialBlock.ESpecial_Bomb)
             {
                 m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
-				m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();
+				m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat(0);
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
-				m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();
+				m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat(0);
                 BigBomb(m_selectedPos[1]);
             }
             else

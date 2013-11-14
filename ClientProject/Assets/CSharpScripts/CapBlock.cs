@@ -101,6 +101,7 @@ public class CapBlock
     public bool isLocked;                       //是否被锁定
     public TSpecialBlock special;				//特殊功能块
     public int id;                              //一个唯一id, 用来标识块
+    public float EatDelay;
 
     public Animation m_animation;
     public UISprite m_blockSprite;		//精灵动画
@@ -110,11 +111,12 @@ public class CapBlock
     public static int EatingBlockCount = 0;     //正在消除的块的数量
     public static int DropingBlockCount = 0;    //下落中的块的数量
 
-    public void Eat()							//吃掉这个块
+    public void Eat(float delay)							//吃掉这个块
 	{
 		m_bEating = true;
-        m_eatStartTime = Timer.GetRealTimeSinceStartUp();
+        m_eatStartTime = Timer.GetRealTimeSinceStartUp() + delay;
         ++EatingBlockCount;
+        EatDelay = delay;
 	}
 
     public bool IsEating()

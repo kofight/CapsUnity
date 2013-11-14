@@ -48,7 +48,7 @@ public class UIGameBottom : UIWindowNGUI
         }
         else
         {
-            m_speedSlider.gameObject.SetActive(true);
+            m_speedSlider.gameObject.SetActive(false);
             m_speedLabel.gameObject.SetActive(false);
         }
     }
@@ -89,7 +89,7 @@ public class UIGameBottom : UIWindowNGUI
         UIDrawer.Singleton.DefaultAnchor = UIWindowManager.Anchor.Bottom;
         if (GlobalVars.CurStageData.StepLimit > 0)          //限制步数的关卡
         {
-            UIDrawer.Singleton.DrawNumber("SetpLimit", -134, -170, GlobalVars.CurGameLogic.PlayingStageData.StepLimit, "", 24);
+            UIDrawer.Singleton.DrawNumber("SetpLimit", -100, -114, GlobalVars.CurGameLogic.PlayingStageData.StepLimit, "", 24);
         }
         if (GlobalVars.CurStageData.TimeLimit > 0)          //限制时间的关卡
         {
@@ -97,13 +97,13 @@ public class UIGameBottom : UIWindowNGUI
             int ticksToGetHeart = CapsConfig.Instance.GetHeartInterval * 1000 - ticks;
             int min = (int)GlobalVars.CurGameLogic.GetTimeRemain() / 60;
             int second = (int)GlobalVars.CurGameLogic.GetTimeRemain() % 60;
-            UIDrawer.Singleton.DrawNumber("MinutesLeft", -180, -170, min, "", 24);
-            UIDrawer.Singleton.DrawSprite("TimeColon", -112, -170, "colon");
-            UIDrawer.Singleton.DrawNumber("SecondsLeft", -120, -170, second, "", 24);
+            UIDrawer.Singleton.DrawNumber("MinutesLeft", -160, -114, min, "", 24);
+            UIDrawer.Singleton.DrawSprite("TimeColon", -92, -114, "colon");
+            UIDrawer.Singleton.DrawNumber("SecondsLeft", -100, -114, second, "", 24);
         }
 
         //绘制分数
-        UIDrawer.Singleton.DrawNumber("ScoreText", 90, -170, GlobalVars.CurGameLogic.GetProgress(), "", 24, 7);
+        UIDrawer.Singleton.DrawNumber("ScoreText", 110, -114, GlobalVars.CurGameLogic.GetProgress(), "", 24, 7);
         UIDrawer.Singleton.DefaultAnchor = UIWindowManager.Anchor.TopLeft;
     }
 

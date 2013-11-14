@@ -831,9 +831,9 @@ public class GameLogic {
                     {
                             Position leftDown = GoTo(new Position(i, j), TDirection.EDir_DownRight, 1);
                             Position rightDown = GoTo(new Position(i, j), TDirection.EDir_LeftDown, 1);
-                            if (!CheckPosCanDropDown(i, j + 1)
-                                && (CheckPosAvailable(leftDown) && !CheckPosCanDropDown(leftDown.x, leftDown.y))
-                                && (CheckPosAvailable(rightDown) &&!CheckPosCanDropDown(rightDown.x, rightDown.y)))
+                            if (!CheckPosCanDropDown(i, j + 1)          //
+                                && !CheckPosCanDropDown(leftDown.x, leftDown.y)
+                                && !CheckPosCanDropDown(rightDown.x, rightDown.y))
                             {
                                 if(EatLine(new Position(i, j)))
 								{
@@ -1268,6 +1268,7 @@ public class GameLogic {
                 {
                     bDrop = true;
                     bNewSpace = true;                       //有新空间形成
+                    break;
                 }
             }
         }

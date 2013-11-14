@@ -1464,7 +1464,7 @@
 	"spriteSourceSize": {"x":2,"y":14,"w":5,"h":5},
 	"sourceSize": {"w":9,"h":23}
 },
-"backSlash.png":
+"backslash.png":
 {
 	"frame": {"x":2023,"y":620,"w":22,"h":32},
 	"rotated": false,
@@ -1495,6 +1495,6 @@
 	"format": "RGBA8888",
 	"size": {"w":2048,"h":2048},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:c03f8348a11250d2eeacccf633762275$"
+	"smartupdate": "$TexturePacker:SmartUpdate:e0352b6fb6641b4d77373f0caa702b7e$"
 }
 }

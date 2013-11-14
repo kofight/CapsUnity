@@ -9,7 +9,6 @@ public class UILogin : UIWindowNGUI
         base.OnCreate();
 
         AddChildComponentMouseClick("PlayBtn", OnPlayBtnClick);
-        AddChildComponentMouseClick("LoginBtn", OnLoginBtnClick);
         AddChildComponentMouseClick("ClearBtn", delegate(object sender, UIMouseClick.ClickArgs e)
         {
             PlayerPrefs.DeleteAll();            //删除进度
@@ -39,12 +38,5 @@ public class UILogin : UIWindowNGUI
         UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
         UIWindowManager.Singleton.GetUIWindow<UIMap>().ShowWindow();
         LoginState.Instance.CurFlow = TLoginFlow.LoginFlow_Map;         //切换流程到显示地图
-    }
-
-    private void OnLoginBtnClick(object sender, UIMouseClick.ClickArgs e)
-    {
-        //HideWindow();                                                   //隐藏窗口
-        //LoginState.Instance.CurFlow = TLoginFlow.LoginFlow_Map;         //切换流程到显示地图
-
     }
 }

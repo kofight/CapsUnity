@@ -169,7 +169,7 @@ public class GameLogic {
     public static float ShowNoPossibleExhangeTextTime = 1.0f;      //没有可交换的块显示，持续1秒钟
     public static int StepRewardInterval = 500;             //步数奖励的时间间隔
     public static int SugarCrushAnimTime = 1200;            //SugarCrush动画的时间长度
-
+    public static float EatLineEffectDelayInterval = 0.1f;  //条消特效的间隔
 
 
     ///游戏逻辑变量/////////////////////////////////////////////////////////////////
@@ -663,8 +663,8 @@ public class GameLogic {
                         {
                             if (Timer.GetRealTimeSinceStartUp() > m_blocks[i, j].m_eatStartTime)        //到达了开始时间
                             {
+                                DoEat(new Position(i, j));
                                 m_blocks[i, j].EatDelay = 0;
-                                m_blocks[i, j].m_animation.Play("Eat");
                             }
                         }
                         //UIDrawer.Singleton.DrawNumber("Score" + (j * 10 + i), (int)m_blocks[i, j].m_blockTransform.localPosition.x, -(int)m_blocks[i, j].m_blockTransform.localPosition.y, 60, "BaseNum", 15, 4);
@@ -1803,40 +1803,18 @@ public class GameLogic {
         }
     }
 
-    void EatBlock(Position position, float delay = 0)
+    void DoEat(Position position)
     {
-        if (position.x >= BlockCountX || position.y >= BlockCountY || position.x < 0 || position.y < 0)
-            return;
-		
-		if(m_tempBlocks[position.x, position.y] == 0)
-        	m_tempBlocks[position.x, position.y] = 1;       //记录吃块，用来改变Grid属性
-		
-		if (m_blocks[position.x, position.y] == null) return;
-
-        if (m_blocks[position.x, position.y].isDropping)
-        {
-            return;
-        }
-
-        if (m_blocks[position.x, position.y].IsEating())        //不重复消除
-        {
-            return;
-        }
+        if (m_tempBlocks[position.x, position.y] == 0)
+            m_tempBlocks[position.x, position.y] = 1;       //记录吃块，用来改变Grid属性
 
         if (PlayingStageData.CheckFlag(position.x, position.y, GridFlag.Cage)) return;                       //有笼子的块不消(先消笼子)
-
-        if (m_blocks[position.x, position.y].color > TBlockColor.EColor_Grey) return;                        //
-
-        if (m_blocks[position.x, position.y].x_move > 0 || m_blocks[position.x, position.y].y_move > 0)     //正在移动的不能消除
-            return;
-
-        m_blocks[position.x, position.y].Eat(delay);			//吃掉当前块
 
         switch (m_blocks[position.x, position.y].special)
         {
             case TSpecialBlock.ESpecial_Bomb:
                 {
-                    for (TDirection dir = TDirection.EDir_Up; dir <= TDirection.EDir_LeftUp; ++dir )
+                    for (TDirection dir = TDirection.EDir_Up; dir <= TDirection.EDir_LeftUp; ++dir)
                     {
                         //TODO 这里要放特效
                         Position newPos = GoTo(position, dir, 1);
@@ -1856,16 +1834,16 @@ public class GameLogic {
             case TSpecialBlock.ESpecial_Painter:
                 {
                     Position[] excludePos = new Position[4];
-                    for (int i = 0; i < 4; ++i )
+                    for (int i = 0; i < 4; ++i)
                     {
                         excludePos[i] = position;           //先用当前位置初始化排除的位置数组
                     }
-                    for (int i = 0; i < 3; ++i )            //取得随机点
+                    for (int i = 0; i < 3; ++i)            //取得随机点
                     {
                         excludePos[i + 1] = FindRandomPos(m_blocks[position.x, position.y].color, excludePos);
                     }
                     //TODO 这里要放特效
-                    for (int i = 1; i < 4; ++i )
+                    for (int i = 1; i < 4; ++i)
                     {
                         ChangeColor(excludePos[i], m_blocks[position.x, position.y].color);
                     }
@@ -1873,10 +1851,10 @@ public class GameLogic {
                 break;
             case TSpecialBlock.ESpecial_EatLineDir0:
                 {
-                    for (int i = 0; i < BlockCountX; ++i )
+                    for (int i = 0; i < BlockCountX; ++i)
                     {
-                        EatBlock(GoTo(position, TDirection.EDir_Down, i), i * 0.1f);
-                        EatBlock(GoTo(position, TDirection.EDir_Up, i), i * 0.1f);
+                        EatBlock(GoTo(position, TDirection.EDir_Down, i), i * EatLineEffectDelayInterval);
+                        EatBlock(GoTo(position, TDirection.EDir_Up, i), i * EatLineEffectDelayInterval);
                     }
                     AddPartile("Dir0Effect", position.x, position.y);
                 }
@@ -1885,8 +1863,8 @@ public class GameLogic {
                 {
                     for (int i = 1; i < BlockCountX - 1; ++i)
                     {
-                        EatBlock(GoTo(position, TDirection.EDir_UpRight, i), i * 0.1f);
-                        EatBlock(GoTo(position, TDirection.EDir_LeftDown, i), i * 0.1f);
+                        EatBlock(GoTo(position, TDirection.EDir_UpRight, i), i * EatLineEffectDelayInterval);
+                        EatBlock(GoTo(position, TDirection.EDir_LeftDown, i), i * EatLineEffectDelayInterval);
                     }
                     AddPartile("Dir1Effect", position.x, position.y);
                 }
@@ -1895,8 +1873,8 @@ public class GameLogic {
                 {
                     for (int i = 0; i < BlockCountX; ++i)
                     {
-                        EatBlock(GoTo(position, TDirection.EDir_LeftUp, i), i * 0.1f);
-                        EatBlock(GoTo(position, TDirection.EDir_DownRight, i), i * 0.1f);
+                        EatBlock(GoTo(position, TDirection.EDir_LeftUp, i), i * EatLineEffectDelayInterval);
+                        EatBlock(GoTo(position, TDirection.EDir_DownRight, i), i * EatLineEffectDelayInterval);
                     }
                     AddPartile("Dir2Effect", position.x, position.y);
                 }
@@ -1909,11 +1887,35 @@ public class GameLogic {
                 break;
         }
 
+        m_blocks[position.x, position.y].m_animation.Play("Eat");
+        AddPartile("EatEffect", position.x, position.y);
+    }
+
+    void EatBlock(Position position, float delay = 0)
+    {
+        if (position.x >= BlockCountX || position.y >= BlockCountY || position.x < 0 || position.y < 0)
+            return;
+		
+		if (m_blocks[position.x, position.y] == null) return;
+
+        if (m_blocks[position.x, position.y].isDropping)
+        {
+            return;
+        }
+
+        if (m_blocks[position.x, position.y].IsEating())        //不重复消除
+        {
+            return;
+        }
+
+        if (m_blocks[position.x, position.y].color > TBlockColor.EColor_Grey) return;                        //
+
+        m_blocks[position.x, position.y].Eat(delay);			//吃掉当前块
+
         if (delay == 0)
         {
-            m_blocks[position.x, position.y].m_animation.Play("Eat");
+            DoEat(position);
         }
-        AddPartile("EatEffect", position.x, position.y);
     }
 
     public void AddPartile(string name, int x, int y)

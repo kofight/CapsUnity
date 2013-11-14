@@ -901,7 +901,7 @@ public class GameLogic {
         DrawGraphics();     //绘制图形
 
         //处理帮助
-        if (m_gameFlow == TGameFlow.EGameState_Playing && m_lastHelpTime > 0)      //下落完成的状态
+        if (m_gameFlow == TGameFlow.EGameState_Playing && m_dropingBlockCount == 0 &&m_lastHelpTime > 0)      //下落完成的状态
         {
             if (!helpP1.IsAvailable())     //还没找帮助点
             {
@@ -1779,15 +1779,17 @@ public class GameLogic {
             {
                 m_blocks[helpP1.x, helpP1.y].m_animation.Stop();
                 m_blocks[helpP1.x, helpP1.y].m_animation.transform.localScale = new Vector3(GameLogic.BlockScale, GameLogic.BlockScale, 1.0f);          //恢复缩放
+                m_blocks[helpP1.x, helpP1.y].m_addColorTranform.renderer.material.SetColor("_TintColor", new Color(0, 0, 0, 0));
             }
             if (m_blocks[helpP2.x, helpP2.y] != null)
             {
                 m_blocks[helpP2.x, helpP2.y].m_animation.Stop();
                 m_blocks[helpP2.x, helpP2.y].m_animation.transform.localScale = new Vector3(GameLogic.BlockScale, GameLogic.BlockScale, 1.0f);          //恢复缩放
+                m_blocks[helpP2.x, helpP2.y].m_addColorTranform.renderer.material.SetColor("_TintColor", new Color(0, 0, 0, 0));
             }
-            m_lastHelpTime = 0;                          //清除dropDownEnd的时间记录
             helpP1.MakeItUnAvailable();                                  //清除帮助点
             helpP2.MakeItUnAvailable();                                  //清除帮助点
+			m_lastHelpTime = Timer.GetRealTimeSinceStartUp();
         }
     }
 

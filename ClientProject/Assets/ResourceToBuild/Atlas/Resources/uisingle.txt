@@ -88,14 +88,6 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":640,"h":1136},
 	"sourceSize": {"w":640,"h":1136}
 },
-"BackSlash.png":
-{
-	"frame": {"x":2023,"y":620,"w":22,"h":32},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":3,"y":5,"w":22,"h":32},
-	"sourceSize": {"w":30,"h":40}
-},
 "BaseNum0.png":
 {
 	"frame": {"x":2021,"y":900,"w":24,"h":27},
@@ -1472,6 +1464,14 @@
 	"spriteSourceSize": {"x":2,"y":14,"w":5,"h":5},
 	"sourceSize": {"w":9,"h":23}
 },
+"backSlash.png":
+{
+	"frame": {"x":2023,"y":620,"w":22,"h":32},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":3,"y":5,"w":22,"h":32},
+	"sourceSize": {"w":30,"h":40}
+},
 "colon.png":
 {
 	"frame": {"x":1351,"y":1150,"w":12,"h":22},
@@ -1495,6 +1495,6 @@
 	"format": "RGBA8888",
 	"size": {"w":2048,"h":2048},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:3fba7a5c6ed7b3999483d2469134bcfd$"
+	"smartupdate": "$TexturePacker:SmartUpdate:c03f8348a11250d2eeacccf633762275$"
 }
 }

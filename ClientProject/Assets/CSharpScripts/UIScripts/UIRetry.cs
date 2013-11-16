@@ -151,6 +151,12 @@ public class UIRetry : UIWindowNGUI
     public override void OnUpdate()
     {
         base.OnUpdate();
+        if (uiWindowState == UIWindowStateEnum.Show)
+        {
+            UIDrawer.Singleton.DefaultAnchor = UIWindowManager.Anchor.Center;
+            UIDrawer.Singleton.DrawNumber("ScoreTarget", 0, -92, GlobalVars.CurStageData.StarScore[2], "", 22);
+            UIDrawer.Singleton.DefaultAnchor = UIWindowManager.Anchor.TopLeft;
+        }
     }
 
     private void OnRetryClicked(object sender, UIMouseClick.ClickArgs e)

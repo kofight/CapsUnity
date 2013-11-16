@@ -437,6 +437,11 @@ public class GameLogic
                     continue;
                 }
 
+                if (m_blocks[i, j].color > TBlockColor.EColor_Grey)                        //坚果
+                {
+                    continue;
+                }
+
                 m_blocks[i, j] = blocks[array[count].x, array[count].y];        //把随机内容取出来保存上
                 ++count;
             }

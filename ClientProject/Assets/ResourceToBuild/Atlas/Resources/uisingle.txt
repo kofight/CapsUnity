@@ -80,7 +80,7 @@
 	"spriteSourceSize": {"x":3,"y":6,"w":22,"h":30},
 	"sourceSize": {"w":30,"h":40}
 },
-"Background.jpg":
+"BackGround.jpg":
 {
 	"frame": {"x":644,"y":2,"w":640,"h":1136},
 	"rotated": false,
@@ -1519,6 +1519,6 @@
 	"format": "RGBA8888",
 	"size": {"w":2048,"h":2048},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:751d58ddf2696fd29fc963661485b5f0$"
+	"smartupdate": "$TexturePacker:SmartUpdate:9fef88b8fd8dbf2eabded213fc4cba58$"
 }
 }

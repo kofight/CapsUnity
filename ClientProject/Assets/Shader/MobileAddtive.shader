@@ -17,7 +17,7 @@
 	
     SubShader {
         Pass {
-            Lighting Off
+            Lighting On
             SetTexture [_MainTex] {
                 // Pull the color property into this blender
                 constantColor [_TintColor]

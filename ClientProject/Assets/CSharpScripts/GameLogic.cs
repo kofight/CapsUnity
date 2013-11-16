@@ -297,22 +297,15 @@ public class GameLogic
         m_gridBackImage[x, y].layer0.transform.localScale = m_gridInstance.transform.localScale;
         if (PlayingStageData.CheckFlag(x, y, GridFlag.Jelly))
         {
-            m_gridBackImage[x, y].layer0.spriteName = "Jelly";
+            m_gridBackImage[x, y].layer0.spriteName = "Jelly" + ((y + (x % 2)) % 3); ;
         }
         else if (PlayingStageData.CheckFlag(x, y, GridFlag.JellyDouble))
         {
-            m_gridBackImage[x, y].layer0.spriteName = "JellyDouble";
+            m_gridBackImage[x, y].layer0.spriteName = "JellyDouble" + ((y + (x % 2)) % 3); ;
         }
         else
         {
-            if (x % 2 == 0)
-            {
-                m_gridBackImage[x, y].layer0.spriteName = "Grid" + (y % 3);
-            }
-            else
-            {
-                m_gridBackImage[x, y].layer0.spriteName = "Grid" + ((y + 1) % 3);
-            }
+            m_gridBackImage[x, y].layer0.spriteName = "Grid" + ((y + (x % 2)) % 3);
         }
 
         m_gridBackImage[x, y].layer0.transform.localPosition = new Vector3(GetXPos(x), -GetYPos(x, y), 0);

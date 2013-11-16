@@ -302,7 +302,14 @@ public class GameLogic
         }
         else
         {
-            m_gridBackImage[x, y].layer0.spriteName = "Grid";
+            if (x % 2 == 0)
+            {
+                m_gridBackImage[x, y].layer0.spriteName = "Grid" + (y % 3);
+            }
+            else
+            {
+                m_gridBackImage[x, y].layer0.spriteName = "Grid" + ((y + 1) % 3);
+            }
         }
 
         m_gridBackImage[x, y].layer0.transform.localPosition = new Vector3(GetXPos(x), -GetYPos(x, y), 0);

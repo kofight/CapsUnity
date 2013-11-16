@@ -441,7 +441,6 @@ public class GameLogic
                 ++count;
             }
         }
-
     }
 
     void Permute<T>(T[] array, int count)
@@ -2495,13 +2494,16 @@ public class GameLogic
                     pos.Set(startPos.x, startPos.y - 1);
                     EatBlock(GoTo(pos, TDirection.EDir_UpRight, i));
                     EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i));
-                    AddPartile("Dir1BigEffect", startPos.x, startPos.y);
-                }
-                else
-                {
-                    AddPartile("Dir1Effect", startPos.x, startPos.y);
                 }
             }
+			if (extraEat)
+			{
+				AddPartile("Dir1BigEffect", startPos.x, startPos.y);
+			}
+			else
+			{
+				AddPartile("Dir1Effect", startPos.x, startPos.y);
+			}
         }
         if (dir == -1 || dir == (int)TSpecialBlock.ESpecial_EatLineDir0)
         {
@@ -2519,12 +2521,16 @@ public class GameLogic
                     pos.Set(startPos.x - 1, startPos.y);
                     EatBlock(GoTo(pos, TDirection.EDir_Up, i));
                     EatBlock(GoTo(pos, TDirection.EDir_Down, i));
-                    AddPartile("Dir0BigEffect", startPos.x, startPos.y);
                 }
-                else
-                {
-                    AddPartile("Dir0Effect", startPos.x, startPos.y);
-                }
+				
+				if (extraEat)
+				{
+					AddPartile("Dir0BigEffect", startPos.x, startPos.y);
+				}
+				else
+				{
+					AddPartile("Dir0Effect", startPos.x, startPos.y);
+				}
             }
         }
         if (dir == -1 || dir == (int)TSpecialBlock.ESpecial_EatLineDir2)
@@ -2544,12 +2550,15 @@ public class GameLogic
                     pos.Set(startPos.x, startPos.y - 1);
                     EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i));
                     EatBlock(GoTo(pos, TDirection.EDir_DownRight, i));
-                    AddPartile("Dir2BigEffect", startPos.x, startPos.y);
                 }
-                else
-                {
-                    AddPartile("Dir2Effect", startPos.x, startPos.y);
-                }
+				if (extraEat)
+				{
+					AddPartile("Dir2BigEffect", startPos.x, startPos.y);
+				}
+				else
+				{
+					AddPartile("Dir2Effect", startPos.x, startPos.y);
+				}
             }
         }
     }

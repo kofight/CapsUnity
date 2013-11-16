@@ -7,3 +7,7 @@ EatTime                     0.33
 MoveTime                    240
 Version                     Pre-Alpha-0.1
 GetHeartInterval            1800
+
+BLOCKWIDTH                  65.0
+BLOCKHEIGHT                 75.05553
+BLOCKSCALE                  58.0

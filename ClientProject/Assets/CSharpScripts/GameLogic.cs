@@ -172,7 +172,7 @@ public class GameLogic
     public static float CheckAvailableTimeInterval = 1.0f;       //1秒钟后尝试找是否有可消块
     public static float ShowHelpTimeInterval = 5.0f;       //5秒钟后显示可消块
     public static float ShowNoPossibleExhangeTextTime = 1.0f;      //没有可交换的块显示，持续1秒钟
-    public static int StepRewardInterval = 500;             //步数奖励的时间间隔
+    public static int StepRewardInterval = 300;             //步数奖励的时间间隔
     public static int SugarCrushAnimTime = 1200;            //SugarCrush动画的时间长度
 
 

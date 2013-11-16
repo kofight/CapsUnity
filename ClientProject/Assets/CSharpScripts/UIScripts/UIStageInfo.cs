@@ -12,6 +12,18 @@ public class UIStageInfo : UIWindowNGUI
     public override void OnShow()
     {
         base.OnShow();
+        for (int i = 0; i < 3; ++i )
+        {
+            UISprite star = GetChildComponent<UISprite>("Star" + (i + 1));
+            if (GlobalVars.StageStarArray[GlobalVars.CurStageNum - 1] > i)
+            {
+                star.spriteName = "Star_Large";
+            }
+            else
+            {
+				star.spriteName = "Grey_Star_Large";
+            }
+        }
     }
     public override void OnUpdate()
     {

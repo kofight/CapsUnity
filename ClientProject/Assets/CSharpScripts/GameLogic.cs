@@ -1150,7 +1150,14 @@ public class GameLogic
                         PlayingStageData.ClearFlag(i, j, GridFlag.Jelly);
                         AddPartile("JellyEffect", i, j);
                         AddProgress(CapsConfig.EatJelly, i, j);
-                        m_gridBackImage[i, j].layer0.spriteName = "Grid";
+                        if (i % 2 == 0)
+                        {
+                            m_gridBackImage[i, j].layer0.spriteName = "Grid" + (j % 3);
+                        }
+                        else
+                        {
+                            m_gridBackImage[i, j].layer0.spriteName = "Grid" + ((j + 1) % 3);
+                        }
                     }
 
                     ClearChocolateAround(i, j);

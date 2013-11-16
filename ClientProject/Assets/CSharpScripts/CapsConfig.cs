@@ -80,6 +80,10 @@ public class CapsConfig
         _config.GetValue<int>("MoveTime", out MoveTime);
         _config.GetValue<int>("GetHeartInterval", out GetHeartInterval);
         _config.GetValue<string>("version", out version);
+
+        _config.GetValue<float>("BLOCKWIDTH", out GameLogic.BLOCKWIDTH);
+        _config.GetValue<float>("BLOCKHEIGHT", out GameLogic.BLOCKHEIGHT);
+        _config.GetValue<float>("BLOCKSCALE", out GameLogic.BlockScale);
     }
 
     /// <summary>
@@ -122,6 +126,10 @@ public class CapsConfig
         _config.Write("MoveTime", MoveTime);
         _config.Write("version", version);
         _config.Write("GetHeartInterval", GetHeartInterval);
+
+        _config.Write("BLOCKWIDTH", GameLogic.BLOCKWIDTH);
+        _config.Write("BLOCKHEIGHT", GameLogic.BLOCKHEIGHT);
+        _config.Write("BLOCKSCALE", GameLogic.BlockScale);
     }
 
     public void ReadDefault()

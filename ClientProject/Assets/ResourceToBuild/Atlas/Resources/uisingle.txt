@@ -274,7 +274,7 @@
 },
 "Cage.png":
 {
-	"frame": {"x":928,"y":1943,"w":108,"h":95},
+	"frame": {"x":1258,"y":1943,"w":108,"h":95},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":108,"h":95},
@@ -378,10 +378,10 @@
 },
 "Grid.png":
 {
-	"frame": {"x":1258,"y":1943,"w":108,"h":93},
+	"frame": {"x":1148,"y":1943,"w":108,"h":95},
 	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":0,"y":1,"w":108,"h":93},
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":108,"h":95},
 	"sourceSize": {"w":108,"h":95}
 },
 "HeadBoard.png":
@@ -626,18 +626,18 @@
 },
 "Jelly.png":
 {
-	"frame": {"x":1148,"y":1943,"w":108,"h":93},
+	"frame": {"x":1038,"y":1943,"w":108,"h":95},
 	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":0,"y":1,"w":108,"h":93},
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":108,"h":95},
 	"sourceSize": {"w":108,"h":95}
 },
 "JellyDouble.png":
 {
-	"frame": {"x":1038,"y":1943,"w":108,"h":93},
+	"frame": {"x":928,"y":1943,"w":108,"h":95},
 	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":0,"y":1,"w":108,"h":93},
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":108,"h":95},
 	"sourceSize": {"w":108,"h":95}
 },
 "Kiwifruit_Icon.png":
@@ -1495,6 +1495,6 @@
 	"format": "RGBA8888",
 	"size": {"w":2048,"h":2048},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:e0352b6fb6641b4d77373f0caa702b7e$"
+	"smartupdate": "$TexturePacker:SmartUpdate:120659245a79c5040467c8b094b2169d$"
 }
 }

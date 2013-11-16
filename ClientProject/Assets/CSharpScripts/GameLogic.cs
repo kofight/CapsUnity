@@ -151,13 +151,13 @@ public class GameLogic
 {
     public static int BlockCountX = 9;	//游戏区有几列
     public static int BlockCountY = 9;	//游戏区有几行
-    public static int BLOCKWIDTH = 65;      //宽度
-    public static int BLOCKHEIGHT = 75;     //高度
+    public static float BLOCKWIDTH = 65;      //宽度
+    public static float BLOCKHEIGHT = 75.05553f;     //高度
     public static float BlockScale = 58.0f; //
     public static int gameAreaX = 10;		//游戏区域左上角坐标
     public static int gameAreaY = 90;		//游戏区域左上角坐标
-    public static int gameAreaWidth = BLOCKWIDTH * BlockCountX;	//游戏区域宽度
-    public static int gameAreaHeight = BLOCKHEIGHT * BlockCountY + BLOCKHEIGHT / 2;//游戏区域高度
+    public static float gameAreaWidth = BLOCKWIDTH * BlockCountX;	//游戏区域宽度
+    public static float gameAreaHeight = BLOCKHEIGHT * BlockCountY + BLOCKHEIGHT / 2;//游戏区域高度
     public static int TotalColorCount = 7;
     public static int PROGRESSTOWIN = 2000;
     public static float DROP_ACC = 5.0f;        //下落加速度
@@ -607,12 +607,12 @@ public class GameLogic
 
     int GetXPos(int x)
     {
-        return gameAreaX + x * BLOCKWIDTH + BLOCKWIDTH / 2;
+        return (int)(gameAreaX + x * BLOCKWIDTH + BLOCKWIDTH / 2);
     }
 
     int GetYPos(int x, int y)
     {
-        return gameAreaY + y * BLOCKHEIGHT + (x + 1) % 2 * BLOCKHEIGHT / 2 + BLOCKHEIGHT / 2;
+        return (int)(gameAreaY + y * BLOCKHEIGHT + (x + 1) % 2 * BLOCKHEIGHT / 2 + BLOCKHEIGHT / 2);
     }
 
     void DrawGraphics()
@@ -712,8 +712,8 @@ public class GameLogic
         {
             if (pair.Value.flag == 1)               //可见传送门
             {
-                UIDrawer.Singleton.DrawSprite("PortalStart" + pair.Key, GetXPos(pair.Value.from.x), GetYPos(pair.Value.from.x, pair.Value.from.y) + BLOCKHEIGHT / 2, "PortalStart", 3);
-                UIDrawer.Singleton.DrawSprite("PortalEnd" + pair.Key, GetXPos(pair.Value.to.x), GetYPos(pair.Value.to.x, pair.Value.to.y) - BLOCKHEIGHT / 2 + 15, "PortalEnd", 3);
+                UIDrawer.Singleton.DrawSprite("PortalStart" + pair.Key, GetXPos(pair.Value.from.x), GetYPos(pair.Value.from.x, pair.Value.from.y) + (int)BLOCKHEIGHT / 2, "PortalStart", 3);
+                UIDrawer.Singleton.DrawSprite("PortalEnd" + pair.Key, GetXPos(pair.Value.to.x), GetYPos(pair.Value.to.x, pair.Value.to.y) - (int)BLOCKHEIGHT / 2 + 15, "PortalEnd", 3);
             }
             else if (GlobalVars.EditStageMode)      //编辑器模式，画不可见传送门
             {
@@ -1187,32 +1187,32 @@ public class GameLogic
         if (from.x == -1 || to.x == -1) return;
         if (from.x != to.x)		//若x方向上的值不一样，就有x方向上的移动
         {
-            m_blocks[from.x, from.y].x_move = (to.x - from.x) * moveTime * BLOCKWIDTH / MOVE_TIME;
-            m_blocks[to.x, to.y].x_move = (from.x - to.x) * moveTime * BLOCKWIDTH / MOVE_TIME;
+            m_blocks[from.x, from.y].x_move = (int)((to.x - from.x) * moveTime * BLOCKWIDTH / MOVE_TIME);
+            m_blocks[to.x, to.y].x_move = (int)((from.x - to.x) * moveTime * BLOCKWIDTH / MOVE_TIME);
         }
         if (from.x - to.x == 0)
         {
-            m_blocks[from.x, from.y].y_move = (to.y - from.y) * moveTime * BLOCKHEIGHT / MOVE_TIME;
-            m_blocks[to.x, to.y].y_move = (from.y - to.y) * moveTime * BLOCKHEIGHT / MOVE_TIME;
+            m_blocks[from.x, from.y].y_move = (int)((to.y - from.y) * moveTime * BLOCKHEIGHT / MOVE_TIME);
+            m_blocks[to.x, to.y].y_move = (int)((from.y - to.y) * moveTime * BLOCKHEIGHT / MOVE_TIME);
         }
         else
         {
             if (from.y != to.y)
             {
-                m_blocks[from.x, from.y].y_move = (to.y - from.y) * moveTime * (BLOCKHEIGHT / 2) / MOVE_TIME;
-                m_blocks[to.x, to.y].y_move = (from.y - to.y) * moveTime * (BLOCKHEIGHT / 2) / MOVE_TIME;
+                m_blocks[from.x, from.y].y_move = (int)((to.y - from.y) * moveTime * (BLOCKHEIGHT / 2) / MOVE_TIME);
+                m_blocks[to.x, to.y].y_move = (int)((from.y - to.y) * moveTime * (BLOCKHEIGHT / 2) / MOVE_TIME);
             }
             else
             {
                 if (from.x % 2 == 0)
                 {
-                    m_blocks[from.x, from.y].y_move = 0 - moveTime * (BLOCKHEIGHT / 2) / MOVE_TIME;
-                    m_blocks[to.x, to.y].y_move = moveTime * (BLOCKHEIGHT / 2) / MOVE_TIME;
+                    m_blocks[from.x, from.y].y_move = (int)(0 - moveTime * (BLOCKHEIGHT / 2) / MOVE_TIME);
+                    m_blocks[to.x, to.y].y_move = (int)(moveTime * (BLOCKHEIGHT / 2) / MOVE_TIME);
                 }
                 else
                 {
-                    m_blocks[from.x, from.y].y_move = moveTime * (BLOCKHEIGHT / 2) / MOVE_TIME;
-                    m_blocks[to.x, to.y].y_move = 0 - moveTime * (BLOCKHEIGHT / 2) / MOVE_TIME;
+                    m_blocks[from.x, from.y].y_move = (int)(moveTime * (BLOCKHEIGHT / 2) / MOVE_TIME);
+                    m_blocks[to.x, to.y].y_move = (int)(0 - moveTime * (BLOCKHEIGHT / 2) / MOVE_TIME);
                 }
             }
         }
@@ -2082,11 +2082,11 @@ public class GameLogic
         }
 
         Position p = new Position();
-        p.x = (x - gameAreaX) / BLOCKWIDTH;
+        p.x = (int)((x - gameAreaX) / BLOCKWIDTH);
         if (p.x % 2 == 0)
-            p.y = (y - gameAreaY - BLOCKHEIGHT / 2) / BLOCKHEIGHT;
+            p.y = (int)((y - gameAreaY - BLOCKHEIGHT / 2) / BLOCKHEIGHT);
         else
-            p.y = (y - gameAreaY) / BLOCKHEIGHT;
+            p.y = (int)((y - gameAreaY) / BLOCKHEIGHT);
         if (p.y > BlockCountY) p.y = BlockCountY;
 
         if (GlobalVars.EditState == TEditState.ChangeColor)
@@ -2223,11 +2223,11 @@ public class GameLogic
         if (timerMoveBlock.GetState() == TimerEnum.ERunning) return;
 
         Position p = new Position();
-        p.x = (x - gameAreaX) / BLOCKWIDTH;
+        p.x = (int)((x - gameAreaX) / BLOCKWIDTH);
         if (p.x % 2 == 0)
-            p.y = (y - gameAreaY - BLOCKHEIGHT / 2) / BLOCKHEIGHT;
+            p.y = (int)((y - gameAreaY - BLOCKHEIGHT / 2) / BLOCKHEIGHT);
         else
-            p.y = (y - gameAreaY) / BLOCKHEIGHT;
+            p.y = (int)((y - gameAreaY) / BLOCKHEIGHT);
         if (p.y >= BlockCountY) p.y = BlockCountY - 1;
 
         //如果选中一个状态处于不可移动的块，或者一个特殊块，置选中标志为空，返回

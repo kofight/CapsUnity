@@ -4,7 +4,15 @@ TimeLimit			0
 ColorCount			6				
 Nut1Count			3				
 Nut2Count			3				
+NutInitCount			0				
+NutMaxCount			0				
+NutStep			0				
+PlusInitCount			0				
+PlusMaxCount			0				
+PlusStartTime			0				
+PlusStep			0				
+Seed			0				
 NewFormat			1				
-StarScore			0,0,0,				
+StarScore			3000,4000,5500,				
 GridDataArray			0,0,9,9,9,9,9,0,0,0,0,1,1,1,1,1,0,0,0,0,1,1,1,1,1,0,0,0,0,1,1,1,1,1,0,0,0,0,1,1,1,1,1,0,0,0,0,1,1,1,1,1,0,0,0,0,1,1,1,1,1,0,0,0,0,1,1,1,1,1,0,0,0,0,0,1,0,1,0,0,0,				
 PortalArray							

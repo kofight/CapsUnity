@@ -11,6 +11,7 @@ public class UIGameBottom : UIWindowNGUI
     UISprite stageBoard;
     UISlider m_speedSlider;
     UILabel m_speedLabel;
+    UIFilledSprite m_timeBar;
 
     public override void OnCreate()
     {
@@ -26,6 +27,8 @@ public class UIGameBottom : UIWindowNGUI
 
         m_speedSlider = GetChildComponent<UISlider>("SpeedSlider");
         m_speedLabel = GetChildComponent<UILabel>("SpeedLabel");
+
+        m_timeBar = GetChildComponent<UIFilledSprite>("TimeBar");
     }
     public override void OnShow()
     {
@@ -33,10 +36,12 @@ public class UIGameBottom : UIWindowNGUI
         if (GlobalVars.CurGameLogic.PlayingStageData.TimeLimit > 0)
         {
             stageBoard.spriteName = "TimeBoard";
+            m_timeBar.gameObject.SetActive(true);
         }
         else
         {
             stageBoard.spriteName = "StepBoard";
+            m_timeBar.gameObject.SetActive(false);
         }
 
         if (GlobalVars.DeveloperMode)
@@ -51,6 +56,8 @@ public class UIGameBottom : UIWindowNGUI
             m_speedSlider.gameObject.SetActive(false);
             m_speedLabel.gameObject.SetActive(false);
         }
+
+        
     }
 	
 	public void Reset()
@@ -93,13 +100,13 @@ public class UIGameBottom : UIWindowNGUI
         }
         if (GlobalVars.CurStageData.TimeLimit > 0)          //限制时间的关卡
         {
-            int ticks = (int)((System.DateTime.Now.Ticks - GlobalVars.GetHeartTime.Ticks) / 10000);
-            int ticksToGetHeart = CapsConfig.Instance.GetHeartInterval * 1000 - ticks;
             int min = (int)GlobalVars.CurGameLogic.GetTimeRemain() / 60;
             int second = (int)GlobalVars.CurGameLogic.GetTimeRemain() % 60;
             UIDrawer.Singleton.DrawNumber("MinutesLeft", -160, -114, min, "", 24);
             UIDrawer.Singleton.DrawSprite("TimeColon", -92, -114, "colon");
             UIDrawer.Singleton.DrawNumber("SecondsLeft", -100, -114, second, "", 24);
+
+            m_timeBar.fillAmount = GlobalVars.CurGameLogic.GetTimeRemain() / GlobalVars.CurStageData.TimeLimit;
         }
 
         //绘制分数

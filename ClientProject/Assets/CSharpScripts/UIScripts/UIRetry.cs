@@ -28,7 +28,7 @@ public class UIRetry : UIWindowNGUI
     public override void OnShow()
     {
         Transform nextBtn = UIToolkits.FindChild(mUIObject.transform, "NextLevelBtn");
-        if (GlobalVars.CurGameLogic.CheckStageFinish())         //检查关卡是否结束
+        if (GlobalVars.CurGameLogic.IsStageFinish())         //检查关卡是否结束
         {
             nextBtn.gameObject.SetActive(true);
         }

@@ -197,7 +197,6 @@ public class GameLogic
     //计时器
     Timer timerMoveBlock = new Timer();
 
-    int m_dropingBlockCount = 0;                            //正在下落的块的数量
     float m_lastHelpTime;
     float m_showNoPossibleExhangeTextTime = 0;              //显示
     Position helpP1, helpP2;
@@ -442,6 +441,7 @@ public class GameLogic
                 ++count;
             }
         }
+        Debug.Log("Auto Resort");
     }
 
     void Permute<T>(T[] array, int count)
@@ -761,7 +761,7 @@ public class GameLogic
             else
             {
                 m_gameStartTime = 0;
-                if (CheckStageFinish())
+                if (IsStageFinish())
                 {
                     UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();
                 }
@@ -919,7 +919,7 @@ public class GameLogic
         DrawGraphics();     //绘制图形
 
         //处理帮助
-        if (m_gameFlow == TGameFlow.EGameState_Playing && m_dropingBlockCount == 0 && m_lastHelpTime > 0)      //下落完成的状态
+        if (m_gameFlow == TGameFlow.EGameState_Playing && CapBlock.DropingBlockCount == 0 && m_lastHelpTime > 0)      //下落完成的状态
         {
             if (!helpP1.IsAvailable())     //还没找帮助点
             {
@@ -927,6 +927,7 @@ public class GameLogic
                 {
                     if (!Help())
                     {
+                        Debug.Log("Need Resort");
                         m_showNoPossibleExhangeTextTime = Timer.millisecondNow();                       //显示需要重排
                     }
                 }
@@ -974,7 +975,10 @@ public class GameLogic
             }
         }
 
-        // Profiler.EndSample();
+        if (m_gameFlow == TGameFlow.EGameState_Playing && GlobalVars.CurStageData.TimeLimit > 0 && CapBlock.DropingBlockCount == 0 && CapBlock.EatingBlockCount == 0)
+        {
+            ProcessCheckStageFinish();
+        }
     }
 
     public void ShowHelpAnim()
@@ -1991,7 +1995,7 @@ public class GameLogic
         return false;
     }
 
-    public bool CheckStageFinish()                  //检测关卡结束条件
+    public bool IsStageFinish()                  //检测关卡结束条件
     {
         if (PlayingStageData.Target == GameTarget.ClearJelly)       //若目标为清果冻，计算果冻数量
         {
@@ -2022,15 +2026,9 @@ public class GameLogic
         return false;
     }
 
-    void OnDropEnd()            //所有下落和移动结束时被调用
+    void ProcessCheckStageFinish()
     {
-        m_comboCount = 0;
-        if (m_gameFlow != TGameFlow.EGameState_Playing)
-        {
-            return;
-        }
-
-        if (CheckStageFinish())                 //检查关卡是否完成
+        if (IsStageFinish())                 //检查关卡是否完成
         {
             bool foundSpecial = false;
             for (int i = 0; i < BlockCountX; ++i)
@@ -2065,6 +2063,17 @@ public class GameLogic
             m_gameFlow = TGameFlow.EGameState_End;
             UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
         }
+    }
+
+    void OnDropEnd()            //所有下落和移动结束时被调用
+    {
+        m_comboCount = 0;
+        if (m_gameFlow != TGameFlow.EGameState_Playing)
+        {
+            return;
+        }
+
+        ProcessCheckStageFinish();
 
         m_lastHelpTime = Timer.GetRealTimeSinceStartUp();
     }
@@ -2254,6 +2263,11 @@ public class GameLogic
         }
 
         if (CapBlock.DropingBlockCount > 0)
+        {
+            return;
+        }
+
+        if (CapBlock.EatingBlockCount > 0)
         {
             return;
         }

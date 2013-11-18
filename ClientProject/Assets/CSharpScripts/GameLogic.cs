@@ -342,7 +342,7 @@ public class GameLogic
 
     public bool Help()                 //查找到一个可交换的位置
     {
-        m_lastHelpTime = 0;
+        m_lastHelpTime = Timer.GetRealTimeSinceStartUp();
         for (int i = 0; i < BlockCountX; ++i)
         {
             for (int j = 0; j < BlockCountY; ++j)

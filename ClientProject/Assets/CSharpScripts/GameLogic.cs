@@ -1824,7 +1824,8 @@ public class GameLogic
 
     void EatBlockWithoutTrigger(int x, int y, float delay)
     {
-
+        m_blocks[x, y].Eat(delay);
+        
     }
 
     void EatBlock(Position position, float delay = 0)                   //吃掉块，通过EatLine或特殊道具功能被调用，会触发被吃的块的功能

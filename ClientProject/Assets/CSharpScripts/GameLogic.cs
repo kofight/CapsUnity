@@ -816,8 +816,7 @@ public class GameLogic
         }
 
         AddProgress(CapsConfig.FruitDropDown, x, y);
-        m_blocks[x, y].Eat(0);
-        //MakeSpriteFree(x, y);           //离开点吃掉坚果
+        EatBlockWithoutTrigger(x, y, 0);
     }
 
     //处理下落完成后的判断////////////////////////////////////////////////////////////////////////
@@ -1823,7 +1822,12 @@ public class GameLogic
         }
     }
 
-    void EatBlock(Position position, float delay = 0)
+    void EatBlockWithoutTrigger(int x, int y, float delay)
+    {
+
+    }
+
+    void EatBlock(Position position, float delay = 0)                   //吃掉块，通过EatLine或特殊道具功能被调用，会触发被吃的块的功能
     {
         if (position.x >= BlockCountX || position.y >= BlockCountY || position.x < 0 || position.y < 0)
             return;
@@ -1850,7 +1854,7 @@ public class GameLogic
         if (m_blocks[position.x, position.y].x_move > 0 || m_blocks[position.x, position.y].y_move > 0)     //正在移动的不能消除
             return;
 
-        m_blocks[position.x, position.y].Eat(delay);			//吃掉当前块
+        EatBlockWithoutTrigger(position.x, position.y, delay);              //吃掉当前块
 
         switch (m_blocks[position.x, position.y].special)
         {
@@ -2382,13 +2386,13 @@ public class GameLogic
 
             else if (special0 == TSpecialBlock.ESpecial_EatAColor && special1 == TSpecialBlock.ESpecial_Normal)
             {
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat(0); //自己消失
-                EatAColor(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color);
+                EatBlockWithoutTrigger(m_selectedPos[1].x, m_selectedPos[1].y, 0);      //自己消失
+                EatAColor(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color);      //吃同颜色
             }
             else if(special1 == TSpecialBlock.ESpecial_EatAColor && special0 == TSpecialBlock.ESpecial_Normal)
             {
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat(0); //自己消失
-                EatAColor(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color);
+                EatBlockWithoutTrigger(m_selectedPos[0].x, m_selectedPos[0].y, 0);      //自己消失
+                EatAColor(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color);      //吃同颜色
             }
 
             else if (special0 == TSpecialBlock.ESpecial_EatAColor &&
@@ -2443,17 +2447,17 @@ public class GameLogic
             else if (special1 == TSpecialBlock.ESpecial_Bomb && special0 == TSpecialBlock.ESpecial_EatAColor)                //炸弹和彩虹交换，相同颜色变炸弹
             {
                 m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat(0);
+                EatBlockWithoutTrigger(m_selectedPos[0].x, m_selectedPos[0].y, 0);
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat(0);
+                EatBlockWithoutTrigger(m_selectedPos[1].x, m_selectedPos[1].y, 0);
                 ChangeColorToBomb(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color);
             }
             else if (special0 == TSpecialBlock.ESpecial_Bomb && special1 == TSpecialBlock.ESpecial_Bomb)
             {
                 m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat(0);
+                EatBlockWithoutTrigger(m_selectedPos[0].x, m_selectedPos[0].y, 0);
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat(0);
+                EatBlockWithoutTrigger(m_selectedPos[1].x, m_selectedPos[1].y, 0);
                 BigBomb(m_selectedPos[1]);
             }
             else

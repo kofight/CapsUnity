@@ -638,17 +638,17 @@ public class GameLogic
             }
         }
 
-        ////如果未到120毫秒，更新各方快的位置
-        /*for (int i = 0; i < BlockCountX; i++)
-        {
-            for (int j = 0; j < BlockCountY; j++)
-            {
-                if (m_slopeDropLock[i, j] > 0)
-                {
-                   UIDrawer.Singleton.DrawNumber("lock" + (j * 10 + i), GetXPos(i) - 30, GetYPos(i, j) - 30, m_slopeDropLock[i, j], "", 24);
-                }
-           }
-        }*/
+        //////如果未到120毫秒，更新各方快的位置
+        //for (int i = 0; i < BlockCountX; i++)
+        //{
+        //    for (int j = 0; j < BlockCountY; j++)
+        //    {
+        //        if (m_slopeDropLock[i, j] > 0)
+        //        {
+        //           UIDrawer.Singleton.DrawNumber("lock" + (j * 10 + i), GetXPos(i) - 30, GetYPos(i, j) - 30, m_slopeDropLock[i, j], "", 24);
+        //        }
+        //   }
+        //}
 
         Color defaultColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -1009,8 +1009,15 @@ public class GameLogic
                         if (Timer.GetRealTimeSinceStartUp() - m_blocks[i, j].m_eatStartTime > EATBLOCK_TIME)
                         {
                             --CapBlock.EatingBlockCount;
+
                             //清空block信息
                             MakeSpriteFree(i, j);
+                            //清除锁定信息
+                            for (int k = j + 1; k < BlockCountY; ++k)
+                            {
+                                --m_slopeDropLock[i, k];
+                            }
+
                             bEat = true;
                         }
                     }
@@ -1051,6 +1058,8 @@ public class GameLogic
                     (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir1 || special1 == TSpecialBlock.ESpecial_EatLineDir2))
                 {
                     EatALLDirLine(m_selectedPos[1], false);
+                    EatBlockWithoutTrigger(m_selectedPos[1].x, m_selectedPos[1].y, 0);      //自己消失
+                    EatBlockWithoutTrigger(m_selectedPos[0].x, m_selectedPos[0].y, 0);      //自己消失
                 }
                 else
                 {
@@ -1241,7 +1250,7 @@ public class GameLogic
 
             if (m_blocks[to.x, to.y].droppingFrom.x == to.x)      //垂直下落
             {
-                for (int j = m_blocks[to.x, to.y].droppingFrom.y + 1; j <= to.y; ++j)
+                for (int j = m_blocks[to.x, to.y].droppingFrom.y + 1; j < BlockCountY; ++j)
                 {
                     if (j >= 0)
                     {
@@ -1303,6 +1312,55 @@ public class GameLogic
         return bDrop;
     }
 
+    //public bool DropDownPortal(int x)
+    //{
+    //    bool bDrop = false;
+    //    bool bPortal = false;
+    //    Position fromPos = new Position();
+    //    Position toPos = new Position();
+    //    //下落块，所有可下落区域下落一行////////////////////////////////////////////////////////////////////////
+    //    for (int j = 0; j < BlockCountY; j++)		//从上往下遍历
+    //    {
+    //        toPos = new Position(x, j);
+
+    //        if (PlayingStageData.CheckFlag(x, j, GridFlag.PortalEnd))       //若为传送门目标点
+    //        {
+    //             if (CheckPosCanDropDown(x, j))       //找到空格
+    //             {
+    //                 fromPos = PlayingStageData.PortalToMap[toPos.ToInt()].from;
+    //                 if (m_blocks[fromPos.x, fromPos.y] != null && !m_blocks[fromPos.x, fromPos.y].isLocked && !m_blocks[fromPos.x, fromPos.y].isDropping
+    //                        && !m_blocks[fromPos.x, fromPos.y].IsEating())
+    //                 {
+    //                     bDrop = true;
+    //                     bPortal = true;
+    //                     break;
+    //                 }
+    //             }
+    //        }
+    //    }
+    //    if (bDrop)
+    //    {
+    //        //处理下落////////////////////////////////////////////////////////////////////////
+    //        m_blocks[x, toPos.y] = m_blocks[fromPos.x, fromPos.y];             //往下移块
+    //        m_blocks[x, toPos.y].isDropping = true;
+    //        m_blocks[x, toPos.y].droppingFrom.Set(fromPos.x, fromPos.y);       //记录从哪里落过来的
+    //        m_blocks[fromPos.x, fromPos.y] = null;                       //原块置空
+    //        m_blocks[x, toPos.y].DropingStartTime = Timer.GetRealTimeSinceStartUp();    //记录下落开始时间
+
+    //        if (!bPortal)
+    //        {
+    //            for (int k = toPos.y + 1; k < BlockCountY; ++k)               //下面全锁住
+    //            {
+    //                ++m_slopeDropLock[x, k];                 //锁上
+    //            }
+    //        }
+
+    //        ++CapBlock.DropingBlockCount;
+    //        return true;
+    //    }
+    //    return false;			//返回是否发生了掉落
+    //}
+
     public bool DropDownStraight(int x)
     {
         //下落块，所有可下落区域下落一行////////////////////////////////////////////////////////////////////////
@@ -1337,14 +1395,9 @@ public class GameLogic
                     m_blocks[destPos.x, destPos.y].isDropping = true;
                     m_blocks[destPos.x, destPos.y].droppingFrom.Set(x, j);       //记录从哪里落过来的
                     m_blocks[x, j] = null;                       //原块置空
-                    for (int k = j + 1; k <= destPos.y; ++k)
+                    for (int k = j + 1; k < BlockCountY; ++k)
                     {
                         ++m_slopeDropLock[x, k];                 //锁上
-                        if (x == 4 && k == 0)
-                        {
-                            int a = 0;
-                            int b = a;
-                        }
                     }
                     m_blocks[destPos.x, destPos.y].DropingStartTime = Timer.GetRealTimeSinceStartUp();    //记录下落开始时间
                     tag = true;
@@ -1376,16 +1429,11 @@ public class GameLogic
                     m_blocks[x, destY].isDropping = true;
                     m_blocks[x, destY].droppingFrom.Set(x, destY - (y - j) - 1);            //记录从哪里落过来的
                     m_blocks[x, destY].DropingStartTime = Timer.GetRealTimeSinceStartUp();    //记录下落开始时间
-                    for (int k = m_blocks[x, destY].droppingFrom.y + 1; k <= destY; ++k)
+                    for (int k = m_blocks[x, destY].droppingFrom.y + 1; k < BlockCountY; ++k)
                     {
                         if (k >= 0)
                         {
                             ++m_slopeDropLock[x, k];
-                            if (x == 4 && k == 0)
-                            {
-                                int a = 0;
-                                int b = a;
-                            }
                         }
                     }
                     tag = true;
@@ -1454,18 +1502,10 @@ public class GameLogic
             m_blocks[fromPos.x, fromPos.y] = null;                       //原块置空
             m_blocks[x, toPos.y].DropingStartTime = Timer.GetRealTimeSinceStartUp();    //记录下落开始时间
 
-            if (!bPortal)
-            {
                 for (int k = toPos.y + 1; k < BlockCountY; ++k)               //下面全锁住
                 {
-                    ++m_slopeDropLock[x, k];                 //锁上]
-                    if (x == 4 && k == 0)
-                    {
-                        int a = 0;
-                        int b = a;
-                    }
+                    ++m_slopeDropLock[x, k];                 //锁上
                 }
-            }
 
             ++CapBlock.DropingBlockCount;
             return true;
@@ -1825,7 +1865,10 @@ public class GameLogic
     void EatBlockWithoutTrigger(int x, int y, float delay)
     {
         m_blocks[x, y].Eat(delay);
-        
+        for (int k = y + 1; k < BlockCountY; ++k)
+        {
+            ++m_slopeDropLock[x, k];
+        }
     }
 
     void EatBlock(Position position, float delay = 0)                   //吃掉块，通过EatLine或特殊道具功能被调用，会触发被吃的块的功能
@@ -2387,21 +2430,21 @@ public class GameLogic
 
             else if (special0 == TSpecialBlock.ESpecial_EatAColor && special1 == TSpecialBlock.ESpecial_Normal)
             {
-                EatBlockWithoutTrigger(m_selectedPos[1].x, m_selectedPos[1].y, 0);      //自己消失
+                EatBlockWithoutTrigger(m_selectedPos[0].x, m_selectedPos[0].y, 0);      //自己消失
                 EatAColor(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color);      //吃同颜色
             }
             else if(special1 == TSpecialBlock.ESpecial_EatAColor && special0 == TSpecialBlock.ESpecial_Normal)
             {
-                EatBlockWithoutTrigger(m_selectedPos[0].x, m_selectedPos[0].y, 0);      //自己消失
-                EatAColor(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color);      //吃同颜色
+                EatBlockWithoutTrigger(m_selectedPos[1].x, m_selectedPos[1].y, 0);      //自己消失
+                EatAColor(m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color);      //吃同颜色
             }
 
             else if (special0 == TSpecialBlock.ESpecial_EatAColor &&
                 (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
                     special1 == TSpecialBlock.ESpecial_EatLineDir1))
             {
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
+                EatBlockWithoutTrigger(m_selectedPos[1].x, m_selectedPos[1].y, 0);      //自己消失
+                EatBlockWithoutTrigger(m_selectedPos[0].x, m_selectedPos[0].y, 0);      //自己消失
                 EatALLDirLine(m_selectedPos[1], true);
             }
 
@@ -2409,8 +2452,8 @@ public class GameLogic
                     (special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
                     special0 == TSpecialBlock.ESpecial_EatLineDir1))
             {
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
+                EatBlockWithoutTrigger(m_selectedPos[1].x, m_selectedPos[1].y, 0);      //自己消失
+                EatBlockWithoutTrigger(m_selectedPos[0].x, m_selectedPos[0].y, 0);      //自己消失
                 EatALLDirLine(m_selectedPos[1], true);
             }
 
@@ -2419,24 +2462,24 @@ public class GameLogic
                 (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
                     special1 == TSpecialBlock.ESpecial_EatLineDir1))
             {
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
+                EatBlockWithoutTrigger(m_selectedPos[1].x, m_selectedPos[1].y, 0);      //自己消失
+                EatBlockWithoutTrigger(m_selectedPos[0].x, m_selectedPos[0].y, 0);      //自己消失
                 EatALLDirLine(m_selectedPos[1], false);
             }
 
             else if (special0 == TSpecialBlock.ESpecial_Bomb && (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||     //炸弹跟条状交换，单方向加粗
                     special1 == TSpecialBlock.ESpecial_EatLineDir1))
             {
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
+                EatBlockWithoutTrigger(m_selectedPos[1].x, m_selectedPos[1].y, 0);      //自己消失
+                EatBlockWithoutTrigger(m_selectedPos[0].x, m_selectedPos[0].y, 0);      //自己消失
                 EatALLDirLine(m_selectedPos[1], true, (int)special1);
             }
 
             else if (special1 == TSpecialBlock.ESpecial_Bomb && (special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir2 ||
                     special0 == TSpecialBlock.ESpecial_EatLineDir1))
             {
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
+                EatBlockWithoutTrigger(m_selectedPos[1].x, m_selectedPos[1].y, 0);      //自己消失
+                EatBlockWithoutTrigger(m_selectedPos[0].x, m_selectedPos[0].y, 0);      //自己消失
                 EatALLDirLine(m_selectedPos[1], true, (int)special0);
             }
             else if (special0 == TSpecialBlock.ESpecial_Bomb && special1 == TSpecialBlock.ESpecial_EatAColor)              //炸弹和彩虹交换，相同颜色变炸弹
@@ -2502,7 +2545,7 @@ public class GameLogic
         if (dir == -1 || dir == (int)TSpecialBlock.ESpecial_EatLineDir1)
         {
             //6方向加粗
-            for (int i = 0; i < BlockCountX - 1; ++i)
+            for (int i = 1; i < BlockCountX - 1; ++i)
             {
                 Position pos = startPos;
                 EatBlock(GoTo(pos, TDirection.EDir_UpRight, i));
@@ -2531,7 +2574,7 @@ public class GameLogic
         }
         if (dir == -1 || dir == (int)TSpecialBlock.ESpecial_EatLineDir0)
         {
-            for (int i = 0; i < BlockCountX - 1; ++i)
+            for (int i = 1; i < BlockCountX - 1; ++i)
             {
                 Position pos = startPos;
                 EatBlock(GoTo(pos, TDirection.EDir_Up, i));
@@ -2546,20 +2589,19 @@ public class GameLogic
                     EatBlock(GoTo(pos, TDirection.EDir_Up, i));
                     EatBlock(GoTo(pos, TDirection.EDir_Down, i));
                 }
-				
-				if (extraEat)
-				{
-					AddPartile("Dir0BigEffect", startPos.x, startPos.y);
-				}
-				else
-				{
-					AddPartile("Dir0Effect", startPos.x, startPos.y);
-				}
+            }
+            if (extraEat)
+            {
+                AddPartile("Dir0BigEffect", startPos.x, startPos.y);
+            }
+            else
+            {
+                AddPartile("Dir0Effect", startPos.x, startPos.y);
             }
         }
         if (dir == -1 || dir == (int)TSpecialBlock.ESpecial_EatLineDir2)
         {
-            for (int i = 0; i < BlockCountX - 1; ++i)
+            for (int i = 1; i < BlockCountX - 1; ++i)
             {
                 Position pos = startPos;
                 EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i));
@@ -2575,14 +2617,14 @@ public class GameLogic
                     EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i));
                     EatBlock(GoTo(pos, TDirection.EDir_DownRight, i));
                 }
-				if (extraEat)
-				{
-					AddPartile("Dir2BigEffect", startPos.x, startPos.y);
-				}
-				else
-				{
-					AddPartile("Dir2Effect", startPos.x, startPos.y);
-				}
+            }
+            if (extraEat)
+            {
+                AddPartile("Dir2BigEffect", startPos.x, startPos.y);
+            }
+            else
+            {
+                AddPartile("Dir2Effect", startPos.x, startPos.y);
             }
         }
     }

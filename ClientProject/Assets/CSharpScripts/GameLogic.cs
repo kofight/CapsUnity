@@ -2380,8 +2380,12 @@ public class GameLogic
                 EatAColor(TBlockColor.EColor_None);         //消全部
             }
 
-            else if ((special0 == TSpecialBlock.ESpecial_EatAColor && special1 == TSpecialBlock.ESpecial_Normal) ||
-                (special1 == TSpecialBlock.ESpecial_EatAColor && special0 == TSpecialBlock.ESpecial_Normal))
+            else if (special0 == TSpecialBlock.ESpecial_EatAColor && special1 == TSpecialBlock.ESpecial_Normal)
+            {
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat(0); //自己消失
+                EatAColor(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color);
+            }
+            else if(special1 == TSpecialBlock.ESpecial_EatAColor && special0 == TSpecialBlock.ESpecial_Normal)
             {
                 m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat(0); //自己消失
                 EatAColor(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color);

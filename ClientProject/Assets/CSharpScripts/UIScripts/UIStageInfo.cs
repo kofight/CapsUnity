@@ -24,16 +24,13 @@ public class UIStageInfo : UIWindowNGUI
 				star.spriteName = "Grey_Star_Large";
             }
         }
+
+        NumberDrawer number = GetChildComponent<NumberDrawer>("StageTarget");
+        number.SetNumber(GlobalVars.CurStageData.StarScore[2]);
     }
     public override void OnUpdate()
     {
         base.OnUpdate();
-        if (uiWindowState == UIWindowStateEnum.Show)
-        {
-            UIDrawer.Singleton.DefaultAnchor = UIWindowManager.Anchor.Center;
-            UIDrawer.Singleton.DrawNumber("ScoreTarget", 0, -92, GlobalVars.CurStageData.StarScore[2], "", 22);
-            UIDrawer.Singleton.DefaultAnchor = UIWindowManager.Anchor.TopLeft;
-        }
     }
 
     private void OnCloseClicked(object sender, UIMouseClick.ClickArgs e)

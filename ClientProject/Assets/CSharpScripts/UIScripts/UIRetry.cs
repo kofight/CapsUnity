@@ -106,6 +106,9 @@ public class UIRetry : UIWindowNGUI
             m_starCount = 1;
         }
 
+        NumberDrawer number = GetChildComponent<NumberDrawer>("StageScore");
+        number.SetNumber(GlobalVars.CurGameLogic.GetProgress());
+
         //根据starCount显示星星
         for (int i = 0; i < 3; ++i)
         {
@@ -154,7 +157,7 @@ public class UIRetry : UIWindowNGUI
         if (uiWindowState == UIWindowStateEnum.Show)
         {
             UIDrawer.Singleton.DefaultAnchor = UIWindowManager.Anchor.Center;
-            UIDrawer.Singleton.DrawNumber("ScoreTarget", 0, -92, GlobalVars.CurStageData.StarScore[2], "", 22);
+            UIDrawer.Singleton.DrawNumber("ScoreTarget", 0, -72, GlobalVars.CurStageData.StarScore[2], "", 22);
             UIDrawer.Singleton.DefaultAnchor = UIWindowManager.Anchor.TopLeft;
         }
     }

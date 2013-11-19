@@ -696,13 +696,7 @@ public class GameLogic
         {
             //Debug.Log("DeltaTime = " + Time.deltaTime);
         }
-
-        if (GlobalVars.CurStageData.Target == GameTarget.BringFruitDown)
-        {
-            UIDrawer.Singleton.DrawText("Nut1Count", 100, 600, "Nut1:" + PlayingStageData.Nut1Count + "/" + GlobalVars.CurStageData.Nut1Count);
-            UIDrawer.Singleton.DrawText("Nut2Count", 180, 600, "Nut2:" + PlayingStageData.Nut2Count + "/" + GlobalVars.CurStageData.Nut2Count);
-        }
-
+		
         //绘制传送门
         foreach (KeyValuePair<int, Portal> pair in PlayingStageData.PortalToMap)
         {
@@ -1713,7 +1707,7 @@ public class GameLogic
         }
         else
         {
-            kCombo = CapsConfig.Instance.KComboTable[m_comboCount + 1];
+            kCombo = CapsConfig.Instance.KComboTable[m_comboCount];
         }
 
         AddProgress(50 * kQuantity * (kCombo + kItem + kLevel + 1), position.x, position.y);

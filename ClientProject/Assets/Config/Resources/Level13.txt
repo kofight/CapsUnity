@@ -6,9 +6,10 @@ Nut1Count			4
 Nut2Count			4				
 NutInitCount			1				
 NutMaxCount			4				
-NutStep			3				
+NutStep			2				
 PlusInitCount			0				
 PlusMaxCount			0				
+PlusStartTime			0				
 PlusStep			0				
 Seed			0				
 NewFormat			1				

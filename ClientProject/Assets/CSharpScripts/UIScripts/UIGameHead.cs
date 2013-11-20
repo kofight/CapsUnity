@@ -26,15 +26,21 @@ public class UIGameHead : UIWindowNGUI
 
         if (GlobalVars.CurStageData.Target == GameTarget.BringFruitDown)
         {
-            UIDrawer.Singleton.DrawSprite("Fruit1Icon", -40, 46, "Kiwifruit_Icon");
-            UIDrawer.Singleton.DrawNumber("Fruit1Count", 0, 46, GlobalVars.CurGameLogic.PlayingStageData.Nut1Count, "", 24, 1);
-            UIDrawer.Singleton.DrawSprite("Fruit1CountSplash", 31, 46, "backslash");
-            UIDrawer.Singleton.DrawNumber("Fruit1Total", 60, 46, GlobalVars.CurStageData.Nut1Count, "", 24, 1);
-
-            UIDrawer.Singleton.DrawSprite("Fruit2Icon", 140, 46, "Cherry_Icon");
-            UIDrawer.Singleton.DrawNumber("Fruit2Count", 180, 46, GlobalVars.CurGameLogic.PlayingStageData.Nut2Count, "", 24, 1);
-            UIDrawer.Singleton.DrawSprite("Fruit2CountSplash", 214, 46, "backslash");
-            UIDrawer.Singleton.DrawNumber("Fruit2Total", 240, 46, GlobalVars.CurStageData.Nut2Count, "", 24, 1);
+            if (GlobalVars.CurStageData.Nut1Count > 0)
+            {
+                UIDrawer.Singleton.DrawSprite("Fruit1Icon", -40, 46, "Kiwifruit_Icon");
+                UIDrawer.Singleton.DrawNumber("Fruit1Count", 0, 46, GlobalVars.CurGameLogic.PlayingStageData.Nut1Count, "", 24, 1);
+                UIDrawer.Singleton.DrawSprite("Fruit1CountSplash", 31, 46, "backslash");
+                UIDrawer.Singleton.DrawNumber("Fruit1Total", 60, 46, GlobalVars.CurStageData.Nut1Count, "", 24, 1);
+            }
+            
+            if (GlobalVars.CurStageData.Nut2Count > 0)
+            {
+                UIDrawer.Singleton.DrawSprite("Fruit2Icon", 140, 46, "Cherry_Icon");
+                UIDrawer.Singleton.DrawNumber("Fruit2Count", 180, 46, GlobalVars.CurGameLogic.PlayingStageData.Nut2Count, "", 24, 1);
+                UIDrawer.Singleton.DrawSprite("Fruit2CountSplash", 214, 46, "backslash");
+                UIDrawer.Singleton.DrawNumber("Fruit2Total", 240, 46, GlobalVars.CurStageData.Nut2Count, "", 24, 1);
+            }
         }
         else if (GlobalVars.CurStageData.Target == GameTarget.ClearJelly)
         {
@@ -42,12 +48,14 @@ public class UIGameHead : UIWindowNGUI
             UIDrawer.Singleton.DrawNumber("Jelly1", -2, 46, GlobalVars.CurGameLogic.PlayingStageData.GetSingleJellyCount(), "", 22, 2);
             UIDrawer.Singleton.DrawSprite("JellyCountSplash", 40, 46, "backslash");
             UIDrawer.Singleton.DrawNumber("Jelly2", 65, 46, GlobalVars.CurStageData.GetSingleJellyCount(), "", 22, 2);
-
-
-            UIDrawer.Singleton.DrawSprite("DoubleJellyCountIcon", 140, 46, "DoubleIceBlock_Icon");
-            UIDrawer.Singleton.DrawNumber("DoubleJelly1", 170, 46, GlobalVars.CurGameLogic.PlayingStageData.GetDoubleJellyCount(), "", 23, 2);
-            UIDrawer.Singleton.DrawSprite("DoubleJellyCountSplash", 220, 46, "backslash");
-            UIDrawer.Singleton.DrawNumber("DoubleJelly2", 240, 46, GlobalVars.CurStageData.GetDoubleJellyCount(), "", 23, 2);
+            
+            if (GlobalVars.CurStageData.GetDoubleJellyCount() > 0)
+            {
+                UIDrawer.Singleton.DrawSprite("DoubleJellyCountIcon", 140, 46, "DoubleIceBlock_Icon");
+                UIDrawer.Singleton.DrawNumber("DoubleJelly1", 170, 46, GlobalVars.CurGameLogic.PlayingStageData.GetDoubleJellyCount(), "", 23, 2);
+                UIDrawer.Singleton.DrawSprite("DoubleJellyCountSplash", 220, 46, "backslash");
+                UIDrawer.Singleton.DrawNumber("DoubleJelly2", 240, 46, GlobalVars.CurStageData.GetDoubleJellyCount(), "", 23, 2);
+            }
         }
         else if (GlobalVars.CurStageData.Target == GameTarget.GetScore)
         {

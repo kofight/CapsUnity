@@ -409,40 +409,56 @@ public class GameLogic
             }
         }
 
-        Permute<Position>(array, count);       //重排
-
-
-
-        CapBlock[,] blocks = new CapBlock[BlockCountX, BlockCountY];
-
-        for (int i = 0; i < BlockCountX; ++i)
+        int sortcount = 0;
+        while (true)
         {
-            for (int j = 0; j < BlockCountY; ++j)
+            //自动重排
+            Permute<Position>(array, count);       //重排
+            CapBlock[,] blocks = new CapBlock[BlockCountX, BlockCountY];
+
+            for (int i = 0; i < BlockCountX; ++i)
             {
-                blocks[i, j] = m_blocks[i, j];          //先复制份数据
+                for (int j = 0; j < BlockCountY; ++j)
+                {
+                    blocks[i, j] = m_blocks[i, j];          //先复制份数据
+                }
+            }
+
+            count = 0;
+            for (int i = 0; i < BlockCountX; ++i)
+            {
+                for (int j = 0; j < BlockCountY; ++j)
+                {
+                    if (m_blocks[i, j] == null || m_blocks[i, j].isLocked)                     //空格或空块
+                    {
+                        continue;
+                    }
+
+                    if (m_blocks[i, j].color > TBlockColor.EColor_Grey)                        //坚果
+                    {
+                        continue;
+                    }
+
+                    m_blocks[i, j] = blocks[array[count].x, array[count].y];        //把随机内容取出来保存上
+                    ++count;
+                }
+            }
+
+
+            ++sortcount;
+
+
+            if (Help() && !IsHaveLine())                                 //若有可消的，且没有直接三消的
+            {
+                break;
+            }
+
+            if (sortcount > 99)
+            {
+                break;
             }
         }
-
-        count = 0;
-        for (int i = 0; i < BlockCountX; ++i)
-        {
-            for (int j = 0; j < BlockCountY; ++j)
-            {
-                if (m_blocks[i, j] == null || m_blocks[i, j].isLocked)                     //空格或空块
-                {
-                    continue;
-                }
-
-                if (m_blocks[i, j].color > TBlockColor.EColor_Grey)                        //坚果
-                {
-                    continue;
-                }
-
-                m_blocks[i, j] = blocks[array[count].x, array[count].y];        //把随机内容取出来保存上
-                ++count;
-            }
-        }
-        Debug.Log("Auto Resort");
+        Debug.Log("Auto Resort, count = " + sortcount);
     }
 
     void Permute<T>(T[] array, int count)
@@ -897,7 +913,7 @@ public class GameLogic
         {
             if (Timer.millisecondNow() > m_showNoPossibleExhangeTextTime + ShowNoPossibleExhangeTextTime)       //时间已到
             {
-                AutoResort();                                   //自动重排
+                AutoResort();
                 m_showNoPossibleExhangeTextTime = 0;            //交换完毕，关闭状态
             }
             else
@@ -2885,11 +2901,27 @@ public class GameLogic
         return (TBlockColor)((index + 1) % PlayingStageData.ColorCount + TBlockColor.EColor_White);
     }
 
+    bool IsHaveLine()
+    {
+        for (int i = 0; i < BlockCountX; ++i )
+        {
+            for (int j = 0; j < BlockCountY; ++j )
+            {
+                if (m_blocks[i, j] != null)
+                {
+                    if (IsHaveLine(new Position(i, j)))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     bool IsHaveLine(Position position)
     {
         int countInSameLine = 1;					//在同一条线上相同的颜色的数量
-        int totalSameCount = 1;						//总共相同颜色的数量
-        int step = 1;
         TBlockColor color = GetBlockColor(position);
         Position curPos;
         for (TDirection dir = TDirection.EDir_Up; dir <= TDirection.EDir_DownRight; dir = (TDirection)(dir + 1))		//遍历3个方向

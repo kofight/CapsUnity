@@ -706,6 +706,11 @@ public class GameLogic
                             {
                                 m_blocks[i, j].EatDelay = 0;
                                 m_blocks[i, j].m_animation.Play("Eat");
+                                if (m_scoreToShow[i, j] > 0)
+						        {
+						            AddProgress(m_scoreToShow[i, j], i, j);
+						            m_scoreToShow[i, j] = 0;
+						        }
                             }
                         }
                         //UIDrawer.Singleton.DrawNumber("Score" + (j * 10 + i), (int)m_blocks[i, j].m_blockTransform.localPosition.x, -(int)m_blocks[i, j].m_blockTransform.localPosition.y, 60, "BaseNum", 15, 4);
@@ -812,7 +817,7 @@ public class GameLogic
                         Position pos = FindRandomPos(TBlockColor.EColor_None, null, true);
                         m_blocks[pos.x, pos.y].special = TSpecialBlock.ESpecial_EatLineDir0 + (m_random.Next() % 3);
                         m_blocks[pos.x, pos.y].RefreshBlockSprite(PlayingStageData.GridData[pos.x, pos.y]);
-                        m_scoreToShow[pos.x, pos.y] += CapsConfig.SugarCrushStepReward;
+                        AddProgress(CapsConfig.SugarCrushStepReward, pos.x, pos.y);
                         --PlayingStageData.StepLimit;           //步数减一
                     }
                 }
@@ -1214,11 +1219,11 @@ public class GameLogic
             for (int j = 0; j < BlockCountY; ++j)
             {
                 m_tempBlocks[i, j] = 0;         //清理临时数组
-                if (m_scoreToShow[i, j] > 0)
-                {
-                    AddProgress(m_scoreToShow[i, j], i, j);
-                }
-                m_scoreToShow[i, j] = 0;
+				if (m_scoreToShow[i, j] > 0)
+				{
+					AddProgress(m_scoreToShow[i, j], i, j);
+					m_scoreToShow[i, j] = 0;
+				}
             }
         }
     }
@@ -1878,12 +1883,20 @@ public class GameLogic
     {
         if (m_saveHelpBlocks[2].IsAvailable())
         {
-            for (int i = 0; i < 3; ++i )
+            try
             {
-                m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.Stop();
-                m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.transform.localScale = new Vector3(GameLogic.BlockScale, GameLogic.BlockScale, 1.0f);          //恢复缩放
-                m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_addColorTranform.renderer.material.SetColor("_TintColor", new Color(0, 0, 0, 0));
+                for (int i = 0; i < 3; ++i)
+                {
+                    m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.Stop();
+                    m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.transform.localScale = new Vector3(GameLogic.BlockScale, GameLogic.BlockScale, 1.0f);          //恢复缩放
+                    m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_addColorTranform.renderer.material.SetColor("_TintColor", new Color(0, 0, 0, 0));
+                }
             }
+            catch (System.Exception ex)
+            {
+            	
+            }
+            
             for (int i = 0; i < 3; ++i)
             {
                 m_saveHelpBlocks[i].MakeItUnAvailable();
@@ -1909,8 +1922,6 @@ public class GameLogic
         if (m_tempBlocks[position.x, position.y] == 0)
             m_tempBlocks[position.x, position.y] = 1;       //记录吃块，用来改变Grid属性
 
-        m_scoreToShow[position.x, position.y] += addScore;
-
         if (m_blocks[position.x, position.y] == null) return;
 
         if (m_blocks[position.x, position.y].isDropping)
@@ -1931,6 +1942,8 @@ public class GameLogic
             return;
 
         EatBlockWithoutTrigger(position.x, position.y, delay);              //吃掉当前块
+
+        m_scoreToShow[position.x, position.y] += addScore;
 
         switch (m_blocks[position.x, position.y].special)
         {

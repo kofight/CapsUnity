@@ -184,6 +184,9 @@ public class GameLogic
     GridSprites[,] m_gridBackImage = new GridSprites[BlockCountX, BlockCountY];        //用来记录背景块
     int[,] m_scoreToShow = new int[BlockCountX, BlockCountY];
     int[,] m_slopeDropLock = new int[BlockCountX, BlockCountY];         //斜下落的锁定
+
+    Position [] m_saveHelpBlocks = new Position[3];        //用来保存帮助找到的可消块
+
     int m_progress;										//当前进度
     TGameFlow m_gameFlow;								//游戏状态
     int m_comboCount;				//记录当前连击数
@@ -200,7 +203,7 @@ public class GameLogic
 
     float m_lastHelpTime;
     float m_showNoPossibleExhangeTextTime = 0;              //显示
-    Position helpP1, helpP2;
+    
     Position touchBeginPos;                                 //触控开始的位置
 
     //物件池
@@ -286,6 +289,11 @@ public class GameLogic
                 ProcessGridSprites(i, j);
             }
         }
+
+        for (int i = 0; i < 3; ++i )
+        {
+            m_saveHelpBlocks[i].MakeItUnAvailable();
+        }
     }
 
     void ProcessGridSprites(int x, int y)
@@ -366,13 +374,19 @@ public class GameLogic
                         }
 
                         ExchangeBlock(curPos, position);        //临时交换
-                        if (IsHaveLine(curPos) || IsHaveLine(position))
+                        m_saveHelpBlocks[0] = position;
+                        if (IsHaveLine(curPos, true))
                         {
-                            helpP1 = curPos;
-                            helpP2 = position;
                             ExchangeBlock(curPos, position);        //换回
                             return true;
                         }
+						
+						m_saveHelpBlocks[0] = curPos;
+						if (IsHaveLine(position, true))
+						{
+							ExchangeBlock(curPos, position);        //换回
+                            return true;
+						}
                         ExchangeBlock(curPos, position);        //换回
                     }
 
@@ -380,8 +394,6 @@ public class GameLogic
 
             }
         }
-        helpP1.MakeItUnAvailable();
-        helpP2.MakeItUnAvailable();
         return false;
     }
 
@@ -450,6 +462,7 @@ public class GameLogic
 
             if (Help() && !IsHaveLine())                                 //若有可消的，且没有直接三消的
             {
+                ClearHelpPoint();
                 break;
             }
 
@@ -933,7 +946,7 @@ public class GameLogic
         //处理帮助
         if (m_gameFlow == TGameFlow.EGameState_Playing && CapBlock.DropingBlockCount == 0 && m_lastHelpTime > 0)      //下落完成的状态
         {
-            if (!helpP1.IsAvailable())     //还没找帮助点
+            if (!m_saveHelpBlocks[2].IsAvailable())     //还没找帮助点
             {
                 if (Timer.GetRealTimeSinceStartUp() > m_lastHelpTime + CheckAvailableTimeInterval)
                 {
@@ -995,10 +1008,12 @@ public class GameLogic
 
     public void ShowHelpAnim()
     {
-        if (m_blocks[helpP1.x, helpP1.y] != null && !m_blocks[helpP1.x, helpP1.y].m_animation.isPlaying)
+        if (m_saveHelpBlocks[2].IsAvailable() && m_blocks[m_saveHelpBlocks[2].x, m_saveHelpBlocks[2].y] != null && !m_blocks[m_saveHelpBlocks[2].x, m_saveHelpBlocks[2].y].m_animation.isPlaying)
         {
-            m_blocks[helpP1.x, helpP1.y].m_animation.Play("Help");
-            m_blocks[helpP2.x, helpP2.y].m_animation.Play("Help");
+            for (int i = 0; i < 3; ++i )
+            {
+                m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.Play("Help");
+            }
         }
     }
 
@@ -1861,22 +1876,18 @@ public class GameLogic
 
     public void ClearHelpPoint()
     {
-        if (helpP1.IsAvailable())
+        if (m_saveHelpBlocks[2].IsAvailable())
         {
-            if (m_blocks[helpP1.x, helpP1.y] != null)
+            for (int i = 0; i < 3; ++i )
             {
-                m_blocks[helpP1.x, helpP1.y].m_animation.Stop();
-                m_blocks[helpP1.x, helpP1.y].m_animation.transform.localScale = new Vector3(GameLogic.BlockScale, GameLogic.BlockScale, 1.0f);          //恢复缩放
-                m_blocks[helpP1.x, helpP1.y].m_addColorTranform.renderer.material.SetColor("_TintColor", new Color(0, 0, 0, 0));
+                m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.Stop();
+                m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.transform.localScale = new Vector3(GameLogic.BlockScale, GameLogic.BlockScale, 1.0f);          //恢复缩放
+                m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_addColorTranform.renderer.material.SetColor("_TintColor", new Color(0, 0, 0, 0));
             }
-            if (m_blocks[helpP2.x, helpP2.y] != null)
+            for (int i = 0; i < 3; ++i)
             {
-                m_blocks[helpP2.x, helpP2.y].m_animation.Stop();
-                m_blocks[helpP2.x, helpP2.y].m_animation.transform.localScale = new Vector3(GameLogic.BlockScale, GameLogic.BlockScale, 1.0f);          //恢复缩放
-                m_blocks[helpP2.x, helpP2.y].m_addColorTranform.renderer.material.SetColor("_TintColor", new Color(0, 0, 0, 0));
+                m_saveHelpBlocks[i].MakeItUnAvailable();
             }
-            helpP1.MakeItUnAvailable();                                  //清除帮助点
-            helpP2.MakeItUnAvailable();                                  //清除帮助点
             m_lastHelpTime = Timer.GetRealTimeSinceStartUp();
         }
     }
@@ -2919,7 +2930,7 @@ public class GameLogic
         return false;
     }
 
-    bool IsHaveLine(Position position)
+    bool IsHaveLine(Position position, bool saveBlocks =false)
     {
         int countInSameLine = 1;					//在同一条线上相同的颜色的数量
         TBlockColor color = GetBlockColor(position);
@@ -2935,6 +2946,10 @@ public class GameLogic
                 {
                     break;
                 }
+                if (saveBlocks)
+                {
+                    m_saveHelpBlocks[countInSameLine] = curPos;
+                }
                 ++countInSameLine;
                 if (countInSameLine >= 3)
                 {
@@ -2948,6 +2963,10 @@ public class GameLogic
                 if (GetBlockColor(curPos) != color)								//若碰到不一样的颜色就停下来
                 {
                     break;
+                }
+                if (saveBlocks)
+                {
+                    m_saveHelpBlocks[countInSameLine] = curPos;
                 }
                 ++countInSameLine;
                 if (countInSameLine >= 3)

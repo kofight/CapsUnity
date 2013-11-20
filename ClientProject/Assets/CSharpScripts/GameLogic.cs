@@ -517,6 +517,8 @@ public class GameLogic
         UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().Reset();
 
         m_gameFlow = TGameFlow.EGameState_Playing;                //开始游戏
+
+        DropDown();                                               //开始先尝试进行一次下落
     }
 
     public void ClearGame()

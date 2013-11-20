@@ -182,6 +182,7 @@ public class GameLogic
     Position[] m_selectedPos = new Position[2];		                //记录两次点击选择的方块
     CapBlock[,] m_blocks = new CapBlock[BlockCountX, BlockCountY];		//屏幕上方块的数组
     GridSprites[,] m_gridBackImage = new GridSprites[BlockCountX, BlockCountY];        //用来记录背景块
+    int[,] m_scoreToShow = new int[BlockCountX, BlockCountY];
     int[,] m_slopeDropLock = new int[BlockCountX, BlockCountY];         //斜下落的锁定
     int m_progress;										//当前进度
     TGameFlow m_gameFlow;								//游戏状态
@@ -780,7 +781,7 @@ public class GameLogic
                         Position pos = FindRandomPos(TBlockColor.EColor_None, null, true);
                         m_blocks[pos.x, pos.y].special = TSpecialBlock.ESpecial_EatLineDir0 + (m_random.Next() % 3);
                         m_blocks[pos.x, pos.y].RefreshBlockSprite(PlayingStageData.GridData[pos.x, pos.y]);
-                        AddProgress(CapsConfig.DirBombPoint, pos.x, pos.y);
+                        m_scoreToShow[pos.x, pos.y] += CapsConfig.SugarCrushStepReward;
                         --PlayingStageData.StepLimit;           //步数减一
                     }
                 }
@@ -809,7 +810,7 @@ public class GameLogic
             --m_nut2Count;
         }
 
-        AddProgress(CapsConfig.FruitDropDown, x, y);
+        m_scoreToShow[x, y] += CapsConfig.FruitDropDown;
         EatBlockWithoutTrigger(x, y, 0);
     }
 
@@ -1122,7 +1123,7 @@ public class GameLogic
                         PlayingStageData.AddFlag(i, j, GridFlag.GenerateCap);
 
                         AddPartile("StoneEffect", i, j);
-                        AddProgress(CapsConfig.EatStonePoint, i, j);
+                        m_scoreToShow[i, j] += CapsConfig.EatStonePoint;
 
                         m_gridBackImage[i, j].layer1.gameObject.SetActive(false);
                     }
@@ -1132,7 +1133,7 @@ public class GameLogic
                         PlayingStageData.ClearFlag(i, j, GridFlag.NotGenerateCap);
                         PlayingStageData.AddFlag(i, j, GridFlag.GenerateCap);
                         AddPartile("ChocolateEffect", i, j);
-                        AddProgress(CapsConfig.EatChocolate, i, j);
+                        m_scoreToShow[i, j] += CapsConfig.EatChocolate;
                         m_gridBackImage[i, j].layer1.gameObject.SetActive(false);
                     }
                     else if (PlayingStageData.CheckFlag(i, j, GridFlag.Cage))
@@ -1140,7 +1141,7 @@ public class GameLogic
                         PlayingStageData.ClearFlag(i, j, GridFlag.Cage);
                         AddPartile("CageEffect", i, j);
                         m_blocks[i, j].isLocked = false;
-                        AddProgress(CapsConfig.EatCagePoint, i, j);
+                        m_scoreToShow[i, j] += CapsConfig.EatCagePoint;
                         m_gridBackImage[i, j].layer1.gameObject.SetActive(false);
                     }
                     else if (PlayingStageData.CheckFlag(i, j, GridFlag.JellyDouble))
@@ -1148,14 +1149,14 @@ public class GameLogic
                         PlayingStageData.ClearFlag(i, j, GridFlag.JellyDouble);
                         PlayingStageData.AddFlag(i, j, GridFlag.Jelly);
                         AddPartile("JellyEffect", i, j);
-                        AddProgress(CapsConfig.EatJellyDouble, i, j);
+                        m_scoreToShow[i, j] += CapsConfig.EatJellyDouble;
                         m_gridBackImage[i, j].layer0.spriteName = "Jelly";
                     }
                     else if (PlayingStageData.CheckFlag(i, j, GridFlag.Jelly))
                     {
                         PlayingStageData.ClearFlag(i, j, GridFlag.Jelly);
                         AddPartile("JellyEffect", i, j);
-                        AddProgress(CapsConfig.EatJelly, i, j);
+                        m_scoreToShow[i, j] += CapsConfig.EatJelly;
                         if (i % 2 == 0)
                         {
                             m_gridBackImage[i, j].layer0.spriteName = "Grid" + (j % 3);
@@ -1180,6 +1181,11 @@ public class GameLogic
             for (int j = 0; j < BlockCountY; ++j)
             {
                 m_tempBlocks[i, j] = 0;         //清理临时数组
+                if (m_scoreToShow[i, j] > 0)
+                {
+                    AddProgress(m_scoreToShow[i, j], i, j);
+                }
+                m_scoreToShow[i, j] = 0;
             }
         }
     }
@@ -1710,7 +1716,8 @@ public class GameLogic
             kCombo = CapsConfig.Instance.KComboTable[m_comboCount];
         }
 
-        AddProgress(50 * kQuantity * (kCombo + kItem + kLevel + 1), position.x, position.y);
+        m_scoreToShow[position.x, position.y] += 50 * kQuantity * (kCombo + kItem + kLevel + 1);
+
         OnProgressChange();
         ++m_comboCount;
         return true;
@@ -1865,13 +1872,15 @@ public class GameLogic
         }
     }
 
-    void EatBlock(Position position, float delay = 0)                   //吃掉块，通过EatLine或特殊道具功能被调用，会触发被吃的块的功能
+    void EatBlock(Position position, float delay = 0, int addScore = 0)                   //吃掉块，通过EatLine或特殊道具功能被调用，会触发被吃的块的功能
     {
         if (position.x >= BlockCountX || position.y >= BlockCountY || position.x < 0 || position.y < 0)
             return;
 
         if (m_tempBlocks[position.x, position.y] == 0)
             m_tempBlocks[position.x, position.y] = 1;       //记录吃块，用来改变Grid属性
+
+        m_scoreToShow[position.x, position.y] += addScore;
 
         if (m_blocks[position.x, position.y] == null) return;
 
@@ -1900,12 +1909,9 @@ public class GameLogic
                 {
                     for (TDirection dir = TDirection.EDir_Up; dir <= TDirection.EDir_LeftUp; ++dir)
                     {
-                        //TODO 这里要放特效
-                        Position newPos = GoTo(position, dir, 1);
-                        EatBlock(newPos);
+                        EatBlock(GoTo(position, dir, 1), 0.1f, 50);
 
-                        newPos = GoTo(position, dir, 2);
-                        EatBlock(newPos);
+                        EatBlock(GoTo(position, dir, 2), 0.2f, 50);
                     }
                     AddPartile("BombEffect", position.x, position.y);
                 }
@@ -1937,8 +1943,8 @@ public class GameLogic
                 {
                     for (int i = 0; i < BlockCountX; ++i)
                     {
-                        EatBlock(GoTo(position, TDirection.EDir_Down, i), i * 0.1f);
-                        EatBlock(GoTo(position, TDirection.EDir_Up, i), i * 0.1f);
+                        EatBlock(GoTo(position, TDirection.EDir_Down, i), i * 0.1f, 50);
+                        EatBlock(GoTo(position, TDirection.EDir_Up, i), i * 0.1f, 50);
                     }
                     AddPartile("Dir0Effect", position.x, position.y);
                 }
@@ -1947,8 +1953,8 @@ public class GameLogic
                 {
                     for (int i = 1; i < BlockCountX - 1; ++i)
                     {
-                        EatBlock(GoTo(position, TDirection.EDir_UpRight, i), i * 0.1f);
-                        EatBlock(GoTo(position, TDirection.EDir_LeftDown, i), i * 0.1f);
+                        EatBlock(GoTo(position, TDirection.EDir_UpRight, i), i * 0.1f, 50);
+                        EatBlock(GoTo(position, TDirection.EDir_LeftDown, i), i * 0.1f, 50);
                     }
                     AddPartile("Dir1Effect", position.x, position.y);
                 }
@@ -1957,8 +1963,8 @@ public class GameLogic
                 {
                     for (int i = 0; i < BlockCountX; ++i)
                     {
-                        EatBlock(GoTo(position, TDirection.EDir_LeftUp, i), i * 0.1f);
-                        EatBlock(GoTo(position, TDirection.EDir_DownRight, i), i * 0.1f);
+                        EatBlock(GoTo(position, TDirection.EDir_LeftUp, i), i * 0.1f, 50);
+                        EatBlock(GoTo(position, TDirection.EDir_DownRight, i), i * 0.1f, 50);
                     }
                     AddPartile("Dir2Effect", position.x, position.y);
                 }
@@ -2512,22 +2518,22 @@ public class GameLogic
         for (TDirection dir = TDirection.EDir_Up; dir <= TDirection.EDir_LeftUp; ++dir)
         {
             Position newPos = GoTo(pos, dir, 1);                            //第一层
-            EatBlock(newPos);
+            EatBlock(newPos, 0.1f, 50);
 
             newPos = GoTo(pos, dir, 2);                                     //第二层
-            EatBlock(newPos);
+            EatBlock(newPos, 0.2f, 50);
 
             newPos = GoTo(newPos, (TDirection)(((int)dir + 2) % 6), 1);     //第二层向下一个方向走一步
-            EatBlock(newPos);
+            EatBlock(newPos, 0.2f, 50);
 
             Position newPos3 = GoTo(pos, dir, 3);                                     //第三层
-            EatBlock(newPos3);
+            EatBlock(newPos3, 0.3f, 50);
 
             newPos = GoTo(newPos3, (TDirection)(((int)dir + 2) % 6), 1);     //第三层向下一个方向走一步
-            EatBlock(newPos);
+            EatBlock(newPos, 0.3f, 50);
 
             newPos = GoTo(newPos3, (TDirection)(((int)dir - 2 + 6) % 6), 1); //第三层向上一个方向走一步
-            EatBlock(newPos);
+            EatBlock(newPos, 0.3f, 50);
         }
 
         AddPartile("BigBombEffect", pos.x, pos.y);
@@ -2542,19 +2548,19 @@ public class GameLogic
             for (int i = 1; i < BlockCountX - 1; ++i)
             {
                 Position pos = startPos;
-                EatBlock(GoTo(pos, TDirection.EDir_UpRight, i));
-                EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i));
+                EatBlock(GoTo(pos, TDirection.EDir_UpRight, i), i * 0.1f, 50);
+                EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i), i * 0.1f, 50);
 
 
                 if (extraEat)
                 {
                     pos.Set(startPos.x, startPos.y + 1);
-                    EatBlock(GoTo(pos, TDirection.EDir_UpRight, i));
-                    EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i));
+                    EatBlock(GoTo(pos, TDirection.EDir_UpRight, i), i * 0.1f, 50);
+                    EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i), i * 0.1f, 50);
 
                     pos.Set(startPos.x, startPos.y - 1);
-                    EatBlock(GoTo(pos, TDirection.EDir_UpRight, i));
-                    EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i));
+                    EatBlock(GoTo(pos, TDirection.EDir_UpRight, i), i * 0.1f, 50);
+                    EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i), i * 0.1f, 50);
                 }
             }
 			if (extraEat)
@@ -2571,17 +2577,17 @@ public class GameLogic
             for (int i = 1; i < BlockCountX - 1; ++i)
             {
                 Position pos = startPos;
-                EatBlock(GoTo(pos, TDirection.EDir_Up, i));
-                EatBlock(GoTo(pos, TDirection.EDir_Down, i));
+                EatBlock(GoTo(pos, TDirection.EDir_Up, i), i * 0.1f, 50);
+                EatBlock(GoTo(pos, TDirection.EDir_Down, i), i * 0.1f, 50);
                 if (extraEat)
                 {
                     pos.Set(startPos.x + 1, startPos.y);
-                    EatBlock(GoTo(pos, TDirection.EDir_Up, i));
-                    EatBlock(GoTo(pos, TDirection.EDir_Down, i));
+                    EatBlock(GoTo(pos, TDirection.EDir_Up, i), i * 0.1f, 50);
+                    EatBlock(GoTo(pos, TDirection.EDir_Down, i), i * 0.1f, 50);
 
                     pos.Set(startPos.x - 1, startPos.y);
-                    EatBlock(GoTo(pos, TDirection.EDir_Up, i));
-                    EatBlock(GoTo(pos, TDirection.EDir_Down, i));
+                    EatBlock(GoTo(pos, TDirection.EDir_Up, i), i * 0.1f, 50);
+                    EatBlock(GoTo(pos, TDirection.EDir_Down, i), i * 0.1f, 50);
                 }
             }
             if (extraEat)
@@ -2598,18 +2604,18 @@ public class GameLogic
             for (int i = 1; i < BlockCountX - 1; ++i)
             {
                 Position pos = startPos;
-                EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i));
-                EatBlock(GoTo(pos, TDirection.EDir_DownRight, i));
+                EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i), i * 0.1f, 50);
+                EatBlock(GoTo(pos, TDirection.EDir_DownRight, i), i * 0.1f, 50);
 
                 if (extraEat)
                 {
                     pos.Set(startPos.x, startPos.y + 1);
-                    EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i));
-                    EatBlock(GoTo(pos, TDirection.EDir_DownRight, i));
+                    EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i), i * 0.1f, 50);
+                    EatBlock(GoTo(pos, TDirection.EDir_DownRight, i), i * 0.1f, 50);
 
                     pos.Set(startPos.x, startPos.y - 1);
-                    EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i));
-                    EatBlock(GoTo(pos, TDirection.EDir_DownRight, i));
+                    EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i), i * 0.1f, 50);
+                    EatBlock(GoTo(pos, TDirection.EDir_DownRight, i), i * 0.1f, 50);
                 }
             }
             if (extraEat)
@@ -2639,11 +2645,11 @@ public class GameLogic
                 }
                 if (color == TBlockColor.EColor_None)
                 {
-                    EatBlock(new Position(i, j));
+                    EatBlock(new Position(i, j), 0.3f, 50);
                 }
                 else if (m_blocks[i, j].color == color)
                 {
-                    EatBlock(new Position(i, j));
+                    EatBlock(new Position(i, j), 0.3f, 50);
                 }
             }
         }

@@ -98,7 +98,7 @@ struct ShowingNumberEffect
         int numIndex = 0;
         while (num > 0)
         {
-            sprites[numIndex].spriteName = "YardNumBall" + (num % 10);
+            sprites[numIndex].spriteName = "Score" + (num % 10);
             sprites[numIndex].gameObject.SetActive(true);
             num /= 10;
             ++numIndex;

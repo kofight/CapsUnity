@@ -1564,7 +1564,7 @@ public class GameLogic
         availablePos.MakeItUnAvailable();
 
         TBlockColor color = GetBlockColor(position);
-        if (color > TBlockColor.EColor_Grey)
+        if (color > TBlockColor.EColor_Grey || color == TBlockColor.EColor_None)
         {
             return false;
         }
@@ -2597,10 +2597,18 @@ public class GameLogic
                 if (extraEat)
                 {
                     pos.Set(startPos.x, startPos.y + 1);
+                    if (i == 1)
+                    {
+                        EatBlock(pos, 0.0f, 50);
+                    }
                     EatBlock(GoTo(pos, TDirection.EDir_UpRight, i), i * 0.1f, 50);
                     EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i), i * 0.1f, 50);
 
                     pos.Set(startPos.x, startPos.y - 1);
+                    if (i == 1)
+                    {
+                        EatBlock(pos, 0.0f, 50);
+                    }
                     EatBlock(GoTo(pos, TDirection.EDir_UpRight, i), i * 0.1f, 50);
                     EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i), i * 0.1f, 50);
                 }
@@ -2624,10 +2632,18 @@ public class GameLogic
                 if (extraEat)
                 {
                     pos.Set(startPos.x + 1, startPos.y);
+                    if (i == 1)
+                    {
+                        EatBlock(pos, 0.0f, 50);
+                    }
                     EatBlock(GoTo(pos, TDirection.EDir_Up, i), i * 0.1f, 50);
                     EatBlock(GoTo(pos, TDirection.EDir_Down, i), i * 0.1f, 50);
 
                     pos.Set(startPos.x - 1, startPos.y);
+                    if (i == 1)
+                    {
+                        EatBlock(pos, 0.0f, 50);
+                    }
                     EatBlock(GoTo(pos, TDirection.EDir_Up, i), i * 0.1f, 50);
                     EatBlock(GoTo(pos, TDirection.EDir_Down, i), i * 0.1f, 50);
                 }
@@ -2652,10 +2668,18 @@ public class GameLogic
                 if (extraEat)
                 {
                     pos.Set(startPos.x, startPos.y + 1);
+                    if (i == 1)
+                    {
+                        EatBlock(pos, 0.0f, 50);
+                    }
                     EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i), i * 0.1f, 50);
                     EatBlock(GoTo(pos, TDirection.EDir_DownRight, i), i * 0.1f, 50);
 
                     pos.Set(startPos.x, startPos.y - 1);
+                    if (i == 1)
+                    {
+                        EatBlock(pos, 0.0f, 50);
+                    }
                     EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i), i * 0.1f, 50);
                     EatBlock(GoTo(pos, TDirection.EDir_DownRight, i), i * 0.1f, 50);
                 }

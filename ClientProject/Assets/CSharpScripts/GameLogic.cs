@@ -295,7 +295,7 @@ public class GameLogic
 
         EasyTouch.On_SimpleTap += OnTap;
         EasyTouch.On_Swipe += OnTouchMove;
-        EasyTouch.On_SwipeStart += OnTouchBegin;
+        EasyTouch.On_TouchStart += OnTouchBegin;
     }
 
     void ProcessGridSprites(int x, int y)
@@ -707,7 +707,7 @@ public class GameLogic
                             if (Timer.GetRealTimeSinceStartUp() > m_blocks[i, j].m_eatStartTime)        //到达了开始时间
                             {
                                 m_blocks[i, j].EatDelay = 0;
-                                //m_blocks[i, j].m_animation.Play("Eat");
+                                m_blocks[i, j].m_animation.Play("Eat");
                                 if (m_scoreToShow[i, j] > 0)
 						        {
 						            AddProgress(m_scoreToShow[i, j], i, j);
@@ -891,7 +891,7 @@ public class GameLogic
                             }
                             else
                             {
-                                //m_blocks[i, j].m_animation.Play("DropDown");                            //播放下落动画
+                                m_blocks[i, j].m_animation.Play("DropDown");                            //播放下落动画
                             }
                         }
                     }
@@ -1019,7 +1019,7 @@ public class GameLogic
         {
             for (int i = 0; i < 3; ++i )
             {
-               // m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.Play("Help");
+                m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.Play("Help");
             }
         }
     }
@@ -2023,7 +2023,7 @@ public class GameLogic
 
         if (delay == 0)
         {
-           // m_blocks[position.x, position.y].m_animation.Play("Eat");
+           m_blocks[position.x, position.y].m_animation.Play("Eat");
         }
         AddPartile("EatEffect", position.x, position.y);
     }
@@ -2330,6 +2330,8 @@ public class GameLogic
         else
             p.y = (int)((y - gameAreaY) / BLOCKHEIGHT);
         if (p.y >= BlockCountY) p.y = BlockCountY - 1;
+
+        AddProgress(10, p.x, p.y);
 
         //如果选中一个状态处于不可移动的块，或者一个特殊块，置选中标志为空，返回
         if (m_blocks[p.x, p.y] == null || !m_blocks[p.x, p.y].SelectAble())

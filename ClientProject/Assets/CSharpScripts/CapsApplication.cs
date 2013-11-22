@@ -20,9 +20,7 @@ public enum UIDrawPrefab
     DefaultLabel,
     OutlineTextLabel,
     ShadowTextLabel,
-    BigOutlineTextLabel,
     BaseSpriteCommonAtlas,
-    BaseSpliceSpriteCommonAtlas,
     BaseNumber,
 }
 
@@ -47,20 +45,14 @@ public class CapsApplication : S5Application
 
     protected override void DoInit()
     {
-        new ResManager();
         new CapsConfig();
-        new MusicManager();
+        new ResourceManager();
 
-        UIDrawer.Singleton.AddPrefab((int)UIDrawPrefab.DefaultLabel, ResManager.Singleton.GetUIPrefabByName("BaseTextLabel"));
-        UIDrawer.Singleton.AddPrefab((int)UIDrawPrefab.ShadowTextLabel, ResManager.Singleton.GetUIPrefabByName("ShadowTextLabel"));
-        UIDrawer.Singleton.AddPrefab((int)UIDrawPrefab.OutlineTextLabel, ResManager.Singleton.GetUIPrefabByName("OutlineTextLabel"));
-        UIDrawer.Singleton.AddPrefab((int)UIDrawPrefab.BaseSpriteCommonAtlas, ResManager.Singleton.GetUIPrefabByName("BaseSpriteCommonAtlas"));
-        UIDrawer.Singleton.AddPrefab((int)UIDrawPrefab.BaseNumber, ResManager.Singleton.GetUIPrefabByName("BaseNumber"));
-        UIDrawer.Singleton.fontDefaultPrefabID = (int)UIDrawPrefab.OutlineTextLabel;
-        UIDrawer.Singleton.spriteDefaultPrefabID = (int)UIDrawPrefab.BaseSpriteCommonAtlas;
-        UIDrawer.Singleton.numDefaultPrefabID = (int)UIDrawPrefab.BaseNumber;
-        //UIDrawer.Singleton.AddPrefab((int)UIDrawPrefab.BaseSpliceSpriteCommonAtlas, Resources.Load("BaseSpliceSpriteCommonAtlas") as GameObject);
-        //UIDrawer.Singleton.AddPrefab((int)UIDrawPrefab.BaseAvatarSpriteAtlas, Resources.Load("BaseAvatarSpriteAtlas") as GameObject);
+        UIDrawer.Singleton.AddPrefab(ResourceManager.Singleton.GetUIPrefabByName("BaseTextLabel"));
+        UIDrawer.Singleton.fontDefaultPrefabID = UIDrawer.Singleton.AddPrefab(ResourceManager.Singleton.GetUIPrefabByName("OutlineTextLabel"));
+        UIDrawer.Singleton.AddPrefab(ResourceManager.Singleton.GetUIPrefabByName("ShadowTextLabel"));
+        UIDrawer.Singleton.spriteDefaultPrefabID = UIDrawer.Singleton.AddPrefab(ResourceManager.Singleton.GetUIPrefabByName("BaseSpriteCommonAtlas"));
+        UIDrawer.Singleton.numDefaultPrefabID = UIDrawer.Singleton.AddPrefab(ResourceManager.Singleton.GetUIPrefabByName("BaseNumber"));
 
         TextTable.Singleton.AddTextMap(@"baseText");
         TextTable.Singleton.AddTextMap(@"errorcode");

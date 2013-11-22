@@ -83,7 +83,6 @@ public class CapsConfig
 
         _config.GetValue<float>("BLOCKWIDTH", out GameLogic.BLOCKWIDTH);
         _config.GetValue<float>("BLOCKHEIGHT", out GameLogic.BLOCKHEIGHT);
-        _config.GetValue<float>("BLOCKSCALE", out GameLogic.BlockScale);
     }
 
     /// <summary>
@@ -129,7 +128,6 @@ public class CapsConfig
 
         _config.Write("BLOCKWIDTH", GameLogic.BLOCKWIDTH);
         _config.Write("BLOCKHEIGHT", GameLogic.BLOCKHEIGHT);
-        _config.Write("BLOCKSCALE", GameLogic.BlockScale);
     }
 
     public void ReadDefault()

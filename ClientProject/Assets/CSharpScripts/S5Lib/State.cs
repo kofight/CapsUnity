@@ -38,18 +38,5 @@ public abstract class State
 
     }
 
-    public virtual void OnTap(Vector2 fingerPos) { }
-    public virtual void OnDoubleTap(Vector2 fingerPos) { }
-    public virtual void OnDragMove(Vector2 fingerPos, Vector2 delta) { }
-    public virtual void OnPinchMove(Vector2 fingerPos1, Vector2 fingerPos2, float delta) { }
-    public virtual void OnTwoFingerDragMove(Vector2 fingerPos, Vector2 delta) { }
-    public virtual void OnTwoFingerDragMoveEnd(Vector2 fingerPos) { }
-	public virtual void OnDrawBegin( Vector2 fingerPos, Vector2 startPos ){ }
-	public virtual void OnDrawEnd( Vector2 fingerPos ){ }
-	public virtual void OnPressUp( int fingerIndex, Vector2 fingerPos, float timeHeldDown ){}
-	public virtual void OnPressDown( int fingerIndex, Vector2 fingerPos ){}
-    public virtual void OnRotate(Vector2 fingerPos1, Vector2 fingerPos2, float rotationAngleDelta) { }
-    public virtual void OnRotateEnd(Vector2 fingerPos1, Vector2 fingerPos2, float totalRotationAngle) { }
-    public virtual void OnLongPress(Vector2 fingerPos) { }
     public virtual void OnBackKey() { }
 }

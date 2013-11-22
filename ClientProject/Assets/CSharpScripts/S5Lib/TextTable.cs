@@ -24,7 +24,7 @@ public class TextTable
 
     public List<string[]> GetList(string fileName)
     {
-        return _textConfig.ReadTextTable(ResManager.Singleton.LoadTextFile(fileName), new string[] { "\t", " " });
+        return _textConfig.ReadTextTable(ResourceManager.Singleton.LoadTextFile(fileName), new string[] { "\t", " " });
     }
 
     public void Write(string name, string value)
@@ -50,7 +50,7 @@ public class TextTable
 
     public void AddTextMap(string fileName)                //
     {
-        _textConfig.Read(ResManager.Singleton.LoadTextFile(fileName), false);
+        _textConfig.Read(ResourceManager.Singleton.LoadTextFile(fileName), false);
     }
 
     public void Clear()                                    //

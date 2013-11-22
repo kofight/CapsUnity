@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class UIOption : UIWindowNGUI 
+public class UIOption : UIWindow 
 {
     public override void OnCreate()
     {

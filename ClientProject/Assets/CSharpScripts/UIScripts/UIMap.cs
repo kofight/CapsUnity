@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class UIMap : UIWindowNGUI 
+public class UIMap : UIWindow 
 {
     static readonly int Width = 2048;
     static readonly int Height = 2048;
@@ -19,7 +19,7 @@ public class UIMap : UIWindowNGUI
     {
         base.OnCreate();
 
-        m_heartUI = UIWindowManager.Singleton.CreateNGUIWindow("UIMapHeart", UIWindowManager.Anchor.TopLeft);
+        m_heartUI = UIWindowManager.Singleton.CreateWindow<UIWindow>("UIMapHeart", UIWindowManager.Anchor.TopLeft);
 
         m_backGroundTrans = mUIObject.transform;
         
@@ -80,24 +80,21 @@ public class UIMap : UIWindowNGUI
 
             m_stageBtns[i] = transform;
 
-            UIMouseClick click = transform.gameObject.GetComponent<UIMouseClick>();
-            if (click != null)
-            {
-                GameObject.DestroyImmediate(click);
-            }
-            click = transform.gameObject.AddComponent<UIMouseClick>();
-            click.Click += OnStageClicked;
-            click.UserState = i+1;                                          //存储关卡数
+            UIButton button = m_stageBtns[i].GetComponent<UIButton>();
+            EventDelegate.Set(button.onClick, OnStageClicked);
         }
 
         Transform curStageTrans = UIToolkits.FindChild(mUIObject.transform, "Stage" + GlobalVars.LastStage);      //找到对象
         MoveTo(new Vector2(curStageTrans.localPosition.x, curStageTrans.localPosition.y));
+
+        EasyTouch.On_Swipe += OnDragMove;
     }
 
     public override void OnHide()
     {
         base.OnHide();
         m_heartUI.HideWindow();
+        EasyTouch.On_Swipe -= OnDragMove;
     }
 
     public override void OnUpdate()
@@ -131,23 +128,26 @@ public class UIMap : UIWindowNGUI
 			int ticksToGetHeart = CapsConfig.Instance.GetHeartInterval * 1000 - ticks;
 			int min = ticksToGetHeart / 1000 / 60;
 			int second = ticksToGetHeart / 1000 % 60;
+            UIDrawer.Singleton.CurDepth = 10;
             UIDrawer.Singleton.DrawNumber("MinutesToHeart", 98, 53, min, "", 24);
             UIDrawer.Singleton.DrawSprite("Colon", 166, 53, "colon");
             UIDrawer.Singleton.DrawNumber("SecondsToHeart", 160, 53, second, "", 24);
 		}
         else
         {
+            UIDrawer.Singleton.CurDepth = 10;
             UIDrawer.Singleton.DrawSprite("Full", 173, 53, "Full");
         }
     }
 
-    private void OnStageClicked(object sender, UIMouseClick.ClickArgs e)
+    private void OnStageClicked()
     {
         if (GlobalVars.HeartCount == 0)
         {
             return;
         }
-        GlobalVars.CurStageNum = (int)e.UserState;
+        string stageNum = UIButton.current.name.Substring(5);
+        GlobalVars.CurStageNum = System.Convert.ToInt32(stageNum);
         GlobalVars.CurStageData = StageData.CreateStageData();
         GlobalVars.CurStageData.LoadStageData(GlobalVars.CurStageNum);
         UIWindowManager.Singleton.GetUIWindow<UIStageInfo>().ShowWindow();
@@ -181,8 +181,8 @@ public class UIMap : UIWindowNGUI
         m_backGroundTrans.localPosition = new Vector3(m_destOffSet.x, m_destOffSet.y, m_backGroundTrans.position.z);
     }
 
-    public void OnDragMove(Vector2 fingerPos, Vector2 delta)
+    public void OnDragMove(Gesture ges)
     {
-        MoveTo(new Vector2(-m_destOffSet.x - delta.x, -m_destOffSet.y - delta.y));
+        MoveTo(new Vector2(-m_destOffSet.x - ges.deltaPosition.x, -m_destOffSet.y - ges.deltaPosition.y));
     }
 }

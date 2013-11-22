@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class UIStageInfo : UIWindowNGUI 
+public class UIStageInfo : UIWindow 
 {
     public override void OnCreate()
     {
@@ -33,12 +33,12 @@ public class UIStageInfo : UIWindowNGUI
         base.OnUpdate();
     }
 
-    private void OnCloseClicked(object sender, UIMouseClick.ClickArgs e)
+    private void OnCloseClicked()
     {
         HideWindow();
     }
 
-    private void OnPlayClicked(object sender, UIMouseClick.ClickArgs e)
+    private void OnPlayClicked()
     {
         HideWindow();
 		if(CapsApplication.Singleton.CurStateEnum != StateEnum.Game)

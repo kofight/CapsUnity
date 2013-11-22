@@ -4,21 +4,20 @@
 //----------------------------------------------
 
 using UnityEngine;
+using System.Collections.Generic;
 
 /// <summary>
 /// Simple slider functionality.
 /// </summary>
 
 [AddComponentMenu("NGUI/Interaction/Slider")]
-public class UISlider : IgnoreTimeScale
+public class UISlider : UIWidgetContainer
 {
 	public enum Direction
 	{
 		Horizontal,
 		Vertical,
 	}
-
-	public delegate void OnValueChange (float val);
 
 	/// <summary>
 	/// Current slider. This value is set prior to the callback function being triggered.
@@ -45,31 +44,23 @@ public class UISlider : IgnoreTimeScale
 	public Direction direction = Direction.Horizontal;
 
 	/// <summary>
-	/// Event receiver that will be notified of the value changes.
-	/// </summary>
-
-	public GameObject eventReceiver;
-
-	/// <summary>
-	/// Function on the event receiver that will receive the value changes.
-	/// </summary>
-
-	public string functionName = "OnSliderChange";
-
-	/// <summary>
-	/// Allow for delegate-based subscriptions for faster events than 'eventReceiver', and allowing for multiple receivers.
-	/// </summary>
-
-	public OnValueChange onValueChange;
-
-	/// <summary>
 	/// Number of steps the slider should be divided into. For example 5 means possible values of 0, 0.25, 0.5, 0.75, and 1.0.
 	/// </summary>
 
 	public int numberOfSteps = 0;
 
+	/// <summary>
+	/// Callbacks triggered when the scroll bar's value changes.
+	/// </summary>
+
+	public List<EventDelegate> onChange = new List<EventDelegate>();
+
 	// Used to be public prior to 1.87
 	[HideInInspector][SerializeField] float rawValue = 1f;
+	
+	// Deprecated functionality, kept for backwards compatibility
+	[HideInInspector][SerializeField] GameObject eventReceiver;
+	[HideInInspector][SerializeField] string functionName = "OnSliderChange";
 
 	BoxCollider mCol;
 	Transform mTrans;
@@ -78,12 +69,13 @@ public class UISlider : IgnoreTimeScale
 	UISprite mFGFilled;
 	bool mInitDone = false;
 	Vector2 mSize = Vector2.zero;
+	Vector2 mCenter = Vector3.zero;
 
 	/// <summary>
 	/// Value of the slider.
 	/// </summary>
 
-	public float sliderValue
+	public float value
 	{
 		get
 		{
@@ -97,17 +89,48 @@ public class UISlider : IgnoreTimeScale
 		}
 	}
 
+	[System.Obsolete("Use 'value' instead")]
+	public float sliderValue { get { return this.value; } set { this.value = value; } }
+
 	/// <summary>
 	/// Change the full size of the slider, in case you need to.
 	/// </summary>
 
-	public Vector2 fullSize { get { return mSize; } set { if (mSize != value) { mSize = value; ForceUpdate(); } } }
+	public Vector2 fullSize
+	{
+		get
+		{
+			return mSize;
+		}
+		set
+		{
+			if (mSize != value)
+			{
+				mSize = value;
+
+				if (foreground != null)
+				{
+					UIWidget w = foreground.GetComponent<UIWidget>();
+
+					if (w != null)
+					{
+						w.width = Mathf.RoundToInt(value.x);
+						w.height = Mathf.RoundToInt(value.y);
+						Vector3[] wc = w.localCorners;
+						mCenter = Vector3.Lerp(wc[0], wc[2], 0.5f);
+					}
+					else mCenter = foreground.localPosition + (Vector3)value * 0.5f;
+				}
+				ForceUpdate();
+			}
+		}
+	}
 
 	/// <summary>
 	/// Initialize the cached values.
 	/// </summary>
 
-	void Init ()
+	public void Init ()
 	{
 		mInitDone = true;
 
@@ -116,11 +139,29 @@ public class UISlider : IgnoreTimeScale
 			mFGWidget = foreground.GetComponent<UIWidget>();
 			mFGFilled = (mFGWidget != null) ? mFGWidget as UISprite : null;
 			mFGTrans = foreground.transform;
-			if (mSize == Vector2.zero) mSize = foreground.localScale;
+
+			if (mSize == Vector2.zero)
+			{
+				UIWidget w = foreground.GetComponent<UIWidget>();
+				mSize = (w != null) ? new Vector2(w.width, w.height) : (Vector2)foreground.localScale;
+			}
+
+			if (mCenter == Vector2.zero)
+			{
+				UIWidget w = foreground.GetComponent<UIWidget>();
+
+				if (w != null)
+				{
+					Vector3[] wc = w.localCorners;
+					mCenter = Vector3.Lerp(wc[0], wc[2], 0.5f);
+				}
+				else mCenter = foreground.localPosition + foreground.localScale * 0.5f;
+			}
 		}
 		else if (mCol != null)
 		{
 			if (mSize == Vector2.zero) mSize = mCol.size;
+			if (mCenter == Vector2.zero) mCenter = mCol.center;
 		}
 		else
 		{
@@ -146,6 +187,13 @@ public class UISlider : IgnoreTimeScale
 	{
 		Init();
 
+		// Remove legacy functionality
+		if (EventDelegate.IsValid(onChange))
+		{
+			eventReceiver = null;
+			functionName = null;
+		}
+
 		if (Application.isPlaying && thumb != null && thumb.collider != null)
 		{
 			UIEventListener listener = UIEventListener.Get(thumb.gameObject);
@@ -159,25 +207,25 @@ public class UISlider : IgnoreTimeScale
 	/// Update the slider's position on press.
 	/// </summary>
 
-	void OnPress (bool pressed) { if (pressed && UICamera.currentTouchID != -100) UpdateDrag(); }
+	void OnPress (bool pressed) { if (enabled && pressed && UICamera.currentTouchID != -100) UpdateDrag(); }
 
 	/// <summary>
 	/// When dragged, figure out where the mouse is and calculate the updated value of the slider.
 	/// </summary>
 
-	void OnDrag (Vector2 delta) { UpdateDrag(); }
+	void OnDrag (Vector2 delta) { if (enabled) UpdateDrag(); }
 
 	/// <summary>
 	/// Callback from the thumb.
 	/// </summary>
 
-	void OnPressThumb (GameObject go, bool pressed) { if (pressed) UpdateDrag(); }
+	void OnPressThumb (GameObject go, bool pressed) { if (enabled && pressed) UpdateDrag(); }
 
 	/// <summary>
 	/// Callback from the thumb.
 	/// </summary>
 
-	void OnDragThumb (GameObject go, Vector2 delta) { UpdateDrag(); }
+	void OnDragThumb (GameObject go, Vector2 delta) { if (enabled) UpdateDrag(); }
 
 	/// <summary>
 	/// Watch for key events and adjust the value accordingly.
@@ -185,17 +233,20 @@ public class UISlider : IgnoreTimeScale
 
 	void OnKey (KeyCode key)
 	{
-		float step = (numberOfSteps > 1f) ? 1f / (numberOfSteps - 1) : 0.125f;
+		if (enabled)
+		{
+			float step = (numberOfSteps > 1f) ? 1f / (numberOfSteps - 1) : 0.125f;
 
-		if (direction == Direction.Horizontal)
-		{
-			if		(key == KeyCode.LeftArrow)	Set(rawValue - step, false);
-			else if (key == KeyCode.RightArrow) Set(rawValue + step, false);
-		}
-		else
-		{
-			if		(key == KeyCode.DownArrow)	Set(rawValue - step, false);
-			else if (key == KeyCode.UpArrow)	Set(rawValue + step, false);
+			if (direction == Direction.Horizontal)
+			{
+				if (key == KeyCode.LeftArrow) Set(rawValue - step, false);
+				else if (key == KeyCode.RightArrow) Set(rawValue + step, false);
+			}
+			else
+			{
+				if (key == KeyCode.DownArrow) Set(rawValue - step, false);
+				else if (key == KeyCode.UpArrow) Set(rawValue + step, false);
+			}
 		}
 	}
 
@@ -220,7 +271,7 @@ public class UISlider : IgnoreTimeScale
 		if (!plane.Raycast(ray, out dist)) return;
 
 		// Collider's bottom-left corner in local space
-		Vector3 localOrigin = mTrans.localPosition + mCol.center - mCol.extents;
+		Vector3 localOrigin = mTrans.localPosition + (Vector3)(mCenter - mSize * 0.5f);
 		Vector3 localOffset = mTrans.localPosition - localOrigin;
 
 		// Direction to the point on the plane in scaled local space
@@ -228,7 +279,7 @@ public class UISlider : IgnoreTimeScale
 		Vector3 dir = localCursor + localOffset;
 
 		// Update the slider
-		Set( (direction == Direction.Horizontal) ? dir.x / mCol.size.x : dir.y / mCol.size.y, false );
+		Set((direction == Direction.Horizontal) ? dir.x / mSize.x : dir.y / mSize.y, false);
 	}
 
 	/// <summary>
@@ -243,55 +294,45 @@ public class UISlider : IgnoreTimeScale
 		float val = Mathf.Clamp01(input);
 		if (val < 0.001f) val = 0f;
 
-		float prevStep = sliderValue;
+		float prevStep = value;
 
 		// Save the raw value
 		rawValue = val;
 
+#if UNITY_EDITOR
+		if (!Application.isPlaying) return;
+#endif
 		// Take steps into account
-		float stepValue = sliderValue;
+		float stepValue = value;
 
 		// If the stepped value doesn't match the last one, it's time to update
 		if (force || prevStep != stepValue)
 		{
 			Vector3 scale = mSize;
 
-#if UNITY_EDITOR
-			if (Application.isPlaying)
-			{
-				if (direction == Direction.Horizontal) scale.x *= stepValue;
-				else scale.y *= stepValue;
-			}
-#else
 			if (direction == Direction.Horizontal) scale.x *= stepValue;
 			else scale.y *= stepValue;
-#endif
-
-#if UNITY_EDITOR
-			if (Application.isPlaying)
-#endif
+			
+			if (mFGFilled != null && mFGFilled.type == UISprite.Type.Filled)
 			{
-				if (mFGFilled != null && mFGFilled.type == UISprite.Type.Filled)
+				mFGFilled.fillAmount = stepValue;
+			}
+			else if (mFGWidget != null)
+			{
+				if (stepValue > 0.001f)
 				{
-					mFGFilled.fillAmount = stepValue;
+					mFGWidget.width = Mathf.RoundToInt(scale.x);
+					mFGWidget.height = Mathf.RoundToInt(scale.y);
+					mFGWidget.enabled = true;
 				}
-				else if (foreground != null)
+				else
 				{
-					mFGTrans.localScale = scale;
-
-					if (mFGWidget != null)
-					{
-						if (val > 0.001f)
-						{
-							mFGWidget.enabled = true;
-							mFGWidget.MarkAsChanged();
-						}
-						else
-						{
-							mFGWidget.enabled = false;
-						}
-					}
+					mFGWidget.enabled = false;
 				}
+			}
+			else if (foreground != null)
+			{
+				mFGTrans.localScale = scale;
 			}
 
 			if (thumb != null)
@@ -326,11 +367,15 @@ public class UISlider : IgnoreTimeScale
 
 			current = this;
 
-			if (eventReceiver != null && !string.IsNullOrEmpty(functionName) && Application.isPlaying)
+			if (EventDelegate.IsValid(onChange))
 			{
+				EventDelegate.Execute(onChange);
+			}
+			else if (eventReceiver != null && !string.IsNullOrEmpty(functionName))
+			{
+				// Legacy functionality support (for backwards compatibility)
 				eventReceiver.SendMessage(functionName, stepValue, SendMessageOptions.DontRequireReceiver);
 			}
-			if (onValueChange != null) onValueChange(stepValue);
 			current = null;
 		}
 	}

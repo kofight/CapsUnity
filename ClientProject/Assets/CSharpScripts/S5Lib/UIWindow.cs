@@ -10,29 +10,13 @@ using System.Collections.Generic;
 /// </summary>
 public abstract class UIEffectPlayer : MonoBehaviour
 {
-    public enum PlayingExcludeEffectType
-    {
-        None,
-        HideEffect,
-        ShowEffect,
-    }
-    public virtual bool IsPlaying(PlayingExcludeEffectType effectType) { return mCurPlayingExcludeEffect == effectType; }
-    public virtual void OnCreate() { }
-    public virtual void OnShow()
-    {
-        mCurPlayingExcludeEffect = PlayingExcludeEffectType.ShowEffect;
-    }
-    public virtual void OnHide()
-    {
-		if(enabled)
-        	mCurPlayingExcludeEffect = PlayingExcludeEffectType.HideEffect;
-    }
-    public virtual void OnUpdate() { }
-    public virtual void ResetWidget() { }
+    public virtual bool IsPlaying() { return false; }           //是否正在播放特效
+    public virtual void CreateEffect() { }                      //创建特效
+    public virtual void ShowEffect() { }                        //显示时的特效
+    public virtual void HideEffect() { }                        //隐藏时的特效
 
     public bool PlayWhileShowWindow = true;
     public bool PlayWhileHideWindow = true;
-    protected PlayingExcludeEffectType mCurPlayingExcludeEffect;
 }
 
 public enum UIWindowStateEnum
@@ -46,7 +30,7 @@ public enum UIWindowStateEnum
 /// <summary>
 /// All UI's base class, provide some common behavior of Window
 /// </summary>
-public abstract class UIWindow
+public class UIWindow
 {
     public string prefabName;
     public GameObject mUIObject;
@@ -69,7 +53,6 @@ public abstract class UIWindow
         }
     }
 
-    public virtual void SetAnchor(GameObject UIAnchor) { }
     List<UIEffectPlayer> mEffectPlayerList = new List<UIEffectPlayer>();
     public UIWindowStateEnum uiWindowState = UIWindowStateEnum.Hide;
     public delegate void WindowEffectFinished();
@@ -105,7 +88,7 @@ public abstract class UIWindow
         {
             if (player.PlayWhileHideWindow && player.gameObject.activeInHierarchy)
             {
-                player.OnHide();
+                player.HideEffect();
 				bHideEffect = true;
             }
         }
@@ -140,7 +123,7 @@ public abstract class UIWindow
         {
             if (player.PlayWhileShowWindow && player.gameObject.activeInHierarchy)
             {
-                player.OnShow();
+                player.ShowEffect();
 				bShowEffect = true;
             }
         }
@@ -163,45 +146,6 @@ public abstract class UIWindow
             OnShowEffectPlayOver();
         }
     }
-
-
-    protected void ResetWidget()
-    {
-        mEffectPlayerList.ForEach( ( e ) => e.ResetWidget() );
-    }
-
-    public void ShowWidget(string name)
-    {
-        Transform trans = UIToolkits.FindChild(mUIObject.transform, name);
-        if (trans == null)
-        {
-            return;
-        }
-        UIEffectPlayer player = trans.gameObject.GetComponent<UIEffectPlayer>();
-        if (player != null)
-        {
-            player.OnShow();
-        }
-        trans.gameObject.SetActive(true);
-    }
-
-    public void HideWidget(string name)
-    {
-        Transform trans = UIToolkits.FindChild(mUIObject.transform, name);
-        if (trans == null)
-        {
-            return;
-        }
-        UIEffectPlayer player = trans.gameObject.GetComponent<UIEffectPlayer>();
-        if (player != null)
-        {
-            player.OnHide();
-        }
-        trans.gameObject.SetActive(false);
-    }
-
-    protected virtual void DoHideWindow() { }
-    protected virtual void DoShowWindow() { }
 
     public virtual void ReleaseWindow() 
     {
@@ -240,14 +184,7 @@ public abstract class UIWindow
         UIToolkits.FindComponents<UIEffectPlayer>(mUIObject.transform, mEffectPlayerList);
         foreach (UIEffectPlayer player in mEffectPlayerList)
         {
-            player.OnCreate();
-        }
-		
-		UIEffectPlayer[] players = mUIObject.transform.GetComponents<UIEffectPlayer>();
-        foreach (UIEffectPlayer player in players)
-        {
-            player.OnCreate();
-            mEffectPlayerList.Add(player);
+            player.CreateEffect();
         }
     }
     public virtual void OnHide() { }
@@ -263,7 +200,7 @@ public abstract class UIWindow
             foreach (UIEffectPlayer player in mEffectPlayerList)
             {
                 if (player.transform.gameObject.activeInHierarchy 						//防止transform被停止,player没停止的情况
-                && player.IsPlaying(UIEffectPlayer.PlayingExcludeEffectType.HideEffect))
+                && player.IsPlaying())
                 {
                     stillPlaying = true;
                     break;
@@ -285,7 +222,7 @@ public abstract class UIWindow
             bool stillPlaying = false;
             foreach (UIEffectPlayer player in mEffectPlayerList)
             {
-                if (player.gameObject.activeSelf && player.IsPlaying(UIEffectPlayer.PlayingExcludeEffectType.ShowEffect))
+                if (player.gameObject.activeSelf && player.IsPlaying())
                 {
                     stillPlaying = true;
                 }
@@ -296,43 +233,49 @@ public abstract class UIWindow
             }
         }
     }
-    public UIMouseClick AddChildComponentMouseClick( string name , System.EventHandler<UIMouseClick.ClickArgs> action )
+    public bool AddChildComponentMouseClick( string name , EventDelegate.Callback callBack )
      {
-        Transform tansform = UIToolkits.FindChild(mUIObject.transform, name);
-        if( null == tansform )
-         {
-            Debug.LogError(" tansform is null .");
-             return null;
-         }
-        return UIToolkits.AddChildComponentMouseClick(tansform.gameObject, action);
-    }
-
-    public UIMouseHover AddChildComponentMouseHover( string name , System.EventHandler<UIMouseHover.HoverArgs> action )
-     {
-          Transform tansform = UIToolkits.FindChild( mUIObject.transform , name );
-         if( null == tansform )
-         {
-             Debug.LogError( " tansform is null ." );
-             return null;
-         }
-        UIMouseHover hover = tansform.gameObject.AddComponent<UIMouseHover>();
-        return UIToolkits.AddChildComponentMouseHover(tansform.gameObject, action);
+        return UIToolkits.AddChildComponentMouseClick(mUIObject.transform, name, callBack);
     }
 
     public T GetChildComponent<T>(string name) where T : Component
     {
-        Transform tansform = UIToolkits.FindChild(mUIObject.transform, name);
-        if (null == tansform)
-        {
-            return null;
-        }
-        return tansform.GetComponent<T>();
+        return UIToolkits.FindComponent<T>(mUIObject.transform, name);
     }
-    public virtual Rect GetChildRect(string name) { return new Rect(); }
+    public Rect GetChildRect(string name)
+    {
+        if (mUIObject == null)
+        {
+            return new Rect();
+        }
+        Transform trans = UIToolkits.FindChildCheckActive(mUIObject.transform, name);
+        if (trans == null)
+        {
+            return new Rect();
+        }
+        return UIToolkits.GetUIObjectScreenRect(trans);
+    }
 	/// <summary>
 	/// Position in screen  
 	/// </summary>
-    public virtual Rect GetRect() { return new Rect(); }
+    public Rect GetRect() { return UIToolkits.GetUIObjectScreenRect(mUIObject.transform); }
 
-    public virtual void SetPosition(Vector2 pos) { }
+    public void SetAnchor(GameObject UIAnchor)
+    {
+        float saveZ = mUIObject.transform.localPosition.z;
+        mUIObject.transform.parent = UIAnchor.transform;
+
+        mUIObject.transform.localPosition = new Vector3(0, 0, saveZ);
+        mUIObject.transform.localScale = Vector3.one;
+    }
+
+    protected void DoHideWindow()
+    {
+        mUIObject.SetActive(false);
+    }
+
+    protected void DoShowWindow()
+    {
+        mUIObject.SetActive(true);
+    }
 }

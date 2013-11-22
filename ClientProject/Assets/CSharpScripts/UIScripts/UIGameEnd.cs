@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class UIGameEnd : UIWindowNGUI 
+public class UIGameEnd : UIWindow 
 {
     UIButton m_playOnBtn;
     UIButton m_EndGameBtn;
@@ -9,8 +9,8 @@ public class UIGameEnd : UIWindowNGUI
     {
         base.OnCreate();
 
-        m_playOnBtn = UIToolkits.GetChildComponent<UIButton>(mUIObject.transform, "PlayOnBtn");
-        m_EndGameBtn = UIToolkits.GetChildComponent<UIButton>(mUIObject.transform, "EndGameBtn");
+        m_playOnBtn = UIToolkits.FindComponent<UIButton>(mUIObject.transform, "PlayOnBtn");
+        m_EndGameBtn = UIToolkits.FindComponent<UIButton>(mUIObject.transform, "EndGameBtn");
         AddChildComponentMouseClick("EndGameBtn", OnEndGameClicked);
         AddChildComponentMouseClick("PlayOnBtn", OnPlayOnClicked);
     }
@@ -23,13 +23,13 @@ public class UIGameEnd : UIWindowNGUI
         base.OnUpdate();
     }
 
-    private void OnEndGameClicked(object sender, UIMouseClick.ClickArgs e)
+    private void OnEndGameClicked()
     {
         HideWindow();
         UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();
     }
 
-    private void OnPlayOnClicked(object sender, UIMouseClick.ClickArgs e)
+    private void OnPlayOnClicked()
     {
        if (GlobalVars.CurStageData.StepLimit > 0)
        {

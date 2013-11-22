@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2013 Tasharen Entertainment
 //----------------------------------------------
@@ -9,7 +9,7 @@ using UnityEngine;
 /// Tween the object's position, rotation and scale.
 /// </summary>
 
-[AddComponentMenu("NGUI/Tween/Transform")]
+[AddComponentMenu("NGUI/Tween/Tween Transform")]
 public class TweenTransform : UITweener
 {
 	public Transform from;
@@ -25,7 +25,7 @@ public class TweenTransform : UITweener
 	/// Interpolate the position, scale, and rotation.
 	/// </summary>
 
-	override protected void OnUpdate (float factor, bool isFinished)
+	protected override void OnUpdate (float factor, bool isFinished)
 	{
 		if (to != null)
 		{

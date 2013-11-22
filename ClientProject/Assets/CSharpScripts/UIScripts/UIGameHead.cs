@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class UIGameHead : UIWindowNGUI
+public class UIGameHead : UIWindow
 {
     public override void OnCreate()
     {
@@ -64,7 +64,7 @@ public class UIGameHead : UIWindowNGUI
         }
     }
 
-    private void OnEditStageClicked(object sender, UIMouseClick.ClickArgs e)
+    private void OnEditStageClicked()
     {
         if (UIWindowManager.Singleton.GetUIWindow<UIStageEditor>() == null)
         {

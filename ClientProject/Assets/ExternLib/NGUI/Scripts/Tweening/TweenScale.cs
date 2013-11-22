@@ -9,7 +9,7 @@ using UnityEngine;
 /// Tween the object's local scale.
 /// </summary>
 
-[AddComponentMenu("NGUI/Tween/Scale")]
+[AddComponentMenu("NGUI/Tween/Tween Scale")]
 public class TweenScale : UITweener
 {
 	public Vector3 from = Vector3.one;
@@ -23,7 +23,7 @@ public class TweenScale : UITweener
 
 	public Vector3 scale { get { return cachedTransform.localScale; } set { cachedTransform.localScale = value; } }
 
-	override protected void OnUpdate (float factor, bool isFinished)
+	protected override void OnUpdate (float factor, bool isFinished)
 	{
 		cachedTransform.localScale = from * (1f - factor) + to * factor;
 

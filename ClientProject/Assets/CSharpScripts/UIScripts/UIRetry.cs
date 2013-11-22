@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class UIRetry : UIWindowNGUI 
+public class UIRetry : UIWindow 
 {
     UILabel m_resultLabel;
     UILabel m_infoLabel;
@@ -13,8 +13,8 @@ public class UIRetry : UIWindowNGUI
     {
         base.OnCreate();
 
-        m_resultLabel = UIToolkits.GetChildComponent<UILabel>(mUIObject.transform, "ResultLabel");
-        m_infoLabel = UIToolkits.GetChildComponent<UILabel>(mUIObject.transform, "EndInfomation");
+        m_resultLabel = UIToolkits.FindComponent<UILabel>(mUIObject.transform, "ResultLabel");
+        m_infoLabel = UIToolkits.FindComponent<UILabel>(mUIObject.transform, "EndInfomation");
 
         AddChildComponentMouseClick("CloseBtn", OnCloseClicked);
         AddChildComponentMouseClick("RetryBtn", OnRetryClicked);
@@ -162,7 +162,7 @@ public class UIRetry : UIWindowNGUI
         }
     }
 
-    private void OnRetryClicked(object sender, UIMouseClick.ClickArgs e)
+    private void OnRetryClicked()
     {
         if (GlobalVars.HeartCount == 0)
         {
@@ -174,7 +174,7 @@ public class UIRetry : UIWindowNGUI
         GlobalVars.CurGameLogic.StartGame();
     }
 
-    private void OnNextLevelClicked(object sender, UIMouseClick.ClickArgs e)
+    private void OnNextLevelClicked()
     {
         HideWindow();
         ++GlobalVars.LastStage;
@@ -193,7 +193,7 @@ public class UIRetry : UIWindowNGUI
         }
     }
 
-    private void OnCloseClicked(object sender, UIMouseClick.ClickArgs e)
+    private void OnCloseClicked()
     {
         HideWindow();
         CapsApplication.Singleton.ChangeState((int)StateEnum.Login);        //返回地图界面

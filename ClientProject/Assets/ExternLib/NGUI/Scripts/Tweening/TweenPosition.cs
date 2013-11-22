@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2013 Tasharen Entertainment
 //----------------------------------------------
@@ -9,7 +9,7 @@ using UnityEngine;
 /// Tween the object's position.
 /// </summary>
 
-[AddComponentMenu("NGUI/Tween/Position")]
+[AddComponentMenu("NGUI/Tween/Tween Position")]
 public class TweenPosition : UITweener
 {
 	public Vector3 from;
@@ -20,7 +20,7 @@ public class TweenPosition : UITweener
 	public Transform cachedTransform { get { if (mTrans == null) mTrans = transform; return mTrans; } }
 	public Vector3 position { get { return cachedTransform.localPosition; } set { cachedTransform.localPosition = value; } }
 
-	override protected void OnUpdate (float factor, bool isFinished) { cachedTransform.localPosition = from * (1f - factor) + to * factor; }
+	protected override void OnUpdate (float factor, bool isFinished) { cachedTransform.localPosition = from * (1f - factor) + to * factor; }
 
 	/// <summary>
 	/// Start the tweening operation.

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class UIMainMenu : UIWindowNGUI 
+public class UIMainMenu : UIWindow 
 {
     public override void OnCreate()
     {
@@ -17,7 +17,7 @@ public class UIMainMenu : UIWindowNGUI
         base.OnUpdate();
     }
 
-    private void OnQuitClicked(object sender, UIMouseClick.ClickArgs e)
+    private void OnQuitClicked()
     {
         if (CapsApplication.Singleton.CurStateEnum == StateEnum.Game)
         {

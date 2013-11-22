@@ -35,22 +35,6 @@ public class LoginState : State
         Instance = this;
     }
 
-    public override void OnPressDown(int fingerIndex, Vector2 fingerPos)
-    {
-        base.OnPressDown(fingerIndex, fingerPos);
-		if(UIWindowManager.Singleton.GetUIWindow<UISplash>().Visible)
-        	UIWindowManager.Singleton.GetUIWindow<UISplash>().Close();
-    }
-
-    public override void OnDragMove(Vector2 fingerPos, Vector2 delta)
-    {
-        base.OnDragMove(fingerPos, delta);
-        if (UIWindowManager.Singleton.GetUIWindow<UIMap>().Visible)
-        {
-            UIWindowManager.Singleton.GetUIWindow<UIMap>().OnDragMove(fingerPos, delta);
-        }
-    }
-
     public override void Update()
     {
  	    base.Update();

@@ -67,7 +67,8 @@ public class UICenterOnChild : MonoBehaviour
 		Vector3 center = dt.localPosition;
 		center.x += clip.x;
 		center.y += clip.y;
-		center = dt.parent.TransformPoint(center);
+		if(dt.parent != null)
+			center = dt.parent.TransformPoint(center);
 
 		// Offset this value by the momentum
 		Vector3 offsetCenter = center - mDrag.currentMomentum * (mDrag.momentumAmount * 0.1f);

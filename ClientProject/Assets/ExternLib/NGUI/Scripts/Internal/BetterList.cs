@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2013 Tasharen Entertainment
 //----------------------------------------------
@@ -234,6 +234,7 @@ public class BetterList<T>
 					--size;
 					buffer[i] = default(T);
 					for (int b = i; b < size; ++b) buffer[b] = buffer[b + 1];
+					buffer[size] = default(T);
 					return true;
 				}
 			}
@@ -252,7 +253,23 @@ public class BetterList<T>
 			--size;
 			buffer[index] = default(T);
 			for (int b = index; b < size; ++b) buffer[b] = buffer[b + 1];
+			buffer[size] = default(T);
 		}
+	}
+
+	/// <summary>
+	/// Remove an item from the end.
+	/// </summary>
+
+	public T Pop ()
+	{
+		if (buffer != null && size != 0)
+		{
+			T val = buffer[--size];
+			buffer[size] = default(T);
+			return val;
+		}
+		return default(T);
 	}
 
 	/// <summary>
@@ -261,29 +278,17 @@ public class BetterList<T>
 
 	public T[] ToArray () { Trim(); return buffer; }
 
+	class Comparer : System.Collections.IComparer
+	{
+		System.Comparison<T> mCompare;
+		public Comparer (System.Comparison<T> comparer) { mCompare = comparer; }
+		public int Compare (object x, object y) { return mCompare((T)x, (T)y); }
+	}
+
 	/// <summary>
 	/// List.Sort equivalent.
 	/// </summary>
 
-	public void Sort (System.Comparison<T> comparer)
-	{
-		bool changed = true;
-
-		while (changed)
-		{
-			changed = false;
-
-			for (int i = 1; i < size; ++i)
-			{
-				if (comparer.Invoke(buffer[i - 1], buffer[i]) > 0)
-				{
-					T temp = buffer[i];
-					buffer[i] = buffer[i - 1];
-					buffer[i - 1] = temp;
-					changed = true;
-				}
-			}
-		}
-	}
+	public void Sort (System.Comparison<T> comparer) { if (size > 0) System.Array.Sort(buffer, 0, size, new Comparer(comparer)); }
 #endif
 }

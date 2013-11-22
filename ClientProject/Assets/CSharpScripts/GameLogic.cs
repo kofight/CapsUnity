@@ -155,8 +155,6 @@ public class GameLogic
     public static float BLOCKWIDTH = 65;      //宽度
     public static float BLOCKHEIGHT = 75.05553f;     //高度
 
-    public static float BlockScale = 58.0f; //
-
     public static int gameAreaX = 10;		//游戏区域左上角坐标
     public static int gameAreaY = 90;		//游戏区域左上角坐标
     public static float gameAreaWidth = BLOCKWIDTH * BlockCountX;	//游戏区域宽度
@@ -294,6 +292,10 @@ public class GameLogic
         {
             m_saveHelpBlocks[i].MakeItUnAvailable();
         }
+
+        EasyTouch.On_SimpleTap += OnTap;
+        EasyTouch.On_Swipe += OnTouchMove;
+        EasyTouch.On_SwipeStart += OnTouchBegin;
     }
 
     void ProcessGridSprites(int x, int y)
@@ -705,7 +707,7 @@ public class GameLogic
                             if (Timer.GetRealTimeSinceStartUp() > m_blocks[i, j].m_eatStartTime)        //到达了开始时间
                             {
                                 m_blocks[i, j].EatDelay = 0;
-                                m_blocks[i, j].m_animation.Play("Eat");
+                                //m_blocks[i, j].m_animation.Play("Eat");
                                 if (m_scoreToShow[i, j] > 0)
 						        {
 						            AddProgress(m_scoreToShow[i, j], i, j);
@@ -889,7 +891,7 @@ public class GameLogic
                             }
                             else
                             {
-                                m_blocks[i, j].m_animation.Play("DropDown");                            //播放下落动画
+                                //m_blocks[i, j].m_animation.Play("DropDown");                            //播放下落动画
                             }
                         }
                     }
@@ -1017,7 +1019,7 @@ public class GameLogic
         {
             for (int i = 0; i < 3; ++i )
             {
-                m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.Play("Help");
+               // m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.Play("Help");
             }
         }
     }
@@ -1564,7 +1566,7 @@ public class GameLogic
         availablePos.MakeItUnAvailable();
 
         TBlockColor color = GetBlockColor(position);
-        if (color > TBlockColor.EColor_Grey)
+        if (color > TBlockColor.EColor_Grey || color == TBlockColor.EColor_None)
         {
             return false;
         }
@@ -1888,7 +1890,7 @@ public class GameLogic
                 for (int i = 0; i < 3; ++i)
                 {
                     m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.Stop();
-                    m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.transform.localScale = new Vector3(GameLogic.BlockScale, GameLogic.BlockScale, 1.0f);          //恢复缩放
+                    m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.transform.localScale = Vector3.one;          //恢复缩放
                     m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_addColorTranform.renderer.material.SetColor("_TintColor", new Color(0, 0, 0, 0));
                 }
             }
@@ -2021,7 +2023,7 @@ public class GameLogic
 
         if (delay == 0)
         {
-            m_blocks[position.x, position.y].m_animation.Play("Eat");
+           // m_blocks[position.x, position.y].m_animation.Play("Eat");
         }
         AddPartile("EatEffect", position.x, position.y);
     }
@@ -2168,8 +2170,10 @@ public class GameLogic
         m_lastHelpTime = Timer.GetRealTimeSinceStartUp();
     }
 
-    public void OnTap(int x, int y)
+    public void OnTap(Gesture ges)
     {
+        int x = (int)ges.position.x;
+        int y = (int)(Screen.height - ges.position.y);
         //不在游戏区，不处理
         if (x < gameAreaX || y < gameAreaY || x > gameAreaX + gameAreaWidth || y > gameAreaY + gameAreaHeight)
         {
@@ -2307,8 +2311,10 @@ public class GameLogic
         }
     }
 
-    public void OnTouchBegin(int x, int y)
+    public void OnTouchBegin(Gesture ges)
     {
+        int x = (int)ges.position.x;
+        int y = (int)(Screen.height - ges.position.y);
         //不在游戏区，先不处理
         if (x < gameAreaX || y < gameAreaY || x > gameAreaX + gameAreaWidth || y > gameAreaY + gameAreaHeight)
         {
@@ -2340,8 +2346,10 @@ public class GameLogic
         //SetSelectAni(p.x, p.y);
     }
 
-    public void OnTouchMove(int x, int y)
+    public void OnTouchMove(Gesture ges)
     {
+        int x = (int)ges.position.x;
+        int y = (int)(Screen.height - ges.position.y);
         if (m_gameFlow != TGameFlow.EGameState_Playing)
         {
             return;
@@ -2597,10 +2605,18 @@ public class GameLogic
                 if (extraEat)
                 {
                     pos.Set(startPos.x, startPos.y + 1);
+                    if (i == 1)
+                    {
+                        EatBlock(pos, 0.0f, 50);
+                    }
                     EatBlock(GoTo(pos, TDirection.EDir_UpRight, i), i * 0.1f, 50);
                     EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i), i * 0.1f, 50);
 
                     pos.Set(startPos.x, startPos.y - 1);
+                    if (i == 1)
+                    {
+                        EatBlock(pos, 0.0f, 50);
+                    }
                     EatBlock(GoTo(pos, TDirection.EDir_UpRight, i), i * 0.1f, 50);
                     EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i), i * 0.1f, 50);
                 }
@@ -2624,10 +2640,18 @@ public class GameLogic
                 if (extraEat)
                 {
                     pos.Set(startPos.x + 1, startPos.y);
+                    if (i == 1)
+                    {
+                        EatBlock(pos, 0.0f, 50);
+                    }
                     EatBlock(GoTo(pos, TDirection.EDir_Up, i), i * 0.1f, 50);
                     EatBlock(GoTo(pos, TDirection.EDir_Down, i), i * 0.1f, 50);
 
                     pos.Set(startPos.x - 1, startPos.y);
+                    if (i == 1)
+                    {
+                        EatBlock(pos, 0.0f, 50);
+                    }
                     EatBlock(GoTo(pos, TDirection.EDir_Up, i), i * 0.1f, 50);
                     EatBlock(GoTo(pos, TDirection.EDir_Down, i), i * 0.1f, 50);
                 }
@@ -2652,10 +2676,18 @@ public class GameLogic
                 if (extraEat)
                 {
                     pos.Set(startPos.x, startPos.y + 1);
+                    if (i == 1)
+                    {
+                        EatBlock(pos, 0.0f, 50);
+                    }
                     EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i), i * 0.1f, 50);
                     EatBlock(GoTo(pos, TDirection.EDir_DownRight, i), i * 0.1f, 50);
 
                     pos.Set(startPos.x, startPos.y - 1);
+                    if (i == 1)
+                    {
+                        EatBlock(pos, 0.0f, 50);
+                    }
                     EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i), i * 0.1f, 50);
                     EatBlock(GoTo(pos, TDirection.EDir_DownRight, i), i * 0.1f, 50);
                 }

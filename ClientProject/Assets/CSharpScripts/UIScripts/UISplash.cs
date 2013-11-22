@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class UISplash : UIWindowNGUI {
+public class UISplash : UIWindow {
 	
 	public bool FinishProp{ get; set; }
 	float m_curAlpha = 0.0f;

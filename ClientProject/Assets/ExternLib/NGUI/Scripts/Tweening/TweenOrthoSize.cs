@@ -10,11 +10,11 @@ using UnityEngine;
 /// </summary>
 
 [RequireComponent(typeof(Camera))]
-[AddComponentMenu("NGUI/Tween/Orthographic Size")]
+[AddComponentMenu("NGUI/Tween/Tween Orthographic Size")]
 public class TweenOrthoSize : UITweener
 {
-	public float from;
-	public float to;
+	public float from = 1f;
+	public float to = 1f;
 
 	Camera mCam;
 
@@ -38,7 +38,7 @@ public class TweenOrthoSize : UITweener
 	/// Perform the tween.
 	/// </summary>
 
-	override protected void OnUpdate (float factor, bool isFinished)
+	protected override void OnUpdate (float factor, bool isFinished)
 	{
 		cachedCamera.orthographicSize = from * (1f - factor) + to * factor;
 	}

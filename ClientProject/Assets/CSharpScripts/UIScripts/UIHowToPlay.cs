@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class UIHowToPlay : UIWindowNGUI 
+public class UIHowToPlay : UIWindow 
 {
     public override void OnCreate()
     {

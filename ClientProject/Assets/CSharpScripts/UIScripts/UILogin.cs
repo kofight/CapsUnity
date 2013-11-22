@@ -1,26 +1,26 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class UILogin : UIWindowNGUI 
+public class UILogin : UIWindow 
 {
-    UICheckbox m_developerMode;
+    UIToggle m_developerMode;
     public override void OnCreate()
     {
         base.OnCreate();
 
         AddChildComponentMouseClick("PlayBtn", OnPlayBtnClick);
-        AddChildComponentMouseClick("ClearBtn", delegate(object sender, UIMouseClick.ClickArgs e)
+        AddChildComponentMouseClick("ClearBtn", delegate()
         {
             PlayerPrefs.DeleteAll();            //删除进度
         });
 
-        AddChildComponentMouseClick("RecoverHeartBtn", delegate(object sender, UIMouseClick.ClickArgs e)
+        AddChildComponentMouseClick("RecoverHeartBtn", delegate()
         {
             PlayerPrefs.SetInt("HeartCount", 5);            //恢复爱心
             GlobalVars.HeartCount = 5;
         });
 
-        m_developerMode = UIToolkits.FindComponent<UICheckbox>(mUIObject.transform, "DeveloperCheck");
+        m_developerMode = UIToolkits.FindComponent<UIToggle>(mUIObject.transform, "DeveloperCheck");
     }
     public override void OnShow()
     {
@@ -31,10 +31,10 @@ public class UILogin : UIWindowNGUI
         base.OnUpdate();
     }
 
-    private void OnPlayBtnClick(object sender, UIMouseClick.ClickArgs e)
+    private void OnPlayBtnClick()
     {
         HideWindow();
-		GlobalVars.DeveloperMode = m_developerMode.isChecked;
+		GlobalVars.DeveloperMode = m_developerMode.value;
         UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
         UIWindowManager.Singleton.GetUIWindow<UIMap>().ShowWindow();
         LoginState.Instance.CurFlow = TLoginFlow.LoginFlow_Map;         //切换流程到显示地图

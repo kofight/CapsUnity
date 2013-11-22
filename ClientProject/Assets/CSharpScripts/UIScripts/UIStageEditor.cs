@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class UIStageEditor : UIWindowNGUI
+public class UIStageEditor : UIWindow
 {
     bool editingPortal = false;         //编辑传送门的标记
     UILabel m_portalEditLabel;
@@ -20,26 +20,26 @@ public class UIStageEditor : UIWindowNGUI
 
         AddChildComponentMouseClick("CloseBtn", OnCloseClicked);
 
-        AddChildComponentMouseClick("RestartBtn", delegate(object sender, UIMouseClick.ClickArgs e)
+        AddChildComponentMouseClick("RestartBtn", delegate()
             {
                 GlobalVars.CurGameLogic.ClearGame();
 				GlobalVars.CurGameLogic.Init();
                 GlobalVars.CurGameLogic.StartGame();
             });
 
-        AddChildComponentMouseClick("ResortBtn", delegate(object sender, UIMouseClick.ClickArgs e)
+        AddChildComponentMouseClick("ResortBtn", delegate()
         {
             GlobalVars.CurGameLogic.AutoResort();
         });
 
-        AddChildComponentMouseClick("HelpBtn", delegate(object sender, UIMouseClick.ClickArgs e)
+        AddChildComponentMouseClick("HelpBtn", delegate()
         {
             GlobalVars.CurGameLogic.ClearHelpPoint();
             GlobalVars.CurGameLogic.Help();
             GlobalVars.CurGameLogic.ShowHelpAnim();
         });
 
-        AddChildComponentMouseClick("ReSeedBtn", delegate(object sender, UIMouseClick.ClickArgs e)
+        AddChildComponentMouseClick("ReSeedBtn", delegate()
         {
             GlobalVars.CurGameLogic.ClearGame();
 			GlobalVars.CurGameLogic.Init();
@@ -51,27 +51,27 @@ public class UIStageEditor : UIWindowNGUI
         for (int i = 0; i < GameLogic.TotalColorCount; ++i)
         {
 			int color = i + 1;
-            AddChildComponentMouseClick("ChangeColor" + color, delegate(object sender, UIMouseClick.ClickArgs e)
+            AddChildComponentMouseClick("ChangeColor" + color, delegate()
             {
                 GlobalVars.EditState = TEditState.ChangeColor;
                 GlobalVars.EditingColor = (TBlockColor)(color);
             });
         }
 
-        AddChildComponentMouseClick("ChangeToNut1", delegate(object sender, UIMouseClick.ClickArgs e)
+        AddChildComponentMouseClick("ChangeToNut1", delegate()
         {
             GlobalVars.EditState = TEditState.ChangeColor;
             GlobalVars.EditingColor = TBlockColor.EColor_Nut1;
         });
 
-        AddChildComponentMouseClick("ChangeToNut2", delegate(object sender, UIMouseClick.ClickArgs e)
+        AddChildComponentMouseClick("ChangeToNut2", delegate()
         {
             GlobalVars.EditState = TEditState.ChangeColor;
             GlobalVars.EditingColor = TBlockColor.EColor_Nut2;
         });
 
         //开始编辑关卡旗标事件
-        AddChildComponentMouseClick("EditStageBlock", delegate(object sender, UIMouseClick.ClickArgs e)
+        AddChildComponentMouseClick("EditStageBlock", delegate()
         {
             GlobalVars.EditState = TEditState.EditStageGrid;
             GlobalVars.EditingGrid = GetGridFlagsFromCheckBoxes();
@@ -81,7 +81,7 @@ public class UIStageEditor : UIWindowNGUI
         for (int i = 0; i <= (int)TSpecialBlock.ESpecial_EatAColor; ++i)
         {
             int special = i;
-            AddChildComponentMouseClick("ChangeSpecial" + i, delegate(object sender, UIMouseClick.ClickArgs e)
+            AddChildComponentMouseClick("ChangeSpecial" + i, delegate()
             {
                 GlobalVars.EditState = TEditState.ChangeSpecial;
                 GlobalVars.EditingSpecial = (TSpecialBlock)special;
@@ -90,7 +90,7 @@ public class UIStageEditor : UIWindowNGUI
 
         for (int i = 1; i <= 10; ++i)
         {
-            AddChildComponentMouseClick("GridFlag" + i, delegate(object sender, UIMouseClick.ClickArgs e)
+            AddChildComponentMouseClick("GridFlag" + i, delegate()
             {
                 GlobalVars.EditState = TEditState.EditStageGrid;
                 GlobalVars.EditingGrid = GetGridFlagsFromCheckBoxes();
@@ -100,18 +100,18 @@ public class UIStageEditor : UIWindowNGUI
         for (int i = 0; i <= (int)GameTarget.GetScore; ++i)
         {
             int targetType = i;
-            AddChildComponentMouseClick("TargetMode" + i, delegate(object sender, UIMouseClick.ClickArgs e)
+            AddChildComponentMouseClick("TargetMode" + i, delegate()
             {
                 GlobalVars.CurGameLogic.PlayingStageData.Target = (GameTarget)targetType;
             });
         }
 
-        AddChildComponentMouseClick("EatBlock", delegate(object sender, UIMouseClick.ClickArgs e)
+        AddChildComponentMouseClick("EatBlock", delegate()
             {
                 GlobalVars.EditState = TEditState.Eat;
             });
 
-        AddChildComponentMouseClick("EditPortal", delegate(object sender, UIMouseClick.ClickArgs e)
+        AddChildComponentMouseClick("EditPortal", delegate()
         {
             GlobalVars.EditState = TEditState.EditPortal;
             GlobalVars.EditingPortal = new Portal();
@@ -119,7 +119,7 @@ public class UIStageEditor : UIWindowNGUI
             GlobalVars.EditingPortalTip = "Edit Portal: 选择Pos1";
         });
 
-        AddChildComponentMouseClick("EditPortalInvisible", delegate(object sender, UIMouseClick.ClickArgs e)
+        AddChildComponentMouseClick("EditPortalInvisible", delegate()
         {
             GlobalVars.EditState = TEditState.EditPortal;
             GlobalVars.EditingPortal = new Portal();
@@ -127,25 +127,25 @@ public class UIStageEditor : UIWindowNGUI
             GlobalVars.EditingPortalTip = "Edit Portal: 选择Pos1";
         });
 
-        AddChildComponentMouseClick("GridNoneBtn", delegate(object sender, UIMouseClick.ClickArgs e)
+        AddChildComponentMouseClick("GridNoneBtn", delegate()
         {
             GlobalVars.EditingGrid = 0;
             RefreshStageGridFlagCheckBoxes(GlobalVars.EditingGrid);
         });
 
-        AddChildComponentMouseClick("GridJellyBtn", delegate(object sender, UIMouseClick.ClickArgs e)
+        AddChildComponentMouseClick("GridJellyBtn", delegate()
         {
             GlobalVars.EditingGrid = ((int)GridFlag.Jelly) | ((int)GridFlag.GenerateCap);
             RefreshStageGridFlagCheckBoxes(GlobalVars.EditingGrid);
         });
 
-        AddChildComponentMouseClick("GridJelly2Btn", delegate(object sender, UIMouseClick.ClickArgs e)
+        AddChildComponentMouseClick("GridJelly2Btn", delegate()
         {
             GlobalVars.EditingGrid = ((int)GridFlag.JellyDouble) | ((int)GridFlag.GenerateCap);
             RefreshStageGridFlagCheckBoxes(GlobalVars.EditingGrid);
         });
 
-        AddChildComponentMouseClick("ClearAllPortalBtn", delegate(object sender, UIMouseClick.ClickArgs e)
+        AddChildComponentMouseClick("ClearAllPortalBtn", delegate()
         {
             GlobalVars.CurGameLogic.PlayingStageData.PortalFromMap.Clear();
             GlobalVars.CurGameLogic.PlayingStageData.PortalToMap.Clear();
@@ -161,19 +161,19 @@ public class UIStageEditor : UIWindowNGUI
         });
 
 
-        AddChildComponentMouseClick("GridNormalBtn", delegate(object sender, UIMouseClick.ClickArgs e)
+        AddChildComponentMouseClick("GridNormalBtn", delegate()
         {
             GlobalVars.EditingGrid = (int)GridFlag.GenerateCap;
             RefreshStageGridFlagCheckBoxes(GlobalVars.EditingGrid);
         });
 
-        AddChildComponentMouseClick("GridStoneBtn", delegate(object sender, UIMouseClick.ClickArgs e)
+        AddChildComponentMouseClick("GridStoneBtn", delegate()
         {
             GlobalVars.EditingGrid = ((int)GridFlag.Stone) | ((int)GridFlag.NotGenerateCap);
             RefreshStageGridFlagCheckBoxes(GlobalVars.EditingGrid);
         });
 
-        AddChildComponentMouseClick("GridChocolateBtn", delegate(object sender, UIMouseClick.ClickArgs e)
+        AddChildComponentMouseClick("GridChocolateBtn", delegate()
         {
             GlobalVars.EditingGrid = ((int)GridFlag.Chocolate) | ((int)GridFlag.NotGenerateCap);
             RefreshStageGridFlagCheckBoxes(GlobalVars.EditingGrid);
@@ -184,14 +184,14 @@ public class UIStageEditor : UIWindowNGUI
     {
         for (int i = 0; i < 10; ++i )
         {
-            UICheckbox checkBox = UIToolkits.FindComponent<UICheckbox>(mUIObject.transform, "GridFlag" + (i + 1));      //找到CheckBox
+            UIToggle checkBox = UIToolkits.FindComponent<UIToggle>(mUIObject.transform, "GridFlag" + (i + 1));      //找到CheckBox
             if ((gridFlags & 1 << i) > 0)
             {
-                checkBox.Set(true);
+                checkBox.value = true;
             }
             else
             {
-                checkBox.Set(false);
+                checkBox.value = false;
             }
         }
     }
@@ -201,8 +201,8 @@ public class UIStageEditor : UIWindowNGUI
         int gridFlags = 0;
         for (int i = 0; i < 10; ++i)
         {
-            UICheckbox checkBox = UIToolkits.FindComponent<UICheckbox>(mUIObject.transform, "GridFlag" + (i + 1));      //找到CheckBox
-            if (checkBox.isChecked)
+            UIToggle checkBox = UIToolkits.FindComponent<UIToggle>(mUIObject.transform, "GridFlag" + (i + 1));      //找到CheckBox
+            if (checkBox.value)
             {
                 gridFlags |= 1 << i;
             }
@@ -214,52 +214,52 @@ public class UIStageEditor : UIWindowNGUI
     {
         base.OnShow();
         UIInput input = GetChildComponent<UIInput>("LevelInput");
-        input.text = GlobalVars.CurStageNum.ToString();
+        input.value = GlobalVars.CurStageNum.ToString();
 
         input = GetChildComponent<UIInput>("StepLimit");
-        input.text = GlobalVars.CurGameLogic.PlayingStageData.StepLimit.ToString();
+        input.value = GlobalVars.CurGameLogic.PlayingStageData.StepLimit.ToString();
 
         input = GetChildComponent<UIInput>("TimeLimit");
-        input.text = GlobalVars.CurGameLogic.PlayingStageData.TimeLimit.ToString();
+        input.value = GlobalVars.CurGameLogic.PlayingStageData.TimeLimit.ToString();
 
         input = GetChildComponent<UIInput>("ColorCount");
-        input.text = GlobalVars.CurGameLogic.PlayingStageData.ColorCount.ToString();
+        input.value = GlobalVars.CurGameLogic.PlayingStageData.ColorCount.ToString();
 
         input = GetChildComponent<UIInput>("Nut1");
-        input.text = GlobalVars.CurStageData.Nut1Count.ToString();
+        input.value = GlobalVars.CurStageData.Nut1Count.ToString();
 
         input = GetChildComponent<UIInput>("Nut2");
-        input.text = GlobalVars.CurStageData.Nut2Count.ToString();
+        input.value = GlobalVars.CurStageData.Nut2Count.ToString();
 
         input = GetChildComponent<UIInput>("NutInitCount");
-        input.text = GlobalVars.CurStageData.NutInitCount.ToString();
+        input.value = GlobalVars.CurStageData.NutInitCount.ToString();
 
         input = GetChildComponent<UIInput>("NutMaxCount");
-        input.text = GlobalVars.CurStageData.NutMaxCount.ToString();
+        input.value = GlobalVars.CurStageData.NutMaxCount.ToString();
 
         input = GetChildComponent<UIInput>("NutStep");
-        input.text = GlobalVars.CurStageData.NutStep.ToString();
+        input.value = GlobalVars.CurStageData.NutStep.ToString();
 
         input = GetChildComponent<UIInput>("PlusInitCount");
-        input.text = GlobalVars.CurStageData.PlusInitCount.ToString();
+        input.value = GlobalVars.CurStageData.PlusInitCount.ToString();
 
         input = GetChildComponent<UIInput>("PlusMaxCount");
-        input.text = GlobalVars.CurStageData.PlusMaxCount.ToString();
+        input.value = GlobalVars.CurStageData.PlusMaxCount.ToString();
 
         input = GetChildComponent<UIInput>("PlusStep");
-        input.text = GlobalVars.CurStageData.PlusStep.ToString();
+        input.value = GlobalVars.CurStageData.PlusStep.ToString();
 
         input = GetChildComponent<UIInput>("PlusStartTime");
-        input.text = GlobalVars.CurStageData.PlusStartTime.ToString();
+        input.value = GlobalVars.CurStageData.PlusStartTime.ToString();
 
         for (int i = 0; i < 3; ++i )
         {
             input = GetChildComponent<UIInput>("Star" + (i +1));
-            input.text = GlobalVars.CurGameLogic.PlayingStageData.StarScore[i].ToString();
+            input.value = GlobalVars.CurGameLogic.PlayingStageData.StarScore[i].ToString();
         }
 
-        UICheckbox targetCheck = GetChildComponent<UICheckbox>("TargetMode" + (int)GlobalVars.CurGameLogic.PlayingStageData.Target);
-        targetCheck.isChecked = true;
+        UIToggle targetCheck = GetChildComponent<UIToggle>("TargetMode" + (int)GlobalVars.CurGameLogic.PlayingStageData.Target);
+        targetCheck.value = true;
 
         m_seedLabel.text = GlobalVars.CurGameLogic.PlayingStageData.Seed.ToString();
     }
@@ -277,14 +277,14 @@ public class UIStageEditor : UIWindowNGUI
         }
     }
 
-    private void OnCloseClicked(object sender, UIMouseClick.ClickArgs e)
+    private void OnCloseClicked()
     {
         HideWindow();
         GlobalVars.EditState = TEditState.None;
         GlobalVars.EditStageMode = false;
     }
 
-    private void OnSaveClicked(object sender, UIMouseClick.ClickArgs e)
+    private void OnSaveClicked()
     {
         UIInput input = GetChildComponent<UIInput>("StepLimit");
         int stepLimit = (int)System.Convert.ChangeType(input.text, typeof(int));
@@ -351,7 +351,7 @@ public class UIStageEditor : UIWindowNGUI
         GlobalVars.CurStageData.LoadStageData(levelNum);
     }
 
-    private void OnLoadClicked(object sender, UIMouseClick.ClickArgs e)
+    private void OnLoadClicked()
     {
         UIInput input = GetChildComponent<UIInput>("LevelInput");
         int levelNum = (int)System.Convert.ChangeType(input.text, typeof(int));

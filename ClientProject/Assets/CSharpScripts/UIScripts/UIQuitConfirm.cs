@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class UIQuitConfirm : UIWindowNGUI 
+public class UIQuitConfirm : UIWindow 
 {
     public override void OnCreate()
     {
@@ -18,12 +18,12 @@ public class UIQuitConfirm : UIWindowNGUI
         base.OnUpdate();
     }
 
-    private void OnQuitClicked(object sender, UIMouseClick.ClickArgs e)
+    private void OnQuitClicked()
     {
         Application.Quit();
     }
 
-    private void OnCancelClicked(object sender, UIMouseClick.ClickArgs e)
+    private void OnCancelClicked()
     {
         HideWindow();
     }

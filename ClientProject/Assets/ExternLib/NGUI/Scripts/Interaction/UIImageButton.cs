@@ -1,6 +1,6 @@
 //----------------------------------------------
 //            NGUI: Next-Gen UI kit
-// Copyright © 2011-2013 Tasharen Entertainment
+// Copyright Â© 2011-2013 Tasharen Entertainment
 //----------------------------------------------
 
 using UnityEngine;
@@ -9,7 +9,6 @@ using UnityEngine;
 /// Sample script showing how easy it is to implement a standard button that swaps sprites.
 /// </summary>
 
-[ExecuteInEditMode]
 [AddComponentMenu("NGUI/UI/Image Button")]
 public class UIImageButton : MonoBehaviour
 {
@@ -17,23 +16,53 @@ public class UIImageButton : MonoBehaviour
 	public string normalSprite;
 	public string hoverSprite;
 	public string pressedSprite;
-
-	void OnEnable ()
+	public string disabledSprite;
+	
+	public bool isEnabled
 	{
-		if (target != null)
+		get
 		{
-			target.spriteName = UICamera.IsHighlighted(gameObject) ? hoverSprite : normalSprite;
+			Collider col = collider;
+			return col && col.enabled;
+		}
+		set
+		{
+			Collider col = collider;
+			if (!col) return;
+
+			if (col.enabled != value)
+			{
+				col.enabled = value;
+				UpdateImage();
+			}
 		}
 	}
 
-	void Start ()
+	void OnEnable ()
 	{
 		if (target == null) target = GetComponentInChildren<UISprite>();
+		UpdateImage();
+	}
+	
+	void UpdateImage()
+	{
+		if (target != null)
+		{
+			if (isEnabled)
+			{
+				target.spriteName = UICamera.IsHighlighted(gameObject) ? hoverSprite : normalSprite;
+			}
+			else
+			{
+				target.spriteName = disabledSprite;
+			}
+			target.MakePixelPerfect();
+		}
 	}
 
 	void OnHover (bool isOver)
 	{
-		if (enabled && target != null)
+		if (isEnabled && target != null)
 		{
 			target.spriteName = isOver ? hoverSprite : normalSprite;
 			target.MakePixelPerfect();
@@ -42,10 +71,11 @@ public class UIImageButton : MonoBehaviour
 
 	void OnPress (bool pressed)
 	{
-		if (enabled && target != null)
+		if (pressed)
 		{
-			target.spriteName = pressed ? pressedSprite : normalSprite;
+			target.spriteName = pressedSprite;
 			target.MakePixelPerfect();
 		}
+		else UpdateImage();
 	}
 }

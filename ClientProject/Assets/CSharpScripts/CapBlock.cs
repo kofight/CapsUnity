@@ -126,7 +126,7 @@ public class CapBlock
 
     public void Reset()
 	{
-        m_blockSprite.transform.localScale = new Vector3(GameLogic.BlockScale, GameLogic.BlockScale, 1);
+        m_blockSprite.transform.localScale = Vector3.one;
         m_blockSprite.color = new Color(1.0f, 1.0f, 1.0f, 1.0f);
 		x_move = 0;
 		y_move = 0;
@@ -165,11 +165,11 @@ public class CapBlock
         newObj.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
         
         m_blockTransform = newObj.transform;
-        m_blockSprite = UIToolkits.FindComponentInAllChild<UISprite>(m_blockTransform);
-        m_animation = UIToolkits.FindComponentInAllChild<Animation>(m_blockTransform);
+        m_blockSprite = UIToolkits.FindComponent<UISprite>(m_blockTransform);
+        m_animation = UIToolkits.FindComponent<Animation>(m_blockTransform);
         m_addColorTranform = m_blockSprite.transform.Find("AddColor");
 
-        m_blockSprite.transform.localScale = new Vector3(GameLogic.BlockScale, GameLogic.BlockScale, 1.0f);
+        m_blockSprite.transform.localScale = Vector3.one;
         m_blockSprite.transform.localPosition = Vector3.zero;
     }
 }

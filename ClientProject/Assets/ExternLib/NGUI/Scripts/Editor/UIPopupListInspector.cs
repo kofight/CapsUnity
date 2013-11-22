@@ -1,7 +1,11 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2013 Tasharen Entertainment
 //----------------------------------------------
+
+#if !UNITY_3_5 && !UNITY_FLASH
+#define DYNAMIC_FONT
+#endif
 
 using UnityEngine;
 using UnityEditor;
@@ -12,25 +16,32 @@ using System.Collections.Generic;
 /// </summary>
 
 [CustomEditor(typeof(UIPopupList))]
-public class UIPopupListInspector : Editor
+public class UIPopupListInspector : UIWidgetContainerEditor
 {
+	enum FontType
+	{
+		Bitmap,
+		Dynamic,
+	}
+
 	UIPopupList mList;
+	FontType mType;
+
+	void OnEnable ()
+	{
+		SerializedProperty bit = serializedObject.FindProperty("bitmapFont");
+		mType = (bit.objectReferenceValue != null) ? FontType.Bitmap : FontType.Dynamic;
+	}
 
 	void RegisterUndo ()
 	{
 		NGUIEditorTools.RegisterUndo("Popup List Change", mList);
 	}
 
-	void OnSelectAtlas (MonoBehaviour obj)
+	void OnSelectAtlas (Object obj)
 	{
 		RegisterUndo();
 		mList.atlas = obj as UIAtlas;
-	}
-	
-	void OnSelectFont (MonoBehaviour obj)
-	{
-		RegisterUndo();
-		mList.font = obj as UIFont;
 	}
 
 	void OnBackground (string spriteName)
@@ -47,31 +58,44 @@ public class UIPopupListInspector : Editor
 		Repaint();
 	}
 
+	void OnBitmapFont (Object obj)
+	{
+		serializedObject.Update();
+		SerializedProperty sp = serializedObject.FindProperty("bitmapFont");
+		sp.objectReferenceValue = obj;
+		serializedObject.ApplyModifiedProperties();
+	}
+
+	void OnDynamicFont (Object obj)
+	{
+		serializedObject.Update();
+		SerializedProperty sp = serializedObject.FindProperty("trueTypeFont");
+		sp.objectReferenceValue = obj;
+		serializedObject.ApplyModifiedProperties();
+	}
+
 	public override void OnInspectorGUI ()
 	{
-		EditorGUIUtility.LookLikeControls(80f);
+		serializedObject.Update();
+		NGUIEditorTools.SetLabelWidth(80f);
 		mList = target as UIPopupList;
 
-		ComponentSelector.Draw<UIAtlas>(mList.atlas, OnSelectAtlas);
-		ComponentSelector.Draw<UIFont>(mList.font, OnSelectFont);
-
-		GUILayout.BeginHorizontal();
 		UILabel lbl = EditorGUILayout.ObjectField("Text Label", mList.textLabel, typeof(UILabel), true) as UILabel;
 
 		if (mList.textLabel != lbl)
 		{
 			RegisterUndo();
 			mList.textLabel = lbl;
-			if (lbl != null) lbl.text = mList.selection;
+			if (lbl != null) lbl.text = mList.value;
 		}
-		GUILayout.Space(44f);
-		GUILayout.EndHorizontal();
+
+		if (mList.textLabel == null)
+		{
+			EditorGUILayout.HelpBox("This popup list has no label to update, so it will behave like a menu.", MessageType.Info);
+		}
 
 		if (mList.atlas != null)
 		{
-			NGUIEditorTools.SpriteField("Background", mList.atlas, mList.backgroundSprite, OnBackground);
-			NGUIEditorTools.SpriteField("Highlight", mList.atlas, mList.highlightSprite, OnHighlight);
-
 			GUILayout.BeginHorizontal();
 			GUILayout.Space(6f);
 			GUILayout.Label("Options");
@@ -93,84 +117,133 @@ public class UIPopupListInspector : Editor
 				mList.items.Clear();
 				foreach (string s in split) mList.items.Add(s);
 
-				if (string.IsNullOrEmpty(mList.selection) || !mList.items.Contains(mList.selection))
+				if (string.IsNullOrEmpty(mList.value) || !mList.items.Contains(mList.value))
 				{
-					mList.selection = mList.items.Count > 0 ? mList.items[0] : "";
+					mList.value = mList.items.Count > 0 ? mList.items[0] : "";
 				}
 			}
 
-			string sel = NGUIEditorTools.DrawList("Selection", mList.items.ToArray(), mList.selection);
+			GUI.changed = false;
+			string sel = NGUIEditorTools.DrawList("Default", mList.items.ToArray(), mList.value);
+			if (GUI.changed) serializedObject.FindProperty("mSelectedItem").stringValue = sel;
 
-			if (mList.selection != sel)
-			{
-				RegisterUndo();
-				mList.selection = sel;
-			}
+			NGUIEditorTools.DrawProperty("Position", serializedObject, "position");
+			NGUIEditorTools.DrawProperty("Localized", serializedObject, "isLocalized");
 
-			UIPopupList.Position pos = (UIPopupList.Position)EditorGUILayout.EnumPopup("Position", mList.position);
+			DrawAtlas();
+			DrawFont();
 
-			if (mList.position != pos)
-			{
-				RegisterUndo();
-				mList.position = pos;
-			}
+			NGUIEditorTools.DrawEvents("On Value Change", mList, mList.onChange);
+		}
+		serializedObject.ApplyModifiedProperties();
+	}
 
-			float ts = EditorGUILayout.FloatField("Text Scale", mList.textScale);
-			Color tc = EditorGUILayout.ColorField("Text Color", mList.textColor);
-			Color bc = EditorGUILayout.ColorField("Background", mList.backgroundColor);
-			Color hc = EditorGUILayout.ColorField("Highlight", mList.highlightColor);
-
-			GUILayout.BeginHorizontal();
-			bool isLocalized = EditorGUILayout.Toggle("Localized", mList.isLocalized, GUILayout.Width(100f));
-			bool isAnimated = EditorGUILayout.Toggle("Animated", mList.isAnimated);
-			GUILayout.EndHorizontal();
-
-			if (mList.textScale != ts ||
-				mList.textColor != tc ||
-				mList.highlightColor != hc ||
-				mList.backgroundColor != bc ||
-				mList.isLocalized != isLocalized ||
-				mList.isAnimated != isAnimated)
-			{
-				RegisterUndo();
-				mList.textScale = ts;
-				mList.textColor = tc;
-				mList.backgroundColor = bc;
-				mList.highlightColor = hc;
-				mList.isLocalized = isLocalized;
-				mList.isAnimated = isAnimated;
-			}
-
-			NGUIEditorTools.DrawSeparator();
+	void DrawAtlas()
+	{
+		if (NGUIEditorTools.DrawHeader("Atlas"))
+		{
+			NGUIEditorTools.BeginContents();
 
 			GUILayout.BeginHorizontal();
-			GUILayout.Space(6f);
-			GUILayout.Label("Padding", GUILayout.Width(76f));
-			GUILayout.BeginVertical();
-			GUILayout.Space(-12f);
-			Vector2 padding = EditorGUILayout.Vector2Field("", mList.padding);
-			GUILayout.EndVertical();
+			{
+				if (NGUIEditorTools.DrawPrefixButton("Atlas"))
+					ComponentSelector.Show<UIAtlas>(OnSelectAtlas);
+				NGUIEditorTools.DrawProperty("", serializedObject, "atlas");
+			}
 			GUILayout.EndHorizontal();
-			
-			if (mList.padding != padding)
+
+			NGUIEditorTools.DrawPaddedSpriteField("Background", mList.atlas, mList.backgroundSprite, OnBackground);
+			NGUIEditorTools.DrawPaddedSpriteField("Highlight", mList.atlas, mList.highlightSprite, OnHighlight);
+
+			EditorGUILayout.Space();
+
+			NGUIEditorTools.DrawProperty("Background", serializedObject, "backgroundColor");
+			NGUIEditorTools.DrawProperty("Highlight", serializedObject, "highlightColor");
+			NGUIEditorTools.DrawProperty("Animated", serializedObject, "isAnimated");
+			NGUIEditorTools.EndContents();
+		}
+	}
+
+	void DrawFont ()
+	{
+		if (NGUIEditorTools.DrawHeader("Font"))
+		{
+			NGUIEditorTools.BeginContents();
+
+			SerializedProperty ttf = null;
+
+			GUILayout.BeginHorizontal();
 			{
-				RegisterUndo();
-				mList.padding = padding;
+				if (NGUIEditorTools.DrawPrefixButton("Font"))
+				{
+					if (mType == FontType.Bitmap)
+					{
+						ComponentSelector.Show<UIFont>(OnBitmapFont);
+					}
+					else
+					{
+						ComponentSelector.Show<Font>(OnDynamicFont);
+					}
+				}
+
+#if DYNAMIC_FONT
+				GUI.changed = false;
+				mType = (FontType)EditorGUILayout.EnumPopup(mType, GUILayout.Width(62f));
+
+				if (GUI.changed)
+				{
+					GUI.changed = false;
+
+					if (mType == FontType.Bitmap)
+					{
+						serializedObject.FindProperty("trueTypeFont").objectReferenceValue = null;
+					}
+					else
+					{
+						serializedObject.FindProperty("bitmapFont").objectReferenceValue = null;
+					}
+				}
+#else
+				mType = FontType.Bitmap;
+#endif
+
+				if (mType == FontType.Bitmap)
+				{
+					NGUIEditorTools.DrawProperty("", serializedObject, "bitmapFont", GUILayout.MinWidth(40f));
+				}
+				else
+				{
+					ttf = NGUIEditorTools.DrawProperty("", serializedObject, "trueTypeFont", GUILayout.MinWidth(40f));
+				}
+			}
+			GUILayout.EndHorizontal();
+
+			if (ttf != null && ttf.objectReferenceValue != null)
+			{
+				GUILayout.BeginHorizontal();
+				{
+					EditorGUI.BeginDisabledGroup(ttf.hasMultipleDifferentValues);
+					NGUIEditorTools.DrawProperty("Font Size", serializedObject, "fontSize", GUILayout.Width(142f));
+					NGUIEditorTools.DrawProperty("", serializedObject, "fontStyle", GUILayout.MinWidth(40f));
+					GUILayout.Space(18f);
+					EditorGUI.EndDisabledGroup();
+				}
+				GUILayout.EndHorizontal();
 			}
 
-			EditorGUIUtility.LookLikeControls(100f);
+			NGUIEditorTools.DrawProperty("Text Color", serializedObject, "textColor");
 
-			GameObject go = EditorGUILayout.ObjectField("Event Receiver", mList.eventReceiver,
-				typeof(GameObject), true) as GameObject;
+			GUILayout.BeginHorizontal();
+			NGUIEditorTools.SetLabelWidth(66f);
+			EditorGUILayout.PrefixLabel("Padding");
+			NGUIEditorTools.SetLabelWidth(14f);
+			NGUIEditorTools.DrawProperty("X", serializedObject, "padding.x", GUILayout.MinWidth(30f));
+			NGUIEditorTools.DrawProperty("Y", serializedObject, "padding.y", GUILayout.MinWidth(30f));
+			GUILayout.Space(18f);
+			NGUIEditorTools.SetLabelWidth(80f);
+			GUILayout.EndHorizontal();
 
-			string fn = EditorGUILayout.TextField("Function Name", mList.functionName);
-
-			if (mList.eventReceiver != go || mList.functionName != fn)
-			{
-				RegisterUndo();
-				mList.eventReceiver = go;
-				mList.functionName = fn;
-			}
+			NGUIEditorTools.EndContents();
 		}
 	}
 }

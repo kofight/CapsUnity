@@ -1,6 +1,6 @@
 //----------------------------------------------
 //            NGUI: Next-Gen UI kit
-// Copyright © 2011-2013 Tasharen Entertainment
+// Copyright Â© 2011-2013 Tasharen Entertainment
 //----------------------------------------------
 
 using UnityEngine;
@@ -21,7 +21,7 @@ public class UIImageButtonInspector : Editor
 	/// Atlas selection callback.
 	/// </summary>
 
-	void OnSelectAtlas (MonoBehaviour obj)
+	void OnSelectAtlas (Object obj)
 	{
 		if (mButton.target != null)
 		{
@@ -33,7 +33,7 @@ public class UIImageButtonInspector : Editor
 
 	public override void OnInspectorGUI ()
 	{
-		EditorGUIUtility.LookLikeControls(80f);
+		NGUIEditorTools.SetLabelWidth(80f);
 		mButton = target as UIImageButton;
 		mSprite = EditorGUILayout.ObjectField("Sprite", mButton.target, typeof(UISprite), true) as UISprite;
 
@@ -46,13 +46,14 @@ public class UIImageButtonInspector : Editor
 
 		if (mSprite != null)
 		{
-			ComponentSelector.Draw<UIAtlas>(mSprite.atlas, OnSelectAtlas);
+			ComponentSelector.Draw<UIAtlas>(mSprite.atlas, OnSelectAtlas, true);
 
 			if (mSprite.atlas != null)
 			{
-				NGUIEditorTools.SpriteField("Normal", mSprite.atlas, mButton.normalSprite, OnNormal);
-				NGUIEditorTools.SpriteField("Hover", mSprite.atlas, mButton.hoverSprite, OnHover);
-				NGUIEditorTools.SpriteField("Pressed", mSprite.atlas, mButton.pressedSprite, OnPressed);
+				NGUIEditorTools.DrawSpriteField("Normal", mSprite.atlas, mButton.normalSprite, OnNormal);
+				NGUIEditorTools.DrawSpriteField("Hover", mSprite.atlas, mButton.hoverSprite, OnHover);
+				NGUIEditorTools.DrawSpriteField("Pressed", mSprite.atlas, mButton.pressedSprite, OnPressed);
+				NGUIEditorTools.DrawSpriteField("Disabled", mSprite.atlas, mButton.disabledSprite, OnDisabled);
 			}
 		}
 	}
@@ -78,6 +79,13 @@ public class UIImageButtonInspector : Editor
 	{
 		NGUIEditorTools.RegisterUndo("Image Button Change", mButton, mButton.gameObject, mSprite);
 		mButton.pressedSprite = spriteName;
+		Repaint();
+	}
+	
+	void OnDisabled(string spriteName)
+	{
+		NGUIEditorTools.RegisterUndo("Image Button Change", mButton, mButton.gameObject, mSprite);
+		mButton.disabledSprite = spriteName;
 		Repaint();
 	}
 }

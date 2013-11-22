@@ -237,19 +237,9 @@ public class UIWindowManager
         return CreateWindow<T>(typeof(T).ToString(), UIAnchor);
     }
 
-    public UIWindow CreateNGUIWindow(string prefabName)
-    {
-        return CreateWindow<UIWindowNGUI>(prefabName, Anchor.Center);
-    }
-
-    public UIWindow CreateNGUIWindow(string prefabName, Anchor archor)
-    {
-        return CreateWindow<UIWindowNGUI>(prefabName, archor);
-    }
-
     public GameObject InstancePreb(string prefabName)
     {
-        GameObject prefab = ResManager.Singleton.GetUIPrefabByName(prefabName);
+        GameObject prefab = ResourceManager.Singleton.GetUIPrefabByName(prefabName);
         if (null == prefab)
         {
             Debug.LogError(string.Format("Load prefab name = {0} Error ", prefabName));
@@ -260,21 +250,14 @@ public class UIWindowManager
 
     public bool CreatePrefab(UIWindow pWindow)
     {
-        GameObject prefab = ResManager.Singleton.GetUIPrefabByName(pWindow.prefabName);
+        GameObject prefab = ResourceManager.Singleton.GetUIPrefabByName(pWindow.prefabName);
         if (null == prefab)
         {
             Debug.LogError(string.Format("Load prefab name = {0} Error ", pWindow.prefabName));
             return false;
         }
         GameObject instance = (GameObject)GameObject.Instantiate(prefab);
-        UIToolkits.SetUILayer(instance, 0);
-        //Init The UIWindow
-        if (pWindow is UIWindowNGUI)
-        {
-            UIWindowNGUI uiWin = pWindow as UIWindowNGUI;
-            UIPanel pWin = instance.GetComponentInChildren<UIPanel>();
-            uiWin.InitNGUIWindow(pWin, instance);
-        }
+        pWindow.mUIObject = instance;
         pWindow.SetAnchor(AnchorObject[(int)pWindow.mAnchor]);
         pWindow.HideWindowWithoutInvoke();
         pWindow.OnCreate();

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class UIGameBottom : UIWindowNGUI
+public class UIGameBottom : UIWindow
 {
     UISprite[] m_starsSprites = new UISprite[3];
     UISprite m_progressSprite;
@@ -11,7 +11,7 @@ public class UIGameBottom : UIWindowNGUI
     UISprite stageBoard;
     UISlider m_speedSlider;
     UILabel m_speedLabel;
-    UIFilledSprite m_timeBar;
+    UISprite m_timeBar;
 
     public override void OnCreate()
     {
@@ -28,7 +28,7 @@ public class UIGameBottom : UIWindowNGUI
         m_speedSlider = GetChildComponent<UISlider>("SpeedSlider");
         m_speedLabel = GetChildComponent<UILabel>("SpeedLabel");
 
-        m_timeBar = GetChildComponent<UIFilledSprite>("TimeBar");
+        m_timeBar = GetChildComponent<UISprite>("TimeBar");
     }
     public override void OnShow()
     {
@@ -47,8 +47,8 @@ public class UIGameBottom : UIWindowNGUI
         if (GlobalVars.DeveloperMode)
         {
             m_speedSlider.gameObject.SetActive(true);
-            m_speedSlider.onValueChange = OnValueChange;
-            m_speedSlider.sliderValue = CapsConfig.Instance.GameSpeed;
+            EventDelegate.Set(m_speedSlider.onChange, OnValueChange);
+            m_speedSlider.value = CapsConfig.Instance.GameSpeed;
             m_speedLabel.gameObject.SetActive(true);
         }
         else
@@ -89,7 +89,7 @@ public class UIGameBottom : UIWindowNGUI
         if (completeRatio != 0.0f)
         {
 			m_progressSprite.gameObject.SetActive(true);
-            m_progressSprite.transform.LocalScaleX(ProgressLenth * completeRatio);
+            m_progressSprite.width = (int)(ProgressLenth * completeRatio);
         }
         //GlobalVars.CurGameLogic.GetProgress()
 
@@ -114,9 +114,9 @@ public class UIGameBottom : UIWindowNGUI
         UIDrawer.Singleton.DefaultAnchor = UIWindowManager.Anchor.TopLeft;
     }
 
-    public void OnValueChange(float valueChange)
+    public void OnValueChange()
     {
-        CapsConfig.Instance.GameSpeed = valueChange;
+        CapsConfig.Instance.GameSpeed = UISlider.current.value;
         m_speedLabel.text = CapsConfig.Instance.GameSpeed.ToString();
     }
 

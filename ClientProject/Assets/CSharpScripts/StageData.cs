@@ -178,11 +178,7 @@ public class StageData
     public void LoadStageData(int levelNum)
     {
         _config = new ConfigOperator("Level" + levelNum);
-        if (!_config.Read())
-        {
-            Debug.LogError("Trying to load an file not exist! filename = Level" + levelNum);
-            return;
-        }
+        _config.Read();
 		
         int targetInt = 0;
         _config.GetValue<int>("Target", out targetInt);

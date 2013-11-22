@@ -2172,8 +2172,8 @@ public class GameLogic
 
     public void OnTap(Gesture ges)
     {
-        int x = (int)ges.position.x;
-        int y = (int)(Screen.height - ges.position.y);
+        int x = (int)ges.position.x * CapsApplication.Singleton.Height / Screen.height;
+        int y = (int)(Screen.height - ges.position.y) * CapsApplication.Singleton.Height / Screen.height;
         //不在游戏区，不处理
         if (x < gameAreaX || y < gameAreaY || x > gameAreaX + gameAreaWidth || y > gameAreaY + gameAreaHeight)
         {
@@ -2313,8 +2313,8 @@ public class GameLogic
 
     public void OnTouchBegin(Gesture ges)
     {
-        int x = (int)ges.position.x;
-        int y = (int)(Screen.height - ges.position.y);
+        int x = (int)ges.position.x * CapsApplication.Singleton.Height / Screen.height;
+        int y = (int)(Screen.height - ges.position.y) * CapsApplication.Singleton.Height / Screen.height;
         //不在游戏区，先不处理
         if (x < gameAreaX || y < gameAreaY || x > gameAreaX + gameAreaWidth || y > gameAreaY + gameAreaHeight)
         {
@@ -2350,8 +2350,8 @@ public class GameLogic
 
     public void OnTouchMove(Gesture ges)
     {
-        int x = (int)ges.position.x;
-        int y = (int)(Screen.height - ges.position.y);
+        int x = (int)ges.position.x * CapsApplication.Singleton.Height / Screen.height;
+        int y = (int)(Screen.height - ges.position.y) * CapsApplication.Singleton.Height / Screen.height;
         if (m_gameFlow != TGameFlow.EGameState_Playing)
         {
             return;

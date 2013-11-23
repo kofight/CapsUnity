@@ -10,6 +10,8 @@ public class UIMap : UIWindow
     Transform m_backGroundTrans;                //背景的Transfrom
     private Vector2 m_curOffSet;
     private Vector2 m_destOffSet;
+	
+	SpringPanel springPanel;
 
     Transform[] m_stageBtns;
 
@@ -32,6 +34,8 @@ public class UIMap : UIWindow
         }
 		GlobalVars.StageStarArray = PlayerPrefsExtend.GetIntArray("StageStars", 0, 100);
         GlobalVars.LastStage = GlobalVars.AvailabeStageCount;
+		
+		springPanel = mUIObject.AddComponent<SpringPanel>();
     }
     public override void OnShow()
     {
@@ -86,15 +90,12 @@ public class UIMap : UIWindow
 
         Transform curStageTrans = UIToolkits.FindChild(mUIObject.transform, "Stage" + GlobalVars.LastStage);      //找到对象
         MoveTo(new Vector2(curStageTrans.localPosition.x, curStageTrans.localPosition.y));
-
-        EasyTouch.On_Swipe += OnDragMove;
     }
 
     public override void OnHide()
     {
         base.OnHide();
         m_heartUI.HideWindow();
-        EasyTouch.On_Swipe -= OnDragMove;
     }
 
     public override void OnUpdate()
@@ -156,33 +157,6 @@ public class UIMap : UIWindow
 
     public void MoveTo(Vector2 pos) //移动到某个位置
     {
-        m_destOffSet = new Vector2(-pos.x, -pos.y);
-        //判断出界情况
-        if (m_destOffSet.x > - (CapsApplication.Singleton.Width / 2 + Border))
-        {
-            m_destOffSet.x = -(CapsApplication.Singleton.Width / 2 + Border);
-        }
-
-        if (m_destOffSet.x < -(Width - Border - CapsApplication.Singleton.Width / 2))
-        {
-            m_destOffSet.x = -(Width - Border - CapsApplication.Singleton.Width / 2);
-        }
-
-        if (m_destOffSet.y > -(CapsApplication.Singleton.Height / 2 + Border))
-        {
-            m_destOffSet.y = -(CapsApplication.Singleton.Height / 2 + Border);
-        }
-
-        if (m_destOffSet.y < -(Height - Border - CapsApplication.Singleton.Height / 2))
-        {
-            m_destOffSet.y = -(Height - Border - CapsApplication.Singleton.Height / 2);
-        }
-
-        m_backGroundTrans.localPosition = new Vector3(m_destOffSet.x, m_destOffSet.y, m_backGroundTrans.position.z);
-    }
-
-    public void OnDragMove(Gesture ges)
-    {
-        MoveTo(new Vector2(-m_destOffSet.x - ges.deltaPosition.x, -m_destOffSet.y - ges.deltaPosition.y));
+        springPanel.target = new Vector3(-pos.x, -pos.y, 0);
     }
 }

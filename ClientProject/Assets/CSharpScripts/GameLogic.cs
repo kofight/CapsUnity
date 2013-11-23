@@ -307,7 +307,7 @@ public class GameLogic
         m_gridBackImage[x, y].layer0.transform.localScale = m_gridInstance.transform.localScale;
         if (PlayingStageData.CheckFlag(x, y, GridFlag.Jelly))
         {
-            m_gridBackImage[x, y].layer0.spriteName = "Jelly" + ((y + (x % 2)) % 3); ;
+            m_gridBackImage[x, y].layer0.spriteName = "Jelly" + ((y + (x % 2)) % 3);
         }
         else if (PlayingStageData.CheckFlag(x, y, GridFlag.JellyDouble))
         {
@@ -1200,7 +1200,7 @@ public class GameLogic
                         PlayingStageData.AddFlag(i, j, GridFlag.Jelly);
                         AddPartile("JellyEffect", i, j);
                         m_scoreToShow[i, j] += CapsConfig.EatJellyDouble;
-                        m_gridBackImage[i, j].layer0.spriteName = "Jelly";
+                        m_gridBackImage[i, j].layer0.spriteName = "Jelly" + ((j + (i % 2)) % 3);
                     }
                     else if (PlayingStageData.CheckFlag(i, j, GridFlag.Jelly))
                     {
@@ -2340,8 +2340,6 @@ public class GameLogic
         else
             p.y = (int)((y - gameAreaY) / BLOCKHEIGHT);
         if (p.y >= BlockCountY) p.y = BlockCountY - 1;
-
-        AddProgress(10, p.x, p.y);
 
         //如果选中一个状态处于不可移动的块，或者一个特殊块，置选中标志为空，返回
         if (m_blocks[p.x, p.y] == null || !m_blocks[p.x, p.y].SelectAble())

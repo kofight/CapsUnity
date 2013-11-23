@@ -318,7 +318,7 @@ public class GameLogic
             m_gridBackImage[x, y].layer0.spriteName = "Grid" + ((y + (x % 2)) % 3);
         }
 
-        m_gridBackImage[x, y].layer0.transform.localPosition = new Vector3(GetXPos(x), -GetYPos(x, y), 0);
+        m_gridBackImage[x, y].layer0.transform.localPosition = new Vector3(GetXPosF(x), -GetYPosF(x, y), 0);
         m_gridBackImage[x, y].layer0.depth = 0;
 
         //处理第二层
@@ -643,6 +643,16 @@ public class GameLogic
     int GetYPos(int x, int y)
     {
         return (int)(gameAreaY + y * BLOCKHEIGHT + (x + 1) % 2 * BLOCKHEIGHT / 2 + BLOCKHEIGHT / 2);
+    }
+
+    float GetXPosF(int x)
+    {
+        return (gameAreaX + x * BLOCKWIDTH + BLOCKWIDTH / 2);
+    }
+
+    float GetYPosF(int x, int y)
+    {
+        return (gameAreaY + y * BLOCKHEIGHT + (x + 1) % 2 * BLOCKHEIGHT / 2 + BLOCKHEIGHT / 2);
     }
 
     void DrawGraphics()

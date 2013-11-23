@@ -36,6 +36,8 @@ public class UIMap : UIWindow
         GlobalVars.LastStage = GlobalVars.AvailabeStageCount;
 		
 		springPanel = mUIObject.AddComponent<SpringPanel>();
+        UIPanel panel = mUIObject.GetComponent<UIPanel>();
+        panel.clipRange = new Vector4(0, 0, CapsApplication.Singleton.Width, CapsApplication.Singleton.Height);
     }
     public override void OnShow()
     {

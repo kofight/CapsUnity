@@ -5,7 +5,7 @@
     }
     
     Category {
-	Tags { "Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent" }
+	Tags { "Queue"="Transparent+100" "IgnoreProjector"="True" "RenderType"="Transparent" }
 	Blend SrcAlpha One
 	Cull Off Lighting Off ZWrite Off Fog { Color (0,0,0,0) }
 	

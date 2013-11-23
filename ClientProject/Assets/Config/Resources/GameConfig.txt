@@ -9,5 +9,5 @@ Version                     Pre-Alpha-0.1
 GetHeartInterval            1800
 
 BLOCKWIDTH                  65.0
-BLOCKHEIGHT                 75.05553
+BLOCKHEIGHT                 75.0
 BLOCKSCALE                  65.0

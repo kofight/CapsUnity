@@ -33,6 +33,7 @@ public class UIMap : UIWindow
             GlobalVars.AvailabeStageCount = 1;
         }
 		GlobalVars.StageStarArray = PlayerPrefsExtend.GetIntArray("StageStars", 0, 100);
+        GlobalVars.StageScoreArray = PlayerPrefsExtend.GetIntArray("StageScores", 0, 100);
         GlobalVars.LastStage = GlobalVars.AvailabeStageCount;
 		
 		springPanel = mUIObject.AddComponent<SpringPanel>();

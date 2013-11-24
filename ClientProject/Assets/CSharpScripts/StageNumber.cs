@@ -39,9 +39,4 @@ public class StageNumber : MonoBehaviour {
 		m_stageNumber0.spriteName = SurName + StageNum % 10;
 		m_stageNumber0.LocalPositionX(posX);
 	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
 }

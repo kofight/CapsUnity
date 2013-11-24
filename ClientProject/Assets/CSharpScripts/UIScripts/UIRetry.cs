@@ -3,18 +3,21 @@ using System.Collections;
 
 public class UIRetry : UIWindow 
 {
-    UILabel m_resultLabel;
+    //UILabel m_resultLabel;
     UILabel m_infoLabel;
     bool m_bWin;
     int m_starCount;
     UISprite[] m_starsSprites = new UISprite[3];
+    NumberDrawer m_stageNumber;
 
     public override void OnCreate()
     {
         base.OnCreate();
 
-        m_resultLabel = UIToolkits.FindComponent<UILabel>(mUIObject.transform, "ResultLabel");
+        //m_resultLabel = UIToolkits.FindComponent<UILabel>(mUIObject.transform, "ResultLabel");
         m_infoLabel = UIToolkits.FindComponent<UILabel>(mUIObject.transform, "EndInfomation");
+
+        m_stageNumber = GetChildComponent<NumberDrawer>("LevelNumber");
 
         AddChildComponentMouseClick("CloseBtn", OnCloseClicked);
         AddChildComponentMouseClick("RetryBtn", OnRetryClicked);
@@ -42,7 +45,7 @@ public class UIRetry : UIWindow
         if (GlobalVars.CurGameLogic.GetProgress() < GlobalVars.CurStageData.StarScore[0])       //没到基础的分数要求的情况
         {
             m_bWin = false;
-            m_resultLabel.text = "Failed!";
+            //m_resultLabel.text = "Failed!";
             m_infoLabel.text = "Did not get any star";
         }
         else if (GlobalVars.CurStageData.Target == GameTarget.ClearJelly)
@@ -50,13 +53,13 @@ public class UIRetry : UIWindow
             if (GlobalVars.CurGameLogic.PlayingStageData.GetJellyCount() != 0)
             {
                 m_bWin = false;
-                m_resultLabel.text = "Failed!";
+                //m_resultLabel.text = "Failed!";
                 m_infoLabel.text = "Did not clear all jelly" + GlobalVars.CurGameLogic.PlayingStageData.GetJellyCount() + "/" + GlobalVars.CurStageData.GetJellyCount();
             }
             else
             {
                 m_bWin = true;
-                m_resultLabel.text = "Win!";
+                //m_resultLabel.text = "Win!";
                 m_infoLabel.text = "All jellies has been cleared";
             }
         }
@@ -65,14 +68,14 @@ public class UIRetry : UIWindow
             if (GlobalVars.CurGameLogic.GetProgress() >= GlobalVars.CurStageData.StarScore[0])
             {
                 m_bWin = true;
-                m_resultLabel.text = "Win!";
+                //m_resultLabel.text = "Win!";
                 m_infoLabel.text = "You got enough score";
 
             }
             else
             {
                 m_bWin = false;
-                m_resultLabel.text = "Failed!";
+                //m_resultLabel.text = "Failed!";
                 m_infoLabel.text = "You didn't get enough score";
             }
         }
@@ -82,43 +85,14 @@ public class UIRetry : UIWindow
                 && GlobalVars.CurGameLogic.PlayingStageData.Nut2Count == GlobalVars.CurStageData.Nut2Count)
             {
                 m_bWin = true;
-                m_resultLabel.text = "Win!";
+                //m_resultLabel.text = "Win!";
                 m_infoLabel.text = "You've brought all fruit down";
             }
             else
             {
                 m_bWin = false;
-                m_resultLabel.text = "Failed!";
+                //m_resultLabel.text = "Failed!";
                 m_infoLabel.text = "You didn't brought all fruit down";
-            }
-        }
-
-        if (GlobalVars.CurGameLogic.GetProgress() >= GlobalVars.CurStageData.StarScore[2])
-        {
-            m_starCount = 3;
-        }
-        else if (GlobalVars.CurGameLogic.GetProgress() >= GlobalVars.CurStageData.StarScore[1])
-        {
-            m_starCount = 2;
-        }
-        else if (GlobalVars.CurGameLogic.GetProgress() >= GlobalVars.CurStageData.StarScore[0])
-        {
-            m_starCount = 1;
-        }
-
-        NumberDrawer number = GetChildComponent<NumberDrawer>("StageScore");
-        number.SetNumber(GlobalVars.CurGameLogic.GetProgress());
-
-        //根据starCount显示星星
-        for (int i = 0; i < 3; ++i)
-        {
-            if (i < m_starCount)
-            {
-                m_starsSprites[i].gameObject.SetActive(true);
-            }
-            else
-            {
-                m_starsSprites[i].gameObject.SetActive(false);
             }
         }
 
@@ -133,7 +107,13 @@ public class UIRetry : UIWindow
             if (m_starCount > GlobalVars.StageStarArray[GlobalVars.CurStageNum - 1])
             {
                 GlobalVars.StageStarArray[GlobalVars.CurStageNum - 1] = m_starCount;            //保存星数
-                PlayerPrefsExtend.SetIntArray("StageStars", GlobalVars.StageStarArray);
+                PlayerPrefsExtend.SetIntArray("StageStars", GlobalVars.StageStarArray);         //保存进度
+            }
+
+            if (GlobalVars.CurGameLogic.GetProgress() > GlobalVars.StageScoreArray[GlobalVars.CurStageNum - 1])     //记录分数记录
+            {
+                GlobalVars.StageScoreArray[GlobalVars.CurStageNum - 1] = GlobalVars.CurGameLogic.GetProgress();
+                PlayerPrefsExtend.SetIntArray("StageScores", GlobalVars.StageScoreArray);
             }
         }
         else
@@ -148,6 +128,26 @@ public class UIRetry : UIWindow
             }
         }
 
+
+        m_starCount = GlobalVars.StageStarArray[GlobalVars.CurStageNum - 1];
+        NumberDrawer number = GetChildComponent<NumberDrawer>("StageScore");
+        number.SetNumber(GlobalVars.CurGameLogic.GetProgress());
+
+        m_stageNumber.SetNumber(GlobalVars.CurStageNum);
+
+        //根据starCount显示星星
+        for (int i = 0; i < 3; ++i)
+        {
+            if (i < m_starCount)
+            {
+                m_starsSprites[i].gameObject.SetActive(true);
+            }
+            else
+            {
+                m_starsSprites[i].gameObject.SetActive(false);
+            }
+        }
+
         GlobalVars.CurGameLogic.ClearGame();
         GlobalVars.CurGameLogic.ChangeGameFlow(TGameFlow.EGameState_Clear);           //切换到结束状态
     }
@@ -157,7 +157,7 @@ public class UIRetry : UIWindow
         if (uiWindowState == UIWindowStateEnum.Show)
         {
             UIDrawer.Singleton.DefaultAnchor = UIWindowManager.Anchor.Center;
-            UIDrawer.Singleton.DrawNumber("ScoreTarget", 0, -72, GlobalVars.CurStageData.StarScore[2], "", 22);
+            UIDrawer.Singleton.DrawNumber("ScoreTarget", 0, -72, GlobalVars.StageScoreArray[GlobalVars.CurStageNum - 1], "", 22);           //当前关卡的最高分
             UIDrawer.Singleton.DefaultAnchor = UIWindowManager.Anchor.TopLeft;
         }
     }

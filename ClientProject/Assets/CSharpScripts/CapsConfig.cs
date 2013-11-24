@@ -37,8 +37,8 @@ public class CapsConfig
     public int MaxKCombo = 9;
     public int[] KQuanlityTable = { 1, 2, 3, 3, 3, 3, 3, 3, 3 };
     public int[] KComboTable = {0, 1, 2, 3, 4, 5, 6, 6, 6};
-    public static readonly int Plus5Point = 1500;
-    public static readonly int SugarCrushStepReward = 500;
+    public static readonly int Plus5Point = 500;
+    public static readonly int SugarCrushStepReward = 1500;
     public static readonly int BombPoint = 600;
     public static readonly int EatAColorPoint = 2000;
     public static readonly int FruitDropDown = 1000;
@@ -48,7 +48,7 @@ public class CapsConfig
     public static readonly int EatStonePoint = 400;
     public static readonly int EatChocolate = 400;
 
-    public static float EatLineEffectInterval = 0.1f;               //消行特效吃块的间隔
+    public static float EatLineEffectInterval = 0.04f;               //消行特效吃块的间隔
     public static float BombEffectInterval = 0.1f;                  //炸弹特效吃块的间隔
 
     private ConfigOperator _config;

@@ -8,6 +8,6 @@ MoveTime                    200
 Version                     Pre-Alpha-0.1
 GetHeartInterval            1800
 
-BLOCKWIDTH                  65.0
-BLOCKHEIGHT                 75.0
+BLOCKWIDTH                  67.55
+BLOCKHEIGHT                 78.0
 BLOCKSCALE                  65.0

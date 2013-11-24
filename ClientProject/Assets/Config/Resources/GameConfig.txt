@@ -4,7 +4,7 @@ SlideSpeed	            6.0
 DropSpeed                   3.5
 GameSpeed                   1.0
 EatTime                     0.33
-MoveTime                    240
+MoveTime                    200
 Version                     Pre-Alpha-0.1
 GetHeartInterval            1800
 

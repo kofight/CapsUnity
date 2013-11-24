@@ -204,6 +204,7 @@ public class GameLogic
     float m_showNoPossibleExhangeTextTime = 0;              //显示
     
     Position touchBeginPos;                                 //触控开始的位置
+	Position touchBeginGrid;                                 //触控开始的位置
 
     //物件池
     LinkedList<CapBlock> m_capBlockFreeList = new LinkedList<CapBlock>();				//用来存放可用的Sprite
@@ -297,6 +298,7 @@ public class GameLogic
         EasyTouch.On_SimpleTap += OnTap;
         EasyTouch.On_Swipe += OnTouchMove;
         EasyTouch.On_TouchStart += OnTouchBegin;
+        EasyTouch.On_TouchUp += OnTouchEnd;
     }
 
     void ProcessGridSprites(int x, int y)
@@ -2347,7 +2349,8 @@ public class GameLogic
     {
         int x = (int)ges.position.x * CapsApplication.Singleton.Height / Screen.height;
         int y = (int)(Screen.height - ges.position.y) * CapsApplication.Singleton.Height / Screen.height;
-        //不在游戏区，先不处理
+        touchBeginPos.MakeItUnAvailable();
+		//不在游戏区，先不处理
         if (x < gameAreaX || y < gameAreaY || x > gameAreaX + gameAreaWidth || y > gameAreaY + gameAreaHeight)
         {
             return;
@@ -2371,17 +2374,28 @@ public class GameLogic
         }
 
         touchBeginPos.Set(x, y);
+		touchBeginGrid.Set(p.x, p.y);
+        SetHighLight(true, touchBeginGrid.x, touchBeginGrid.y);
         m_selectedPos[0] = p;
         if (m_selectedPos[0].x == -1) return;
         m_selectedPos[1].x = -1;
         long clickTime = Timer.millisecondNow();
     }
 
+    public void OnTouchEnd(Gesture ges)
+    {
+        if (touchBeginGrid.IsAvailable())
+        {
+            SetHighLight(false, touchBeginGrid.x, touchBeginGrid.y);
+            touchBeginGrid.MakeItUnAvailable();
+        }
+    }
+
     void SetHighLight(bool bVal, int x, int y)         //设置某块高亮
     {
         if (bVal)
         {
-            m_blocks[x, y].m_addColorTranform.renderer.material.SetColor("_TintColor", new Color(0, 0, 0, 0));
+            m_blocks[x, y].m_addColorTranform.renderer.material.SetColor("_TintColor", new Color(255, 255, 255, 255));
         }
         else
         {
@@ -2391,6 +2405,12 @@ public class GameLogic
 
     public void OnTouchMove(Gesture ges)
     {
+        if (touchBeginGrid.IsAvailable())
+        {
+            SetHighLight(false, touchBeginGrid.x, touchBeginGrid.y);
+            touchBeginGrid.MakeItUnAvailable();
+        }
+        
         int x = (int)ges.position.x * CapsApplication.Singleton.Height / Screen.height;
         int y = (int)(Screen.height - ges.position.y) * CapsApplication.Singleton.Height / Screen.height;
         if (m_gameFlow != TGameFlow.EGameState_Playing)

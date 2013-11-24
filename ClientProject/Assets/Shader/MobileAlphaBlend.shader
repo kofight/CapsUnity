@@ -1,4 +1,4 @@
-﻿Shader "Mobile/CustomAdditive" {
+﻿Shader "Mobile/CustomAlphaBlend" {
     Properties {
         _MainTex ("Base (RGB)", 2D) = "white" {}
         _TintColor ("Tint color (RGB)", Color) = (1,1,1,1)
@@ -6,7 +6,7 @@
     
     Category {
 	Tags { "Queue"="Transparent+100" "IgnoreProjector"="True" "RenderType"="Transparent" }
-	Blend SrcAlpha One
+	Blend SrcAlpha OneMinusSrcAlpha
 	Cull Off Lighting Off ZWrite Off Fog { Color (0,0,0,0) }
 	
 	BindChannels {

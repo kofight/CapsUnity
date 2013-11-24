@@ -708,7 +708,7 @@ public class GameLogic
                 if (m_blocks[i, j] != null)
                 {
                     m_blocks[i, j].m_blockTransform.localPosition = new Vector3(GetXPos(i) + m_blocks[i, j].x_move, -(m_blocks[i, j].y_move + GetYPos(i, j)), -105);
-                    m_blocks[i, j].m_blockSprite.color = defaultColor;          //Todo 实在不知道为什么加上这句动画控制Alpha才好使
+                    //m_blocks[i, j].m_blockSprite.color = defaultColor;          //Todo 实在不知道为什么加上这句动画控制Alpha才好使
 
                     if (m_blocks[i, j].IsEating())
                     {
@@ -725,7 +725,6 @@ public class GameLogic
 						        }
                             }
                         }
-                        //UIDrawer.Singleton.DrawNumber("Score" + (j * 10 + i), (int)m_blocks[i, j].m_blockTransform.localPosition.x, -(int)m_blocks[i, j].m_blockTransform.localPosition.y, 60, "BaseNum", 15, 4);
                     }
                 }
 
@@ -740,10 +739,6 @@ public class GameLogic
                     UIDrawer.Singleton.DrawSprite("Birth" + (j * 10 + i), GetXPos(i), GetYPos(i, j), "Birth", 3);       //出生点
                 }
             }
-        }
-        if (Time.deltaTime > 0.02f)
-        {
-            //Debug.Log("DeltaTime = " + Time.deltaTime);
         }
 		
         //绘制传送门

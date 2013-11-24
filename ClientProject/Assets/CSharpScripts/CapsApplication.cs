@@ -89,6 +89,8 @@ public class CapsApplication : S5Application
         	string heartTimeString = PlayerPrefs.GetString("GetHeartTime");
         	GlobalVars.GetHeartTime = Convert.ToDateTime(heartTimeString);
 		}
+
+        Application.targetFrameRate = 1000;
     }
 
     protected override void DoUpdate()

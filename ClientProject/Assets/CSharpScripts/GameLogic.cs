@@ -1984,9 +1984,9 @@ public class GameLogic
                 {
                     for (TDirection dir = TDirection.EDir_Up; dir <= TDirection.EDir_LeftUp; ++dir)
                     {
-                        EatBlock(GoTo(position, dir, 1), 0.1f, 50);
+                        EatBlock(GoTo(position, dir, 1), CapsConfig.BombEffectInterval, 50);
 
-                        EatBlock(GoTo(position, dir, 2), 0.2f, 50);
+                        EatBlock(GoTo(position, dir, 2), CapsConfig.BombEffectInterval * 2, 50);
                     }
                     AddPartile("BombEffect", position.x, position.y);
                 }
@@ -2018,8 +2018,8 @@ public class GameLogic
                 {
                     for (int i = 0; i < BlockCountX; ++i)
                     {
-                        EatBlock(GoTo(position, TDirection.EDir_Down, i), i * 0.1f, 50);
-                        EatBlock(GoTo(position, TDirection.EDir_Up, i), i * 0.1f, 50);
+                        EatBlock(GoTo(position, TDirection.EDir_Down, i), i * CapsConfig.EatLineEffectInterval, 50);
+                        EatBlock(GoTo(position, TDirection.EDir_Up, i), i * CapsConfig.EatLineEffectInterval, 50);
                     }
                     AddPartile("Dir0Effect", position.x, position.y);
                 }
@@ -2028,8 +2028,8 @@ public class GameLogic
                 {
                     for (int i = 1; i < BlockCountX - 1; ++i)
                     {
-                        EatBlock(GoTo(position, TDirection.EDir_UpRight, i), i * 0.1f, 50);
-                        EatBlock(GoTo(position, TDirection.EDir_LeftDown, i), i * 0.1f, 50);
+                        EatBlock(GoTo(position, TDirection.EDir_UpRight, i), i * CapsConfig.EatLineEffectInterval, 50);
+                        EatBlock(GoTo(position, TDirection.EDir_LeftDown, i), i * CapsConfig.EatLineEffectInterval, 50);
                     }
                     AddPartile("Dir1Effect", position.x, position.y);
                 }
@@ -2038,8 +2038,8 @@ public class GameLogic
                 {
                     for (int i = 0; i < BlockCountX; ++i)
                     {
-                        EatBlock(GoTo(position, TDirection.EDir_LeftUp, i), i * 0.1f, 50);
-                        EatBlock(GoTo(position, TDirection.EDir_DownRight, i), i * 0.1f, 50);
+                        EatBlock(GoTo(position, TDirection.EDir_LeftUp, i), i * CapsConfig.EatLineEffectInterval, 50);
+                        EatBlock(GoTo(position, TDirection.EDir_DownRight, i), i * CapsConfig.EatLineEffectInterval, 50);
                     }
                     AddPartile("Dir2Effect", position.x, position.y);
                 }
@@ -2633,22 +2633,22 @@ public class GameLogic
         for (TDirection dir = TDirection.EDir_Up; dir <= TDirection.EDir_LeftUp; ++dir)
         {
             Position newPos = GoTo(pos, dir, 1);                            //第一层
-            EatBlock(newPos, 0.1f, 50);
+            EatBlock(newPos, CapsConfig.BombEffectInterval, 50);
 
             newPos = GoTo(pos, dir, 2);                                     //第二层
-            EatBlock(newPos, 0.2f, 50);
+            EatBlock(newPos, CapsConfig.BombEffectInterval * 2, 50);
 
             newPos = GoTo(newPos, (TDirection)(((int)dir + 2) % 6), 1);     //第二层向下一个方向走一步
-            EatBlock(newPos, 0.2f, 50);
+            EatBlock(newPos, CapsConfig.BombEffectInterval * 2, 50);
 
             Position newPos3 = GoTo(pos, dir, 3);                                     //第三层
-            EatBlock(newPos3, 0.3f, 50);
+            EatBlock(newPos3, CapsConfig.BombEffectInterval * 3, 50);
 
             newPos = GoTo(newPos3, (TDirection)(((int)dir + 2) % 6), 1);     //第三层向下一个方向走一步
-            EatBlock(newPos, 0.3f, 50);
+            EatBlock(newPos, CapsConfig.BombEffectInterval * 3, 50);
 
             newPos = GoTo(newPos3, (TDirection)(((int)dir - 2 + 6) % 6), 1); //第三层向上一个方向走一步
-            EatBlock(newPos, 0.3f, 50);
+            EatBlock(newPos, CapsConfig.BombEffectInterval * 3, 50);
         }
 
         AddPartile("BigBombEffect", pos.x, pos.y);
@@ -2663,8 +2663,8 @@ public class GameLogic
             for (int i = 1; i < BlockCountX - 1; ++i)
             {
                 Position pos = startPos;
-                EatBlock(GoTo(pos, TDirection.EDir_UpRight, i), i * 0.1f, 50);
-                EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i), i * 0.1f, 50);
+                EatBlock(GoTo(pos, TDirection.EDir_UpRight, i), i * CapsConfig.EatLineEffectInterval, 50);
+                EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i), i * CapsConfig.EatLineEffectInterval, 50);
 
 
                 if (extraEat)
@@ -2674,16 +2674,16 @@ public class GameLogic
                     {
                         EatBlock(pos, 0.0f, 50);
                     }
-                    EatBlock(GoTo(pos, TDirection.EDir_UpRight, i), i * 0.1f, 50);
-                    EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i), i * 0.1f, 50);
+                    EatBlock(GoTo(pos, TDirection.EDir_UpRight, i), i * CapsConfig.EatLineEffectInterval, 50);
+                    EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i), i * CapsConfig.EatLineEffectInterval, 50);
 
                     pos.Set(startPos.x, startPos.y - 1);
                     if (i == 1)
                     {
                         EatBlock(pos, 0.0f, 50);
                     }
-                    EatBlock(GoTo(pos, TDirection.EDir_UpRight, i), i * 0.1f, 50);
-                    EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i), i * 0.1f, 50);
+                    EatBlock(GoTo(pos, TDirection.EDir_UpRight, i), i * CapsConfig.EatLineEffectInterval, 50);
+                    EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i), i * CapsConfig.EatLineEffectInterval, 50);
                 }
             }
 			if (extraEat)
@@ -2700,8 +2700,8 @@ public class GameLogic
             for (int i = 1; i < BlockCountX - 1; ++i)
             {
                 Position pos = startPos;
-                EatBlock(GoTo(pos, TDirection.EDir_Up, i), i * 0.1f, 50);
-                EatBlock(GoTo(pos, TDirection.EDir_Down, i), i * 0.1f, 50);
+                EatBlock(GoTo(pos, TDirection.EDir_Up, i), i * CapsConfig.EatLineEffectInterval, 50);
+                EatBlock(GoTo(pos, TDirection.EDir_Down, i), i * CapsConfig.EatLineEffectInterval, 50);
                 if (extraEat)
                 {
                     pos.Set(startPos.x + 1, startPos.y);
@@ -2709,16 +2709,16 @@ public class GameLogic
                     {
                         EatBlock(pos, 0.0f, 50);
                     }
-                    EatBlock(GoTo(pos, TDirection.EDir_Up, i), i * 0.1f, 50);
-                    EatBlock(GoTo(pos, TDirection.EDir_Down, i), i * 0.1f, 50);
+                    EatBlock(GoTo(pos, TDirection.EDir_Up, i), i * CapsConfig.EatLineEffectInterval, 50);
+                    EatBlock(GoTo(pos, TDirection.EDir_Down, i), i * CapsConfig.EatLineEffectInterval, 50);
 
                     pos.Set(startPos.x - 1, startPos.y);
                     if (i == 1)
                     {
                         EatBlock(pos, 0.0f, 50);
                     }
-                    EatBlock(GoTo(pos, TDirection.EDir_Up, i), i * 0.1f, 50);
-                    EatBlock(GoTo(pos, TDirection.EDir_Down, i), i * 0.1f, 50);
+                    EatBlock(GoTo(pos, TDirection.EDir_Up, i), i * CapsConfig.EatLineEffectInterval, 50);
+                    EatBlock(GoTo(pos, TDirection.EDir_Down, i), i * CapsConfig.EatLineEffectInterval, 50);
                 }
             }
             if (extraEat)
@@ -2735,8 +2735,8 @@ public class GameLogic
             for (int i = 1; i < BlockCountX - 1; ++i)
             {
                 Position pos = startPos;
-                EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i), i * 0.1f, 50);
-                EatBlock(GoTo(pos, TDirection.EDir_DownRight, i), i * 0.1f, 50);
+                EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i), i * CapsConfig.EatLineEffectInterval, 50);
+                EatBlock(GoTo(pos, TDirection.EDir_DownRight, i), i * CapsConfig.EatLineEffectInterval, 50);
 
                 if (extraEat)
                 {
@@ -2745,16 +2745,16 @@ public class GameLogic
                     {
                         EatBlock(pos, 0.0f, 50);
                     }
-                    EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i), i * 0.1f, 50);
-                    EatBlock(GoTo(pos, TDirection.EDir_DownRight, i), i * 0.1f, 50);
+                    EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i), i * CapsConfig.EatLineEffectInterval, 50);
+                    EatBlock(GoTo(pos, TDirection.EDir_DownRight, i), i * CapsConfig.EatLineEffectInterval, 50);
 
                     pos.Set(startPos.x, startPos.y - 1);
                     if (i == 1)
                     {
                         EatBlock(pos, 0.0f, 50);
                     }
-                    EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i), i * 0.1f, 50);
-                    EatBlock(GoTo(pos, TDirection.EDir_DownRight, i), i * 0.1f, 50);
+                    EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i), i * CapsConfig.EatLineEffectInterval, 50);
+                    EatBlock(GoTo(pos, TDirection.EDir_DownRight, i), i * CapsConfig.EatLineEffectInterval, 50);
                 }
             }
             if (extraEat)

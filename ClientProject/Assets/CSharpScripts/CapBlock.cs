@@ -102,6 +102,7 @@ public class CapBlock
     public TSpecialBlock special;				//特殊功能块
     public int id;                              //一个唯一id, 用来标识块
     public float EatDelay;
+    public float m_dropDownStartTime;                  //下落开始时间，用来停止下落动画
 
     public Animation m_animation;
     public UISprite m_blockSprite;		//精灵动画

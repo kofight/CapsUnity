@@ -155,7 +155,7 @@ public class GameLogic
     public static float BLOCKWIDTH = 65;      //宽度
     public static float BLOCKHEIGHT = 75.05553f;     //高度
 
-    public static int gameAreaX = 10;		//游戏区域左上角坐标
+    public static int gameAreaX = 16;		//游戏区域左上角坐标
     public static int gameAreaY = 90;		//游戏区域左上角坐标
     public static float gameAreaWidth = BLOCKWIDTH * BlockCountX;	//游戏区域宽度
     public static float gameAreaHeight = BLOCKHEIGHT * BlockCountY + BLOCKHEIGHT / 2;//游戏区域高度
@@ -200,6 +200,7 @@ public class GameLogic
     Timer timerMoveBlock = new Timer();
 
     float m_lastHelpTime;
+    float m_lastGCTime;                                     //在操作间隔进行GC
     float m_showNoPossibleExhangeTextTime = 0;              //显示
     
     Position touchBeginPos;                                 //触控开始的位置
@@ -705,8 +706,18 @@ public class GameLogic
                 {
                     continue;
                 }
+
                 if (m_blocks[i, j] != null)
                 {
+                    if (m_blocks[i, j].m_dropDownStartTime > 0)     //处理一次下落动画
+                    {
+                        if (Timer.GetRealTimeSinceStartUp() - m_blocks[i, j].m_dropDownStartTime > 1.0f)
+                        {
+                            m_blocks[i, j].m_animation.Stop();
+                            m_blocks[i, j].m_animation.enabled = false;
+                        }
+                    }
+
                     m_blocks[i, j].m_blockTransform.localPosition = new Vector3(GetXPos(i) + m_blocks[i, j].x_move, -(m_blocks[i, j].y_move + GetYPos(i, j)), -105);
                     //m_blocks[i, j].m_blockSprite.color = defaultColor;          //Todo 实在不知道为什么加上这句动画控制Alpha才好使
 
@@ -717,7 +728,9 @@ public class GameLogic
                             if (Timer.GetRealTimeSinceStartUp() > m_blocks[i, j].m_eatStartTime)        //到达了开始时间
                             {
                                 m_blocks[i, j].EatDelay = 0;
+                                m_blocks[i, j].m_animation.enabled = true;
                                 m_blocks[i, j].m_animation.Play("Eat");
+                                m_blocks[i, j].m_dropDownStartTime = 0;
                                 if (m_scoreToShow[i, j] > 0)
 						        {
 						            AddProgress(m_scoreToShow[i, j], i, j);
@@ -896,7 +909,9 @@ public class GameLogic
                             }
                             else
                             {
-                                m_blocks[i, j].m_animation.Play("DropDown");                            //播放下落动画
+                                m_blocks[i, j].m_animation.enabled = true;
+                                m_blocks[i, j].m_animation.Play("DropDown");                                    //播放下落动画
+                                m_blocks[i, j].m_dropDownStartTime = Timer.GetRealTimeSinceStartUp();           //记录开始时间
                             }
                         }
                     }
@@ -1016,6 +1031,12 @@ public class GameLogic
         {
             ProcessCheckStageFinish();
         }
+
+        if (m_lastGCTime > 0 && Timer.GetRealTimeSinceStartUp() - m_lastGCTime > 0.5f)      //落完0.5秒后进行GC
+        {
+            System.GC.Collect();
+            m_lastGCTime = 0;
+        }
     }
 
     public void ShowHelpAnim()
@@ -1025,6 +1046,8 @@ public class GameLogic
             for (int i = 0; i < 3; ++i )
             {
                 m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.Play("Help");
+                m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_dropDownStartTime = 0;
+                m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.enabled = true;
             }
         }
     }
@@ -1894,6 +1917,7 @@ public class GameLogic
             {
                 for (int i = 0; i < 3; ++i)
                 {
+                    m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.enabled = false;
                     m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.Stop();
                     m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.transform.localScale = Vector3.one;          //恢复缩放
                     m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_addColorTranform.renderer.material.SetColor("_TintColor", new Color(0, 0, 0, 0));
@@ -2028,7 +2052,9 @@ public class GameLogic
 
         if (delay == 0)
         {
-           m_blocks[position.x, position.y].m_animation.Play("Eat");
+            m_blocks[position.x, position.y].m_animation.enabled = true;
+            m_blocks[position.x, position.y].m_animation.Play("Eat");
+            m_blocks[position.x, position.y].m_dropDownStartTime = 0;
         }
         AddPartile("EatEffect", position.x, position.y);
     }
@@ -2173,6 +2199,7 @@ public class GameLogic
         ProcessCheckStageFinish();
 
         m_lastHelpTime = Timer.GetRealTimeSinceStartUp();
+        m_lastGCTime = Timer.GetRealTimeSinceStartUp();
     }
 
     public void OnTap(Gesture ges)
@@ -2348,7 +2375,18 @@ public class GameLogic
         if (m_selectedPos[0].x == -1) return;
         m_selectedPos[1].x = -1;
         long clickTime = Timer.millisecondNow();
-        //SetSelectAni(p.x, p.y);
+    }
+
+    void SetHighLight(bool bVal, int x, int y)         //设置某块高亮
+    {
+        if (bVal)
+        {
+            m_blocks[x, y].m_addColorTranform.renderer.material.SetColor("_TintColor", new Color(0, 0, 0, 0));
+        }
+        else
+        {
+            m_blocks[x, y].m_addColorTranform.renderer.material.SetColor("_TintColor", new Color(0, 0, 0, 0));
+        }
     }
 
     public void OnTouchMove(Gesture ges)
@@ -2466,6 +2504,8 @@ public class GameLogic
 
     void ProcessMove()
     {
+        m_lastGCTime = 0;
+
         ClearHelpPoint();
 
         TSpecialBlock special0 = m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special;
@@ -2852,6 +2892,7 @@ public class GameLogic
         m_blocks[x, y] = GetFreeCapBlock(color);            //创建新的块 Todo 变成用缓存
         m_blocks[x, y].color = color;               //设置颜色
         m_blocks[x, y].id = m_idCount++;
+        m_blocks[x, y].m_animation.enabled = false;
 
         if (Timer.millisecondNow() - m_gameStartTime > PlayingStageData.PlusStartTime * 1000)       //若超过了开始掉+5的时间
         {
@@ -2885,6 +2926,7 @@ public class GameLogic
     void MakeSpriteFree(int x, int y)
     {
         m_blocks[x, y].m_animation.Stop();
+        m_blocks[x, y].m_animation.enabled = false;
         m_capBlockFreeList.AddLast(m_blocks[x, y]);
         m_blocks[x, y].m_blockTransform.gameObject.SetActive(false);
         m_blocks[x, y].Reset();

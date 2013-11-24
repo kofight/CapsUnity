@@ -1,10 +1,9 @@
 ﻿Shader "Mobile/CustomAlphaBlend" {
-    Properties {
-        _MainTex ("Base (RGB)", 2D) = "white" {}
-        _TintColor ("Tint color (RGB)", Color) = (1,1,1,1)
-    }
-    
-    Category {
+Properties {
+	_MainTex ("Particle Texture", 2D) = "white" {}
+}
+
+Category {
 	Tags { "Queue"="Transparent+100" "IgnoreProjector"="True" "RenderType"="Transparent" }
 	Blend SrcAlpha OneMinusSrcAlpha
 	Cull Off Lighting Off ZWrite Off Fog { Color (0,0,0,0) }
@@ -15,21 +14,12 @@
 		Bind "TexCoord", texcoord
 	}
 	
-    SubShader {
-        Pass {
-            Lighting On
-            SetTexture [_MainTex] {
-                // Pull the color property into this blender
-                constantColor [_TintColor]
-                // And use the texture's alpha to blend between it and
-                // vertex color
-                combine constant lerp(texture) previous
-            }
-            // Multiply in texture
-            SetTexture [_MainTex] {
-                combine previous * texture
-            }
-        }
-    }
-    }
-} 
+	SubShader {
+		Pass {
+			SetTexture [_MainTex] {
+				combine texture * primary
+			}
+		}
+	}
+}
+}

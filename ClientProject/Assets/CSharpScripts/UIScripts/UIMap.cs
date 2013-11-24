@@ -131,15 +131,17 @@ public class UIMap : UIWindow
 			int ticksToGetHeart = CapsConfig.Instance.GetHeartInterval * 1000 - ticks;
 			int min = ticksToGetHeart / 1000 / 60;
 			int second = ticksToGetHeart / 1000 % 60;
-            UIDrawer.Singleton.CurDepth = 10;
+            UIDrawer.Singleton.CurDepth = 20;
             UIDrawer.Singleton.DrawNumber("MinutesToHeart", 98, 53, min, "", 24);
             UIDrawer.Singleton.DrawSprite("Colon", 166, 53, "colon");
             UIDrawer.Singleton.DrawNumber("SecondsToHeart", 160, 53, second, "", 24);
+            UIDrawer.Singleton.CurDepth = 0;
 		}
         else
         {
-            UIDrawer.Singleton.CurDepth = 10;
+            UIDrawer.Singleton.CurDepth = 20;
             UIDrawer.Singleton.DrawSprite("Full", 173, 53, "Full");
+            UIDrawer.Singleton.CurDepth = 0;
         }
     }
 

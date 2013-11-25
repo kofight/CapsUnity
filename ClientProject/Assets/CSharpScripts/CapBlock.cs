@@ -28,8 +28,20 @@ public enum TSpecialBlock
     ESpecial_EatAColor,				//一次消一个颜色
 };
 
+public enum BlockState
+{
+    Normal,                         //普通状态（静止状态）
+    Locked,                         //被锁状态
+    Moving,                         //移动状态
+    MovingEnd,                      //移动结束状态
+    NeedCheckEatLine,               //需要检查是否能消块
+    Eating,                         //吃块
+}
+
 public class CapBlock  
 {
+    public BlockState CurState = BlockState.Normal;         //当前状态
+
     public void RefreshBlockSprite(int flag)
     {
         if (m_blockSprite == null)
@@ -39,9 +51,7 @@ public class CapBlock
 
         if ((flag & (int)GridFlag.Cage) > 0)
         {
-            //m_blockSprite.spriteName = "Block3-" + (int)(color - TBlockColor.EColor_None);
-            isLocked = true;
-			//return;
+            CurState = BlockState.Locked;
         }
 
         switch (special)
@@ -91,16 +101,12 @@ public class CapBlock
     public int y_move;
 
     public float m_eatStartTime;                //开始消失的时间
-    public bool m_bEating;						//正在消失的标记
 
-    public bool isDropping;                     //下落状态
     public Position droppingFrom;               //从某个点掉落过来
     public float DropingStartTime;              //下落的开始时间
 
-    public bool m_bNeedCheckEatLine;			//一旦落地就被标记，然后EatAllLine逻辑用这个变量区分是否需要检测消行
-    public bool isLocked;                       //是否被锁定
     public TSpecialBlock special;				//特殊功能块
-    public int id;                              //一个唯一id, 用来标识块
+
     public float EatDelay;
     public float m_dropDownStartTime;                  //下落开始时间，用来停止下落动画
 
@@ -114,7 +120,7 @@ public class CapBlock
 
     public void Eat(float delay)							//吃掉这个块
 	{
-		m_bEating = true;
+        CurState = BlockState.Eating;
         m_eatStartTime = Timer.GetRealTimeSinceStartUp() + delay;
         ++EatingBlockCount;
         EatDelay = delay;
@@ -122,8 +128,18 @@ public class CapBlock
 
     public bool IsEating()
 	{
-		return m_bEating;
+        return CurState == BlockState.Eating;
 	}
+
+    public bool IsDroping()
+    {
+        return CurState == BlockState.Moving || CurState == BlockState.MovingEnd || CurState == BlockState.NeedCheckEatLine;
+    }
+
+    public bool IsDropDownAble()
+    {
+        return CurState == BlockState.Normal || CurState == BlockState.MovingEnd;
+    }
 
     public void Reset()
 	{
@@ -132,23 +148,17 @@ public class CapBlock
 		x_move = 0;
 		y_move = 0;
 		special = TSpecialBlock.ESpecial_Normal;
-		m_bEating = false;
-        if (isDropping)
+        CurState = BlockState.Normal;
+        if (IsDroping())
         {
             --DropingBlockCount;
         }
-		isDropping = false;
         m_eatStartTime = 0;
 	}
 
     public bool SelectAble()
     {
-
-		if (isLocked ||
-			m_bEating||
-			isDropping==true||
-			x_move>0||
-			y_move>0)
+		if (CurState != BlockState.Normal)
 		{
 			return false;
 		}

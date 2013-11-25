@@ -361,7 +361,7 @@ public class GameLogic
         {
             for (int j = 0; j < BlockCountY; ++j)
             {
-                if (m_blocks[i, j] == null || m_blocks[i, j].isLocked)                     //空格或空块
+                if (m_blocks[i, j] == null || m_blocks[i, j].CurState != BlockState.Normal)                     //空格或空块
                 {
                     continue;
                 }
@@ -373,7 +373,7 @@ public class GameLogic
                     Position curPos = GoTo(position, dir, 1);
                     if (CheckPosAvailable(curPos))
                     {
-                        if (m_blocks[curPos.x, curPos.y] == null || m_blocks[curPos.x, curPos.y].isLocked)             //空格或空块
+                        if (m_blocks[curPos.x, curPos.y] == null || m_blocks[i, j].CurState != BlockState.Normal)             //空格或空块
                         {
                             continue;
                         }
@@ -411,7 +411,7 @@ public class GameLogic
         {
             for (int j = 0; j < BlockCountY; ++j)
             {
-                if (m_blocks[i, j] == null || m_blocks[i, j].isLocked)                     //空格或被锁块
+                if (m_blocks[i, j] == null || m_blocks[i, j].CurState != BlockState.Normal)                     //空格或被锁块
                 {
                     continue;
                 }
@@ -446,7 +446,7 @@ public class GameLogic
             {
                 for (int j = 0; j < BlockCountY; ++j)
                 {
-                    if (m_blocks[i, j] == null || m_blocks[i, j].isLocked)                     //空格或空块
+                    if (m_blocks[i, j] == null || m_blocks[i, j].CurState != BlockState.Normal)                     //空格或空块
                     {
                         continue;
                     }
@@ -677,7 +677,7 @@ public class GameLogic
                     {
                         continue;
                     }
-                    if (m_blocks[i, j].isDropping)
+                    if (m_blocks[i, j].CurState == BlockState.Moving)
                     {
                         ProcessDropPic(m_blocks[i, j].droppingFrom, new Position(i, j));
                     }
@@ -881,12 +881,10 @@ public class GameLogic
         {
             for (int j = 0; j < BlockCountY; ++j)
             {
-                if (m_blocks[i, j] != null && m_blocks[i, j].m_bNeedCheckEatLine)
+                if (m_blocks[i, j] != null && m_blocks[i, j].CurState == BlockState.NeedCheckEatLine)
                 {
-                    m_blocks[i, j].m_bNeedCheckEatLine = false;
-
                     --CapBlock.DropingBlockCount;
-                    m_blocks[i, j].isDropping = false;
+                    m_blocks[i, j].CurState = BlockState.Normal;
 
                     if (m_blocks[i, j].color > TBlockColor.EColor_Grey)                     //若为坚果
                     {
@@ -966,7 +964,34 @@ public class GameLogic
         }
 
         if (CapBlock.DropingBlockCount > 0)
-            ProcessBlocksDropDown();
+        {
+            bool bFound = false;
+            for (int i = 0; i < BlockCountX; ++i )
+            {
+                for (int j = 0; j < BlockCountY; ++j )
+                {
+                    if (m_blocks[i, j] != null && m_blocks[i, j].CurState == BlockState.MovingEnd)
+                    {
+                        bFound = true;
+                    }
+                }
+            }
+            if (bFound)     //若找到了MovingEnd的块，再进行一次下落
+            {
+                DropDown();
+                for (int i = 0; i < BlockCountX; ++i)
+                {
+                    for (int j = 0; j < BlockCountY; ++j)
+                    {
+                        if (m_blocks[i, j] != null && m_blocks[i, j].CurState == BlockState.MovingEnd)
+                        {
+                            m_blocks[i, j].CurState = BlockState.NeedCheckEatLine;          //经过一次DropDown后，状态仍然是MovingEnd的，把状态变为NeedCheckLine
+                        }
+                    }
+                }
+                ProcessBlocksDropDown();
+            }
+        }
 
         TimerWork();
 
@@ -1210,7 +1235,7 @@ public class GameLogic
                     {
                         PlayingStageData.ClearFlag(i, j, GridFlag.Cage);
                         AddPartile("CageEffect", i, j);
-                        m_blocks[i, j].isLocked = false;
+                        m_blocks[i, j].CurState = BlockState.Normal;
                         m_scoreToShow[i, j] += CapsConfig.EatCagePoint;
                         m_gridBackImage[i, j].layer1.gameObject.SetActive(false);
                     }
@@ -1336,7 +1361,7 @@ public class GameLogic
                 }
             }
 
-            m_blocks[to.x, to.y].m_bNeedCheckEatLine = true;      //需要检测消行
+            m_blocks[to.x, to.y].CurState = BlockState.MovingEnd;      //移动结束
         }
     }
 
@@ -1438,7 +1463,7 @@ public class GameLogic
         for (int j = BlockCountY - 1; j >= 0; j--)		//从最下面开始遍历
         {
             Position destPos = new Position();
-            if (m_blocks[x, j] != null && !m_blocks[x, j].isDropping && !m_blocks[x, j].isLocked && !m_blocks[x, j].IsEating())       //若有效块没在下落且没被锁定
+            if (m_blocks[x, j] != null && m_blocks[x, j].IsDropDownAble())       //若有效块没在下落且没被锁定
             {
                 bool bDrop = false;
                 int y = j;
@@ -1462,7 +1487,11 @@ public class GameLogic
                 {
                     //处理下落////////////////////////////////////////////////////////////////////////
                     m_blocks[destPos.x, destPos.y] = m_blocks[x, j];             //往下移块
-                    m_blocks[destPos.x, destPos.y].isDropping = true;
+                    if (m_blocks[destPos.x, destPos.y].CurState != BlockState.MovingEnd)        //若为MovingEnd状态，继续下落，则不增加下落块数记录
+                    {
+                        ++CapBlock.DropingBlockCount;
+                    }
+                    m_blocks[destPos.x, destPos.y].CurState = BlockState.Moving;
                     m_blocks[destPos.x, destPos.y].droppingFrom.Set(x, j);       //记录从哪里落过来的
                     m_blocks[x, j] = null;                       //原块置空
                     for (int k = j + 1; k < BlockCountY; ++k)
@@ -1471,7 +1500,6 @@ public class GameLogic
                     }
                     m_blocks[destPos.x, destPos.y].DropingStartTime = Timer.GetRealTimeSinceStartUp();    //记录下落开始时间
                     tag = true;
-                    ++CapBlock.DropingBlockCount;
                 }
             }
         }
@@ -1496,7 +1524,7 @@ public class GameLogic
                 for (int destY = y; destY >= j; --destY)
                 {
                     CreateBlock(x, destY, false);                                           //在目标位置生成块
-                    m_blocks[x, destY].isDropping = true;
+                    m_blocks[x, destY].CurState = BlockState.Moving;
                     m_blocks[x, destY].droppingFrom.Set(x, destY - (y - j) - 1);            //记录从哪里落过来的
                     m_blocks[x, destY].DropingStartTime = Timer.GetRealTimeSinceStartUp();    //记录下落开始时间
                     for (int k = m_blocks[x, destY].droppingFrom.y + 1; k < BlockCountY; ++k)
@@ -1517,7 +1545,6 @@ public class GameLogic
     public bool DropDownIndirect(int x)
     {
         bool bDrop = false;
-        bool bPortal = false;
         Position fromPos = new Position();
         Position toPos = new Position();
         //下落块，所有可下落区域下落一行////////////////////////////////////////////////////////////////////////
@@ -1530,11 +1557,9 @@ public class GameLogic
                 if (PlayingStageData.CheckFlag(x, j, GridFlag.PortalEnd))       //若为传送门目标点
                 {
                     fromPos = PlayingStageData.PortalToMap[toPos.ToInt()].from;
-                    if (m_blocks[fromPos.x, fromPos.y] != null && !m_blocks[fromPos.x, fromPos.y].isLocked && !m_blocks[fromPos.x, fromPos.y].isDropping
-                        && !m_blocks[fromPos.x, fromPos.y].IsEating())
+                    if (m_blocks[fromPos.x, fromPos.y] != null && m_blocks[fromPos.x, fromPos.y].IsDropDownAble())
                     {
                         bDrop = true;
-                        bPortal = true;
                         break;
                     }
                 }
@@ -1545,8 +1570,7 @@ public class GameLogic
                 }
                 Position pos = new Position(x, j);
                 fromPos = GoTo(pos, TDirection.EDir_LeftUp, 1);
-                if (CheckPosAvailable(fromPos) && m_blocks[fromPos.x, fromPos.y] != null && !m_blocks[fromPos.x, fromPos.y].isLocked && !m_blocks[fromPos.x, fromPos.y].isDropping
-                && !m_blocks[fromPos.x, fromPos.y].IsEating())
+                if (CheckPosAvailable(fromPos) && m_blocks[fromPos.x, fromPos.y] != null && m_blocks[fromPos.x, fromPos.y].IsDropDownAble())
                 {
                     bDrop = true;
                     break;
@@ -1554,8 +1578,7 @@ public class GameLogic
                 else
                 {
                     fromPos = GoTo(pos, TDirection.EDir_UpRight, 1);
-                    if (CheckPosAvailable(fromPos) && m_blocks[fromPos.x, fromPos.y] != null && !m_blocks[fromPos.x, fromPos.y].isLocked && !m_blocks[fromPos.x, fromPos.y].isDropping
-                    && !m_blocks[fromPos.x, fromPos.y].IsEating())
+                    if (CheckPosAvailable(fromPos) && m_blocks[fromPos.x, fromPos.y] != null && m_blocks[fromPos.x, fromPos.y].IsDropDownAble())
                     {
                         bDrop = true;
                         break;
@@ -1567,7 +1590,11 @@ public class GameLogic
         {
             //处理下落////////////////////////////////////////////////////////////////////////
             m_blocks[x, toPos.y] = m_blocks[fromPos.x, fromPos.y];             //往下移块
-            m_blocks[x, toPos.y].isDropping = true;
+            if (m_blocks[x, toPos.y].CurState != BlockState.MovingEnd)          //若为MovingEnd状态，继续下落，则不增加下落块数记录
+            {
+                ++CapBlock.DropingBlockCount;
+            }
+            m_blocks[x, toPos.y].CurState = BlockState.Moving;
             m_blocks[x, toPos.y].droppingFrom.Set(fromPos.x, fromPos.y);       //记录从哪里落过来的
             m_blocks[fromPos.x, fromPos.y] = null;                       //原块置空
             m_blocks[x, toPos.y].DropingStartTime = Timer.GetRealTimeSinceStartUp();    //记录下落开始时间
@@ -1577,7 +1604,7 @@ public class GameLogic
                     ++m_slopeDropLock[x, k];                 //锁上
                 }
 
-            ++CapBlock.DropingBlockCount;
+            
             return true;
         }
         return false;			//返回是否发生了掉落
@@ -1957,12 +1984,7 @@ public class GameLogic
 
         if (m_blocks[position.x, position.y] == null) return;
 
-        if (m_blocks[position.x, position.y].isDropping)
-        {
-            return;
-        }
-
-        if (m_blocks[position.x, position.y].IsEating())        //不重复消除
+        if (m_blocks[position.x, position.y].CurState != BlockState.Normal)
         {
             return;
         }
@@ -2256,7 +2278,7 @@ public class GameLogic
             PlayingStageData.GridData[p.x, p.y] = GlobalVars.EditingGrid;
             if ((GlobalVars.EditingGrid & (int)GridFlag.Cage) > 0)
             {
-                m_blocks[p.x, p.y].isLocked = true;
+                m_blocks[p.x, p.y].CurState = BlockState.Locked;
             }
             if ((GlobalVars.EditingGrid & (int)GridFlag.Stone) > 0 || (GlobalVars.EditingGrid & (int)GridFlag.Chocolate) > 0)
             {
@@ -2911,7 +2933,6 @@ public class GameLogic
         TBlockColor color = GetRandomColor(PlayingStageData.CheckFlag(x, y, GridFlag.Birth));		//最上方获取新的方块
         m_blocks[x, y] = GetFreeCapBlock(color);            //创建新的块 Todo 变成用缓存
         m_blocks[x, y].color = color;               //设置颜色
-        m_blocks[x, y].id = m_idCount++;
         m_blocks[x, y].m_animation.enabled = false;
 
         if (Timer.millisecondNow() - m_gameStartTime > PlayingStageData.PlusStartTime * 1000)       //若超过了开始掉+5的时间
@@ -2945,6 +2966,7 @@ public class GameLogic
 
     void MakeSpriteFree(int x, int y)
     {
+        m_blocks[x, y].m_addColorTranform.renderer.material.SetColor("_TintColor", new Color(0, 0, 0, 0));
         m_blocks[x, y].m_animation.Stop();
         m_blocks[x, y].m_animation.enabled = false;
         m_capBlockFreeList.AddLast(m_blocks[x, y]);
@@ -3119,7 +3141,7 @@ public class GameLogic
         {
             return TBlockColor.EColor_None;
         }
-        if (m_blocks[p.x, p.y].isDropping || m_blocks[p.x, p.y].IsEating())
+        if (m_blocks[p.x, p.y].CurState != BlockState.Normal)
         {
             return TBlockColor.EColor_None;
         }

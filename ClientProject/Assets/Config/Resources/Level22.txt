@@ -6,7 +6,11 @@ Nut1Count			1
 Nut2Count			1				
 NutInitCount			1				
 NutMaxCount			3				
-NutStep			10				
+NutStep			7				
+PlusInitCount			0				
+PlusMaxCount			0				
+PlusStartTime			0				
+PlusStep			0				
 Seed			0				
 NewFormat			1				
 StarScore			0,0,0,				

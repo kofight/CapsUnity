@@ -632,6 +632,7 @@ public class GameLogic
             for (int j = 0; j < BlockCountY; ++j)
             {
                 m_slopeDropLock[i, j] = 0;
+                m_tempBlocks[i, j] = 0;
             }
         }
 
@@ -1003,23 +1004,26 @@ public class GameLogic
         DrawGraphics();     //绘制图形
 
         //处理帮助
-        if (m_gameFlow == TGameFlow.EGameState_Playing && CapBlock.DropingBlockCount == 0 && m_lastHelpTime > 0)      //下落完成的状态
+        if (m_gameFlow == TGameFlow.EGameState_Playing && m_lastHelpTime > 0)      //下落完成的状态
         {
-            if (!m_saveHelpBlocks[2].IsAvailable())     //还没找帮助点
+            if (IsMoveAble())       //可移动状态，判断帮助
             {
-                if (Timer.GetRealTimeSinceStartUp() > m_lastHelpTime + CheckAvailableTimeInterval)
+                if (!m_saveHelpBlocks[2].IsAvailable())     //还没找帮助点
                 {
-                    if (!Help())
+                    if (Timer.GetRealTimeSinceStartUp() > m_lastHelpTime + CheckAvailableTimeInterval)
                     {
-                        Debug.Log("Need Resort");
-                        m_showNoPossibleExhangeTextTime = Timer.millisecondNow();                       //显示需要重排
+                        if (!Help())
+                        {
+                            Debug.Log("Need Resort");
+                            m_showNoPossibleExhangeTextTime = Timer.millisecondNow();                       //显示需要重排
+                        }
                     }
                 }
-            }
-            else if (Timer.GetRealTimeSinceStartUp() > m_lastHelpTime + ShowHelpTimeInterval)
-            {
-                Help();
-                ShowHelpAnim();
+                else if (Timer.GetRealTimeSinceStartUp() > m_lastHelpTime + ShowHelpTimeInterval)
+                {
+                    Help();
+                    ShowHelpAnim();
+                }
             }
         }
 
@@ -2374,6 +2378,11 @@ public class GameLogic
 
     public void OnTouchBegin(Gesture ges)
     {
+        if (!IsMoveAble())
+        {
+            return;
+        }
+
         int x = (int)ges.position.x * CapsApplication.Singleton.Height / Screen.height;
         int y = (int)(Screen.height - ges.position.y) * CapsApplication.Singleton.Height / Screen.height;
         touchBeginPos.MakeItUnAvailable();
@@ -2382,8 +2391,6 @@ public class GameLogic
         {
             return;
         }
-
-        if (timerMoveBlock.GetState() == TimerEnum.ERunning) return;
 
         Position p = new Position();
         p.x = (int)((x - gameAreaX) / BLOCKWIDTH);
@@ -2430,8 +2437,31 @@ public class GameLogic
         }
     }
 
+    bool IsMoveAble()
+    {
+        if (m_gameFlow != TGameFlow.EGameState_Playing)
+        {
+            return false;
+        }
+        if (timerMoveBlock.GetState() == TimerEnum.ERunning)
+        {
+            return false;
+        }
+        if (GlobalVars.CurStageData.StepLimit > 0 && PlayingStageData.StepLimit == 0)
+        {
+            return false;
+        }
+        return CapBlock.DropingBlockCount == 0 && CapBlock.EatingBlockCount == 0;
+    }
+
     public void OnTouchMove(Gesture ges)
     {
+        if (!IsMoveAble())
+        {
+            return;
+        }
+
+        //取消开始触控点的高亮
         if (touchBeginGrid.IsAvailable())
         {
             SetHighLight(false, touchBeginGrid.x, touchBeginGrid.y);
@@ -2440,29 +2470,8 @@ public class GameLogic
         
         int x = (int)ges.position.x * CapsApplication.Singleton.Height / Screen.height;
         int y = (int)(Screen.height - ges.position.y) * CapsApplication.Singleton.Height / Screen.height;
-        if (m_gameFlow != TGameFlow.EGameState_Playing)
-        {
-            return;
-        }
 
         if (!touchBeginPos.IsAvailable())
-        {
-            return;
-        }
-
-        if (CapBlock.DropingBlockCount > 0)
-        {
-            return;
-        }
-
-        if (CapBlock.EatingBlockCount > 0)
-        {
-            return;
-        }
-
-        if (timerMoveBlock.GetState() == TimerEnum.ERunning) return;        //移动时不能再移动
-
-        if (GlobalVars.CurStageData.StepLimit > 0 && PlayingStageData.StepLimit == 0)       //若已经没有步数了
         {
             return;
         }
@@ -3146,12 +3155,12 @@ public class GameLogic
         {
             return TBlockColor.EColor_None;
         }
-        if (m_blocks[p.x, p.y].CurState != BlockState.Normal)
+        if (m_blocks[p.x, p.y].CurState == BlockState.Normal || m_blocks[p.x, p.y].CurState == BlockState.Locked)
         {
-            return TBlockColor.EColor_None;
+            return m_blocks[p.x, p.y].color;
         }
 
-        return m_blocks[p.x, p.y].color;
+        return TBlockColor.EColor_None;
     }
 
     Position GoTo(Position pos, TDirection direction, int step)

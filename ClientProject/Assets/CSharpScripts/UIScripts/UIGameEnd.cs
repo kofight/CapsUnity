@@ -17,6 +17,7 @@ public class UIGameEnd : UIWindow
     public override void OnShow()
     {
         base.OnShow();
+        UISprite sprite = GetChildComponent<UISprite>("FailedReason");
     }
     public override void OnUpdate()
     {

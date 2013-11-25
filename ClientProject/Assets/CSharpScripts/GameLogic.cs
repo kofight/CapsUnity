@@ -635,6 +635,11 @@ public class GameLogic
             }
         }
 
+        EasyTouch.On_SimpleTap -= OnTap;
+        EasyTouch.On_Swipe -= OnTouchMove;
+        EasyTouch.On_TouchStart -= OnTouchBegin;
+        EasyTouch.On_TouchUp -= OnTouchEnd;
+
         System.GC.Collect();
     }
 

@@ -90,7 +90,8 @@ public class UIStageEditor : UIWindow
 
         for (int i = 1; i <= 10; ++i)
         {
-            AddChildComponentMouseClick("GridFlag" + i, delegate()
+			UIToggle toggle = GetChildComponent<UIToggle>("GridFlag" + i);
+			EventDelegate.Set(toggle.onChange, delegate()
             {
                 GlobalVars.EditState = TEditState.EditStageGrid;
                 GlobalVars.EditingGrid = GetGridFlagsFromCheckBoxes();

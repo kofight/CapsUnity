@@ -2040,7 +2040,26 @@ public class GameLogic
                 break;
             case TSpecialBlock.ESpecial_NormalPlus5:
                 {
-                    m_gameStartTime += 5000;               //增加5秒时间
+                    if (m_gameFlow == TGameFlow.EGameState_EndEatingSpecial)
+                    {
+                        //最后阶段
+                        for (TDirection dir = TDirection.EDir_Up; dir <= TDirection.EDir_LeftUp; ++dir)
+                        {
+                            Position newPos = GoTo(position, dir, 1);                            //第一层
+                            EatBlock(newPos, CapsConfig.BombEffectInterval, 50);
+
+                            newPos = GoTo(newPos, dir, 1);                                     //第二层
+                            EatBlock(newPos, CapsConfig.BombEffectInterval * 2, 50);
+
+                            newPos = GoTo(newPos, (TDirection)(((int)dir + 2) % 6), 1);     //第二层向下一个方向走一步
+                            EatBlock(newPos, CapsConfig.BombEffectInterval * 2, 50);
+                        }
+                        AddPartile("BombEffect", position.x, position.y);
+                    }
+                    else
+                    {
+                        m_gameStartTime += 5000;               //增加5秒时间
+                    }
                 }
                 break;
             case TSpecialBlock.ESpecial_Painter:

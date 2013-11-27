@@ -25,6 +25,7 @@ public class UIStageEditor : UIWindow
                 GlobalVars.CurGameLogic.ClearGame();
 				GlobalVars.CurGameLogic.Init();
                 GlobalVars.CurGameLogic.StartGame();
+                RefreshControlls();
             });
 
         AddChildComponentMouseClick("ResortBtn", delegate()
@@ -46,6 +47,7 @@ public class UIStageEditor : UIWindow
 			GlobalVars.CurGameLogic.PlayingStageData.Seed = (int)(Time.realtimeSinceStartup * 1000 % 1000);
             GlobalVars.CurGameLogic.StartGame();
             m_seedLabel.text = GlobalVars.CurGameLogic.PlayingStageData.Seed.ToString();
+            RefreshControlls();
         });
 
         for (int i = 0; i < GameLogic.TotalColorCount; ++i)
@@ -211,9 +213,8 @@ public class UIStageEditor : UIWindow
         return gridFlags;
     }
 
-    public override void OnShow()
+    void RefreshControlls()
     {
-        base.OnShow();
         UIInput input = GetChildComponent<UIInput>("LevelInput");
         input.value = GlobalVars.CurStageNum.ToString();
 
@@ -253,9 +254,9 @@ public class UIStageEditor : UIWindow
         input = GetChildComponent<UIInput>("PlusStartTime");
         input.value = GlobalVars.CurStageData.PlusStartTime.ToString();
 
-        for (int i = 0; i < 3; ++i )
+        for (int i = 0; i < 3; ++i)
         {
-            input = GetChildComponent<UIInput>("Star" + (i +1));
+            input = GetChildComponent<UIInput>("Star" + (i + 1));
             input.value = GlobalVars.CurGameLogic.PlayingStageData.StarScore[i].ToString();
         }
 
@@ -263,6 +264,12 @@ public class UIStageEditor : UIWindow
         targetCheck.value = true;
 
         m_seedLabel.text = GlobalVars.CurGameLogic.PlayingStageData.Seed.ToString();
+    }
+
+    public override void OnShow()
+    {
+        base.OnShow();
+        RefreshControlls();
     }
 
     public override void OnUpdate()
@@ -348,6 +355,11 @@ public class UIStageEditor : UIWindow
         int levelNum = (int)System.Convert.ChangeType(input.value, typeof(int));
         GlobalVars.CurGameLogic.PlayingStageData.SaveStageData(levelNum);
         GlobalVars.CurStageNum = levelNum;
+
+#if UNITY_EDITOR
+        UnityEditor.AssetDatabase.Refresh();
+#endif
+        
 
         GlobalVars.CurStageData.LoadStageData(levelNum);
     }

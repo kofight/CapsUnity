@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 public enum TGameFlow
 {
+    EGameState_StartGameAnim,                   //开始游戏动画
+    EGameState_ResortAnim,                      //重排动画
     EGameState_Playing,                         //游戏中
     EGameState_SugarCrushAnim,                  //进入特殊奖励前的动画
     EGameState_EndEatingSpecial,                //结束后开始逐个吃屏幕上的特殊块
@@ -172,6 +174,7 @@ public class GameLogic
     public static float ShowNoPossibleExhangeTextTime = 1.0f;      //没有可交换的块显示，持续1秒钟
     public static int StepRewardInterval = 300;             //步数奖励的时间间隔
     public static int SugarCrushAnimTime = 1200;            //SugarCrush动画的时间长度
+    public static int StartAnimTime = 1200;            //开始动画的时间长度
 
 
 
@@ -191,7 +194,7 @@ public class GameLogic
     bool m_changeBack;		//在交换方块动画中标志是否为换回动画
     System.Random m_random;
     long m_gameStartTime = 0;                              //游戏开始时间
-    long m_sugarCurshAnimStartTime = 0;                    //sugarCrush动画的开始时间
+    long m_curAnimStartTime = 0;                    //sugarCrush动画的开始时间
     long m_lastStepRewardTime = 0;                         //上次生成StepReward的时间
     public StageData PlayingStageData;                      //当前的关卡数据
     bool m_bDropFromLeft = true;                            //用来控制左右斜下落的开关
@@ -201,7 +204,6 @@ public class GameLogic
 
     float m_lastHelpTime;
     float m_lastGCTime;                                     //在操作间隔进行GC
-    float m_showNoPossibleExhangeTextTime = 0;              //显示
     
     Position touchBeginPos;                                 //触控开始的位置
 	Position touchBeginGrid;                                 //触控开始的位置
@@ -550,7 +552,10 @@ public class GameLogic
 
         UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().Reset();
 
-        m_gameFlow = TGameFlow.EGameState_Playing;                //开始游戏
+        m_gameFlow = TGameFlow.EGameState_StartGameAnim;                //开始游戏
+        m_curAnimStartTime = Timer.millisecondNow();
+
+        AddPartile("StartGameAnim", 0, 0);
 
         DropDown();                                               //开始先尝试进行一次下落
     }
@@ -622,10 +627,9 @@ public class GameLogic
         }
         m_nut1Count = 0;
         m_nut2Count = 0;
-        m_sugarCurshAnimStartTime = 0;
+        m_curAnimStartTime = 0;
         m_lastStepRewardTime = 0;
         m_lastHelpTime = 0;
-        m_showNoPossibleExhangeTextTime = 0;
 
         for (int i = 0; i < BlockCountX; ++i)
         {
@@ -703,8 +707,6 @@ public class GameLogic
         //   }
         //}
 
-        Color defaultColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
-
         //根据数据绘制Sprite
         for (int i = 0; i < BlockCountX; i++)
         {
@@ -727,7 +729,6 @@ public class GameLogic
                     }
 
                     m_blocks[i, j].m_blockTransform.localPosition = new Vector3(GetXPos(i) + m_blocks[i, j].x_move, -(m_blocks[i, j].y_move + GetYPos(i, j)), -105);
-                    //m_blocks[i, j].m_blockSprite.color = defaultColor;          //Todo 实在不知道为什么加上这句动画控制Alpha才好使
 
                     if (m_blocks[i, j].IsEating())
                     {
@@ -786,10 +787,33 @@ public class GameLogic
 
     void ProcessState()     //处理各个状态
     {
+        if (m_gameFlow == TGameFlow.EGameState_StartGameAnim)
+        {
+            if (Timer.millisecondNow() - m_curAnimStartTime > StartAnimTime)        //若时间到
+            {
+                m_gameFlow = TGameFlow.EGameState_Playing;                           //开始游戏
+                return;
+            }
+        }
+
+        if (m_gameFlow == TGameFlow.EGameState_ResortAnim)        //正在显示“没有可交换块，需要重排”
+        {
+            if (Timer.millisecondNow() - m_curAnimStartTime > ShowNoPossibleExhangeTextTime)       //时间已到
+            {
+                AutoResort();
+                m_gameFlow = TGameFlow.EGameState_Playing;
+            }
+            else
+            {
+                //显示提示信息
+                UIDrawer.Singleton.DrawText("NoExchangeText", 100, 100, "No Block To Exchange! Auto Resort...");
+            }
+        }
+
         //处理流程////////////////////////////////////////////////////////////////////////
         if (m_gameFlow == TGameFlow.EGameState_SugarCrushAnim)        //播放sugarcrush动画状态
         {
-            if (Timer.millisecondNow() - m_sugarCurshAnimStartTime > SugarCrushAnimTime)        //若时间到
+            if (Timer.millisecondNow() - m_curAnimStartTime > SugarCrushAnimTime)        //若时间到
             {
                 m_gameFlow = TGameFlow.EGameState_EndEatingSpecial;                           //切下一状态
                 return;
@@ -955,20 +979,6 @@ public class GameLogic
 
         ProcessState();
 
-        if (m_showNoPossibleExhangeTextTime > 0)        //正在显示“没有可交换块，需要重排”
-        {
-            if (Timer.millisecondNow() > m_showNoPossibleExhangeTextTime + ShowNoPossibleExhangeTextTime)       //时间已到
-            {
-                AutoResort();
-                m_showNoPossibleExhangeTextTime = 0;            //交换完毕，关闭状态
-            }
-            else
-            {
-                //显示提示信息
-                UIDrawer.Singleton.DrawText("NoExchangeText", 100, 100, "No Block To Exchange! Auto Resort...");
-            }
-        }
-
         if (CapBlock.DropingBlockCount > 0)
         {
             bool bFound = false;
@@ -1014,8 +1024,9 @@ public class GameLogic
                     {
                         if (!Help())
                         {
-                            Debug.Log("Need Resort");
-                            m_showNoPossibleExhangeTextTime = Timer.millisecondNow();                       //显示需要重排
+                            m_curAnimStartTime = Timer.millisecondNow();
+                            AddPartile("ResortAnim", 0, 0);                                    //显示需要重排
+                            m_gameFlow = TGameFlow.EGameState_ResortAnim;
                         }
                     }
                 }
@@ -1517,7 +1528,7 @@ public class GameLogic
         //需要补充遍历所有出生点
         for (int j = BlockCountY - 1; j >= 0; j--)		//从最下面开始遍历
         {
-            if (PlayingStageData.CheckFlag(x, j, GridFlag.Birth) && m_blocks[x, j] == null)     //若为出生点，且为空
+            if (PlayingStageData.CheckFlag(x, j, GridFlag.Birth) && !PlayingStageData.CheckFlag(x, j, GridFlag.Chocolate | GridFlag.Stone) && m_blocks[x, j] == null)     //若为出生点，且为空
             {
                 int y = j;
                 //看看可以掉落到什么地方
@@ -2015,9 +2026,14 @@ public class GameLogic
                 {
                     for (TDirection dir = TDirection.EDir_Up; dir <= TDirection.EDir_LeftUp; ++dir)
                     {
-                        EatBlock(GoTo(position, dir, 1), CapsConfig.BombEffectInterval, 50);
+                        Position newPos = GoTo(position, dir, 1);                            //第一层
+                        EatBlock(newPos, CapsConfig.BombEffectInterval, 50);
 
-                        EatBlock(GoTo(position, dir, 2), CapsConfig.BombEffectInterval * 2, 50);
+                        newPos = GoTo(newPos, dir, 1);                                     //第二层
+                        EatBlock(newPos, CapsConfig.BombEffectInterval * 2, 50);
+
+                        newPos = GoTo(newPos, (TDirection)(((int)dir + 2) % 6), 1);     //第二层向下一个方向走一步
+                        EatBlock(newPos, CapsConfig.BombEffectInterval * 2, 50);
                     }
                     AddPartile("BombEffect", position.x, position.y);
                 }
@@ -2201,8 +2217,9 @@ public class GameLogic
             if (foundSpecial || PlayingStageData.StepLimit > 0)     //若能进SugarCrush
             {
                 m_gameFlow = TGameFlow.EGameState_SugarCrushAnim;
+                AddPartile("SugarCrushAnim", 0, 0);
                 ClearHelpPoint();
-                m_sugarCurshAnimStartTime = Timer.millisecondNow();
+                m_curAnimStartTime = Timer.millisecondNow();
             }
             else
             {
@@ -2291,7 +2308,10 @@ public class GameLogic
             }
             if ((GlobalVars.EditingGrid & (int)GridFlag.Stone) > 0 || (GlobalVars.EditingGrid & (int)GridFlag.Chocolate) > 0)
             {
-                MakeSpriteFree(p.x, p.y);       //把块置空
+                if (m_blocks[p.x, p.y] != null)
+                {
+                    MakeSpriteFree(p.x, p.y);       //把块置空
+                }
             }
             if (m_gridBackImage[p.x, p.y] != null)
             {
@@ -2427,6 +2447,10 @@ public class GameLogic
 
     void SetHighLight(bool bVal, int x, int y)         //设置某块高亮
     {
+        if (m_blocks[x, y] == null)
+        {
+            return;
+        }
         if (bVal)
         {
             m_blocks[x, y].m_addColorTranform.renderer.material.SetColor("_TintColor", new Color(255, 255, 255, 255));

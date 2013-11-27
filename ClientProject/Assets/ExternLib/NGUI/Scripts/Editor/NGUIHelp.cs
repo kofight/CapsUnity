@@ -106,6 +106,9 @@ static public class NGUIHelp
 	[MenuItem("CONTEXT/UIDragScrollView/Help")]
 	static void ShowHelp26 (MenuCommand command) { Show(typeof(UIScrollView)); }
 
+	[MenuItem("CONTEXT/UIPanel/Help")]
+	static void ShowHelp27 (MenuCommand command) { Show(typeof(UIPanel)); }
+
 	/// <summary>
 	/// Get the URL pointing to the documentation for the specified component.
 	/// </summary>
@@ -140,7 +143,7 @@ static public class NGUIHelp
 		if (type == typeof(UIScrollView) || type == typeof(UIDragScrollView))
 			return "http://www.tasharen.com/forum/index.php?topic=6763";
 
-		if (type.IsSubclassOf(typeof(UIWidget)))
+		if (type == typeof(UIWidget) || type.IsSubclassOf(typeof(UIWidget)))
 			return "http://www.tasharen.com/forum/index.php?topic=6702";
 
 		if (type == typeof(UIPlayTween) || type.IsSubclassOf(typeof(UITweener)))

@@ -21,7 +21,7 @@ public class UIMainMenu : UIWindow
     {
         if (CapsApplication.Singleton.CurStateEnum == StateEnum.Game)
         {
-            if (UIWindowManager.Singleton.GetUIWindow<UIStageEditor>().Visible)
+            if (UIWindowManager.Singleton.GetUIWindow<UIStageEditor>() != null && UIWindowManager.Singleton.GetUIWindow<UIStageEditor>().Visible)
             {
                 UIWindowManager.Singleton.GetUIWindow<UIStageEditor>().HideWindow();
             }

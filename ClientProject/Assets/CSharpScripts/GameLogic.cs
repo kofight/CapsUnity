@@ -728,6 +728,24 @@ public class GameLogic
                         }
                     }
 
+                    //处理移动
+                    if (m_blocks[i, j].y_move < 0)
+                    {
+                        float yLenth = (-m_blocks[i, j].y_move) / (float)BLOCKHEIGHT;
+                        if (yLenth > j + 1)
+                        {
+                            m_blocks[i, j].m_blockSprite.fillAmount = 0;
+                        }
+                        else if (yLenth > j)
+                        {
+                            m_blocks[i, j].m_blockSprite.fillAmount = 1.0f - (yLenth - j);
+                        }
+                    }
+                    else
+                    {
+                        m_blocks[i, j].m_blockSprite.fillAmount = 1.0f;
+                    }
+                        
                     m_blocks[i, j].m_blockTransform.localPosition = new Vector3(GetXPos(i) + m_blocks[i, j].x_move, -(m_blocks[i, j].y_move + GetYPos(i, j)), -105);
 
                     if (m_blocks[i, j].IsEating())
@@ -2026,14 +2044,9 @@ public class GameLogic
                 {
                     for (TDirection dir = TDirection.EDir_Up; dir <= TDirection.EDir_LeftUp; ++dir)
                     {
-                        Position newPos = GoTo(position, dir, 1);                            //第一层
-                        EatBlock(newPos, CapsConfig.BombEffectInterval, 50);
+                        EatBlock(GoTo(position, dir, 1), CapsConfig.BombEffectInterval, 50);
 
-                        newPos = GoTo(newPos, dir, 1);                                     //第二层
-                        EatBlock(newPos, CapsConfig.BombEffectInterval * 2, 50);
-
-                        newPos = GoTo(newPos, (TDirection)(((int)dir + 2) % 6), 1);     //第二层向下一个方向走一步
-                        EatBlock(newPos, CapsConfig.BombEffectInterval * 2, 50);
+                        EatBlock(GoTo(position, dir, 2), CapsConfig.BombEffectInterval * 2, 50);
                     }
                     AddPartile("BombEffect", position.x, position.y);
                 }

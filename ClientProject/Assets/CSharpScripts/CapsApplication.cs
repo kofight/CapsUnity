@@ -79,7 +79,7 @@ public class CapsApplication : S5Application
         }
         if (CapsConfig.Instance.DropSpeed > 0)
         {
-            GameLogic.SLIDE_SPEED = CapsConfig.Instance.DropSpeed;
+            GameLogic.SLIDE_SPEED = CapsConfig.Instance.SlideSpeed;
         }
 
         //读取心数相关

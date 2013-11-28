@@ -568,7 +568,7 @@ public class GameLogic
         m_gameFlow = TGameFlow.EGameState_StartGameAnim;                //开始游戏
         m_curAnimStartTime = Timer.millisecondNow();
 
-        AddPartile("StartGameAnim", 0, 0);
+        AddPartile("StartGameAnim", 5, 5);
 
         DropDown();                                               //开始先尝试进行一次下落
     }
@@ -643,6 +643,9 @@ public class GameLogic
         m_curAnimStartTime = 0;
         m_lastStepRewardTime = 0;
         m_lastHelpTime = 0;
+
+        CapBlock.DropingBlockCount = 0;
+        CapBlock.EatingBlockCount = 0;
 
         for (int i = 0; i < BlockCountX; ++i)
         {
@@ -1080,7 +1083,7 @@ public class GameLogic
                         if (!Help())
                         {
                             m_curAnimStartTime = Timer.millisecondNow();
-                            AddPartile("ResortAnim", 0, 0);                                    //显示需要重排
+                            AddPartile("ResortAnim", 5, 5);                                    //显示需要重排
                             m_gameFlow = TGameFlow.EGameState_ResortAnim;
                         }
                     }
@@ -1565,20 +1568,28 @@ public class GameLogic
                     if (m_blocks[destPos.x, destPos.y].CurState != BlockState.MovingEnd)        //若为MovingEnd状态，继续下落，则不增加下落块数记录
                     {
                         ++CapBlock.DropingBlockCount;
+                        m_blocks[destPos.x, destPos.y].DropingStartTime = Timer.GetRealTimeSinceStartUp();    //重新记录下落开始时间
+                        m_blocks[destPos.x, destPos.y].droppingFrom.Set(x, j);       //记录从哪里落过来的
+                    }
+                    else
+                    {
+                        if (m_blocks[destPos.x, destPos.y].droppingFrom.x != destPos.x || PlayingStageData.CheckFlag(destPos.x, destPos.y, GridFlag.PortalEnd))         //若不为直线下落
+                        {
+                            m_blocks[destPos.x, destPos.y].DropingStartTime = Timer.GetRealTimeSinceStartUp();    //重新记录下落开始时间
+                            m_blocks[destPos.x, destPos.y].droppingFrom.Set(x, j);       //记录从哪里落过来的
+                        }
                     }
                     m_blocks[destPos.x, destPos.y].CurState = BlockState.Moving;
-                    m_blocks[destPos.x, destPos.y].droppingFrom.Set(x, j);       //记录从哪里落过来的
                     m_blocks[x, j] = null;                       //原块置空
                     for (int k = j + 1; k < BlockCountY; ++k)
                     {
                         ++m_slopeDropLock[x, k];                 //锁上
                     }
-                    m_blocks[destPos.x, destPos.y].DropingStartTime = Timer.GetRealTimeSinceStartUp();    //记录下落开始时间
+                    
                     tag = true;
                 }
             }
         }
-
 
         //需要补充遍历所有出生点
         for (int j = BlockCountY - 1; j >= 0; j--)		//从最下面开始遍历
@@ -2299,7 +2310,7 @@ public class GameLogic
             if (foundSpecial || PlayingStageData.StepLimit > 0)     //若能进SugarCrush
             {
                 m_gameFlow = TGameFlow.EGameState_SugarCrushAnim;
-                AddPartile("SugarCrushAnim", 0, 0);
+                AddPartile("SugarCrushAnim", 5, 5);
                 ClearHelpPoint();
                 m_curAnimStartTime = Timer.millisecondNow();
             }
@@ -3261,7 +3272,7 @@ public class GameLogic
         {
             return TBlockColor.EColor_None;
         }
-        if (m_blocks[p.x, p.y].CurState == BlockState.Normal || m_blocks[p.x, p.y].CurState == BlockState.Locked)
+        if (m_blocks[p.x, p.y].CurState == BlockState.Normal || m_blocks[p.x, p.y].CurState == BlockState.Locked || m_blocks[p.x, p.y].CurState == BlockState.NeedCheckEatLine)
         {
             return m_blocks[p.x, p.y].color;
         }

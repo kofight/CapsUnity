@@ -728,24 +728,35 @@ public class GameLogic
                         }
                     }
 
-                    //处理移动
-                    if (m_blocks[i, j].y_move < 0)
+                    //处理裁切
+                    if (m_blocks[i, j].y_move < 0 && m_blocks[i, j].x_move == 0)      //若处于直线下落中
                     {
-                        float yLenth = (-m_blocks[i, j].y_move) / (float)BLOCKHEIGHT;
-                        if (yLenth > j + 1)
+                        float yLenth = (-m_blocks[i, j].y_move) / (float)BLOCKHEIGHT - 0.001f;       //当前位移了几个块的距离
+
+                        int curYPos = j - (int)Mathf.Ceil(yLenth);                          //当前块显示所在的格子
+
+                        if (curYPos < -1)                                                   //若当前块的位置比-1还小
                         {
-                            m_blocks[i, j].m_blockSprite.fillAmount = 0;
+                            m_blocks[i, j].m_blockSprite.fillAmount = 0;                    //完全不可能显示
                         }
-                        else if (yLenth > j)
-                        {
-                            m_blocks[i, j].m_blockSprite.fillAmount = 1.0f - (yLenth - j);
-                        }
+                        else if (curYPos == -1 || PlayingStageData.GridData[i, curYPos] == 0)   //若当前块的位置为-1或当前块为空
+						{
+                            if (PlayingStageData.GridData[i, curYPos + 1] != 0)                 //若下一位置是不为空
+							{
+                                m_blocks[i, j].m_blockSprite.fillAmount = 1.0f - (yLenth - Mathf.Floor(yLenth));  //算个裁切
+							}
+							else                                                                //若下一位置为空
+							{
+                                m_blocks[i, j].m_blockSprite.fillAmount = 0;                    //不显示
+							}
+						}
                     }
                     else
                     {
-                        m_blocks[i, j].m_blockSprite.fillAmount = 1.0f;
+                        m_blocks[i, j].m_blockSprite.fillAmount = 1.0f;                     //完全显示
                     }
-                        
+
+                    //处理位置变化
                     m_blocks[i, j].m_blockTransform.localPosition = new Vector3(GetXPos(i) + m_blocks[i, j].x_move, -(m_blocks[i, j].y_move + GetYPos(i, j)), -105);
 
                     if (m_blocks[i, j].IsEating())
@@ -1585,6 +1596,7 @@ public class GameLogic
         bool bDrop = false;
         Position fromPos = new Position();
         Position toPos = new Position();
+        bool bPortal = false;
         //下落块，所有可下落区域下落一行////////////////////////////////////////////////////////////////////////
         for (int j = 0; j < BlockCountY; j++)		//从上往下遍历
         {
@@ -1598,6 +1610,7 @@ public class GameLogic
                     if (m_blocks[fromPos.x, fromPos.y] != null && m_blocks[fromPos.x, fromPos.y].IsDropDownAble())
                     {
                         bDrop = true;
+                        bPortal = true;
                         break;
                     }
                 }
@@ -1633,7 +1646,14 @@ public class GameLogic
                 ++CapBlock.DropingBlockCount;
             }
             m_blocks[x, toPos.y].CurState = BlockState.Moving;
-            m_blocks[x, toPos.y].droppingFrom.Set(fromPos.x, fromPos.y);       //记录从哪里落过来的
+            if (bPortal)
+            {
+                m_blocks[x, toPos.y].droppingFrom.Set(x, toPos.y - 1);       //记录从哪里落过来的
+            }
+            else
+            {
+                m_blocks[x, toPos.y].droppingFrom.Set(fromPos.x, fromPos.y);       //记录从哪里落过来的
+            }
             m_blocks[fromPos.x, fromPos.y] = null;                       //原块置空
             m_blocks[x, toPos.y].DropingStartTime = Timer.GetRealTimeSinceStartUp();    //记录下落开始时间
 

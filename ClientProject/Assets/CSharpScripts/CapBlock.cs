@@ -112,6 +112,7 @@ public class CapBlock
 
     public Animation m_animation;
     public UISprite m_blockSprite;		//精灵动画
+    public UISprite m_shadowSprite;		//影子精灵动画，用来在传送门另一端表现另一半
     public Transform m_blockTransform;         //
 	public Transform m_addColorTranform;		//
 

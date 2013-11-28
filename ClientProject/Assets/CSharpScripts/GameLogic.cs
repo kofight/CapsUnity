@@ -210,6 +210,7 @@ public class GameLogic
 
     //物件池
     LinkedList<CapBlock> m_capBlockFreeList = new LinkedList<CapBlock>();				//用来存放可用的Sprite
+    LinkedList<UISprite> m_freeShadowSpriteList = new LinkedList<UISprite>();           //用来存放可用的ShadowSprite
     Dictionary<string, LinkedList<ParticleSystem>> m_particleMap = new Dictionary<string, LinkedList<ParticleSystem>>();
     Dictionary<string, LinkedList<ParticleSystem>> m_freeParticleMap = new Dictionary<string, LinkedList<ParticleSystem>>();
     LinkedList<ShowingNumberEffect> m_freeNumberList = new LinkedList<ShowingNumberEffect>();                 //用来存放数字图片的池
@@ -219,6 +220,7 @@ public class GameLogic
     GameObject m_capsPool;                  //瓶盖池
     GameObject m_gridInstance;              //把Grid的实例存起来，用来优化性能
     GameObject m_numInstance;              //把数字的实例存起来，用来优化性能
+    GameObject m_shadowSpriteInstance;      //影子图片的实例
 
     int m_nut1Count;                        //当前屏幕上的坚果数量
     int m_nut2Count;                        //当前屏幕上的坚果数量
@@ -260,12 +262,23 @@ public class GameLogic
     {
         m_gridInstance = GameObject.Find("GridInstance");
         m_numInstance = GameObject.Find("NumberInstance");
+        m_shadowSpriteInstance = GameObject.Find("ShadowSprite");
 
         //初始化瓶盖图片池
         for (int j = 0; j < 100; ++j)              //一百个够了
         {
             CapBlock capBlock = new CapBlock();
             m_capBlockFreeList.AddLast(capBlock);
+        }
+
+        for (int j = 0; j < 10; ++j )
+        {
+            GameObject newObj = GameObject.Instantiate(m_shadowSpriteInstance) as GameObject;
+            newObj.transform.parent = m_shadowSpriteInstance.transform.parent;
+            newObj.transform.localScale = m_shadowSpriteInstance.transform.localScale;
+            UISprite sprite = newObj.GetComponent<UISprite>();
+            m_freeShadowSpriteList.AddLast(sprite);
+            newObj.SetActive(false);
         }
 
         for (int i = 0; i < 81; ++i)
@@ -744,6 +757,13 @@ public class GameLogic
                             if (PlayingStageData.GridData[i, curYPos + 1] != 0)                 //若下一位置是不为空
 							{
                                 m_blocks[i, j].m_blockSprite.fillAmount = 1.0f - (yLenth - Mathf.Floor(yLenth));  //算个裁切
+
+                                if (PlayingStageData.CheckFlag(i, j, GridFlag.PortalEnd))       //若为传送门的终点,需要处理传来位置的图片
+                                {
+                                    m_blocks[i, j].m_shadowSprite.fillAmount = 1.0f - m_blocks[i, j].m_blockSprite.fillAmount;
+                                    Position from = PlayingStageData.PortalToMap[j * 10 + i].from;
+                                    m_blocks[i, j].m_shadowSprite.transform.localPosition = new Vector3(GetXPos(from.x), -(m_blocks[i, j].y_move + GetYPos(from.x, from.y + 1)), 0);
+                                }
 							}
 							else                                                                //若下一位置为空
 							{
@@ -753,11 +773,17 @@ public class GameLogic
                     }
                     else
                     {
+                        if (m_blocks[i, j].m_shadowSprite != null)                           //已经落完的，若仍有shadowSprite, 释放
+                        {
+                            m_freeShadowSpriteList.AddLast(m_blocks[i, j].m_shadowSprite);   //放到空闲队列里
+                            m_blocks[i, j].m_shadowSprite.gameObject.SetActive(false);       //释放
+                            m_blocks[i, j].m_shadowSprite = null;
+                        }
                         m_blocks[i, j].m_blockSprite.fillAmount = 1.0f;                     //完全显示
                     }
 
                     //处理位置变化
-                    m_blocks[i, j].m_blockTransform.localPosition = new Vector3(GetXPos(i) + m_blocks[i, j].x_move, -(m_blocks[i, j].y_move + GetYPos(i, j)), -105);
+                    m_blocks[i, j].m_blockTransform.localPosition = new Vector3(GetXPos(i) + m_blocks[i, j].x_move, -(m_blocks[i, j].y_move + GetYPos(i, j)), 0);
 
                     if (m_blocks[i, j].IsEating())
                     {
@@ -1648,7 +1674,11 @@ public class GameLogic
             m_blocks[x, toPos.y].CurState = BlockState.Moving;
             if (bPortal)
             {
-                m_blocks[x, toPos.y].droppingFrom.Set(x, toPos.y - 1);       //记录从哪里落过来的
+                m_blocks[x, toPos.y].droppingFrom.Set(x, toPos.y - 1);       //传送门块，直接从上面一格往下落
+                m_blocks[x, toPos.y].m_shadowSprite = m_freeShadowSpriteList.Last.Value;                                //指定一个影子图片
+                m_blocks[x, toPos.y].m_shadowSprite.gameObject.SetActive(true);
+                m_blocks[x, toPos.y].m_shadowSprite.spriteName = m_blocks[x, toPos.y].m_blockSprite.spriteName;
+                m_freeShadowSpriteList.RemoveLast();
             }
             else
             {

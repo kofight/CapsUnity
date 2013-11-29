@@ -184,7 +184,7 @@ public class GameLogic
     CapBlock[,] m_blocks = new CapBlock[BlockCountX, BlockCountY];		//屏幕上方块的数组
     GridSprites[,] m_gridBackImage = new GridSprites[BlockCountX, BlockCountY];        //用来记录背景块
     int[,] m_scoreToShow = new int[BlockCountX, BlockCountY];
-    int[,] m_slopeDropLock = new int[BlockCountX, BlockCountY];         //斜下落的锁定
+    int[] m_slopeDropLock = new int[BlockCountX];         				//斜下落的锁定
 
     Position [] m_saveHelpBlocks = new Position[3];        //用来保存帮助找到的可消块
 
@@ -649,9 +649,9 @@ public class GameLogic
 
         for (int i = 0; i < BlockCountX; ++i)
         {
+			m_slopeDropLock[i] = 0;
             for (int j = 0; j < BlockCountY; ++j)
             {
-                m_slopeDropLock[i, j] = 0;
                 m_tempBlocks[i, j] = 0;
             }
         }
@@ -711,16 +711,9 @@ public class GameLogic
             }
         }
 
-        //////如果未到120毫秒，更新各方快的位置
         //for (int i = 0; i < BlockCountX; i++)
         //{
-        //    for (int j = 0; j < BlockCountY; j++)
-        //    {
-        //        if (m_slopeDropLock[i, j] > 0)
-        //        {
-        //           UIDrawer.Singleton.DrawNumber("lock" + (j * 10 + i), GetXPos(i) - 30, GetYPos(i, j) - 30, m_slopeDropLock[i, j], "", 24);
-        //        }
-        //   }
+            //UIDrawer.Singleton.DrawText("lock" + i, GetXPos(i) - 30, GetYPos(i, 0) - 30, m_slopeDropLock[i].ToString());
         //}
 
         //根据数据绘制Sprite
@@ -1181,10 +1174,7 @@ public class GameLogic
                             //清空block信息
                             MakeSpriteFree(i, j);
                             //清除锁定信息
-                            for (int k = j + 1; k < BlockCountY; ++k)
-                            {
-                                --m_slopeDropLock[i, k];
-                            }
+                            --m_slopeDropLock[i];
 
                             bEat = true;
                         }
@@ -1421,23 +1411,7 @@ public class GameLogic
             m_blocks[to.x, to.y].x_move = 0;        //清除x_move
             m_blocks[to.x, to.y].y_move = 0;        //清除y_move
 
-            if (m_blocks[to.x, to.y].droppingFrom.x == to.x)      //垂直下落
-            {
-                for (int j = m_blocks[to.x, to.y].droppingFrom.y + 1; j < BlockCountY; ++j)
-                {
-                    if (j >= 0)
-                    {
-                        --m_slopeDropLock[to.x, j];                     //把锁定的数字减掉
-                    }
-                }
-            }
-            else                                                  //斜下落
-            {
-                for (int j = to.y + 1; j < BlockCountY; ++j)
-                {
-                    --m_slopeDropLock[to.x, j];                     //把锁定的数字减掉
-                }
-            }
+            --m_slopeDropLock[to.x];                     //把锁定的数字减掉
 
             m_blocks[to.x, to.y].CurState = BlockState.MovingEnd;      //移动结束
         }
@@ -1491,55 +1465,6 @@ public class GameLogic
         return bDrop;
     }
 
-    //public bool DropDownPortal(int x)
-    //{
-    //    bool bDrop = false;
-    //    bool bPortal = false;
-    //    Position fromPos = new Position();
-    //    Position toPos = new Position();
-    //    //下落块，所有可下落区域下落一行////////////////////////////////////////////////////////////////////////
-    //    for (int j = 0; j < BlockCountY; j++)		//从上往下遍历
-    //    {
-    //        toPos = new Position(x, j);
-
-    //        if (PlayingStageData.CheckFlag(x, j, GridFlag.PortalEnd))       //若为传送门目标点
-    //        {
-    //             if (CheckPosCanDropDown(x, j))       //找到空格
-    //             {
-    //                 fromPos = PlayingStageData.PortalToMap[toPos.ToInt()].from;
-    //                 if (m_blocks[fromPos.x, fromPos.y] != null && !m_blocks[fromPos.x, fromPos.y].isLocked && !m_blocks[fromPos.x, fromPos.y].isDropping
-    //                        && !m_blocks[fromPos.x, fromPos.y].IsEating())
-    //                 {
-    //                     bDrop = true;
-    //                     bPortal = true;
-    //                     break;
-    //                 }
-    //             }
-    //        }
-    //    }
-    //    if (bDrop)
-    //    {
-    //        //处理下落////////////////////////////////////////////////////////////////////////
-    //        m_blocks[x, toPos.y] = m_blocks[fromPos.x, fromPos.y];             //往下移块
-    //        m_blocks[x, toPos.y].isDropping = true;
-    //        m_blocks[x, toPos.y].droppingFrom.Set(fromPos.x, fromPos.y);       //记录从哪里落过来的
-    //        m_blocks[fromPos.x, fromPos.y] = null;                       //原块置空
-    //        m_blocks[x, toPos.y].DropingStartTime = Timer.GetRealTimeSinceStartUp();    //记录下落开始时间
-
-    //        if (!bPortal)
-    //        {
-    //            for (int k = toPos.y + 1; k < BlockCountY; ++k)               //下面全锁住
-    //            {
-    //                ++m_slopeDropLock[x, k];                 //锁上
-    //            }
-    //        }
-
-    //        ++CapBlock.DropingBlockCount;
-    //        return true;
-    //    }
-    //    return false;			//返回是否发生了掉落
-    //}
-
     public bool DropDownStraight(int x)
     {
         //下落块，所有可下落区域下落一行////////////////////////////////////////////////////////////////////////
@@ -1587,10 +1512,7 @@ public class GameLogic
                     }
                     m_blocks[destPos.x, destPos.y].CurState = BlockState.Moving;
                     m_blocks[x, j] = null;                       //原块置空
-                    for (int k = j + 1; k < BlockCountY; ++k)
-                    {
-                        ++m_slopeDropLock[x, k];                 //锁上
-                    }
+                    ++m_slopeDropLock[x];                 //锁上
                     
                     tag = true;
                 }
@@ -1619,13 +1541,7 @@ public class GameLogic
                     m_blocks[x, destY].CurState = BlockState.Moving;
                     m_blocks[x, destY].droppingFrom.Set(x, destY - (y - j) - 1);            //记录从哪里落过来的
                     m_blocks[x, destY].DropingStartTime = Timer.GetRealTimeSinceStartUp();    //记录下落开始时间
-                    for (int k = m_blocks[x, destY].droppingFrom.y + 1; k < BlockCountY; ++k)
-                    {
-                        if (k >= 0)
-                        {
-                            ++m_slopeDropLock[x, k];
-                        }
-                    }
+                    ++m_slopeDropLock[x];
                     tag = true;
                     ++CapBlock.DropingBlockCount;
                 }
@@ -1658,7 +1574,7 @@ public class GameLogic
                     }
                 }
 
-                if (m_slopeDropLock[x, j] > 0)
+                if (m_slopeDropLock[x] > 0)
                 {
                     continue;
                 }
@@ -1704,12 +1620,8 @@ public class GameLogic
             m_blocks[fromPos.x, fromPos.y] = null;                       //原块置空
             m_blocks[x, toPos.y].DropingStartTime = Timer.GetRealTimeSinceStartUp();    //记录下落开始时间
 
-                for (int k = toPos.y + 1; k < BlockCountY; ++k)               //下面全锁住
-                {
-                    ++m_slopeDropLock[x, k];                 //锁上
-                }
-
-            
+            ++m_slopeDropLock[x];                 //锁上
+			
             return true;
         }
         return false;			//返回是否发生了掉落
@@ -2073,10 +1985,7 @@ public class GameLogic
     void EatBlockWithoutTrigger(int x, int y, float delay)
     {
         m_blocks[x, y].Eat(delay);
-        for (int k = y + 1; k < BlockCountY; ++k)
-        {
-            ++m_slopeDropLock[x, k];
-        }
+        ++m_slopeDropLock[x];
     }
 
     void EatBlock(Position position, float delay = 0, int addScore = 0)                   //吃掉块，通过EatLine或特殊道具功能被调用，会触发被吃的块的功能

@@ -1461,17 +1461,23 @@ public class GameLogic
 
         while (bNewSpace)                //若有新空间，就循环处理下落，直到没有新的空间出现为止
         {
-            bNewSpace = false;
+            bNewSpace = true;
 
-            for (int i = 0; i < BlockCountX; ++i)
+            //循环到没有可以直线下落为止
+            while (bNewSpace)
             {
-                if (DropDownStraight(i))                //垂直下落
+                bNewSpace = false;
+                for (int i = 0; i < BlockCountX; ++i)
                 {
-                    bDrop = true;                       //有可以下落的
-                    bNewSpace = true;                   //有新空间形成
+                    if (DropDownStraight(i))                //垂直下落
+                    {
+                        bDrop = true;                       //有可以下落的
+                        bNewSpace = true;                   //有新空间形成
+                    }
                 }
             }
 
+            //尝试斜下落
             for (int i = 0; i < BlockCountX; ++i)
             {
                 if (DropDownIndirect(i))                //斜向下落
@@ -3272,7 +3278,7 @@ public class GameLogic
         {
             return TBlockColor.EColor_None;
         }
-        if (m_blocks[p.x, p.y].CurState == BlockState.Normal || m_blocks[p.x, p.y].CurState == BlockState.Locked || m_blocks[p.x, p.y].CurState == BlockState.NeedCheckEatLine)
+        if (m_blocks[p.x, p.y].CurState == BlockState.Normal || m_blocks[p.x, p.y].CurState == BlockState.Locked)
         {
             return m_blocks[p.x, p.y].color;
         }

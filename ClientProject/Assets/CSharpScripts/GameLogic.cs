@@ -828,12 +828,6 @@ public class GameLogic
                 UIDrawer.Singleton.DrawSprite("InviPortalEnd" + pair.Key, GetXPos(pair.Value.to.x), GetYPos(pair.Value.to.x, pair.Value.to.y), "InviPortalEnd", 3);
             }
         }
-
-        //处理流程////////////////////////////////////////////////////////////////////////
-        if (m_gameFlow == TGameFlow.EGameState_SugarCrushAnim)        //播放sugarcrush动画状态
-        {
-            UIDrawer.Singleton.DrawText("SugarCrush", 100, 100, "Sugar Crush!!!!!!!!!!!!!!!!");
-        }
     }
 
     void ProcessState()     //处理各个状态
@@ -853,11 +847,6 @@ public class GameLogic
             {
                 AutoResort();
                 m_gameFlow = TGameFlow.EGameState_Playing;
-            }
-            else
-            {
-                //显示提示信息
-                UIDrawer.Singleton.DrawText("NoExchangeText", 100, 100, "No Block To Exchange! Auto Resort...");
             }
         }
 
@@ -2615,11 +2604,13 @@ public class GameLogic
             {
                 EatBlockWithoutTrigger(m_selectedPos[0].x, m_selectedPos[0].y, 0);      //自己消失
                 EatAColor(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color);      //吃同颜色
+                AddPartile("EatColorEffect", m_selectedPos[1].x, m_selectedPos[1].y);
             }
             else if(special1 == TSpecialBlock.ESpecial_EatAColor && special0 == TSpecialBlock.ESpecial_Normal)
             {
                 EatBlockWithoutTrigger(m_selectedPos[1].x, m_selectedPos[1].y, 0);      //自己消失
                 EatAColor(m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color);      //吃同颜色
+                AddPartile("EatColorEffect", m_selectedPos[0].x, m_selectedPos[0].y);
             }
 
             else if (special0 == TSpecialBlock.ESpecial_EatAColor &&

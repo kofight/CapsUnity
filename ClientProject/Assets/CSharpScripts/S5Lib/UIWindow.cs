@@ -14,6 +14,7 @@ public abstract class UIEffectPlayer : MonoBehaviour
     public virtual void CreateEffect() { }                      //创建特效
     public virtual void ShowEffect() { }                        //显示时的特效
     public virtual void HideEffect() { }                        //隐藏时的特效
+	public virtual void Update(){}								//
 
     public bool PlayWhileShowWindow = true;
     public bool PlayWhileHideWindow = true;

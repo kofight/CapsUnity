@@ -121,7 +121,7 @@ public class AocShowSimpleUIEffect : UIEffectPlayer
         return false;
     }
 
-    protected virtual void PlayAnimeFinished(bool forward)
+    protected void PlayAnimeFinished(bool forward)
     {
         EnableButtons(true);
     }

@@ -1915,7 +1915,7 @@ public class GameLogic
                     PlayingStageData.AddFlag(pos.x, pos.y, GridFlag.GenerateCap);
 
                     m_gridBackImage[pos.x, pos.y].layer1.gameObject.SetActive(false);
-
+					m_scoreToShow[pos.x, pos.y] += CapsConfig.EatChocolate;
                     AddPartile("ChocolateEffect", pos.x, pos.y);
                 }
             }
@@ -1937,7 +1937,7 @@ public class GameLogic
 
 
                     m_gridBackImage[pos.x, pos.y].layer1.gameObject.SetActive(false);
-
+					m_scoreToShow[pos.x, pos.y] += CapsConfig.EatStonePoint;
                     AddPartile("StoneEffect", pos.x, pos.y);
                 }
             }

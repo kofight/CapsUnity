@@ -233,6 +233,11 @@ public class UIWindow
                 OnShowEffectPlayOver();
             }
         }
+		
+		foreach (UIEffectPlayer player in mEffectPlayerList)
+        {
+            player.Update();
+        }
     }
     public bool AddChildComponentMouseClick( string name , EventDelegate.Callback callBack )
      {

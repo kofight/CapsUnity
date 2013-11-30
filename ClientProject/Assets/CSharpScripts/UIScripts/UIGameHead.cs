@@ -60,7 +60,7 @@ public class UIGameHead : UIWindow
         else if (GlobalVars.CurStageData.Target == GameTarget.GetScore)
         {
             UIDrawer.Singleton.DrawSprite("TargetText", 10, 50, "TargetTextImg");
-            UIDrawer.Singleton.DrawNumber("TargetScore", 104, 50, GlobalVars.CurStageData.StarScore[2], "", 24, 7);
+            UIDrawer.Singleton.DrawNumber("TargetScore", 104, 50, GlobalVars.CurStageData.StarScore[0], "", 24, 7);
         }
     }
 

@@ -39,8 +39,8 @@ public class CapsConfig
     public int[] KComboTable = {0, 1, 2, 3, 4, 5, 6, 6, 6};
     public static readonly int Plus5Point = 500;
     public static readonly int SugarCrushStepReward = 1500;
-    public static readonly int BombPoint = 600;
-    public static readonly int EatAColorPoint = 2000;
+    public static readonly int BombPoint = 600;                //Invalid
+    public static readonly int EatAColorPoint = 2000;          //Invalid
     public static readonly int FruitDropDown = 1000;
     public static readonly int EatJelly = 200;
     public static readonly int EatJellyDouble = 200;

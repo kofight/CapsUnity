@@ -7,8 +7,12 @@ Nut2Count			3
 NutInitCount			1				
 NutMaxCount			3				
 NutStep			10				
+PlusInitCount			0				
+PlusMaxCount			0				
+PlusStartTime			0				
+PlusStep			0				
 Seed			0				
 NewFormat			1				
-StarScore			0,0,0,				
+StarScore			50000,65000,80000,				
 GridDataArray			13,13,13,13,13,13,13,13,13,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,1,1,1,1,1,1,1,0,0,1,1,1,0,1,1,1,0,0,1,1,1,1,1,1,1,0,52,52,52,5,5,5,52,52,52,52,52,52,5,5,5,52,52,52,52,52,52,5,5,5,52,52,52,				
 PortalArray							

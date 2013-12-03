@@ -12,7 +12,6 @@ public class AocShowSimpleUIEffect : UIEffectPlayer
     public Vector2 to;
 
     public float duration = 0.20f;
-    public float delay = 0.0f;
 	public float startAlpah = 0.2f;
 	public float endAlpah = 1.0f;
 
@@ -27,39 +26,39 @@ public class AocShowSimpleUIEffect : UIEffectPlayer
         m_bShowing = forward;
         if (bTweenAlpha)
         {
-            mTweenAlpha.Play(forward);
             if (forward)
             {
-                mTweenAlpha.delay = delay;
+                mTweenAlpha.delay = Delay;
             }
             else
             {
                 mTweenAlpha.delay = 0;
             }
+			mTweenAlpha.Play(forward);
         }
         if (bTweenScale)
         {
-            mTweenScale.Play(forward);
             if (forward)
             {
-                mTweenScale.delay = delay;
+                mTweenScale.delay = Delay;
             }
             else
             {
                 mTweenScale.delay = 0;
             }
+			mTweenScale.Play(forward);
         }
         if (bTweenPos)
         {
-            mTweenPos.Play(forward);
             if (forward)
             {
-                mTweenPos.delay = delay;
+                mTweenPos.delay = Delay;
             }
             else
             {
                 mTweenPos.delay = 0;
             }
+			mTweenPos.Play(forward);
             EventDelegate.Set(mTweenPos.onFinished, delegate() { PlayAnimeFinished(forward); });
         }
         else if (bTweenAlpha)
@@ -79,7 +78,7 @@ public class AocShowSimpleUIEffect : UIEffectPlayer
             float fromToVal = 1.0f - 0.2f;
             mTweenScale = TweenScale.Begin(transform.gameObject, duration, transform.localScale);
             mTweenScale.from = new Vector3(transform.localScale.x - fromToVal, transform.localScale.y - fromToVal, transform.localScale.z - fromToVal);
-            mTweenScale.delay = delay;
+            mTweenScale.delay = Delay;
             mTweenScale.scale = mTweenScale.from;
 		}
 
@@ -87,7 +86,7 @@ public class AocShowSimpleUIEffect : UIEffectPlayer
 		{
             mTweenAlpha = TweenAlpha.Begin(transform.gameObject, duration, endAlpah);
             mTweenAlpha.from = startAlpah;
-            mTweenAlpha.delay = delay;
+            mTweenAlpha.delay = Delay;
             mTweenAlpha.alpha = mTweenAlpha.from;
 		}
 
@@ -98,7 +97,7 @@ public class AocShowSimpleUIEffect : UIEffectPlayer
 
             mTweenPos = TweenPosition.Begin(transform.gameObject, duration, transform.localPosition);
             mTweenPos.from = new Vector3(transform.localPosition.x - fromToValX, transform.localPosition.y - fromToValY, transform.localPosition.z);
-            mTweenPos.delay = delay;
+            mTweenPos.delay = Delay;
             mTweenPos.position = mTweenPos.from;
         }
     }

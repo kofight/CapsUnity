@@ -16,8 +16,6 @@ public class ShowAnimUIEffect : UIEffectPlayer
 	public AnimationClip HideAnim;
 	public AnimationClip IdleAnim;
 	
-	public float Delay = 0.0f;
-	
 	float m_delayStartTime = 0.0f;
 	
 	EffectState m_state;

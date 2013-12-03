@@ -40,8 +40,8 @@ public class S5Application
             Width = 640;
         }
         Height = root.manualHeight;
-        
-        
+
+        Screen.sleepTimeout = SleepTimeout.NeverSleep;
     }
 
     protected virtual void ExceptionProcessor(Exception e)

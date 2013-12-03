@@ -28,14 +28,38 @@ public class AocShowSimpleUIEffect : UIEffectPlayer
         if (bTweenAlpha)
         {
             mTweenAlpha.Play(forward);
+            if (forward)
+            {
+                mTweenAlpha.delay = delay;
+            }
+            else
+            {
+                mTweenAlpha.delay = 0;
+            }
         }
         if (bTweenScale)
         {
             mTweenScale.Play(forward);
+            if (forward)
+            {
+                mTweenScale.delay = delay;
+            }
+            else
+            {
+                mTweenScale.delay = 0;
+            }
         }
         if (bTweenPos)
         {
             mTweenPos.Play(forward);
+            if (forward)
+            {
+                mTweenPos.delay = delay;
+            }
+            else
+            {
+                mTweenPos.delay = 0;
+            }
             EventDelegate.Set(mTweenPos.onFinished, delegate() { PlayAnimeFinished(forward); });
         }
         else if (bTweenAlpha)
@@ -56,6 +80,7 @@ public class AocShowSimpleUIEffect : UIEffectPlayer
             mTweenScale = TweenScale.Begin(transform.gameObject, duration, transform.localScale);
             mTweenScale.from = new Vector3(transform.localScale.x - fromToVal, transform.localScale.y - fromToVal, transform.localScale.z - fromToVal);
             mTweenScale.delay = delay;
+            mTweenScale.scale = mTweenScale.from;
 		}
 
         if (bTweenAlpha && mTweenAlpha == null)
@@ -63,6 +88,7 @@ public class AocShowSimpleUIEffect : UIEffectPlayer
             mTweenAlpha = TweenAlpha.Begin(transform.gameObject, duration, endAlpah);
             mTweenAlpha.from = startAlpah;
             mTweenAlpha.delay = delay;
+            mTweenAlpha.alpha = mTweenAlpha.from;
 		}
 
         if (bTweenPos && mTweenPos == null)
@@ -73,6 +99,7 @@ public class AocShowSimpleUIEffect : UIEffectPlayer
             mTweenPos = TweenPosition.Begin(transform.gameObject, duration, transform.localPosition);
             mTweenPos.from = new Vector3(transform.localPosition.x - fromToValX, transform.localPosition.y - fromToValY, transform.localPosition.z);
             mTweenPos.delay = delay;
+            mTweenPos.position = mTweenPos.from;
         }
     }
 

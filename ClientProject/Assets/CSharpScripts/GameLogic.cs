@@ -69,6 +69,7 @@ public class GridSprites
     public UISprite layer1;            //石头/笼子/巧克力
     public UISprite layer2;            //出生点
     public UISprite layer3;            //结束点
+    public bool hasProcessAngle = false;       //是否已经处理了角(用来处理角的中间变量)
 }
 
 struct ShowingNumberEffect
@@ -222,6 +223,13 @@ public class GameLogic
     GameObject m_numInstance;              //把数字的实例存起来，用来优化性能
     GameObject m_shadowSpriteInstance;      //影子图片的实例
 
+    GameObject m_angleInstance;             //凸角的实例
+    GameObject m_angle2Instance;            //凹角1的实例
+    GameObject m_angle3Instance;            //凹角2的实例
+    
+
+    List<GameObject> m_gridAngles = new List<GameObject>();            //背景块的圆角
+
     int m_nut1Count;                        //当前屏幕上的坚果数量
     int m_nut2Count;                        //当前屏幕上的坚果数量
 
@@ -261,6 +269,9 @@ public class GameLogic
     public void Init()
     {
         m_gridInstance = GameObject.Find("GridInstance");
+        m_angleInstance = GameObject.Find("Angle");
+        m_angle2Instance = GameObject.Find("Angle2");
+        m_angle3Instance = GameObject.Find("Angle3");
         m_numInstance = GameObject.Find("NumberInstance");
         m_shadowSpriteInstance = GameObject.Find("ShadowSprite");
 
@@ -367,6 +378,53 @@ public class GameLogic
             m_gridBackImage[x, y].layer1.transform.localPosition = new Vector3(GetXPos(x), -GetYPos(x, y), -110);
             m_gridBackImage[x, y].layer1.depth = 3;
         }
+
+        newObj = null;
+        //判断圆角
+        for (int i = 0; i <= (int)TDirection.EDir_LeftUp; ++i)       //向6个方向看
+        {
+            //每次循环判断该方向和下一方向所夹的那个角////////////////////////////////////////////////////////////////////////
+            Position newPos = GoTo(new Position(x, y), (TDirection)i, 1);       //走一步
+            if (CheckPosAvailable(newPos) && m_gridBackImage[newPos.x, newPos.y] != null && m_gridBackImage[newPos.x, newPos.y].hasProcessAngle)
+            {
+                continue;
+            }
+            Position newPos2 = GoTo(new Position(x, y), (TDirection)((i + 1)%6), 1);       //下个方向走一步
+            if (CheckPosAvailable(newPos2) && m_gridBackImage[newPos2.x, newPos2.y] != null && m_gridBackImage[newPos2.x, newPos2.y].hasProcessAngle)
+            {
+                continue;
+            }
+            if ((!CheckPosAvailable(newPos) || PlayingStageData.GridData[newPos.x, newPos.y] == 0)
+                && (!CheckPosAvailable(newPos2) || PlayingStageData.GridData[newPos2.x, newPos2.y] == 0))             //若两个方向都为空
+            {
+                newObj = GameObject.Instantiate(m_angleInstance) as GameObject;
+                m_gridAngles.Add(newObj);
+            }
+            if ((!CheckPosAvailable(newPos) || PlayingStageData.GridData[newPos.x, newPos.y] == 0) 
+                &&
+                (CheckPosAvailable(newPos2) && PlayingStageData.GridData[newPos2.x, newPos2.y] != 0))             //若一个方向为空
+            {
+                newObj = GameObject.Instantiate(m_angle2Instance) as GameObject;
+                m_gridAngles.Add(newObj);
+            }
+            if ((CheckPosAvailable(newPos) && PlayingStageData.GridData[newPos.x, newPos.y] != 0)
+                &&
+                (!CheckPosAvailable(newPos2) || PlayingStageData.GridData[newPos2.x, newPos2.y] == 0))             //若一个方向为空
+            {
+                newObj = GameObject.Instantiate(m_angle3Instance) as GameObject;
+                m_gridAngles.Add(newObj);
+            }
+
+            if (newObj != null)
+            {
+                newObj.transform.parent = m_gridBackImage[x, y].layer0.transform;
+                newObj.transform.localScale = Vector3.one;
+                newObj.transform.localPosition = Vector3.zero;
+                newObj.transform.localRotation = Quaternion.Euler(0, 0, -i * 60);       //旋转
+            }
+			newObj = null;
+        }
+		m_gridBackImage[x, y].hasProcessAngle = true;
     }
 
     public bool Help()                 //查找到一个可交换的位置
@@ -605,6 +663,13 @@ public class GameLogic
         }
 
         m_capBlockFreeList.Clear();
+
+        foreach (GameObject obj in m_gridAngles)
+        {
+            GameObject.Destroy(obj);
+        }
+
+        m_gridAngles.Clear();
 
         for (int i = 0; i < BlockCountX; ++i)
         {

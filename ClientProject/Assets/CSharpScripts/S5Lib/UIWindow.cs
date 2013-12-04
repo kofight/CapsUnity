@@ -16,6 +16,8 @@ public abstract class UIEffectPlayer : MonoBehaviour
     public virtual void HideEffect() { }                        //隐藏时的特效
 	public virtual void Update(){}								//
 
+    public float Delay = 0.0f;
+
     public bool PlayWhileShowWindow = true;
     public bool PlayWhileHideWindow = true;
 }
@@ -54,7 +56,7 @@ public class UIWindow
         }
     }
 
-    List<UIEffectPlayer> mEffectPlayerList = new List<UIEffectPlayer>();
+    protected List<UIEffectPlayer> mEffectPlayerList = new List<UIEffectPlayer>();
     public UIWindowStateEnum uiWindowState = UIWindowStateEnum.Hide;
     public delegate void WindowEffectFinished();
     private WindowEffectFinished m_hideFinishEffect;

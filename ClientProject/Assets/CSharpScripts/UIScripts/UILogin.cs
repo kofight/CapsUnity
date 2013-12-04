@@ -25,6 +25,7 @@ public class UILogin : UIWindow
     public override void OnShow()
     {
         base.OnShow();
+        mEffectPlayerList[0].Delay = 0;
     }
     public override void OnUpdate()
     {

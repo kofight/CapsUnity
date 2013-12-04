@@ -626,6 +626,8 @@ public class GameLogic
         m_gameFlow = TGameFlow.EGameState_StartGameAnim;                //开始游戏
         m_curAnimStartTime = Timer.millisecondNow();
 
+        GA.API.Design.NewEvent("Start Stage", GlobalVars.CurStageNum);  //记录当前开始的关卡的数据
+
         AddPartile("StartGameAnim", 5, 5);
 
         DropDown();                                               //开始先尝试进行一次下落
@@ -952,11 +954,15 @@ public class GameLogic
                 if (IsStageFinish())
                 {
                     UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();
+                    GA.API.Design.NewEvent("Stage Failed", GlobalVars.CurStageNum);  //记录当前开始的关卡的数据
+                    GA.API.Design.NewEvent("Stage Failed Score", m_progress);  //记录当前开始的关卡的数据
                 }
                 else
                 {
                     m_gameFlow = TGameFlow.EGameState_End;
                     UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
+                    GA.API.Design.NewEvent("Stage Finished", GlobalVars.CurStageNum);  //记录当前开始的关卡的数据
+                    GA.API.Design.NewEvent("Stage Succeed Score", m_progress);  //记录当前开始的关卡的数据
                 }
             }
             return;

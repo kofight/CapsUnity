@@ -626,7 +626,7 @@ public class GameLogic
         m_gameFlow = TGameFlow.EGameState_StartGameAnim;                //开始游戏
         m_curAnimStartTime = Timer.millisecondNow();
 
-        GA.API.Design.NewEvent("Start Stage", GlobalVars.CurStageNum);  //记录当前开始的关卡的数据
+        GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum+":Start");  //记录当前开始的关卡的数据
 
         AddPartile("StartGameAnim", 5, 5);
 
@@ -954,15 +954,21 @@ public class GameLogic
                 if (IsStageFinish())
                 {
                     UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();
-                    GA.API.Design.NewEvent("Stage Failed", GlobalVars.CurStageNum);  //记录当前开始的关卡的数据
-                    GA.API.Design.NewEvent("Stage Failed Score", m_progress);  //记录当前开始的关卡的数据
+                    GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed", m_progress);  //记录记录失败的分数
+                    GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed:Score_Percent", (float)m_progress / PlayingStageData.StarScore[0]);  //记录当前开始的关卡的百分比
+                    GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed:Score_3StarPercent", (float)m_progress / PlayingStageData.StarScore[2]);  //记录当前开始的关卡的百分比
+                    if (PlayingStageData.Target == GameTarget.ClearJelly)
+                    {
+                        GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed:JellyCount", PlayingStageData.GetDoubleJellyCount() * 2 + PlayingStageData.GetJellyCount());  //记录失败时的果冻数
+                    }
                 }
                 else
                 {
                     m_gameFlow = TGameFlow.EGameState_End;
                     UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
-                    GA.API.Design.NewEvent("Stage Finished", GlobalVars.CurStageNum);  //记录当前开始的关卡的数据
-                    GA.API.Design.NewEvent("Stage Succeed Score", m_progress);  //记录当前开始的关卡的数据
+                    GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed", m_progress);  //记录记录失败的分数
+                    GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed:Score_Percent", (float)m_progress / PlayingStageData.StarScore[0]);  //记录当前开始的关卡的百分比
+                    GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed:Score_3StarPercent", (float)m_progress / PlayingStageData.StarScore[2]);  //记录当前开始的关卡的百分比
                 }
             }
             return;

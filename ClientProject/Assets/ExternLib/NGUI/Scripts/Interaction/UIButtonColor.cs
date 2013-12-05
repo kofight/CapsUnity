@@ -132,6 +132,9 @@ public class UIButtonColor : UIWidgetContainer
 				}
 			}
 		}
+
+        mColor = Color.white;
+
 		OnEnable();
 	}
 

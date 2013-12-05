@@ -149,6 +149,19 @@ public class AocShowSimpleUIEffect : UIEffectPlayer
 
     protected void PlayAnimeFinished(bool forward)
     {
+        if (bTweenAlpha)
+        {
+            mTweenAlpha.delay = 0;
+        }
+        if (bTweenScale)
+        {
+            mTweenScale.delay = 0;
+        }
+        if (bTweenPos)
+        {
+            mTweenPos.delay = 0;
+        }
+
         EnableButtons(true);
     }
 

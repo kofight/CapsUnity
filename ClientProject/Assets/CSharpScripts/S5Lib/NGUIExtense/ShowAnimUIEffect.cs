@@ -42,7 +42,10 @@ public class ShowAnimUIEffect : UIEffectPlayer
 			if(Delay == 0)
 			{
 				m_state = EffectState.Showing;
-				m_animation.Play("ShowAnim");
+                if (ShowAnim != null)
+                {
+                    m_animation.Play("ShowAnim");
+                }				
 			}
 			else
 			{
@@ -80,13 +83,17 @@ public class ShowAnimUIEffect : UIEffectPlayer
 				m_state = EffectState.Showing;
 				m_delayStartTime = 0;
 				gameObject.SetActive(true);
-				m_animation.Play("ShowAnim");
+                if (ShowAnim != null)
+				    m_animation.Play("ShowAnim");
 			}
 		}
 		
 		if(m_state == EffectState.Showing && !m_animation.isPlaying)
 		{
-			m_animation.Play("IdelAnim");
+            if (IdleAnim != null)
+            {
+                m_animation.Play("IdelAnim");
+            }
 			m_state = EffectState.Idle;
 		}
 	}

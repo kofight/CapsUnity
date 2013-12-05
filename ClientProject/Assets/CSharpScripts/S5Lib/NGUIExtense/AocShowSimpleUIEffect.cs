@@ -14,6 +14,8 @@ public class AocShowSimpleUIEffect : UIEffectPlayer
     public float duration = 0.20f;
 	public float startAlpah = 0.2f;
 	public float endAlpah = 1.0f;
+    public Vector3 startScale = new Vector3(0, 0, 1);
+    public Vector3 endScale = new Vector3(1, 1, 1);
 
     public TweenPosition mTweenPos;
     public TweenAlpha mTweenAlpha;
@@ -34,6 +36,8 @@ public class AocShowSimpleUIEffect : UIEffectPlayer
             {
                 mTweenAlpha.delay = 0;
             }
+            mTweenAlpha.from = startAlpah;
+            mTweenAlpha.to = endAlpah;
 			mTweenAlpha.Play(forward);
         }
         if (bTweenScale)
@@ -46,6 +50,8 @@ public class AocShowSimpleUIEffect : UIEffectPlayer
             {
                 mTweenScale.delay = 0;
             }
+            mTweenScale.from = startScale;
+            mTweenScale.to = endScale;
 			mTweenScale.Play(forward);
         }
         if (bTweenPos)
@@ -75,19 +81,14 @@ public class AocShowSimpleUIEffect : UIEffectPlayer
     {
         if (bTweenScale && mTweenScale == null)
 		{
-            float fromToVal = 1.0f - 0.2f;
-            mTweenScale = TweenScale.Begin(transform.gameObject, duration, transform.localScale);
-            mTweenScale.from = new Vector3(transform.localScale.x - fromToVal, transform.localScale.y - fromToVal, transform.localScale.z - fromToVal);
-            mTweenScale.delay = Delay;
-            mTweenScale.scale = mTweenScale.from;
+            mTweenScale = TweenScale.Begin(transform.gameObject, duration, endScale);
+            mTweenScale.scale = startScale;
 		}
 
         if (bTweenAlpha && mTweenAlpha == null)
 		{
             mTweenAlpha = TweenAlpha.Begin(transform.gameObject, duration, endAlpah);
-            mTweenAlpha.from = startAlpah;
-            mTweenAlpha.delay = Delay;
-            mTweenAlpha.alpha = mTweenAlpha.from;
+            mTweenAlpha.alpha = startAlpah;
 		}
 
         if (bTweenPos && mTweenPos == null)

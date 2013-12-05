@@ -969,6 +969,10 @@ public class GameLogic
                     GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed", m_progress);  //记录记录失败的分数
                     GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed:Score_Percent", (float)m_progress / PlayingStageData.StarScore[0]);  //记录当前开始的关卡的百分比
                     GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed:Score_3StarPercent", (float)m_progress / PlayingStageData.StarScore[2]);  //记录当前开始的关卡的百分比
+                    if (PlayingStageData.StepLimit > 0)
+                    {
+                        GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed:StepLeft", PlayingStageData.StepLimit);  //胜利时提交剩余步数
+                    }
                 }
             }
             return;

@@ -369,6 +369,9 @@ public class GameLogic
         EasyTouch.On_Swipe += OnTouchMove;
         EasyTouch.On_TouchStart += OnTouchBegin;
         EasyTouch.On_TouchUp += OnTouchEnd;
+
+        TweenPosition tweenPos = m_gameArea.GetComponent<TweenPosition>();
+        tweenPos.Reset();
     }
 
     void ProcessGridSprites(int x, int y)

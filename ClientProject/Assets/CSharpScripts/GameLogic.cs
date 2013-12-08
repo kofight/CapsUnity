@@ -189,6 +189,12 @@ public class GameLogic
 
     Position [] m_saveHelpBlocks = new Position[3];        //用来保存帮助找到的可消块
 
+    //用这4个数来记录每关实际块的范围，用来计算游戏区位置及优化性能
+    int BlockXStart = 0;
+    int BlockXEnd = 0;
+    int BlockYStart = 0;
+    int BlockYEnd = 0;
+
     int m_progress;										//当前进度
     TGameFlow m_gameFlow;								//游戏状态
     int m_comboCount;				//记录当前连击数
@@ -218,7 +224,9 @@ public class GameLogic
 
     LinkedList<ShowingNumberEffect> m_showingNumberEffectList = new LinkedList<ShowingNumberEffect>();      //用来管理正在播放的数字
 
+    GameObject m_gameArea;                  //游戏区域
     GameObject m_capsPool;                  //瓶盖池
+    GameObject TopLeftAnchor;               //左上角
     GameObject m_gridInstance;              //把Grid的实例存起来，用来优化性能
     GameObject m_numInstance;              //把数字的实例存起来，用来优化性能
     GameObject m_shadowSpriteInstance;      //影子图片的实例
@@ -236,6 +244,8 @@ public class GameLogic
     public GameLogic()
     {
         m_capsPool = GameObject.Find("CapsPool");
+        m_gameArea = GameObject.Find("GameArea");
+        TopLeftAnchor = GameObject.Find("TopLeftAnchor");
     }
 
     public int GetProgress() { return m_progress; }
@@ -301,6 +311,40 @@ public class GameLogic
 
         PlayingStageData = StageData.CreateStageData();
         PlayingStageData.LoadStageData(GlobalVars.CurStageNum);
+
+        //计算游戏区位置////////////////////////////////////////////////////////////////////////
+        int BlockXStart = 999;
+        int BlockXEnd = -1;
+        int BlockYStart = 999;
+        int BlockYEnd = -1;
+        for (int i = 0; i < BlockCountX; ++i)
+        {
+            for (int j = 0; j < BlockCountY; ++j)
+            {
+                if (PlayingStageData.GridData[i, j] != 0)
+                {
+                    if (i < BlockXStart)
+                    {
+                        BlockXStart = i;
+                    }
+                    if (i > BlockXEnd)
+                    {
+                        BlockXEnd = i;
+                    }
+                    if (j < BlockYStart)
+                    {
+                        BlockYStart = j;
+                    }
+                    if (j > BlockYEnd)
+                    {
+                        BlockYEnd = j;
+                    }
+                }
+            }
+        }
+
+        gameAreaX = (int)((CapsApplication.Singleton.Width - (BlockXEnd + 1 - BlockXStart) * BLOCKWIDTH) / 2 - BlockXStart * BLOCKWIDTH);
+        gameAreaY = (int)((CapsApplication.Singleton.Height - (BlockYEnd + 1 - BlockYStart) * BLOCKHEIGHT) / 2 - BlockYStart * BLOCKHEIGHT);
 
         //绘制底图
         for (int i = 0; i < BlockCountX; ++i)
@@ -625,12 +669,13 @@ public class GameLogic
 
         m_gameFlow = TGameFlow.EGameState_StartGameAnim;                //开始游戏
         m_curAnimStartTime = Timer.millisecondNow();
+        TweenPosition tweenPos = m_gameArea.GetComponent<TweenPosition>();
+        tweenPos.Reset();
+        tweenPos.Play(true);
 
         GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum+":Start");  //记录当前开始的关卡的数据
 
-        AddPartile("StartGameAnim", 5, 5);
-
-        DropDown();                                               //开始先尝试进行一次下落
+        AddPartile("StartGameAnim", 5, 5, false);
     }
 
     public void ClearGame()
@@ -904,6 +949,7 @@ public class GameLogic
             if (Timer.millisecondNow() - m_curAnimStartTime > StartAnimTime)        //若时间到
             {
                 m_gameFlow = TGameFlow.EGameState_Playing;                           //开始游戏
+                DropDown();                                               //开始先尝试进行一次下落
                 return;
             }
         }
@@ -1146,7 +1192,7 @@ public class GameLogic
                         if (!Help())
                         {
                             m_curAnimStartTime = Timer.millisecondNow();
-                            AddPartile("ResortAnim", 5, 5);                                    //显示需要重排
+                            AddPartile("ResortAnim", 5, 5, false);                                    //显示需要重排
                             m_gameFlow = TGameFlow.EGameState_ResortAnim;
                         }
                     }
@@ -2186,7 +2232,7 @@ public class GameLogic
         AddPartile("EatEffect", position.x, position.y);
     }
 
-    public void AddPartile(string name, int x, int y)
+    public void AddPartile(string name, int x, int y, bool addToGameArea = true)
     {
         //先看freeParticleList里面有没有可用的
         LinkedList<ParticleSystem> freeParticleList;
@@ -2213,7 +2259,14 @@ public class GameLogic
             //Todo 临时加的粒子代码
             Object obj = Resources.Load(name);
             gameObj = GameObject.Instantiate(obj) as GameObject;
-            gameObj.transform.parent = m_capsPool.transform;
+            if (addToGameArea)
+            {
+                gameObj.transform.parent = m_capsPool.transform;
+            }
+            else
+            {
+                gameObj.transform.parent = TopLeftAnchor.transform;
+            }
             par = gameObj.GetComponent<ParticleSystem>();
         }
 
@@ -2295,7 +2348,7 @@ public class GameLogic
             if (foundSpecial || PlayingStageData.StepLimit > 0)     //若能进SugarCrush
             {
                 m_gameFlow = TGameFlow.EGameState_SugarCrushAnim;
-                AddPartile("SugarCrushAnim", 5, 5);
+                AddPartile("SugarCrushAnim", 5, 5, false);
                 ClearHelpPoint();
                 m_curAnimStartTime = Timer.millisecondNow();
             }

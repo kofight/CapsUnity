@@ -5,6 +5,7 @@ using System;
 public class GameState : State
 {
     GameLogic m_gameLogic = new GameLogic();
+    bool m_bGameLogicStarted = false;
 
     public override void DoInitState()
     {
@@ -16,6 +17,7 @@ public class GameState : State
         UIWindowManager.Singleton.CreateWindow<UIGameEnd>();
         UIWindowManager.Singleton.CreateWindow<UIRetry>();
         m_gameLogic.Init();
+        m_bGameLogicStarted = false;
         GlobalVars.CurGameLogic = m_gameLogic;
 		UIWindowManager.Singleton.GetUIWindow("UIGameBackground").ShowWindow();
         UIWindowManager.Singleton.GetUIWindow<UIGameHead>().ShowWindow();
@@ -25,6 +27,7 @@ public class GameState : State
         UIWindowManager.Singleton.GetUIWindow("UILoading").HideWindow(delegate()
         {
             m_gameLogic.StartGame();
+            m_bGameLogicStarted = true;
         });
     }
 
@@ -40,7 +43,10 @@ public class GameState : State
     public override void Update()
     {
         base.Update();
-        m_gameLogic.Update();
+        if (m_bGameLogicStarted)
+        {
+            m_gameLogic.Update();
+        }
     }
 
     public override void OnQuitGame()

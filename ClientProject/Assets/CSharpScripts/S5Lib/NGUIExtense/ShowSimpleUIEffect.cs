@@ -32,14 +32,25 @@ public class ShowSimpleUIEffect : UIEffectPlayer
 			mTweenAlpha = TweenAlpha.Begin(gameObject, duration, endAlpah);
             mTweenAlpha.alpha = startAlpah;
             mTweenAlpha.from = startAlpah;
+			mTweenAlpha.to = endAlpah;
+			mTweenAlpha.duration = duration;
+
             mTweenList.Add(mTweenAlpha);
         }
         else
         {
-			TweenAlpha newAlpha = TweenAlpha.Begin(gameObject, duration, endAlpah);
+			TweenAlpha newAlpha = null;
+			if(mTweenAlpha.gameObject != gameObject)
+				newAlpha = TweenAlpha.Begin(gameObject, duration, endAlpah);
+			else
+				newAlpha = mTweenAlpha;
+
             newAlpha.animationCurve = mTweenAlpha.animationCurve;
             newAlpha.alpha = startAlpah;
             newAlpha.from = startAlpah;
+			newAlpha.to = endAlpah;
+			newAlpha.duration = duration;
+
             mTweenList.Add(newAlpha);
         }
     }
@@ -51,14 +62,18 @@ public class ShowSimpleUIEffect : UIEffectPlayer
             float fromToValX = to.x - from.x;
             float fromToValY = to.y - from.y;
 
+			Vector3 fromPos = new Vector3(transform.localPosition.x - fromToValX, transform.localPosition.y - fromToValY, transform.localPosition.z);
+			Vector3 toPos = transform.localPosition;
+
             //创建需要的特效
             if (mTweenPos == null)
             {
-                mTweenPos = TweenPosition.Begin(transform.gameObject, duration, transform.localPosition);
+				mTweenPos = TweenPosition.Begin(transform.gameObject, duration, toPos);
             }
             
-            mTweenPos.position = new Vector3(transform.localPosition.x - fromToValX, transform.localPosition.y - fromToValY, transform.localPosition.z);
-            mTweenPos.from = mTweenPos.position;
+			mTweenPos.from = fromPos;
+			mTweenPos.to = toPos;
+			mTweenPos.duration = duration;
 
             mTweenList.Add(mTweenPos);
         }
@@ -73,6 +88,9 @@ public class ShowSimpleUIEffect : UIEffectPlayer
             
             mTweenScale.scale = startScale;
             mTweenScale.from = startScale;
+			mTweenScale.to = endScale;
+			mTweenScale.duration = duration;
+
             mTweenList.Add(mTweenScale);
         }
 

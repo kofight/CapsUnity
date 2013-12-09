@@ -45,6 +45,8 @@ public class CapsApplication : S5Application
 
     protected override void DoInit()
     {
+		Application.targetFrameRate = 60;			//
+		
         new CapsConfig();
         new ResourceManager();
 

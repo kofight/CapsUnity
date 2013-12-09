@@ -109,6 +109,19 @@ public class UIToolkits
         }
     }
 
+    static public void FindComponents<T, T2>(Transform panelTransform, List<T2> list) where T : T2 where T2 : Component
+    {
+        T2 tt = panelTransform.GetComponent<T2>();
+        if (tt != null)
+        {
+            list.Add(tt);
+        }
+        foreach (Transform transform in panelTransform)
+        {
+            FindComponents(transform, list);			//查找子节点
+        }
+    }
+
     public static bool AddChildComponentMouseClick(GameObject gameObject, EventDelegate.Callback callBack)
     {
         if (null == gameObject)
@@ -158,7 +171,7 @@ public class UIToolkits
         }
         var box = uiObjTrans.GetComponent<BoxCollider>();
         Vector2 pos = UIToolkits.GetUIObjectScreenPos(uiObjTrans);
-        var tweenScale = uiObjTrans.GetComponent<AocShowSimpleUIEffect>();
+        var tweenScale = uiObjTrans.GetComponent<ShowSimpleUIEffect>();
         if (box != null)
         {
             float scaleX = 1.0f;

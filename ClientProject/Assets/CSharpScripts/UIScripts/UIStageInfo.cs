@@ -40,18 +40,25 @@ public class UIStageInfo : UIWindow
 
     private void OnPlayClicked()
     {
-        HideWindow(delegate()
+        if (CapsApplication.Singleton.CurStateEnum != StateEnum.Game)
         {
-            if (CapsApplication.Singleton.CurStateEnum != StateEnum.Game)
-            {
-                UIWindowManager.Singleton.GetUIWindow<UIMap>().HideWindow();
-                CapsApplication.Singleton.ChangeState((int)StateEnum.Game);
-            }
-            else
+            UIWindowManager.Singleton.GetUIWindow<UIMap>().HideWindow();
+            HideWindow();
+
+            UIWindowManager.Singleton.GetUIWindow("UILoading").ShowWindow(
+                delegate()
+                {
+                    CapsApplication.Singleton.ChangeState((int)StateEnum.Game);
+                }
+                );
+        }
+        else
+        {
+            HideWindow(delegate()
             {
                 GlobalVars.CurGameLogic.Init();
                 GlobalVars.CurGameLogic.StartGame();
-            }
-        });
+            });
+        }
     }
 }

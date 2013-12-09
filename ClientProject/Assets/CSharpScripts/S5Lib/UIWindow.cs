@@ -8,18 +8,73 @@ using System.Collections.Generic;
 /// Use to define a UIEffect, need implement in derived class
 /// Drag it to UI prefab to use it
 /// </summary>
+/// 
+
+public enum EffectState
+{
+    Delay,
+    Showing,
+    Idle,
+    Hiding,
+}
+
 public abstract class UIEffectPlayer : MonoBehaviour
 {
     public virtual bool IsPlaying() { return false; }           //是否正在播放特效
     public virtual void CreateEffect() { }                      //创建特效
-    public virtual void ShowEffect() { }                        //显示时的特效
-    public virtual void HideEffect() { }                        //隐藏时的特效
-	public virtual void Update(){}								//
 
-    public float Delay = 0.0f;
+    public void ShowEffect()                        //显示时的特效
+    {
+        if (Delay == 0)
+        {
+            m_state = EffectState.Showing;
+			DoShowEffect();
+        }
+        else
+        {
+            m_state = EffectState.Delay;
+            gameObject.SetActive(false);
+            m_delayStartTime = Time.realtimeSinceStartup;
+        }
+    }
 
+    public virtual void HideEffect()        //隐藏时的特效
+    {
+        m_state = EffectState.Hiding;
+        DoHideEffect();
+    }            
+
+    protected virtual void DoShowEffect() { }
+    protected virtual void DoHideEffect() { }
+    protected virtual void DoIdleEffect() { }       
+
+    public virtual void Update()            //更新
+    {
+        if (m_state == EffectState.Delay)
+        {
+            if (Time.realtimeSinceStartup - m_delayStartTime > Delay)                         //若Delay时间已到
+            {
+                m_state = EffectState.Showing;                                                //切显示特效状态
+                m_delayStartTime = 0;
+                gameObject.SetActive(true);                                                   //把自己显示出来
+                DoShowEffect();                                                               //播放显示特效
+            }
+        }
+
+        if (m_state == EffectState.Showing && !IsPlaying())     //若显示特效状态已经结束
+        {
+            m_state = EffectState.Idle;                         //进入Idle状态
+            DoIdleEffect();                                     //播放Idle状态特效
+        }
+    }
+
+	public float Delay = 0.0f;
+    
     public bool PlayWhileShowWindow = true;
     public bool PlayWhileHideWindow = true;
+
+    protected float m_delayStartTime = 0.0f;                              //开始计算Delay的时间
+    protected EffectState m_state;
 }
 
 public enum UIWindowStateEnum
@@ -218,10 +273,6 @@ public class UIWindow
 
         if (uiWindowState == UIWindowStateEnum.PlayingShowEffect)
         {
-            if (prefabName == "UIGameMenu")
-            {
-                string sss = string.Empty;
-            }
             bool stillPlaying = false;
             foreach (UIEffectPlayer player in mEffectPlayerList)
             {

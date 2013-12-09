@@ -103,6 +103,15 @@ public class UIRetry : UIWindow
                 ++GlobalVars.AvailabeStageCount;        //开启下一关
             }
 
+            for (int i = 2; i >= 0;--i )
+            {
+                if (GlobalVars.CurGameLogic.GetProgress() > GlobalVars.CurStageData.StarScore[i])
+                {
+                    m_starCount = i + 1;
+                    break;
+                }
+            }
+
             PlayerPrefs.SetInt("StageAvailableCount", GlobalVars.AvailabeStageCount);       //保存进度
             if (m_starCount > GlobalVars.StageStarArray[GlobalVars.CurStageNum - 1])
             {
@@ -140,11 +149,11 @@ public class UIRetry : UIWindow
         {
             if (i < m_starCount)
             {
-                m_starsSprites[i].gameObject.SetActive(true);
+                m_starsSprites[i].spriteName = "Star_Large";
             }
             else
             {
-                m_starsSprites[i].gameObject.SetActive(false);
+                m_starsSprites[i].spriteName = "Grey_Star_Large";
             }
         }
 

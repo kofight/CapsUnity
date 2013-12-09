@@ -1,13 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-enum EffectState
-{
-	Delay,
-	Showing,
-	Idle,
-	Hiding,
-}
+
 
 public class ShowAnimUIEffect : UIEffectPlayer 
 {
@@ -15,13 +9,10 @@ public class ShowAnimUIEffect : UIEffectPlayer
 	public AnimationClip ShowAnim;
 	public AnimationClip HideAnim;
 	public AnimationClip IdleAnim;
-	
-	float m_delayStartTime = 0.0f;
-	
-	EffectState m_state;
-	
+
 	public override void CreateEffect()
 	{
+        base.CreateEffect();
 		m_animation = GetComponent<Animation>();
 		if( m_animation == null)
 		{
@@ -34,60 +25,33 @@ public class ShowAnimUIEffect : UIEffectPlayer
 				m_animation.AddClip(IdleAnim, "IdelAnim");
 		}
 	}
-	
-	public override void ShowEffect()
+
+    protected override void DoShowEffect()
     {
-		if(ShowAnim != null)
-		{
-			if(Delay == 0)
-			{
-				m_state = EffectState.Showing;
-				m_animation.Play("ShowAnim");
-			}
-			else
-			{
-				m_state = EffectState.Delay;
-				gameObject.SetActive(false);
-				m_delayStartTime = Time.realtimeSinceStartup;
-			}
-		}
+        if (ShowAnim != null)
+        {
+            m_animation.Play("ShowAnim");
+        }
     }
 
-    public override void HideEffect()
-	{
-		m_state = EffectState.Hiding;
-		if(HideAnim != null)
-		{
-			m_animation.Play("HideAnim");
-		}
-		else
-		{
-			m_animation.Stop();	
-		}
+    protected override void DoHideEffect()
+    {
+        if (HideAnim != null)
+        {
+            m_animation.Play("HideAnim");
+        }
+    }
+
+    protected override void DoIdleEffect()
+    {
+        if (IdleAnim != null)
+        {
+            m_animation.Play("IdelAnim");
+        }
     }
 
     public override bool IsPlaying()
     {
         return m_animation.isPlaying;
     }
-	
-	public override void Update ()
-	{
-		if(m_state == EffectState.Delay)
-		{
-			if(Time.realtimeSinceStartup - m_delayStartTime > Delay)
-			{
-				m_state = EffectState.Showing;
-				m_delayStartTime = 0;
-				gameObject.SetActive(true);
-				m_animation.Play("ShowAnim");
-			}
-		}
-		
-		if(m_state == EffectState.Showing && !m_animation.isPlaying)
-		{
-			m_animation.Play("IdelAnim");
-			m_state = EffectState.Idle;
-		}
-	}
 }

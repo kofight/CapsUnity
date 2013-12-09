@@ -27,12 +27,12 @@ public abstract class UIEffectPlayer : MonoBehaviour
     {
         if (Delay == 0)
         {
-            m_state = EffectState.Showing;
+            State = EffectState.Showing;
 			DoShowEffect();
         }
         else
         {
-            m_state = EffectState.Delay;
+            State = EffectState.Delay;
             gameObject.SetActive(false);
             m_delayStartTime = Time.realtimeSinceStartup;
         }
@@ -40,7 +40,7 @@ public abstract class UIEffectPlayer : MonoBehaviour
 
     public virtual void HideEffect()        //隐藏时的特效
     {
-        m_state = EffectState.Hiding;
+        State = EffectState.Hiding;
         DoHideEffect();
     }            
 
@@ -50,20 +50,20 @@ public abstract class UIEffectPlayer : MonoBehaviour
 
     public virtual void Update()            //更新
     {
-        if (m_state == EffectState.Delay)
+        if (State == EffectState.Delay)
         {
             if (Time.realtimeSinceStartup - m_delayStartTime > Delay)                         //若Delay时间已到
             {
-                m_state = EffectState.Showing;                                                //切显示特效状态
+                State = EffectState.Showing;                                                //切显示特效状态
                 m_delayStartTime = 0;
                 gameObject.SetActive(true);                                                   //把自己显示出来
                 DoShowEffect();                                                               //播放显示特效
             }
         }
 
-        if (m_state == EffectState.Showing && !IsPlaying())     //若显示特效状态已经结束
+        if (State == EffectState.Showing && !IsPlaying())     //若显示特效状态已经结束
         {
-            m_state = EffectState.Idle;                         //进入Idle状态
+            State = EffectState.Idle;                         //进入Idle状态
             DoIdleEffect();                                     //播放Idle状态特效
         }
     }
@@ -74,7 +74,7 @@ public abstract class UIEffectPlayer : MonoBehaviour
     public bool PlayWhileHideWindow = true;
 
     protected float m_delayStartTime = 0.0f;                              //开始计算Delay的时间
-    protected EffectState m_state;
+    public EffectState State;
 }
 
 public enum UIWindowStateEnum

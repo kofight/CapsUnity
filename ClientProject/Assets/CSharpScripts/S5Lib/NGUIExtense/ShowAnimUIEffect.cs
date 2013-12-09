@@ -32,6 +32,10 @@ public class ShowAnimUIEffect : UIEffectPlayer
         {
             m_animation.Play("ShowAnim");
         }
+        else
+        {
+            m_animation.Stop();
+        }
     }
 
     protected override void DoHideEffect()
@@ -40,6 +44,10 @@ public class ShowAnimUIEffect : UIEffectPlayer
         {
             m_animation.Play("HideAnim");
         }
+        else
+        {
+            m_animation.Stop();
+        }
     }
 
     protected override void DoIdleEffect()
@@ -47,6 +55,10 @@ public class ShowAnimUIEffect : UIEffectPlayer
         if (IdleAnim != null)
         {
             m_animation.Play("IdelAnim");
+        }
+        else
+        {
+            m_animation.Stop();
         }
     }
 

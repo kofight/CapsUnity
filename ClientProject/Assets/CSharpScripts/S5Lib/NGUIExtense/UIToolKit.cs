@@ -171,7 +171,7 @@ public class UIToolkits
         }
         var box = uiObjTrans.GetComponent<BoxCollider>();
         Vector2 pos = UIToolkits.GetUIObjectScreenPos(uiObjTrans);
-        var tweenScale = uiObjTrans.GetComponent<AocShowSimpleUIEffect>();
+        var tweenScale = uiObjTrans.GetComponent<ShowSimpleUIEffect>();
         if (box != null)
         {
             float scaleX = 1.0f;

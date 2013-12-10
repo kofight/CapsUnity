@@ -13,6 +13,13 @@ public class UIGameBottom : UIWindow
     UILabel m_speedLabel;
     UISprite m_timeBar;
 
+    NumberDrawer m_scoreDrawer;
+    NumberDrawer m_stepDrawer;
+
+    GameObject m_timeNumber;
+    NumberDrawer m_minNumber;
+    NumberDrawer m_secNumber;
+
     public override void OnCreate()
     {
         base.OnCreate();
@@ -29,6 +36,14 @@ public class UIGameBottom : UIWindow
         m_speedLabel = GetChildComponent<UILabel>("SpeedLabel");
 
         m_timeBar = GetChildComponent<UISprite>("TimeBar");
+
+        m_scoreDrawer = GetChildComponent<NumberDrawer>("ScoreDrawer");
+        m_stepDrawer = GetChildComponent<NumberDrawer>("StepDrawer");
+
+        m_timeNumber = UIToolkits.FindChild(mUIObject.transform, "TimeNumber").gameObject;
+        m_minNumber = GetChildComponent<NumberDrawer>("MinNumber");
+        m_secNumber = GetChildComponent<NumberDrawer>("SecNumber");
+        
     }
     public override void OnShow()
     {
@@ -37,11 +52,17 @@ public class UIGameBottom : UIWindow
         {
             stageBoard.spriteName = "TimeBoard";
             m_timeBar.gameObject.SetActive(true);
+
+            m_stepDrawer.gameObject.SetActive(false);
+            m_timeNumber.SetActive(true);
         }
         else
         {
             stageBoard.spriteName = "StepBoard";
             m_timeBar.gameObject.SetActive(false);
+
+            m_stepDrawer.gameObject.SetActive(true);
+            m_timeNumber.SetActive(false);
         }
 
         if (GlobalVars.DeveloperMode)
@@ -91,27 +112,20 @@ public class UIGameBottom : UIWindow
 			m_progressSprite.gameObject.SetActive(true);
             m_progressSprite.width = (int)(ProgressLenth * completeRatio);
         }
-        //GlobalVars.CurGameLogic.GetProgress()
 
-        UIDrawer.Singleton.DefaultAnchor = UIWindowManager.Anchor.Bottom;
-        if (GlobalVars.CurStageData.StepLimit > 0)          //限制步数的关卡
-        {
-            UIDrawer.Singleton.DrawNumber("SetpLimit", -100, -114, GlobalVars.CurGameLogic.PlayingStageData.StepLimit, "", 24);
-        }
         if (GlobalVars.CurStageData.TimeLimit > 0)          //限制时间的关卡
         {
             int min = (int)GlobalVars.CurGameLogic.GetTimeRemain() / 60;
             int second = (int)GlobalVars.CurGameLogic.GetTimeRemain() % 60;
-            UIDrawer.Singleton.DrawNumber("MinutesLeft", -160, -114, min, "", 24);
-            UIDrawer.Singleton.DrawSprite("TimeColon", -92, -114, "colon");
-            UIDrawer.Singleton.DrawNumber("SecondsLeft", -100, -114, second, "", 24);
+            m_minNumber.SetNumber(min);
+            m_secNumber.SetNumber(second);
 
             m_timeBar.fillAmount = GlobalVars.CurGameLogic.GetTimeRemain() / GlobalVars.CurStageData.TimeLimit;
         }
-
-        //绘制分数
-        UIDrawer.Singleton.DrawNumber("ScoreText", 110, -114, GlobalVars.CurGameLogic.GetProgress(), "", 24, 7);
-        UIDrawer.Singleton.DefaultAnchor = UIWindowManager.Anchor.TopLeft;
+        if (GlobalVars.CurStageData.StepLimit > 0)          //限制步数的关卡
+        {
+            m_stepDrawer.SetNumber(GlobalVars.CurGameLogic.PlayingStageData.StepLimit);
+        }
     }
 
     public void OnValueChange()
@@ -129,5 +143,6 @@ public class UIGameBottom : UIWindow
                 m_starsSprites[i].spriteName = "LightStar";
             }
         }
+        m_scoreDrawer.SetNumber(progress);
     }
 }

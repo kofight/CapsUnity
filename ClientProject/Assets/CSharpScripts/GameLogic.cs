@@ -205,6 +205,7 @@ public class GameLogic
     long m_lastStepRewardTime = 0;                         //上次生成StepReward的时间
     public StageData PlayingStageData;                      //当前的关卡数据
     bool m_bDropFromLeft = true;                            //用来控制左右斜下落的开关
+    bool m_bHidingHelp = false;                             //弹其他界面时隐藏Help
 
     //计时器
     Timer timerMoveBlock = new Timer();
@@ -1200,7 +1201,7 @@ public class GameLogic
                         }
                     }
                 }
-                else if (Timer.GetRealTimeSinceStartUp() > m_lastHelpTime + ShowHelpTimeInterval)
+                else if (Timer.GetRealTimeSinceStartUp() > m_lastHelpTime + ShowHelpTimeInterval && !m_bHidingHelp)
                 {
                     Help();
                     ShowHelpAnim();
@@ -1260,6 +1261,7 @@ public class GameLogic
     {
         if (m_saveHelpBlocks[2].IsAvailable() && m_blocks[m_saveHelpBlocks[2].x, m_saveHelpBlocks[2].y] != null && !m_blocks[m_saveHelpBlocks[2].x, m_saveHelpBlocks[2].y].m_animation.isPlaying)
         {
+            m_bHidingHelp = false;
             for (int i = 0; i < 3; ++i )
             {
                 m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.Play("Help");
@@ -2070,6 +2072,28 @@ public class GameLogic
 					m_scoreToShow[pos.x, pos.y] += CapsConfig.EatStonePoint;
                     AddPartile("StoneEffect", pos.x, pos.y);
                 }
+            }
+        }
+    }
+
+    public void HideHelp()
+    {
+        if (m_saveHelpBlocks[2].IsAvailable())
+        {
+            m_bHidingHelp = true;
+            try
+            {
+                for (int i = 0; i < 3; ++i)
+                {
+                    m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.enabled = false;
+                    m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.Stop();
+                    m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.transform.localScale = Vector3.one;          //恢复缩放
+                    m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_addColorTranform.renderer.material.SetColor("_TintColor", new Color(0, 0, 0, 0));
+                }
+            }
+            catch (System.Exception ex)
+            {
+
             }
         }
     }

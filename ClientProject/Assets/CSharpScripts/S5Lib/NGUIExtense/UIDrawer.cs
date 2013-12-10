@@ -145,6 +145,7 @@ public class UIDrawer
             newObj.SetActive(false);
 			
         }
+        data.Show();
         return data;
     }
 

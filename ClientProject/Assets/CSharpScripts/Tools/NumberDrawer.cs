@@ -23,6 +23,10 @@ public class NumberDrawer : MonoBehaviour {
 
     public void SetNumber(int number)
     {
+        if (Number == number)
+        {
+            return;
+        }
         int factor = 10;									//用来取某个位的数字的因子
         //第一遍找到开始的数字位置
         int curNumStartIndex = maxIntLenth - 1;
@@ -60,7 +64,7 @@ public class NumberDrawer : MonoBehaviour {
 				}
 				else if(Align == NumberAlign.Right)
 				{
-					m_numbers[i].LocalPositionX( - NumberInterval * (i - curNumStartIndex) - (maxIntLenth - curNumStartIndex - 1) * NumberInterval);
+					m_numbers[i].LocalPositionX( - NumberInterval * (i - curNumStartIndex - 1) - (maxIntLenth - curNumStartIndex - 1) * NumberInterval);
 				}
                 factor *= 10;
             }

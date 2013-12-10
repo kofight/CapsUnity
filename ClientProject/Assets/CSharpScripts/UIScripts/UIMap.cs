@@ -17,6 +17,11 @@ public class UIMap : UIWindow
 
     UIWindow m_heartUI;
 
+    GameObject m_timeNumber;
+    NumberDrawer m_minNumber;
+    NumberDrawer m_secNumber;
+    GameObject m_fullText;
+
     public override void OnCreate()
     {
         base.OnCreate();
@@ -39,6 +44,11 @@ public class UIMap : UIWindow
 		springPanel = mUIObject.AddComponent<SpringPanel>();
         UIPanel panel = mUIObject.GetComponent<UIPanel>();
         panel.clipRange = new Vector4(0, 0, CapsApplication.Singleton.Width, CapsApplication.Singleton.Height);
+
+        m_timeNumber = UIToolkits.FindChild(m_heartUI.mUIObject.transform, "TimeNumber").gameObject;
+        m_fullText = UIToolkits.FindChild(m_heartUI.mUIObject.transform, "HeartFull").gameObject;
+        m_minNumber = m_heartUI.GetChildComponent<NumberDrawer>("MinNumber");
+        m_secNumber = m_heartUI.GetChildComponent<NumberDrawer>("SecNumber");
     }
     public override void OnShow()
     {
@@ -128,21 +138,32 @@ public class UIMap : UIWindow
 		
 		if(GlobalVars.HeartCount < 5)               //若心没满，要显示时间
 		{
+            if (!m_timeNumber.activeSelf)
+            {
+                m_timeNumber.SetActive(true);
+            }
+            if (m_fullText.activeSelf)
+            {
+                m_fullText.SetActive(false);
+            }
+            
 			int ticks = (int)((System.DateTime.Now.Ticks - GlobalVars.GetHeartTime.Ticks) / 10000);
 			int ticksToGetHeart = CapsConfig.Instance.GetHeartInterval * 1000 - ticks;
 			int min = ticksToGetHeart / 1000 / 60;
 			int second = ticksToGetHeart / 1000 % 60;
-            UIDrawer.Singleton.CurDepth = 20;
-            UIDrawer.Singleton.DrawNumber("MinutesToHeart", 98, 53, min, "", 24);
-            UIDrawer.Singleton.DrawSprite("Colon", 166, 53, "colon");
-            UIDrawer.Singleton.DrawNumber("SecondsToHeart", 160, 53, second, "", 24);
-            UIDrawer.Singleton.CurDepth = 0;
+            m_minNumber.SetNumber(min);
+            m_secNumber.SetNumber(second);
 		}
         else
         {
-            UIDrawer.Singleton.CurDepth = 20;
-            UIDrawer.Singleton.DrawSprite("Full", 173, 53, "Full");
-            UIDrawer.Singleton.CurDepth = 0;
+            if (m_timeNumber.activeSelf)
+            {
+                m_timeNumber.SetActive(false);
+            }
+            if (!m_fullText.activeSelf)
+            {
+                m_fullText.SetActive(true);
+            }
         }
     }
 

@@ -144,7 +144,7 @@ public class UIWindow
         bool bHideEffect = false;
         foreach (UIEffectPlayer player in mEffectPlayerList)
         {
-            if (player.PlayWhileHideWindow && player.gameObject.activeInHierarchy)
+            if (player.PlayWhileHideWindow)
             {
                 player.HideEffect();
 				bHideEffect = true;
@@ -179,7 +179,7 @@ public class UIWindow
         bool bShowEffect = false;
         foreach (UIEffectPlayer player in mEffectPlayerList)
         {
-            if (player.PlayWhileShowWindow && player.gameObject.activeInHierarchy)
+            if (player.PlayWhileShowWindow)
             {
                 player.ShowEffect();
 				bShowEffect = true;

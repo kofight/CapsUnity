@@ -2423,6 +2423,9 @@ public class GameLogic
     {
         int x = (int)ges.position.x * CapsApplication.Singleton.Height / Screen.height;
         int y = (int)(Screen.height - ges.position.y) * CapsApplication.Singleton.Height / Screen.height;
+
+        m_numInstance.transform.localPosition = new Vector3(x, -y, 0);
+
         //不在游戏区，不处理
         if (x < gameAreaX || y < gameAreaY || x > gameAreaX + gameAreaWidth || y > gameAreaY + gameAreaHeight)
         {

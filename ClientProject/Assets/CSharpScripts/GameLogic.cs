@@ -2424,10 +2424,8 @@ public class GameLogic
         int x = (int)ges.position.x * CapsApplication.Singleton.Height / Screen.height;
         int y = (int)(Screen.height - ges.position.y) * CapsApplication.Singleton.Height / Screen.height;
 
-        m_numInstance.transform.localPosition = new Vector3(x, -y, 0);
-
         //不在游戏区，不处理
-        if (x < gameAreaX || y < gameAreaY || x > gameAreaX + gameAreaWidth || y > gameAreaY + gameAreaHeight)
+        if (x < gameAreaX - BLOCKWIDTH || y < gameAreaY - BLOCKHEIGHT || x > gameAreaX + gameAreaWidth + BLOCKWIDTH || y > gameAreaY + gameAreaHeight + BLOCKHEIGHT)
         {
             return;
         }
@@ -2438,7 +2436,11 @@ public class GameLogic
             p.y = (int)((y - gameAreaY - BLOCKHEIGHT / 2) / BLOCKHEIGHT);
         else
             p.y = (int)((y - gameAreaY) / BLOCKHEIGHT);
-        if (p.y > BlockCountY) p.y = BlockCountY;
+        if (p.y >= BlockCountY) p.y = BlockCountY - 1;
+		if(p.y < 0)p.y = 0;
+		
+		if (p.x >= BlockCountX) p.x = BlockCountX - 1;
+		if(p.y < 0)p.x = 0;
 
         if (GlobalVars.EditState == TEditState.ChangeColor)
         {
@@ -2576,8 +2578,8 @@ public class GameLogic
         int x = (int)ges.position.x * CapsApplication.Singleton.Height / Screen.height;
         int y = (int)(Screen.height - ges.position.y) * CapsApplication.Singleton.Height / Screen.height;
         touchBeginPos.MakeItUnAvailable();
-		//不在游戏区，先不处理
-        if (x < gameAreaX || y < gameAreaY || x > gameAreaX + gameAreaWidth || y > gameAreaY + gameAreaHeight)
+        //不在游戏区，不处理
+        if (x < gameAreaX - BLOCKWIDTH || y < gameAreaY - BLOCKHEIGHT || x > gameAreaX + gameAreaWidth + BLOCKWIDTH || y > gameAreaY + gameAreaHeight + BLOCKHEIGHT)
         {
             return;
         }
@@ -2588,7 +2590,12 @@ public class GameLogic
             p.y = (int)((y - gameAreaY - BLOCKHEIGHT / 2) / BLOCKHEIGHT);
         else
             p.y = (int)((y - gameAreaY) / BLOCKHEIGHT);
+		
         if (p.y >= BlockCountY) p.y = BlockCountY - 1;
+		if(p.y < 0)p.y = 0;
+		
+		if (p.x >= BlockCountX) p.x = BlockCountX - 1;
+		if(p.y < 0)p.x = 0;
 
         //如果选中一个状态处于不可移动的块，或者一个特殊块，置选中标志为空，返回
         if (m_blocks[p.x, p.y] == null || !m_blocks[p.x, p.y].SelectAble())
@@ -2741,6 +2748,11 @@ public class GameLogic
 
         //选中第二个
         p = GoTo(m_selectedPos[0], dir, 1);
+
+        if (!CheckPosAvailable(p))
+        {
+            return; 
+        }
 
         if (GetBlock(p) == null || !GetBlock(p).SelectAble())
         {

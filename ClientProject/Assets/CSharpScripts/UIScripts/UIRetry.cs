@@ -124,6 +124,14 @@ public class UIRetry : UIWindow
                 GlobalVars.StageScoreArray[GlobalVars.CurStageNum - 1] = GlobalVars.CurGameLogic.GetProgress();
                 PlayerPrefsExtend.SetIntArray("StageScores", GlobalVars.StageScoreArray);
             }
+			
+			if(CapsConfig.EnableGA)	//游戏过关后的记录
+			{
+                Debug.Log("Stage succeed GA");
+				GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed", GlobalVars.CurGameLogic.GetProgress());  //分数
+	            GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed:Score_Percent", (float)GlobalVars.CurGameLogic.GetProgress() / GlobalVars.CurGameLogic.PlayingStageData.StarScore[0]);  //记录当前开始的关卡的百分比
+	            GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed:Score_3StarPercent", (float)GlobalVars.CurGameLogic.GetProgress() / GlobalVars.CurGameLogic.PlayingStageData.StarScore[2]);  //记录当前开始的关卡的百分比	
+			}
         }
         else
         {
@@ -179,6 +187,7 @@ public class UIRetry : UIWindow
         }
 
         HideWindow();
+        GlobalVars.CurGameLogic.ClearGame();
         GlobalVars.CurGameLogic.Init();
         GlobalVars.CurGameLogic.StartGame();
     }

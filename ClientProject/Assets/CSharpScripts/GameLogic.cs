@@ -677,7 +677,11 @@ public class GameLogic
         tweenPos.Reset();
         tweenPos.Play(true);
 
-        GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum+":Start");  //记录当前开始的关卡的数据
+        if (CapsConfig.EnableGA)
+        {
+            Debug.Log("Stage Start GA");
+            GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Start");  //记录当前开始的关卡的数据
+        }        
 
         AddPartile("StartGameAnim", 5, 5, false);
     }
@@ -1003,26 +1007,12 @@ public class GameLogic
                 m_gameStartTime = 0;
                 if (IsStageFinish())
                 {
-                    UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();
-                    GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed", m_progress);  //记录记录失败的分数
-                    GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed:Score_Percent", (float)m_progress / PlayingStageData.StarScore[0]);  //记录当前开始的关卡的百分比
-                    GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed:Score_3StarPercent", (float)m_progress / PlayingStageData.StarScore[2]);  //记录当前开始的关卡的百分比
-                    if (PlayingStageData.Target == GameTarget.ClearJelly)
-                    {
-                        GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed:JellyCount", PlayingStageData.GetDoubleJellyCount() * 2 + PlayingStageData.GetJellyCount());  //记录失败时的果冻数
-                    }
+                    m_gameFlow = TGameFlow.EGameState_End;
+                    UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
                 }
                 else
                 {
-                    m_gameFlow = TGameFlow.EGameState_End;
-                    UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
-                    GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed", m_progress);  //记录记录失败的分数
-                    GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed:Score_Percent", (float)m_progress / PlayingStageData.StarScore[0]);  //记录当前开始的关卡的百分比
-                    GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed:Score_3StarPercent", (float)m_progress / PlayingStageData.StarScore[2]);  //记录当前开始的关卡的百分比
-                    if (PlayingStageData.StepLimit > 0)
-                    {
-                        GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed:StepLeft", PlayingStageData.StepLimit);  //胜利时提交剩余步数
-                    }
+                    UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();
                 }
             }
             return;
@@ -2372,6 +2362,12 @@ public class GameLogic
                     }
                 }
             }
+
+            if (GlobalVars.CurStageData.StepLimit > 0)
+            {
+                GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed:StepLeft", PlayingStageData.StepLimit);  //胜利时提交剩余步数
+            }
+
             if (foundSpecial || PlayingStageData.StepLimit > 0)     //若能进SugarCrush
             {
                 m_gameFlow = TGameFlow.EGameState_SugarCrushAnim;
@@ -2392,6 +2388,19 @@ public class GameLogic
             //否则直接结束游戏
             m_gameStartTime = 0;
             m_gameFlow = TGameFlow.EGameState_End;
+
+            if (CapsConfig.EnableGA)        //游戏结束的数据
+            {
+                Debug.Log("GameEnd GA");
+                GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed", m_progress);  //记录记录失败的分数
+                GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed:Score_Percent", (float)m_progress / PlayingStageData.StarScore[0]);  //记录当前开始的关卡的百分比
+                GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed:Score_3StarPercent", (float)m_progress / PlayingStageData.StarScore[2]);  //记录当前开始的关卡的百分比
+                if (PlayingStageData.Target == GameTarget.ClearJelly)
+                {
+                    GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed:JellyCount", PlayingStageData.GetDoubleJellyCount() * 2 + PlayingStageData.GetJellyCount());  //记录失败时的果冻数
+                }
+            }
+
             UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
         }
     }

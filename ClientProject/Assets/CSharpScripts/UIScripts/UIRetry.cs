@@ -165,7 +165,7 @@ public class UIRetry : UIWindow
             }
         }
 
-        GlobalVars.CurGameLogic.ClearGame();
+        GlobalVars.CurGameLogic.EndGame();
         GlobalVars.CurGameLogic.ChangeGameFlow(TGameFlow.EGameState_Clear);           //切换到结束状态
     }
     public override void OnUpdate()

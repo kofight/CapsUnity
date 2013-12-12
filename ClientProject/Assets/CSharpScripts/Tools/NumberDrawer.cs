@@ -11,7 +11,7 @@ public enum NumberAlign
 public class NumberDrawer : MonoBehaviour {
     public int maxIntLenth = 3;
     public UISprite[] m_numbers;
-    public int Number;
+    int Number = -1;
     public string SurName;
     public int NumberInterval = 20;
 	public NumberAlign Align = NumberAlign.Center;
@@ -19,6 +19,7 @@ public class NumberDrawer : MonoBehaviour {
     void Start()
     {
         //SetNumber(Number);
+		Number = -1;
     }
 
     public void SetNumber(int number)
@@ -27,6 +28,7 @@ public class NumberDrawer : MonoBehaviour {
         {
             return;
         }
+		Number = number;
         int factor = 10;									//用来取某个位的数字的因子
         //第一遍找到开始的数字位置
         int curNumStartIndex = maxIntLenth - 1;

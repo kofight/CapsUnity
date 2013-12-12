@@ -77,8 +77,6 @@ public class UIGameBottom : UIWindow
             m_speedSlider.gameObject.SetActive(false);
             m_speedLabel.gameObject.SetActive(false);
         }
-
-        
     }
 	
 	public void Reset()
@@ -126,6 +124,8 @@ public class UIGameBottom : UIWindow
         {
             m_stepDrawer.SetNumber(GlobalVars.CurGameLogic.PlayingStageData.StepLimit);
         }
+
+        m_scoreDrawer.SetNumber(GlobalVars.CurGameLogic.GetProgress());
     }
 
     public void OnValueChange()

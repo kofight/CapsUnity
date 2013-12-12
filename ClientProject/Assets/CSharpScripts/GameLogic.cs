@@ -205,6 +205,7 @@ public class GameLogic
     long m_lastStepRewardTime = 0;                         //上次生成StepReward的时间
     public StageData PlayingStageData;                      //当前的关卡数据
     bool m_bDropFromLeft = true;                            //用来控制左右斜下落的开关
+    bool m_bHidingHelp = false;                             //弹其他界面时隐藏Help
 
     //计时器
     Timer timerMoveBlock = new Timer();
@@ -676,7 +677,11 @@ public class GameLogic
         tweenPos.Reset();
         tweenPos.Play(true);
 
-        GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum+":Start");  //记录当前开始的关卡的数据
+        if (CapsConfig.EnableGA)
+        {
+            Debug.Log("Stage Start GA");
+            GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Start");  //记录当前开始的关卡的数据
+        }        
 
         AddPartile("StartGameAnim", 5, 5, false);
     }
@@ -1002,26 +1007,12 @@ public class GameLogic
                 m_gameStartTime = 0;
                 if (IsStageFinish())
                 {
-                    UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();
-                    GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed", m_progress);  //记录记录失败的分数
-                    GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed:Score_Percent", (float)m_progress / PlayingStageData.StarScore[0]);  //记录当前开始的关卡的百分比
-                    GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed:Score_3StarPercent", (float)m_progress / PlayingStageData.StarScore[2]);  //记录当前开始的关卡的百分比
-                    if (PlayingStageData.Target == GameTarget.ClearJelly)
-                    {
-                        GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed:JellyCount", PlayingStageData.GetDoubleJellyCount() * 2 + PlayingStageData.GetJellyCount());  //记录失败时的果冻数
-                    }
+                    m_gameFlow = TGameFlow.EGameState_End;
+                    UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
                 }
                 else
                 {
-                    m_gameFlow = TGameFlow.EGameState_End;
-                    UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
-                    GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed", m_progress);  //记录记录失败的分数
-                    GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed:Score_Percent", (float)m_progress / PlayingStageData.StarScore[0]);  //记录当前开始的关卡的百分比
-                    GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed:Score_3StarPercent", (float)m_progress / PlayingStageData.StarScore[2]);  //记录当前开始的关卡的百分比
-                    if (PlayingStageData.StepLimit > 0)
-                    {
-                        GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed:StepLeft", PlayingStageData.StepLimit);  //胜利时提交剩余步数
-                    }
+                    UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();
                 }
             }
             return;
@@ -1200,7 +1191,7 @@ public class GameLogic
                         }
                     }
                 }
-                else if (Timer.GetRealTimeSinceStartUp() > m_lastHelpTime + ShowHelpTimeInterval)
+                else if (Timer.GetRealTimeSinceStartUp() > m_lastHelpTime + ShowHelpTimeInterval && !m_bHidingHelp)
                 {
                     Help();
                     ShowHelpAnim();
@@ -1260,6 +1251,7 @@ public class GameLogic
     {
         if (m_saveHelpBlocks[2].IsAvailable() && m_blocks[m_saveHelpBlocks[2].x, m_saveHelpBlocks[2].y] != null && !m_blocks[m_saveHelpBlocks[2].x, m_saveHelpBlocks[2].y].m_animation.isPlaying)
         {
+            m_bHidingHelp = false;
             for (int i = 0; i < 3; ++i )
             {
                 m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.Play("Help");
@@ -2074,6 +2066,28 @@ public class GameLogic
         }
     }
 
+    public void HideHelp()
+    {
+        if (m_saveHelpBlocks[2].IsAvailable())
+        {
+            m_bHidingHelp = true;
+            try
+            {
+                for (int i = 0; i < 3; ++i)
+                {
+                    m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.enabled = false;
+                    m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.Stop();
+                    m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.transform.localScale = Vector3.one;          //恢复缩放
+                    m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_addColorTranform.renderer.material.SetColor("_TintColor", new Color(0, 0, 0, 0));
+                }
+            }
+            catch (System.Exception ex)
+            {
+
+            }
+        }
+    }
+
     public void ClearHelpPoint()
     {
         if (m_saveHelpBlocks[2].IsAvailable())
@@ -2348,6 +2362,12 @@ public class GameLogic
                     }
                 }
             }
+
+            if (GlobalVars.CurStageData.StepLimit > 0)
+            {
+                GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed:StepLeft", PlayingStageData.StepLimit);  //胜利时提交剩余步数
+            }
+
             if (foundSpecial || PlayingStageData.StepLimit > 0)     //若能进SugarCrush
             {
                 m_gameFlow = TGameFlow.EGameState_SugarCrushAnim;
@@ -2368,6 +2388,19 @@ public class GameLogic
             //否则直接结束游戏
             m_gameStartTime = 0;
             m_gameFlow = TGameFlow.EGameState_End;
+
+            if (CapsConfig.EnableGA)        //游戏结束的数据
+            {
+                Debug.Log("GameEnd GA");
+                GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed", m_progress);  //记录记录失败的分数
+                GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed:Score_Percent", (float)m_progress / PlayingStageData.StarScore[0]);  //记录当前开始的关卡的百分比
+                GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed:Score_3StarPercent", (float)m_progress / PlayingStageData.StarScore[2]);  //记录当前开始的关卡的百分比
+                if (PlayingStageData.Target == GameTarget.ClearJelly)
+                {
+                    GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed:JellyCount", PlayingStageData.GetDoubleJellyCount() * 2 + PlayingStageData.GetJellyCount());  //记录失败时的果冻数
+                }
+            }
+
             UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
         }
     }
@@ -2390,8 +2423,9 @@ public class GameLogic
     {
         int x = (int)ges.position.x * CapsApplication.Singleton.Height / Screen.height;
         int y = (int)(Screen.height - ges.position.y) * CapsApplication.Singleton.Height / Screen.height;
+
         //不在游戏区，不处理
-        if (x < gameAreaX || y < gameAreaY || x > gameAreaX + gameAreaWidth || y > gameAreaY + gameAreaHeight)
+        if (x < gameAreaX - BLOCKWIDTH || y < gameAreaY - BLOCKHEIGHT || x > gameAreaX + gameAreaWidth + BLOCKWIDTH || y > gameAreaY + gameAreaHeight + BLOCKHEIGHT)
         {
             return;
         }
@@ -2402,7 +2436,11 @@ public class GameLogic
             p.y = (int)((y - gameAreaY - BLOCKHEIGHT / 2) / BLOCKHEIGHT);
         else
             p.y = (int)((y - gameAreaY) / BLOCKHEIGHT);
-        if (p.y > BlockCountY) p.y = BlockCountY;
+        if (p.y >= BlockCountY) p.y = BlockCountY - 1;
+		if(p.y < 0)p.y = 0;
+		
+		if (p.x >= BlockCountX) p.x = BlockCountX - 1;
+		if(p.y < 0)p.x = 0;
 
         if (GlobalVars.EditState == TEditState.ChangeColor)
         {
@@ -2540,8 +2578,8 @@ public class GameLogic
         int x = (int)ges.position.x * CapsApplication.Singleton.Height / Screen.height;
         int y = (int)(Screen.height - ges.position.y) * CapsApplication.Singleton.Height / Screen.height;
         touchBeginPos.MakeItUnAvailable();
-		//不在游戏区，先不处理
-        if (x < gameAreaX || y < gameAreaY || x > gameAreaX + gameAreaWidth || y > gameAreaY + gameAreaHeight)
+        //不在游戏区，不处理
+        if (x < gameAreaX - BLOCKWIDTH || y < gameAreaY - BLOCKHEIGHT || x > gameAreaX + gameAreaWidth + BLOCKWIDTH || y > gameAreaY + gameAreaHeight + BLOCKHEIGHT)
         {
             return;
         }
@@ -2552,7 +2590,12 @@ public class GameLogic
             p.y = (int)((y - gameAreaY - BLOCKHEIGHT / 2) / BLOCKHEIGHT);
         else
             p.y = (int)((y - gameAreaY) / BLOCKHEIGHT);
+		
         if (p.y >= BlockCountY) p.y = BlockCountY - 1;
+		if(p.y < 0)p.y = 0;
+		
+		if (p.x >= BlockCountX) p.x = BlockCountX - 1;
+		if(p.y < 0)p.x = 0;
 
         //如果选中一个状态处于不可移动的块，或者一个特殊块，置选中标志为空，返回
         if (m_blocks[p.x, p.y] == null || !m_blocks[p.x, p.y].SelectAble())
@@ -2705,6 +2748,11 @@ public class GameLogic
 
         //选中第二个
         p = GoTo(m_selectedPos[0], dir, 1);
+
+        if (!CheckPosAvailable(p))
+        {
+            return; 
+        }
 
         if (GetBlock(p) == null || !GetBlock(p).SelectAble())
         {

@@ -102,6 +102,8 @@ public class UIGameEnd : UIWindow
             m_nutsCheck.gameObject.SetActive(false);
             m_jellyCheck.gameObject.SetActive(false);
         }
+
+        GlobalVars.CurGameLogic.HideHelp();
     }
     public override void OnUpdate()
     {
@@ -120,7 +122,10 @@ public class UIGameEnd : UIWindow
        {
            if (GlobalVars.CurStageData.StepLimit > 0)     //若还有步数
            {
-               HideWindow();
+               HideWindow(delegate()
+               {
+                   GlobalVars.CurGameLogic.ShowHelpAnim();
+               });
            }
        }
     }

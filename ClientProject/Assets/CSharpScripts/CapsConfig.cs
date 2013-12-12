@@ -47,6 +47,8 @@ public class CapsConfig
     public static readonly int EatCagePoint = 400;
     public static readonly int EatStonePoint = 400;
     public static readonly int EatChocolate = 400;
+	
+	public static readonly bool EnableGA = true;
 
     public static float EatLineEffectInterval = 0.04f;               //消行特效吃块的间隔
     public static float BombEffectInterval = 0.1f;                  //炸弹特效吃块的间隔

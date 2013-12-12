@@ -2,7 +2,7 @@
 StepLimit			30				
 TimeLimit			0				
 ColorCount			7				
-Nut1Count			3				
+Nut1Count			2				
 Nut2Count			1				
 NutInitCount			1				
 NutMaxCount			3				

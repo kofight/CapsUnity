@@ -88,6 +88,10 @@ public class CapsConfig
 
         _config.GetValue<float>("BLOCKWIDTH", out GameLogic.BLOCKWIDTH);
         _config.GetValue<float>("BLOCKHEIGHT", out GameLogic.BLOCKHEIGHT);
+		
+		GameLogic.gameAreaWidth = GameLogic.BLOCKWIDTH * GameLogic.BlockCountX;	//游戏区域宽度
+     	GameLogic.gameAreaHeight = GameLogic.BLOCKHEIGHT * GameLogic.BlockCountY + GameLogic.BLOCKHEIGHT / 2;//游戏区域高度
+		
     }
 
     /// <summary>

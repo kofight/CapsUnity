@@ -676,6 +676,7 @@ public class GameLogic
         TweenPosition tweenPos = m_gameArea.GetComponent<TweenPosition>();
         tweenPos.Reset();
         tweenPos.Play(true);
+		ClearSelected();
 
         if (CapsConfig.EnableGA)
         {
@@ -2419,28 +2420,71 @@ public class GameLogic
         m_lastGCTime = Timer.GetRealTimeSinceStartUp();
     }
 
-    public void OnTap(Gesture ges)
+    public Position GetBlockByTouch(int xPos, int yPos)     //一个点的位置获得对应的块
     {
-        int x = (int)ges.position.x * CapsApplication.Singleton.Height / Screen.height;
-        int y = (int)(Screen.height - ges.position.y) * CapsApplication.Singleton.Height / Screen.height;
-
-        //不在游戏区，不处理
-        if (x < gameAreaX - BLOCKWIDTH || y < gameAreaY - BLOCKHEIGHT || x > gameAreaX + gameAreaWidth + BLOCKWIDTH || y > gameAreaY + gameAreaHeight + BLOCKHEIGHT)
-        {
-            return;
-        }
+        //先换算成逻辑上的屏幕坐标
+        int x = (int)xPos * CapsApplication.Singleton.Height / Screen.height;
+        int y = (int)(Screen.height - yPos) * CapsApplication.Singleton.Height / Screen.height;
 
         Position p = new Position();
+
+        //不在游戏区，不处理
+        if (x < gameAreaX || y < gameAreaY || x > gameAreaX + gameAreaWidth || y > gameAreaY + gameAreaHeight)
+        {
+            p.MakeItUnAvailable();
+            return p;
+        }
+
+        //将位置换算成块的坐标
         p.x = (int)((x - gameAreaX) / BLOCKWIDTH);
         if (p.x % 2 == 0)
             p.y = (int)((y - gameAreaY - BLOCKHEIGHT / 2) / BLOCKHEIGHT);
         else
             p.y = (int)((y - gameAreaY) / BLOCKHEIGHT);
-        if (p.y >= BlockCountY) p.y = BlockCountY - 1;
-		if(p.y < 0)p.y = 0;
-		
-		if (p.x >= BlockCountX) p.x = BlockCountX - 1;
-		if(p.y < 0)p.x = 0;
+
+        if (p.y >= BlockCountY || p.y < 0)
+        {
+            p.MakeItUnAvailable();
+            return p;
+        }
+
+
+        //精确判断，找出相邻9个点中最近的点
+        float minDis = 999999.0f;
+        Position newP = new Position();
+        int relativeX = x - gameAreaX;
+        int relativeY = y - gameAreaY;
+        for (int i = p.x - 1; i <= p.x + 1; ++i )
+        {
+            if (i < 0 || i >= BlockCountX)
+            {
+                continue;
+            }
+            for (int j = p.y - 1; j < p.y + 1;++j )
+            {
+                if (j < 0 || j >= BlockCountY)
+                {
+                    continue;
+                }
+				float dis = (x - GetXPos(i)) * (x - GetXPos(i)) + (y - GetYPos(i, j)) * (y - GetYPos(i, j));
+                if (minDis > dis)
+                {
+                    minDis = dis;
+                    newP.Set(i, j);
+                }
+            }
+        }
+
+        return newP;
+    }
+
+    public void OnTap(Gesture ges)
+    {
+        Position p = GetBlockByTouch((int)ges.position.x, (int)ges.position.x);
+        if (!p.IsAvailable())
+        {
+            return;
+        }
 
         if (GlobalVars.EditState == TEditState.ChangeColor)
         {
@@ -2575,27 +2619,17 @@ public class GameLogic
             return;
         }
 
+        touchBeginPos.MakeItUnAvailable();
+
         int x = (int)ges.position.x * CapsApplication.Singleton.Height / Screen.height;
         int y = (int)(Screen.height - ges.position.y) * CapsApplication.Singleton.Height / Screen.height;
-        touchBeginPos.MakeItUnAvailable();
-        //不在游戏区，不处理
-        if (x < gameAreaX - BLOCKWIDTH || y < gameAreaY - BLOCKHEIGHT || x > gameAreaX + gameAreaWidth + BLOCKWIDTH || y > gameAreaY + gameAreaHeight + BLOCKHEIGHT)
+
+        Position p = GetBlockByTouch((int)ges.position.x, (int)ges.position.y);
+
+        if (!p.IsAvailable())
         {
             return;
         }
-
-        Position p = new Position();
-        p.x = (int)((x - gameAreaX) / BLOCKWIDTH);
-        if (p.x % 2 == 0)
-            p.y = (int)((y - gameAreaY - BLOCKHEIGHT / 2) / BLOCKHEIGHT);
-        else
-            p.y = (int)((y - gameAreaY) / BLOCKHEIGHT);
-		
-        if (p.y >= BlockCountY) p.y = BlockCountY - 1;
-		if(p.y < 0)p.y = 0;
-		
-		if (p.x >= BlockCountX) p.x = BlockCountX - 1;
-		if(p.y < 0)p.x = 0;
 
         //如果选中一个状态处于不可移动的块，或者一个特殊块，置选中标志为空，返回
         if (m_blocks[p.x, p.y] == null || !m_blocks[p.x, p.y].SelectAble())
@@ -2662,24 +2696,33 @@ public class GameLogic
             return;
         }
 
-        //取消开始触控点的高亮
-        if (touchBeginGrid.IsAvailable())
+        float angle = ges.GetSwipeOrDragAngle();
+
+        if (angle == 0 || angle == 180)     //EasyTouch会错误的抛上来一个angle为0的move,丢掉
         {
-            SetHighLight(false, touchBeginGrid.x, touchBeginGrid.y);
-            touchBeginGrid.MakeItUnAvailable();
+            return;
         }
-        
+
         int x = (int)ges.position.x * CapsApplication.Singleton.Height / Screen.height;
         int y = (int)(Screen.height - ges.position.y) * CapsApplication.Singleton.Height / Screen.height;
 
-        if (!touchBeginPos.IsAvailable())
+        //若没选好第一个块，看看移动中能否选到第一个块
+        if (m_selectedPos[0].x == -1)		
         {
-            return;
-        }
-
-        if (m_selectedPos[0].x == -1)		//若没选好第一个块，不处理
-        {
-            return;
+            Position pos = GetBlockByTouch((int)ges.position.x, (int)ges.position.y);
+			
+			if (!pos.IsAvailable())
+			{
+				return;
+			}
+			
+			if (GetBlock(pos) == null || !GetBlock(pos).SelectAble())
+	        {
+	            return;
+	        }
+			
+            m_selectedPos[0] = pos;
+            touchBeginPos.Set(x, y);
         }
 
         float lenth = Vector2.Distance(new Vector2(x, y), new Vector2(touchBeginPos.x, touchBeginPos.y));       //移动距离
@@ -2687,67 +2730,20 @@ public class GameLogic
         {
             return;
         }
-
-        //不在游戏区，先不处理
-        if (x < gameAreaX - BLOCKWIDTH || y < gameAreaY - BLOCKHEIGHT || x > gameAreaX + gameAreaWidth + BLOCKWIDTH || y > gameAreaY + gameAreaHeight + BLOCKHEIGHT)
-        {
-            return;
-        }
-
-        TDirection dir = TDirection.EDir_Up;
-        Position p;
-        float oringinX = GetXPos(m_selectedPos[0].x);
-        float oringinY = GetYPos(m_selectedPos[0].x, m_selectedPos[0].y);
-        float tan60 = Mathf.Tan(Mathf.PI / 3);
-        float tan = 0.0f;
-        if (x != oringinX)
-        {
-            tan = Mathf.Abs(y - oringinY) / Mathf.Abs(x - oringinX);
-        }
-        else
-        {
-            tan = 1000.0f;
-        }
-
-        if (y > oringinY)            //向下方向
-        {
-            if (tan < tan60)
-            {
-                if (x > oringinX)
-                {
-                    dir = TDirection.EDir_DownRight;
-                }
-                else
-                {
-                    dir = TDirection.EDir_LeftDown;
-                }
-            }
-            else
-            {
-                dir = TDirection.EDir_Down;
-            }
-        }
-        else
-        {
-            if (tan < tan60)
-            {
-                if (x > oringinX)       //向右移动
-                {
-                    dir = TDirection.EDir_UpRight;
-                }
-                else      //向左移动
-                {
-                    dir = TDirection.EDir_LeftUp;
-                }
-            }
-            else
-            {
-                dir = TDirection.EDir_Up;
-            }
-        }
+		
+		TDirection dir;
+		if(angle > 0)
+		{
+			dir = (TDirection)((6 + (int)TDirection.EDir_UpRight - ((int)angle) / 60) % 6);
+		}
+		else
+		{
+			dir = (TDirection)((6 + (int)TDirection.EDir_DownRight + ((int)-angle) / 60) % 6);
+		}
+		
 
         //选中第二个
-        p = GoTo(m_selectedPos[0], dir, 1);
+        Position p = GoTo(m_selectedPos[0], dir, 1);
 
         if (!CheckPosAvailable(p))
         {
@@ -2761,6 +2757,14 @@ public class GameLogic
 
         m_selectedPos[1] = p;
 
+        //取消开始触控点的高亮
+        if (touchBeginGrid.IsAvailable())
+        {
+            SetHighLight(false, touchBeginGrid.x, touchBeginGrid.y);
+            touchBeginGrid.MakeItUnAvailable();
+        }
+
+        //处理移动
         ProcessMove();
     }
 

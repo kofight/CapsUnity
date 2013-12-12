@@ -370,9 +370,6 @@ public class GameLogic
         EasyTouch.On_Swipe += OnTouchMove;
         EasyTouch.On_TouchStart += OnTouchBegin;
         EasyTouch.On_TouchUp += OnTouchEnd;
-
-        TweenPosition tweenPos = m_gameArea.GetComponent<TweenPosition>();
-        tweenPos.Reset();
     }
 
     void ProcessGridSprites(int x, int y)
@@ -673,8 +670,8 @@ public class GameLogic
 
         m_gameFlow = TGameFlow.EGameState_StartGameAnim;                //开始游戏
         m_curAnimStartTime = Timer.millisecondNow();
+        //播放开始游戏的动画
         TweenPosition tweenPos = m_gameArea.GetComponent<TweenPosition>();
-        tweenPos.Reset();
         tweenPos.Play(true);
 		ClearSelected();
 
@@ -685,6 +682,12 @@ public class GameLogic
         }        
 
         AddPartile("StartGameAnim", 5, 5, false);
+    }
+
+    public void EndGame()
+    {
+        TweenPosition tweenPos = m_gameArea.GetComponent<TweenPosition>();
+        tweenPos.Play(false);
     }
 
     public void ClearGame()
@@ -1006,15 +1009,8 @@ public class GameLogic
             else
             {
                 m_gameStartTime = 0;
-                if (IsStageFinish())
-                {
-                    m_gameFlow = TGameFlow.EGameState_End;
-                    UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
-                }
-                else
-                {
-                    UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();
-                }
+                m_gameFlow = TGameFlow.EGameState_End;
+                UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();      //弹游戏结束的窗口
             }
             return;
         }
@@ -2349,7 +2345,7 @@ public class GameLogic
 
     void ProcessCheckStageFinish()
     {
-        if (IsStageFinish())                 //检查关卡是否完成
+        if (IsStageFinish())                 //检查关卡是否完成，若已经完成
         {
             bool foundSpecial = false;
             for (int i = 0; i < BlockCountX; ++i)
@@ -2384,7 +2380,7 @@ public class GameLogic
             }
             return;
         }
-        else if (CheckLimit())
+        else if (CheckLimit())          //若限制已到
         {
             //否则直接结束游戏
             m_gameStartTime = 0;
@@ -2402,7 +2398,7 @@ public class GameLogic
                 }
             }
 
-            UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
+            UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();            //出游戏结束界面
         }
     }
 

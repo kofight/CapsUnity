@@ -2480,7 +2480,7 @@ public class GameLogic
 
     public void OnTap(Gesture ges)
     {
-        Position p = GetBlockByTouch((int)ges.position.x, (int)ges.position.x);
+        Position p = GetBlockByTouch((int)ges.position.x, (int)ges.position.y);
         if (!p.IsAvailable())
         {
             return;

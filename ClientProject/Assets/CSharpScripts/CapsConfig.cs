@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Webgame.Utility;
 using System.IO;
+using UnityEngine;
 
 /// <summary>
 /// 配置数据属性.
@@ -47,6 +48,8 @@ public class CapsConfig
     public static readonly int EatCagePoint = 400;
     public static readonly int EatStonePoint = 400;
     public static readonly int EatChocolate = 400;
+
+    public static AudioList CurAudioList;
 	
 	public static readonly bool EnableGA = true;
 
@@ -64,6 +67,9 @@ public class CapsConfig
             _config = new ConfigOperator("GameConfig");
             Instance = this;
             InitData();
+
+            GameObject obj = GameObject.Find("GlobalObject");
+            CurAudioList = obj.GetComponent<AudioList>();
         }
         else
         {

@@ -27,12 +27,12 @@ public abstract class UIEffectPlayer : MonoBehaviour
     {
         if (Delay == 0)
         {
-            State = EffectState.Showing;
+            m_state = EffectState.Showing;
 			DoShowEffect();
         }
         else
         {
-            State = EffectState.Delay;
+            m_state = EffectState.Delay;
             gameObject.SetActive(false);
             m_delayStartTime = Time.realtimeSinceStartup;
         }
@@ -40,7 +40,7 @@ public abstract class UIEffectPlayer : MonoBehaviour
 
     public virtual void HideEffect()        //隐藏时的特效
     {
-        State = EffectState.Hiding;
+        m_state = EffectState.Hiding;
         DoHideEffect();
     }            
 
@@ -50,20 +50,20 @@ public abstract class UIEffectPlayer : MonoBehaviour
 
     public virtual void Update()            //更新
     {
-        if (State == EffectState.Delay)
+        if (m_state == EffectState.Delay)
         {
             if (Time.realtimeSinceStartup - m_delayStartTime > Delay)                         //若Delay时间已到
             {
-                State = EffectState.Showing;                                                //切显示特效状态
+                m_state = EffectState.Showing;                                                //切显示特效状态
                 m_delayStartTime = 0;
                 gameObject.SetActive(true);                                                   //把自己显示出来
                 DoShowEffect();                                                               //播放显示特效
             }
         }
 
-        if (State == EffectState.Showing && !IsPlaying())     //若显示特效状态已经结束
+        if (m_state == EffectState.Showing && !IsPlaying())     //若显示特效状态已经结束
         {
-            State = EffectState.Idle;                         //进入Idle状态
+            m_state = EffectState.Idle;                         //进入Idle状态
             DoIdleEffect();                                     //播放Idle状态特效
         }
     }
@@ -74,7 +74,7 @@ public abstract class UIEffectPlayer : MonoBehaviour
     public bool PlayWhileHideWindow = true;
 
     protected float m_delayStartTime = 0.0f;                              //开始计算Delay的时间
-    public EffectState State;
+    protected EffectState m_state;
 }
 
 public enum UIWindowStateEnum
@@ -116,6 +116,7 @@ public class UIWindow
     public delegate void WindowEffectFinished();
     private WindowEffectFinished m_hideFinishEffect;
     private WindowEffectFinished m_showFinishEffect;
+    List<Collider> m_colliders = new List<Collider>();
 
     public void HideWindowWithoutInvoke()
     {
@@ -141,6 +142,8 @@ public class UIWindow
             return;
         }
 
+		EnableColliders(false);
+
         bool bHideEffect = false;
         foreach (UIEffectPlayer player in mEffectPlayerList)
         {
@@ -164,6 +167,14 @@ public class UIWindow
         if (!bHideEffect)
         {
             OnHideEffectPlayOver();
+        }
+    }
+
+    void EnableColliders(bool val)      //启用或隐藏碰撞体  
+    {
+        foreach (Collider collider in m_colliders)
+        {
+            collider.enabled = val;
         }
     }
 
@@ -220,6 +231,7 @@ public class UIWindow
             m_hideFinishEffect = null;
         }
         uiWindowState = UIWindowStateEnum.Hide;
+		EnableColliders(true);
     }
 
     public virtual void OnShowEffectPlayOver() 
@@ -244,6 +256,7 @@ public class UIWindow
         {
             player.CreateEffect();
         }
+        UIToolkits.FindComponents<Collider>(mUIObject.transform, m_colliders);
     }
     public virtual void OnHide() { }
     public virtual void OnShow() { }
@@ -336,5 +349,6 @@ public class UIWindow
     protected void DoShowWindow()
     {
         mUIObject.SetActive(true);
+        EnableColliders(true);
     }
 }

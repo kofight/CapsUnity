@@ -192,6 +192,8 @@ public class GameLogic
     public static int SugarCrushAnimTime = 1200;            //SugarCrush动画的时间长度
     public static int StartAnimTime = 1200;            //开始动画的时间长度
 
+    public PurchasedItem UsingItem = PurchasedItem.None;                         //当前正在使用的道具
+
 
 
     ///游戏逻辑变量/////////////////////////////////////////////////////////////////
@@ -334,6 +336,9 @@ public class GameLogic
         m_gameArea = GameObject.Find("GameArea");
         TopLeftAnchor = GameObject.Find("TopLeftAnchor");
     }
+
+    public TGameFlow GetGameFlow() { return m_gameFlow; }
+    public void SetGameFlow(TGameFlow flow) { m_gameFlow = flow; }
 
     public int GetProgress() { return m_progress; }
     public void AddProgress(int progress, int x, int y)     //增加分数，同时在某位置显示一个得分的数字特效
@@ -2591,6 +2596,35 @@ public class GameLogic
         if (!p.IsAvailable())
         {
             return;
+        }
+
+        if (UsingItem == PurchasedItem.Item_Hammer)     //若正在使用锤子道具
+        {
+            if (GlobalVars.PurchasedItemArray[(int)UsingItem] > 0)      //若有道具，扣道具
+            {
+                --GlobalVars.PurchasedItemArray[(int)UsingItem];
+                UIWindowManager.Singleton.GetUIWindow<UIGameHead>().RefreshItemCount();
+                PlayerPrefsExtend.SetIntArray("PurchasedItemArray", GlobalVars.PurchasedItemArray);
+            }
+            else                                                        //没道具，扣钱
+            {
+                if (GlobalVars.Coins > 0)
+                {
+                    --GlobalVars.Coins;
+                    PlayerPrefs.SetInt("Coins", GlobalVars.Coins);
+
+                    GA.API.Business.NewEvent("BuyHammer", "RMB", 1);
+                }
+                else
+                {
+                    UsingItem = PurchasedItem.None;
+                    return;
+                }
+            }
+            
+            UsingItem = PurchasedItem.None;
+            
+            EatBlock(p);
         }
 
         if (GlobalVars.EditState == TEditState.ChangeColor)

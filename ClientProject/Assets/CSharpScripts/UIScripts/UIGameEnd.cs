@@ -118,15 +118,28 @@ public class UIGameEnd : UIWindow
 
     private void OnPlayOnClicked()
     {
-       if (GlobalVars.CurStageData.StepLimit > 0)
-       {
-           if (GlobalVars.CurStageData.StepLimit > 0)     //若还有步数
-           {
-               HideWindow(delegate()
-               {
-                   GlobalVars.CurGameLogic.ShowHelpAnim();
-               });
-           }
-       }
+        if (GlobalVars.CurGameLogic.PlayingStageData.StepLimit > 0)     //若还有步数
+        {
+            HideWindow(delegate()
+            {
+                GlobalVars.CurGameLogic.ShowHelpAnim();
+            });
+        }
+        else                                            //若没步数了，就要购买和使用道具
+        {
+            HideWindow();
+            if (GlobalVars.Coins > 0)
+            {
+                UIWindowManager.Singleton.GetUIWindow<UIPurchase>().ShowWindow();
+                UIWindowManager.Singleton.GetUIWindow<UIPurchase>().OnPurchase = delegate()
+                {
+                    --GlobalVars.Coins;
+                    GA.API.Business.NewEvent("BuyStep", "RMB", 1);
+                    PlayerPrefs.SetInt("Coins", GlobalVars.Coins);
+                    GlobalVars.CurGameLogic.PlayingStageData.StepLimit += 5;        //步数加5
+                    GlobalVars.CurGameLogic.SetGameFlow(TGameFlow.EGameState_Playing);      //回到可以继续玩的状态
+                };
+            }
+        }
     }
 }

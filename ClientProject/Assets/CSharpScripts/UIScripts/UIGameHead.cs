@@ -3,15 +3,32 @@ using System.Collections;
 
 public class UIGameHead : UIWindow
 {
+    UILabel [] m_itemUILabel = new UILabel [2];
+
     public override void OnCreate()
     {
         base.OnCreate();
 
         AddChildComponentMouseClick("EditorBtn", OnEditStageClicked);
+		
+		AddChildComponentMouseClick("UseItem1Btn", delegate()
+		{
+			UserOrBuyItem(PurchasedItem.Item_Hammer);
+		});
+		AddChildComponentMouseClick("UseItem2Btn", delegate()
+		{
+			UserOrBuyItem(PurchasedItem.Item_PlusStep);
+		});
+
+        for (int i = 0; i < 2; ++i )
+        {
+            m_itemUILabel[i] = GetChildComponent<UILabel>("ItemCount" + (i + 1));
+        }
     }
     public override void OnShow()
     {
         base.OnShow();
+        RefreshItemCount();
     }
 	
 	public void Reset()
@@ -61,6 +78,68 @@ public class UIGameHead : UIWindow
         {
             UIDrawer.Singleton.DrawSprite("TargetText", 10, 50, "TargetTextImg");
             UIDrawer.Singleton.DrawNumber("TargetScore", 104, 50, GlobalVars.CurStageData.StarScore[0], "", 24, 7);
+        }
+    }
+	
+	void UserOrBuyItem(PurchasedItem item)
+	{
+        if (GlobalVars.CurGameLogic.GetGameFlow() != TGameFlow.EGameState_Playing)
+        {
+            return;
+        }
+
+        if (GlobalVars.PurchasedItemArray[(int)item] == 0)
+        {
+            UIPurchase purchaseWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchase>();
+            purchaseWindow.ShowWindow();
+            purchaseWindow.OnPurchase = delegate()
+            {
+                if (item == PurchasedItem.Item_PlusStep)
+                {
+                    --GlobalVars.Coins;
+                    GA.API.Business.NewEvent("BuyStep", "RMB", 1);
+                    PlayerPrefs.SetInt("Coins", GlobalVars.Coins);
+                    GlobalVars.CurGameLogic.PlayingStageData.StepLimit += 5;        //步数加5
+                }
+                else if (item == PurchasedItem.Item_Hammer)
+                {
+                    GlobalVars.CurGameLogic.UsingItem = item;                       //进入使用道具状态，等着选目标
+                }
+            };
+            return;
+        }
+
+        UIUseItem useItemWindow = UIWindowManager.Singleton.GetUIWindow<UIUseItem>();
+        useItemWindow.ShowWindow();
+        useItemWindow.OnUse = delegate()
+        {
+            if (item == PurchasedItem.Item_Hammer)
+            {
+                GlobalVars.CurGameLogic.UsingItem = item;
+            }
+            else if (item == PurchasedItem.Item_PlusStep)
+            {
+                GlobalVars.CurGameLogic.PlayingStageData.StepLimit += 5;        //步数加5
+                --GlobalVars.PurchasedItemArray[(int)item];                     //减少道具数量
+                RefreshItemCount();
+                PlayerPrefsExtend.SetIntArray("PurchasedItemArray", GlobalVars.PurchasedItemArray);
+            }
+        };
+	}
+
+    public void RefreshItemCount()
+    {
+        for (int i = 0; i < 2; ++i)
+        {
+            if (GlobalVars.PurchasedItemArray[i] == 0)
+            {
+                m_itemUILabel[i].gameObject.SetActive(false);
+            }
+            else
+            {
+                m_itemUILabel[i].gameObject.SetActive(true);
+                m_itemUILabel[i].text = GlobalVars.PurchasedItemArray[i].ToString();
+            }
         }
     }
 

@@ -16,6 +16,8 @@ public class GameState : State
         UIWindowManager.Singleton.CreateWindow<UIWindow>("UIGameBackground", UIWindowManager.Anchor.Center);
         UIWindowManager.Singleton.CreateWindow<UIGameEnd>();
         UIWindowManager.Singleton.CreateWindow<UIRetry>();
+		UIWindowManager.Singleton.CreateWindow<UIPurchase>();
+		UIWindowManager.Singleton.CreateWindow<UIUseItem>();
         m_gameLogic.Init();
         m_bGameLogicStarted = false;
         GlobalVars.CurGameLogic = m_gameLogic;

@@ -11,6 +11,13 @@ public enum TEditState
     EditPortal,
 }
 
+public enum PurchasedItem
+{
+	Item_Hammer,
+	Item_PlusStep,
+    None,
+}
+
 public class GlobalVars {
 
     public static int AvailabeStageCount = 3;           //当前可用关卡的数量
@@ -33,6 +40,8 @@ public class GlobalVars {
 
     public static StageData CurStageData;                       //当前正在查看或玩的关卡数据
     public static GameLogic CurGameLogic;                       //当前的游戏逻辑
-
+	
+	public static int Coins = 0;								//
+	public static int [] PurchasedItemArray;					//
     public static int LastStage = 1;                            //当前在玩的关
 }

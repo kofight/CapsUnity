@@ -41,6 +41,18 @@ public class UIMap : UIWindow
         GlobalVars.StageScoreArray = PlayerPrefsExtend.GetIntArray("StageScores", 0, 100);
         GlobalVars.LastStage = GlobalVars.AvailabeStageCount;
 		
+		if(!PlayerPrefs.HasKey("Coins"))
+		{
+			GlobalVars.Coins = 30;
+			PlayerPrefs.SetInt("Coins", 30);
+		}
+		else
+		{
+			GlobalVars.Coins = PlayerPrefs.GetInt("Coins");
+		}
+		
+		GlobalVars.PurchasedItemArray = PlayerPrefsExtend.GetIntArray("PurchasedItemArray", 0, 2);
+		
 		springPanel = mUIObject.AddComponent<SpringPanel>();
         UIPanel panel = mUIObject.GetComponent<UIPanel>();
         panel.clipRange = new Vector4(0, 0, CapsApplication.Singleton.Width, CapsApplication.Singleton.Height);

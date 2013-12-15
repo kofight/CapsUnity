@@ -28,7 +28,27 @@ public class NumberDrawer : MonoBehaviour {
         {
             return;
         }
+		
 		Number = number;
+		
+		if(number == 0)		//0特殊处理一下
+		{
+            for (int i = 0; i < maxIntLenth; ++i)
+            {
+                if (i==0)
+                {
+                    m_numbers[i].GetComponent<UISprite>().spriteName = SurName + 0;
+                    m_numbers[i].gameObject.SetActive(true);
+                    m_numbers[i].LocalPositionX(0);
+                }
+                else
+                {
+                    m_numbers[i].gameObject.SetActive(false);
+                }
+            }
+            return;
+		}
+		
         int factor = 10;									//用来取某个位的数字的因子
         //第一遍找到开始的数字位置
         int curNumStartIndex = maxIntLenth - 1;
@@ -66,7 +86,7 @@ public class NumberDrawer : MonoBehaviour {
 				}
 				else if(Align == NumberAlign.Right)
 				{
-					m_numbers[i].LocalPositionX( - NumberInterval * (i - curNumStartIndex - 1) - (maxIntLenth - curNumStartIndex - 1) * NumberInterval);
+					m_numbers[i].LocalPositionX( - NumberInterval * (i - curNumStartIndex) - (maxIntLenth - curNumStartIndex - 1) * NumberInterval);
 				}
                 factor *= 10;
             }

@@ -582,7 +582,7 @@ public class GameLogic
                     Position curPos = GoTo(position, dir, 1);
                     if (CheckPosAvailable(curPos))
                     {
-                        if (m_blocks[curPos.x, curPos.y] == null || m_blocks[i, j].CurState != BlockState.Normal)             //空格或空块
+                        if (m_blocks[curPos.x, curPos.y] == null || m_blocks[curPos.x, curPos.y].CurState != BlockState.Normal)             //空格或空块
                         {
                             continue;
                         }
@@ -2625,6 +2625,8 @@ public class GameLogic
             UsingItem = PurchasedItem.None;
             
             EatBlock(p);
+
+            ProcessTempBlocks();
         }
 
         if (GlobalVars.EditState == TEditState.ChangeColor)
@@ -2706,6 +2708,8 @@ public class GameLogic
         if (GlobalVars.EditState == TEditState.Eat)
         {
             EatBlock(p);
+
+            ProcessTempBlocks();
         }
 
         if (GlobalVars.EditState == TEditState.EditPortal)
@@ -3330,6 +3334,11 @@ public class GameLogic
                 ++count;
             }
         }
+		if(x == 2 && y == 5)
+		{
+			int test = 10;
+			int test2 = test;
+		}
         m_blocks[x, y].RefreshBlockSprite(PlayingStageData.GridData[x, y]);                                         //刷新下显示内容
 
         return true;

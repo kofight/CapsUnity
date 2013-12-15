@@ -987,7 +987,7 @@ public class GameLogic
                         if (m_blocks[i, j].m_shadowSprite != null)                           //已经落完的，若仍有shadowSprite, 释放
                         {
                             m_freeShadowSpriteList.AddLast(m_blocks[i, j].m_shadowSprite);   //放到空闲队列里
-                            m_blocks[i, j].m_shadowSprite.gameObject.SetActive(false);       //释放
+                            //m_blocks[i, j].m_shadowSprite.gameObject.SetActive(false);       //释放
                             m_blocks[i, j].m_shadowSprite = null;
                         }
                         m_blocks[i, j].m_blockSprite.fillAmount = 1.0f;                     //完全显示

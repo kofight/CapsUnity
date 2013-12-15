@@ -1,13 +1,14 @@
-﻿TotalStageCount             50
-DropAccelarate              5.0
-SlideSpeed	            3.0
-DropSpeed                   3.5
-GameSpeed                   1.0
-EatTime                     0.33
-MoveTime                    200
-Version                     Pre-Alpha-0.1
-GetHeartInterval            1800
-
-BLOCKWIDTH                  67.55
-BLOCKHEIGHT                 78.0
-BLOCKSCALE                  65.0
+﻿TotalStageCount			50				
+DropAccelarate			5				
+SlideSpeed			3				
+DropSpeed			3.5				
+GameSpeed			1				
+EatTime			0.33				
+MoveTime			200				
+Version			Pre-Alpha-0.1				
+GetHeartInterval			1800				
+BLOCKWIDTH			67.55				
+BLOCKHEIGHT			78				
+BLOCKSCALE			65.0				
+version							
+StageTypeArray			1|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0				

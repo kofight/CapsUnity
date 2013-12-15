@@ -47,6 +47,7 @@ public enum GameTarget
 	ClearJelly,
 	BringFruitDown,
 	GetScore,
+    Collect,
 }
 
 public class Portal

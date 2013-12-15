@@ -344,14 +344,6 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":52,"h":52},
 	"sourceSize": {"w":52,"h":52}
 },
-"CollectStage.png":
-{
-	"frame": {"x":906,"y":278,"w":107,"h":106},
-	"rotated": false,
-	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":107,"h":106},
-	"sourceSize": {"w":107,"h":106}
-},
 "Dark.png":
 {
 	"frame": {"x":962,"y":766,"w":28,"h":28},
@@ -383,14 +375,6 @@
 	"trimmed": true,
 	"spriteSourceSize": {"x":33,"y":31,"w":38,"h":33},
 	"sourceSize": {"w":108,"h":93}
-},
-"FruitStage.png":
-{
-	"frame": {"x":1150,"y":343,"w":107,"h":106},
-	"rotated": false,
-	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":107,"h":106},
-	"sourceSize": {"w":107,"h":106}
 },
 "Full.png":
 {
@@ -727,14 +711,6 @@
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":108,"h":95},
 	"sourceSize": {"w":108,"h":95}
-},
-"JellyStage.png":
-{
-	"frame": {"x":1838,"y":414,"w":107,"h":106},
-	"rotated": false,
-	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":107,"h":106},
-	"sourceSize": {"w":107,"h":106}
 },
 "Kiwifruit_Icon.png":
 {
@@ -1240,6 +1216,46 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":38,"h":37},
 	"sourceSize": {"w":38,"h":37}
 },
+"StageType0.png":
+{
+	"frame": {"x":906,"y":278,"w":107,"h":106},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":107,"h":106},
+	"sourceSize": {"w":107,"h":106}
+},
+"StageType1.png":
+{
+	"frame": {"x":1150,"y":343,"w":107,"h":106},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":107,"h":106},
+	"sourceSize": {"w":107,"h":106}
+},
+"StageType2.png":
+{
+	"frame": {"x":1838,"y":414,"w":107,"h":106},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":107,"h":106},
+	"sourceSize": {"w":107,"h":106}
+},
+"StageType3.png":
+{
+	"frame": {"x":1675,"y":343,"w":107,"h":106},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":107,"h":106},
+	"sourceSize": {"w":107,"h":106}
+},
+"StageType4.png":
+{
+	"frame": {"x":1566,"y":255,"w":107,"h":106},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":107,"h":106},
+	"sourceSize": {"w":107,"h":106}
+},
 "Star.png":
 {
 	"frame": {"x":1015,"y":347,"w":38,"h":37},
@@ -1271,14 +1287,6 @@
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":558,"h":148},
 	"sourceSize": {"w":558,"h":148}
-},
-"StepStage.png":
-{
-	"frame": {"x":1675,"y":343,"w":107,"h":106},
-	"rotated": false,
-	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":107,"h":106},
-	"sourceSize": {"w":107,"h":106}
 },
 "Stone.png":
 {
@@ -1399,14 +1407,6 @@
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":558,"h":148},
 	"sourceSize": {"w":558,"h":148}
-},
-"TimeStage.png":
-{
-	"frame": {"x":1566,"y":255,"w":107,"h":106},
-	"rotated": false,
-	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":107,"h":106},
-	"sourceSize": {"w":107,"h":106}
 },
 "YardNum0.png":
 {
@@ -1695,6 +1695,6 @@
 	"format": "RGBA8888",
 	"size": {"w":2048,"h":1024},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:3c77a404b079a6348dcd0a1370d92661$"
+	"smartupdate": "$TexturePacker:SmartUpdate:97f342aff2fc62d90b3ad3d6516d5208$"
 }
 }

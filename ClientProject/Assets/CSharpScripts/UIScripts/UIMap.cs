@@ -1,6 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+public enum StageType
+{
+    Time,
+    Score,
+    Jelly,
+    Nut,
+    Collect,
+}
+
 public class UIMap : UIWindow 
 {
     static readonly int Width = 2048;
@@ -104,8 +113,10 @@ public class UIMap : UIWindow
                         starTrans.gameObject.SetActive(false);
                     }
                 }
-                
             }
+
+            UISprite sprite = transform.FindChild("BtnBackground").GetComponent<UISprite>();
+            sprite.spriteName = "StageType" + CapsConfig.StageTypeArray[i];
 
             m_stageBtns[i] = transform;
 
@@ -191,6 +202,7 @@ public class UIMap : UIWindow
         GlobalVars.CurStageData.LoadStageData(GlobalVars.CurStageNum);
         UIWindowManager.Singleton.GetUIWindow<UIStageInfo>().ShowWindow();
         GlobalVars.LastStage = GlobalVars.CurStageNum;
+		NGUITools.PlaySound(CapsConfig.CurAudioList.ButtonClip);
     }
 
     public void MoveTo(Vector2 pos) //移动到某个位置

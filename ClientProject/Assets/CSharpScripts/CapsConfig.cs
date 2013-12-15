@@ -56,6 +56,8 @@ public class CapsConfig
     public static float EatLineEffectInterval = 0.04f;               //消行特效吃块的间隔
     public static float BombEffectInterval = 0.1f;                  //炸弹特效吃块的间隔
 
+    public static int[] StageTypeArray;                             //存每关的类型
+
     private ConfigOperator _config;
 
     public string version = "Pre Alpha 0.1";
@@ -91,6 +93,23 @@ public class CapsConfig
         _config.GetValue<int>("MoveTime", out MoveTime);
         _config.GetValue<int>("GetHeartInterval", out GetHeartInterval);
         _config.GetValue<string>("version", out version);
+
+        ///读取StageTypeArray///////////////////////////////////////////////////////////////////////
+        string stageTypeStr;
+        _config.GetValue<string>("StageTypeArray", out stageTypeStr);
+        if (stageTypeStr != null)
+        {
+            string[] stringArray = stageTypeStr.Split("|"[0]);
+            StageTypeArray = new int[stringArray.Length];
+            for (int i = 0; i < stringArray.Length; i++)
+                StageTypeArray[i] = Convert.ToInt32(stringArray[i]);
+        }
+        else
+        {
+            StageTypeArray = new int[50];
+        }
+        
+
 
         _config.GetValue<float>("BLOCKWIDTH", out GameLogic.BLOCKWIDTH);
         _config.GetValue<float>("BLOCKHEIGHT", out GameLogic.BLOCKHEIGHT);
@@ -141,8 +160,17 @@ public class CapsConfig
         _config.Write("version", version);
         _config.Write("GetHeartInterval", GetHeartInterval);
 
+        //保存StageTypeArray////////////////////////////////////////////////////////////////////////
+        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+        for (int i = 0; i < StageTypeArray.Length - 1; i++)
+            sb.Append(StageTypeArray[i]).Append("|");
+        sb.Append(StageTypeArray[StageTypeArray.Length - 1]);
+        _config.Write("StageTypeArray", sb.ToString());
+
+
         _config.Write("BLOCKWIDTH", GameLogic.BLOCKWIDTH);
         _config.Write("BLOCKHEIGHT", GameLogic.BLOCKHEIGHT);
+        _config.Save();
     }
 
     public void ReadDefault()

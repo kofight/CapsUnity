@@ -356,7 +356,33 @@ public class UIStageEditor : UIWindow
         GlobalVars.CurGameLogic.PlayingStageData.SaveStageData(levelNum);
         GlobalVars.CurStageNum = levelNum;
 
+        int stageType = 0;
+        if (GlobalVars.CurGameLogic.PlayingStageData.TimeLimit > 0)     //若为时间关卡
+        {
+            stageType = (int)StageType.Time;
+        }
+        else if (GlobalVars.CurGameLogic.PlayingStageData.Target == GameTarget.GetScore)
+        {
+            stageType = (int)StageType.Score;
+        }
+        else if (GlobalVars.CurGameLogic.PlayingStageData.Target == GameTarget.ClearJelly)
+        {
+            stageType = (int)StageType.Jelly;
+        }
+        else if (GlobalVars.CurGameLogic.PlayingStageData.Target == GameTarget.BringFruitDown)
+        {
+            stageType = (int)StageType.Nut;
+        }
+        else if (GlobalVars.CurGameLogic.PlayingStageData.Target == GameTarget.Collect)
+        {
+            stageType = (int)StageType.Collect;
+        }
+
+        CapsConfig.StageTypeArray[levelNum - 1] = stageType;     //关卡类型
+
 #if UNITY_EDITOR
+        CapsConfig.Instance.Save();
+
         UnityEditor.AssetDatabase.Refresh();
 #endif
         

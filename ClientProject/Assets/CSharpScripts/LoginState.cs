@@ -32,6 +32,8 @@ public class LoginState : State
         UIWindowManager.Singleton.CreateWindow<UIWindow>("UILoading", UIWindowManager.Anchor.Center);
         //UIWindowManager.Singleton.GetUIWindow<UISplash>().ShowWindow();
 
+        UIToolkits.PlayMusic(CapsConfig.CurAudioList.MapMusic);
+
         Instance = this;
     }
 

@@ -25,6 +25,7 @@ public class GameState : State
         UIWindowManager.Singleton.GetUIWindow<UIGameHead>().ShowWindow();
         UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().ShowWindow();
 
+        UIToolkits.PlayMusic(CapsConfig.CurAudioList.GameMusic);
 
         UIWindowManager.Singleton.GetUIWindow("UILoading").HideWindow(delegate()
         {

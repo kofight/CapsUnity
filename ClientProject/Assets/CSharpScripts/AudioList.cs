@@ -14,6 +14,9 @@ public class AudioList : MonoBehaviour {
     public AudioClip StoneClip;
 	public AudioClip CageClip;
 	public AudioClip ChocolateClip;
+
+    public AudioClip MapMusic;
+    public AudioClip GameMusic;
 	
 	// Use this for initialization
 	void Start () {

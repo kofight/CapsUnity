@@ -814,6 +814,13 @@ public class GameLogic
 
         m_capBlockFreeList.Clear();
 
+		foreach (UISprite sprite in m_freeShadowSpriteList) 
+		{
+			GameObject.Destroy(sprite.gameObject);		
+		}
+
+		m_freeShadowSpriteList.Clear ();
+
         foreach (GameObject obj in m_gridAngles)
         {
             GameObject.Destroy(obj);

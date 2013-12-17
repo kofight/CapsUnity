@@ -51,6 +51,19 @@ public class CapsApplication : S5Application
         m_startAppTime = Time.realtimeSinceStartup;
         m_playTime = PlayerPrefs.GetFloat("PlayTime");
 
+        if (!PlayerPrefs.HasKey("Music"))        //第一次运行
+        {
+            PlayerPrefs.SetInt("Music", 1);
+            PlayerPrefs.SetInt("SFX", 1);
+            GlobalVars.UseMusic = true;
+            GlobalVars.UseSFX = true;
+        }
+        else
+        {
+            GlobalVars.UseMusic = (PlayerPrefs.GetInt("Music") == 1);
+            GlobalVars.UseSFX = (PlayerPrefs.GetInt("SFX") == 1);
+        }
+
 		Application.targetFrameRate = 60;			//
 		
         new CapsConfig();

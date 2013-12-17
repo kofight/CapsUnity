@@ -315,4 +315,13 @@ public class UIToolkits
             mCurMusic.Play();
         }
     }
+
+    static public void StopMusic()
+    {
+        if (mCurMusic == null)
+        {
+            mCurMusic = GameObject.Find("MusicSource").GetComponent<AudioSource>();
+        }
+        mCurMusic.Stop();
+    }
 }

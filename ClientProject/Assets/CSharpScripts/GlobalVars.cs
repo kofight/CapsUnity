@@ -44,4 +44,7 @@ public class GlobalVars {
 	public static int Coins = 0;								//
 	public static int [] PurchasedItemArray;					//
     public static int LastStage = 1;                            //当前在玩的关
+
+    public static bool UseSFX;                                  //开启音效
+    public static bool UseMusic;                                //开启音乐
 }

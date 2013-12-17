@@ -373,7 +373,7 @@
 	"frame": {"x":988,"y":425,"w":38,"h":33},
 	"rotated": false,
 	"trimmed": true,
-	"spriteSourceSize": {"x":33,"y":31,"w":38,"h":33},
+	"spriteSourceSize": {"x":35,"y":52,"w":38,"h":33},
 	"sourceSize": {"w":108,"h":93}
 },
 "Full.png":
@@ -1695,6 +1695,6 @@
 	"format": "RGBA8888",
 	"size": {"w":2048,"h":1024},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:6f709e74dc4f4d2c91aa614177947c1b$"
+	"smartupdate": "$TexturePacker:SmartUpdate:20a1fc9ac336b459f811e104066869f4$"
 }
 }

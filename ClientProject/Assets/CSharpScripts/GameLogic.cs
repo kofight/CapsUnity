@@ -263,6 +263,10 @@ public class GameLogic
 
     void PlaySound(AudioEnum audio)
     {
+        if (!GlobalVars.UseSFX)
+        {
+            return;
+        }
         AudioClip clip = null;
         switch (audio)
         {
@@ -1023,15 +1027,20 @@ public class GameLogic
                     }
                 }
 
+                
                 //绘制水果出口
                 if (PlayingStageData.Target == GameTarget.BringFruitDown && PlayingStageData.CheckFlag(i, j, GridFlag.FruitExit))
                 {
+                    UIDrawer.Singleton.CurDepth = 5;
                     UIDrawer.Singleton.DrawSprite("Exit" + (j * 10 + i), GetXPos(i), GetYPos(i, j), "FruitExit", 3);
+                    UIDrawer.Singleton.CurDepth = 0;
                 }
 
                 if (GlobalVars.EditStageMode && PlayingStageData.CheckFlag(i, j, GridFlag.Birth))     //若在关卡编辑状态
                 {
+                    UIDrawer.Singleton.CurDepth = 5;
                     UIDrawer.Singleton.DrawSprite("Birth" + (j * 10 + i), GetXPos(i), GetYPos(i, j), "Birth", 3);       //出生点
+                    UIDrawer.Singleton.CurDepth = 0;
                 }
             }
         }

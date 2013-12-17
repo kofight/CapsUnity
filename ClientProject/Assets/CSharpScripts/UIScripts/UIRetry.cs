@@ -183,6 +183,11 @@ public class UIRetry : UIWindow
     {
         if (GlobalVars.HeartCount == 0)
         {
+            if (GlobalVars.Coins > 0)
+            {
+                HideWindow();
+                UIWindowManager.Singleton.GetUIWindow<UIBuyHeart>().ShowWindow();
+            }
             return;
         }
 

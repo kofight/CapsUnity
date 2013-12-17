@@ -36,6 +36,14 @@ public class UIStageInfo : UIWindow
     private void OnCloseClicked()
     {
         HideWindow();
+
+        if (CapsApplication.Singleton.CurStateEnum == StateEnum.Game)
+        {
+            CapsApplication.Singleton.ChangeState((int)StateEnum.Login);        //返回地图界面
+            UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
+            UIWindowManager.Singleton.GetUIWindow<UIMap>().ShowWindow();
+            LoginState.Instance.CurFlow = TLoginFlow.LoginFlow_Map;         //切换流程到显示地图
+        }
     }
 
     private void OnPlayClicked()

@@ -38,5 +38,9 @@ public class UIPurchase : UIWindow
         {
             GlobalVars.CurGameLogic.ShowHelpAnim();
         });
+        if (GlobalVars.CurGameLogic.GetGameFlow() == TGameFlow.EGameState_End)
+        {
+            UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
+        }
     }
 }

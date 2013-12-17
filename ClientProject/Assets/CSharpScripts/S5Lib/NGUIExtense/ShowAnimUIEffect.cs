@@ -28,37 +28,28 @@ public class ShowAnimUIEffect : UIEffectPlayer
 
     protected override void DoShowEffect()
     {
+		m_animation.Stop();
         if (ShowAnim != null)
         {
             m_animation.Play("ShowAnim");
-        }
-        else
-        {
-            m_animation.Stop();
         }
     }
 
     protected override void DoHideEffect()
     {
+		m_animation.Stop();
         if (HideAnim != null)
         {
             m_animation.Play("HideAnim");
-        }
-        else
-        {
-            m_animation.Stop();
         }
     }
 
     protected override void DoIdleEffect()
     {
+		m_animation.Stop();
         if (IdleAnim != null)
         {
             m_animation.Play("IdelAnim");
-        }
-        else
-        {
-            m_animation.Stop();
         }
     }
 

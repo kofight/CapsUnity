@@ -86,7 +86,7 @@ public class NumberDrawer : MonoBehaviour {
 				}
 				else if(Align == NumberAlign.Right)
 				{
-					m_numbers[i].LocalPositionX( - NumberInterval * (i - curNumStartIndex) - (maxIntLenth - curNumStartIndex - 1) * NumberInterval);
+					m_numbers[i].LocalPositionX(- (i - curNumStartIndex) * NumberInterval);
 				}
                 factor *= 10;
             }

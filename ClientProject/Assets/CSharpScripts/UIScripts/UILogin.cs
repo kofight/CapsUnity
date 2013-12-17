@@ -35,6 +35,7 @@ public class UILogin : UIWindow
         });
 
         m_developerMode = UIToolkits.FindComponent<UIToggle>(mUIObject.transform, "DeveloperCheck");
+        m_developerMode.value = false;
 
         UIToggle musicCheck = UIToolkits.FindComponent<UIToggle>(mUIObject.transform, "MusicCheck");
         musicCheck.value = GlobalVars.UseMusic;

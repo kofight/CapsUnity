@@ -20,6 +20,9 @@ public class UIBuyHeart : UIWindow
 		HideWindow();
 		--GlobalVars.Coins;
 		PlayerPrefs.SetInt("Coins", GlobalVars.Coins);
+		
+		GA.API.Business.NewEvent("BuyHearts", "RMB", 1);
+		
 		GlobalVars.HeartCount = 5;
         if (CapsApplication.Singleton.CurStateEnum == StateEnum.Game)
         {

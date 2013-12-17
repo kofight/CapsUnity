@@ -4,6 +4,11 @@ using System.Collections;
 public class UILogin : UIWindow 
 {
     UIToggle m_developerMode;
+    UILabel m_testLabel;            //用来显示测试信息的label
+    GameObject m_debugBoard;        //调试面板
+
+    int m_clickDebugCount = 0;      //用来记录点击隐藏的debug按钮几次，点击3次才起作用
+
     public override void OnCreate()
     {
         base.OnCreate();
@@ -20,12 +25,43 @@ public class UILogin : UIWindow
             GlobalVars.HeartCount = 5;
         });
 
+        AddChildComponentMouseClick("DebugBtn", delegate()
+        {
+            ++m_clickDebugCount;
+            if (m_clickDebugCount >= 3)
+            {
+                m_debugBoard.SetActive(true);
+            }
+        });
+
         m_developerMode = UIToolkits.FindComponent<UIToggle>(mUIObject.transform, "DeveloperCheck");
+
+        m_testLabel = GetChildComponent<UILabel>("TestNotice");
+        m_debugBoard = mUIObject.transform.FindChild("DebugBoard").gameObject;
     }
     public override void OnShow()
     {
         base.OnShow();
         mEffectPlayerList[0].Delay = 0;
+        if (CapsApplication.Singleton.GetPlayTime() > 20 * 3600)            //如果游戏时间超过20小时
+        {
+            UIButton button = GetChildComponent<UIButton>("PlayBtn");
+            button.gameObject.SetActive(false);                                       //让按钮无效化
+            m_testLabel.gameObject.SetActive(true);
+        }
+        else
+        {
+            m_testLabel.gameObject.SetActive(false);
+        }
+
+        if (m_clickDebugCount >= 3)
+        {
+            m_debugBoard.SetActive(true);
+        }
+        else
+        {
+            m_debugBoard.SetActive(false);
+        }
     }
     public override void OnUpdate()
     {
@@ -36,7 +72,6 @@ public class UILogin : UIWindow
     {
         HideWindow();
 		GlobalVars.DeveloperMode = m_developerMode.value;
-        UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
         UIWindowManager.Singleton.GetUIWindow<UIMap>().ShowWindow();
         LoginState.Instance.CurFlow = TLoginFlow.LoginFlow_Map;         //切换流程到显示地图
     }

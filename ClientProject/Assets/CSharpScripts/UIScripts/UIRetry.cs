@@ -214,6 +214,7 @@ public class UIRetry : UIWindow
     private void OnCloseClicked()
     {
         HideWindow();
+        UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().HideWindow();
         CapsApplication.Singleton.ChangeState((int)StateEnum.Login);        //返回地图界面
         UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
         UIWindowManager.Singleton.GetUIWindow<UIMap>().ShowWindow();

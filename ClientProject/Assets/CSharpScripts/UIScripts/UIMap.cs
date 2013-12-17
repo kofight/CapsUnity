@@ -124,6 +124,7 @@ public class UIMap : UIWindow
             EventDelegate.Set(button.onClick, OnStageClicked);
         }
 
+        UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
         Transform curStageTrans = UIToolkits.FindChild(mUIObject.transform, "Stage" + GlobalVars.LastStage);      //找到对象
         MoveTo(new Vector2(curStageTrans.localPosition.x, curStageTrans.localPosition.y));
     }

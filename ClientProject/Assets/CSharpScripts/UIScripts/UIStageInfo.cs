@@ -59,6 +59,7 @@ public class UIStageInfo : UIWindow
                     CapsApplication.Singleton.ChangeState((int)StateEnum.Game);
                 }
                 );
+            UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().HideWindow();
         }
         else
         {

@@ -29,6 +29,7 @@ public class GameState : State
 
         UIWindowManager.Singleton.GetUIWindow("UILoading").HideWindow(delegate()
         {
+            UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
             m_gameLogic.StartGame();
             m_bGameLogicStarted = true;
         });

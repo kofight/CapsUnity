@@ -43,8 +43,14 @@ public class CapsApplication : S5Application
     #endregion
     public bool HasSeenSplash { get; set; }
 
+    float m_startAppTime;                           //开始app的时间
+    float m_playTime;
+
     protected override void DoInit()
     {
+        m_startAppTime = Time.realtimeSinceStartup;
+        m_playTime = PlayerPrefs.GetFloat("PlayTime");
+
 		Application.targetFrameRate = 60;			//
 		
         new CapsConfig();
@@ -100,6 +106,19 @@ public class CapsApplication : S5Application
         base.DoUpdate();
     }
 
+    public override void OnApplicationPause(bool bPause)
+    {
+        base.OnApplicationPause(bPause);
+        if (bPause)
+        {
+            PlayerPrefs.SetFloat("PlayTime", GetPlayTime());        //暂停时保存游戏时间
+        }
+        else
+        {
+            m_playTime = PlayerPrefs.GetFloat("PlayTime");          //恢复时读取游戏时间
+        }
+    }
+
     public override void OnApplicationQuit()
     {
         base.OnApplicationQuit();
@@ -108,6 +127,14 @@ public class CapsApplication : S5Application
         //保存心数相关
         PlayerPrefs.SetInt("HeartCount", GlobalVars.HeartCount);
         PlayerPrefs.SetString("GetHeartTime", Convert.ToString(GlobalVars.GetHeartTime));
+
+        PlayerPrefs.SetFloat("PlayTime", GetPlayTime());
+    }
+
+    public float GetPlayTime()
+    {
+        float elapseTime = Time.realtimeSinceStartup - m_startAppTime;
+        return m_playTime + elapseTime;
     }
 
     protected override State CreateState(int statEnum)

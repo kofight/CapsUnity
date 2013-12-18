@@ -1365,7 +1365,7 @@ public class GameLogic
         {
             for (int j = 0; j < BlockCountY; ++j )
             {
-                if (m_blocks[i, j] != null)     //若有下落块
+                if (m_blocks[i, j] != null && m_blocks[i, j].IsDroping())     //若有下落块
                 {
                     m_slopeDropLock[i] = j + (int)(m_blocks[i, j].y_move / BLOCKHEIGHT + 1);
                     break;
@@ -1706,7 +1706,7 @@ public class GameLogic
 	        {
 	            for (int j = 0; j < BlockCountY; ++j )
 	            {
-	                if (m_blocks[i, j] != null)     //若有下落块
+                    if (m_blocks[i, j] != null && m_blocks[i, j].IsDroping())     //若有下落块
 	                {
 	                    m_slopeDropLock[i] = j + (int)(m_blocks[i, j].y_move / BLOCKHEIGHT + 1);
 	                    break;

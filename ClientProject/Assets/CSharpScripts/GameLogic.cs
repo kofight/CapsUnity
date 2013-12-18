@@ -773,7 +773,8 @@ public class GameLogic
         if (CapsConfig.EnableGA)
         {
             Debug.Log("Stage Start GA");
-            GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Start");  //记录当前开始的关卡的数据
+            GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Start");        //记录当前开始的关卡的数据
+            //TalkingDataPlugin.TrackEvent("Stage" + GlobalVars.CurStageNum + ":Start");  //记录当前开始的关卡的数据
         }        
 
         AddPartile("StartGameAnim", 5, 5, false);
@@ -2491,10 +2492,20 @@ public class GameLogic
                     }
                 }
             }
-
-            if (GlobalVars.CurStageData.StepLimit > 0)
+            if (CapsConfig.EnableGA)
             {
                 GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed:StepLeft", PlayingStageData.StepLimit);  //胜利时提交剩余步数
+
+                //Dictionary<string, object> param = new Dictionary<string, object>();
+                //if (PlayingStageData.StepLimit > 10)
+                //{
+                //    param["Score"] = ">10";
+                //}
+                //else
+                //{
+                //    param["Score"] = PlayingStageData.StepLimit.ToString();
+                //}
+                //TalkingDataPlugin.TrackEventWithParameters("Stage" + GlobalVars.CurStageNum + ":Succeed", "", param);
             }
 
             if (foundSpecial || PlayingStageData.StepLimit > 0)     //若能进SugarCrush
@@ -2528,6 +2539,30 @@ public class GameLogic
                 {
                     GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed:JellyCount", PlayingStageData.GetDoubleJellyCount() * 2 + PlayingStageData.GetJellyCount());  //记录失败时的果冻数
                 }
+
+                //Dictionary<string, object> param = new Dictionary<string, object>();
+                //if (m_progress > PlayingStageData.StarScore[0])
+                //{
+                //    param["Score"] = "100";
+                //}
+                //else if (m_progress > PlayingStageData.StarScore[0] * 0.8)
+                //{
+                //    param["Score"] = "80-100";
+                //}
+                //else if (m_progress > PlayingStageData.StarScore[0] * 0.6)
+                //{
+                //    param["Score"] = "60-80";
+                //}
+                //else if (m_progress > PlayingStageData.StarScore[0] * 0.4)
+                //{
+                //    param["Score"] = "40-60";
+                //}
+                //else
+                //{
+                //    param["Score"] = "<40";
+                //}
+                
+                //TalkingDataPlugin.TrackEventWithParameters("Stage" + GlobalVars.CurStageNum + ":Failed", "", param);
             }
 
             UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();            //出游戏结束界面

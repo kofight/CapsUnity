@@ -48,6 +48,18 @@ public class CapsApplication : S5Application
 
     protected override void DoInit()
     {
+        if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer)
+        {
+            CapsConfig.EnableGA = true;
+        }
+        else
+        {
+            CapsConfig.EnableGA = false;
+        }
+        if (CapsConfig.EnableGA)
+        {
+            //TalkingDataPlugin.SessionStarted("8F604653A8CC694E6954B51FE6D26127", "Test");
+        }
         m_startAppTime = Time.realtimeSinceStartup;
         m_playTime = PlayerPrefs.GetFloat("PlayTime");
 
@@ -125,10 +137,15 @@ public class CapsApplication : S5Application
         if (bPause)
         {
             PlayerPrefs.SetFloat("PlayTime", GetPlayTime());        //暂停时保存游戏时间
+            //if (CapsConfig.EnableGA)
+            //    TalkingDataPlugin.SessionStoped();
         }
         else
         {
             m_playTime = PlayerPrefs.GetFloat("PlayTime");          //恢复时读取游戏时间
+            m_startAppTime = Time.realtimeSinceStartup;
+            //if (CapsConfig.EnableGA)
+            //    TalkingDataPlugin.SessionStarted("8F604653A8CC694E6954B51FE6D26127", "Test");
         }
     }
 
@@ -142,6 +159,9 @@ public class CapsApplication : S5Application
         PlayerPrefs.SetString("GetHeartTime", Convert.ToString(GlobalVars.GetHeartTime));
 
         PlayerPrefs.SetFloat("PlayTime", GetPlayTime());
+
+        //if (CapsConfig.EnableGA)
+        //    TalkingDataPlugin.SessionStoped();
     }
 
     public float GetPlayTime()

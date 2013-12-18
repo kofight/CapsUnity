@@ -91,6 +91,12 @@ public class UILogin : UIWindow
     public override void OnUpdate()
     {
         base.OnUpdate();
+        UILabel timeLabel = GetChildComponent<UILabel>("UsedTimeLabel");
+        if (timeLabel != null)
+        {
+            int playSecond = (int)CapsApplication.Singleton.GetPlayTime();
+            timeLabel.text = string.Format("{0}:{1}:{2}", playSecond / 3600, (playSecond % 3600) / 60, playSecond % 60);
+        }
     }
 
     private void OnPlayBtnClick()

@@ -195,6 +195,7 @@ public class UIMap : UIWindow
     {
         if (GlobalVars.HeartCount == 0)
         {
+            UIWindowManager.Singleton.GetUIWindow<UIBuyHeart>().ShowWindow();
             return;
         }
         string stageNum = UIButton.current.name.Substring(5);

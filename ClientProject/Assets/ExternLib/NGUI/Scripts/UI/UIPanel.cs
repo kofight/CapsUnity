@@ -16,7 +16,7 @@ using System.Collections.Generic;
 
 [ExecuteInEditMode]
 [AddComponentMenu("NGUI/UI/NGUI Panel")]
-public class UIPanel : MonoBehaviour
+public class UIPanel : UIRect
 {
 	/// <summary>
 	/// List of active panels.
@@ -29,6 +29,13 @@ public class UIPanel : MonoBehaviour
 		None,
 		Gizmos,
 		Geometry,
+	}
+
+	public enum RenderQueue
+	{
+		Automatic,
+		StartAt,
+		Explicit,
 	}
 
 	public delegate void OnChangeDelegate ();
@@ -65,6 +72,34 @@ public class UIPanel : MonoBehaviour
 	public bool cullWhileDragging = false;
 
 	/// <summary>
+	/// Optimization flag. Makes the assumption that the panel's geometry
+	/// will always be on screen and the bounds don't need to be re-calculated.
+	/// </summary>
+
+	public bool alwaysOnScreen = false;
+
+	/// <summary>
+	/// By default, non-clipped panels use the camera's bounds, and the panel's position has no effect.
+	/// If you want the panel's position to actually be used with anchors, set this field to 'true'.
+	/// </summary>
+
+	public bool anchorOffset = false;
+
+	/// <summary>
+	/// By default all panels manage render queues of their draw calls themselves by incrementing them
+	/// so that the geometry is drawn in the proper order. You can alter this behaviour.
+	/// </summary>
+
+	public RenderQueue renderQueue = RenderQueue.Automatic;
+
+	/// <summary>
+	/// Render queue used by the panel. The default value of '3000' is the equivalent of "Transparent".
+	/// This property is only used if 'renderQueue' is set to something other than "Automatic".
+	/// </summary>
+
+	public int startingRenderQueue = 3000;
+
+	/// <summary>
 	/// Matrix that will transform the specified world coordinates to relative-to-panel coordinates.
 	/// </summary>
 
@@ -89,20 +124,18 @@ public class UIPanel : MonoBehaviour
 	static BetterList<Vector2> mUvs = new BetterList<Vector2>();
 	static BetterList<Color32> mCols = new BetterList<Color32>();
 
-	GameObject mGo;
-	Transform mTrans;
 	Camera mCam;
-	UIPanel mParent;
-	bool mFindParent = true;
 	float mCullTime = 0f;
 	float mUpdateTime = 0f;
-	float mMatrixTime = 0f;
+	int mMatrixFrame = -1;
 	int mLayer = -1;
+	Vector2 mClipOffset = Vector2.zero;
 
 	// Values used for visibility checks
 	static float[] mTemp = new float[4];
 	Vector2 mMin = Vector2.zero;
 	Vector2 mMax = Vector2.zero;
+	bool mHalfPixelOffset = false;
 
 	/// <summary>
 	/// Helper property that returns the first unused depth value.
@@ -120,40 +153,10 @@ public class UIPanel : MonoBehaviour
 	}
 
 	/// <summary>
-	/// Cached for speed. Can't simply return 'mGo' set in Awake because this function may be called on a prefab.
-	/// </summary>
-
-	public GameObject cachedGameObject { get { if (mGo == null) mGo = gameObject; return mGo; } }
-
-	/// <summary>
-	/// Cached for speed. Can't simply return 'mTrans' set in Awake because this function may be called on a prefab.
-	/// </summary>
-
-	public Transform cachedTransform { get { if (mTrans == null) mTrans = transform; return mTrans; } }
-
-	/// <summary>
-	/// Parent panel is used to determine cumulative alpha.
-	/// </summary>
-
-	public UIPanel parent
-	{
-		get
-		{
-			if (mFindParent)
-			{
-				mFindParent = false;
-				Transform t = cachedTransform.parent;
-				mParent = (t != null) ? NGUITools.FindInParents<UIPanel>(t) : null;
-			}
-			return mParent;
-		}
-	}
-
-	/// <summary>
 	/// Panel's alpha affects everything drawn by the panel.
 	/// </summary>
 
-	public float alpha
+	public override float alpha
 	{
 		get
 		{
@@ -175,7 +178,14 @@ public class UIPanel : MonoBehaviour
 	/// Final alpha, taking all parent panels into consideration.
 	/// </summary>
 
-	public float finalAlpha { get { return (parent != null) ? mParent.alpha * mAlpha : mAlpha; } }
+	public override float finalAlpha
+	{
+		get
+		{
+			UIRect pt = parent;
+			return (pt != null) ? pt.finalAlpha * mAlpha : mAlpha;
+		}
+	}
 
 	/// <summary>
 	/// Panels can have their own depth value that will change the order with which everything they manage gets drawn.
@@ -197,11 +207,12 @@ public class UIPanel : MonoBehaviour
 				UIDrawCall.SetDirty();
 
 				for (int i = 0; i < UIWidget.list.size; ++i)
-					UIWidget.list[i].MarkAsChangedLite();
+					UIWidget.list[i].Invalidate(false);
 #if UNITY_EDITOR
 				UnityEditor.EditorUtility.SetDirty(this);
 #endif
 				list.Sort(CompareFunc);
+				UIWidget.list.Sort(UIWidget.CompareFunc);
 			}
 		}
 	}
@@ -212,12 +223,55 @@ public class UIPanel : MonoBehaviour
 
 	static public int CompareFunc (UIPanel a, UIPanel b)
 	{
-		if (a != null && b != null)
+		if (a != b && a != null && b != null)
 		{
 			if (a.mDepth < b.mDepth) return -1;
 			if (a.mDepth > b.mDepth) return 1;
+			return (a.GetInstanceID() < b.GetInstanceID()) ? -1 : 1;
 		}
 		return 0;
+	}
+
+	/// <summary>
+	/// Panel's width in pixels.
+	/// </summary>
+
+	public float width { get { return GetViewSize().x; } }
+
+	/// <summary>
+	/// Panel's height in pixels.
+	/// </summary>
+
+	public float height { get { return GetViewSize().y; } }
+
+	/// <summary>
+	/// Whether the panel's drawn geometry needs to be offset by a half-pixel.
+	/// </summary>
+
+	public bool halfPixelOffset { get { return mHalfPixelOffset; } }
+
+	/// <summary>
+	/// Whether the camera is used to draw UI geometry.
+	/// </summary>
+
+	public bool usedForUI { get { return (mCam != null && mCam.isOrthoGraphic); } }
+
+	/// <summary>
+	/// Directx9 pixel offset, used for drawing.
+	/// </summary>
+
+	public Vector3 drawCallOffset
+	{
+		get
+		{
+			if (mHalfPixelOffset && mCam != null && mCam.isOrthoGraphic)
+			{
+				Vector2 size = GetWindowSize();
+				float mod = (1f / size.y) / mCam.orthographicSize;
+				return new Vector3(-mod, mod);
+			}
+			return Vector3.zero;
+		}
 	}
 
 	/// <summary>
@@ -241,17 +295,65 @@ public class UIPanel : MonoBehaviour
 			if (mClipping != value)
 			{
 				mClipping = value;
-				mMatrixTime = 0f;
-				UpdateDrawcalls();
+				mMatrixFrame = -1;
+#if UNITY_EDITOR
+				if (!Application.isPlaying) UIDrawCall.Update(this);
+#endif
+			}
+		}
+	}
+
+	/// <summary>
+	/// Clipping area offset used to make it possible to move clipped panels (scroll views) efficiently.
+	/// Scroll views move by adjusting the clip offset by one value, and the transform position by the inverse.
+	/// This makes it possible to not have to rebuild the geometry, greatly improving performance.
+	/// </summary>
+
+	public Vector2 clipOffset
+	{
+		get
+		{
+			return mClipOffset;
+		}
+		set
+		{
+			if (Mathf.Abs(mClipOffset.x - value.x) > 0.001f ||
+				Mathf.Abs(mClipOffset.y - value.y) > 0.001f)
+			{
+				mCullTime = (mCullTime == 0f) ? 0.001f : RealTime.time + 0.15f;
+				mClipOffset = value;
+				mMatrixFrame = -1;
+#if UNITY_EDITOR
+				if (!Application.isPlaying) UIDrawCall.Update(this);
+#endif
 			}
 		}
 	}
 
 	/// <summary>
 	/// Clipping position (XY) and size (ZW).
+	/// Note that you should not be modifying this property at run-time to reposition the clipping. Adjust clipOffset instead.
 	/// </summary>
 
+	[System.Obsolete("Use 'finalClipRegion' or 'baseClipRegion' instead")]
 	public Vector4 clipRange
+	{
+		get
+		{
+			return baseClipRegion;
+		}
+		set
+		{
+			baseClipRegion = value;
+		}
+	}
+
+	/// <summary>
+	/// Clipping position (XY) and size (ZW).
+	/// Note that you should not be modifying this property at run-time to reposition the clipping. Adjust clipOffset instead.
+	/// </summary>
+
+	public Vector4 baseClipRegion
 	{
 		get
 		{
@@ -259,13 +361,36 @@ public class UIPanel : MonoBehaviour
 		}
 		set
 		{
-			if (mClipRange != value)
+			if (Mathf.Abs(mClipRange.x - value.x) > 0.001f ||
+				Mathf.Abs(mClipRange.y - value.y) > 0.001f ||
+				Mathf.Abs(mClipRange.z - value.z) > 0.001f ||
+				Mathf.Abs(mClipRange.w - value.w) > 0.001f)
 			{
 				mCullTime = (mCullTime == 0f) ? 0.001f : RealTime.time + 0.15f;
 				mClipRange = value;
-				mMatrixTime = 0f;
-				UpdateDrawcalls();
+				mMatrixFrame = -1;
+#if UNITY_EDITOR
+				if (!Application.isPlaying) UIDrawCall.Update(this);
+#endif
 			}
+		}
+	}
+
+	/// <summary>
+	/// Final clipping region after the offset has been taken into consideration.
+	/// </summary>
+
+	public Vector4 finalClipRegion
+	{
+		get
+		{
+			Vector2 size = GetViewSize();
+
+			if (mClipping != UIDrawCall.Clipping.None)
+			{
+				return new Vector4(mClipRange.x + mClipOffset.x, mClipRange.y + mClipOffset.y, size.x, size.y);
+			}
+			return new Vector4(0f, 0f, size.x, size.y);
 		}
 	}
 
@@ -273,7 +398,23 @@ public class UIPanel : MonoBehaviour
 	/// Clipping softness is used if the clipped style is set to "Soft".
 	/// </summary>
 
-	public Vector2 clipSoftness { get { return mClipSoftness; } set { if (mClipSoftness != value) { mClipSoftness = value; UpdateDrawcalls(); } } }
+	public Vector2 clipSoftness
+	{
+		get
+		{
+			return mClipSoftness;
+		}
+		set
+		{
+			if (mClipSoftness != value)
+			{
+				mClipSoftness = value;
+#if UNITY_EDITOR
+				if (!Application.isPlaying) UIDrawCall.Update(this);
+#endif
+			}
+		}
+	}
 
 	// Temporary variable to avoid GC allocation
 	static Vector3[] mCorners = new Vector3[4];
@@ -282,13 +423,13 @@ public class UIPanel : MonoBehaviour
 	/// Local-space corners of the panel's clipping rectangle. The order is bottom-left, top-left, top-right, bottom-right.
 	/// </summary>
 
-	public Vector3[] localCorners
+	public override Vector3[] localCorners
 	{
 		get
 		{
 			if (mClipping == UIDrawCall.Clipping.None)
 			{
-				Vector2 size = GetSize();
+				Vector2 size = GetViewSize();
 
 				float x0 = -0.5f * size.x;
 				float y0 = -0.5f * size.y;
@@ -319,8 +460,8 @@ public class UIPanel : MonoBehaviour
 			}
 			else
 			{
-				float x0 = mClipRange.x - 0.5f * mClipRange.z;
-				float y0 = mClipRange.y - 0.5f * mClipRange.w;
+				float x0 = mClipOffset.x + mClipRange.x - 0.5f * mClipRange.z;
+				float y0 = mClipOffset.y + mClipRange.y - 0.5f * mClipRange.w;
 				float x1 = x0 + mClipRange.z;
 				float y1 = y0 + mClipRange.w;
 
@@ -337,13 +478,13 @@ public class UIPanel : MonoBehaviour
 	/// World-space corners of the panel's clipping rectangle. The order is bottom-left, top-left, top-right, bottom-right.
 	/// </summary>
 
-	public Vector3[] worldCorners
+	public override Vector3[] worldCorners
 	{
 		get
 		{
 			if (mClipping == UIDrawCall.Clipping.None)
 			{
-				Vector2 size = GetSize();
+				Vector2 size = GetViewSize();
 
 				float x0 = -0.5f * size.x;
 				float y0 = -0.5f * size.y;
@@ -362,8 +503,8 @@ public class UIPanel : MonoBehaviour
 			}
 			else
 			{
-				float x0 = mClipRange.x - 0.5f * mClipRange.z;
-				float y0 = mClipRange.y - 0.5f * mClipRange.w;
+				float x0 = mClipOffset.x + mClipRange.x - 0.5f * mClipRange.z;
+				float y0 = mClipOffset.y + mClipRange.y - 0.5f * mClipRange.w;
 				float x1 = x0 + mClipRange.z;
 				float y1 = y0 + mClipRange.w;
 
@@ -376,6 +517,42 @@ public class UIPanel : MonoBehaviour
 			}
 			return mCorners;
 		}
+	}
+
+	/// <summary>
+	/// Get the sides of the rectangle relative to the specified transform.
+	/// The order is left, top, right, bottom.
+	/// </summary>
+
+	public override Vector3[] GetSides (Transform relativeTo)
+	{
+		if (mClipping != UIDrawCall.Clipping.None || anchorOffset)
+		{
+			Vector2 size = GetViewSize();
+			Vector2 cr = (mClipping != UIDrawCall.Clipping.None) ? (Vector2)mClipRange + mClipOffset : Vector2.zero;
+
+			float x0 = cr.x - 0.5f * size.x;
+			float y0 = cr.y - 0.5f * size.y;
+			float x1 = x0 + size.x;
+			float y1 = y0 + size.y;
+			float cx = (x0 + x1) * 0.5f;
+			float cy = (y0 + y1) * 0.5f;
+
+			Matrix4x4 mat = cachedTransform.localToWorldMatrix;
+
+			mCorners[0] = mat.MultiplyPoint3x4(new Vector3(x0, cy));
+			mCorners[1] = mat.MultiplyPoint3x4(new Vector3(cx, y1));
+			mCorners[2] = mat.MultiplyPoint3x4(new Vector3(x1, cy));
+			mCorners[3] = mat.MultiplyPoint3x4(new Vector3(cx, y0));
+
+			if (relativeTo != null)
+			{
+				for (int i = 0; i < 4; ++i)
+					mCorners[i] = relativeTo.InverseTransformPoint(mCorners[i]);
+			}
+			return mCorners;
+		}
+		return base.GetSides(relativeTo);
 	}
 
 	/// <summary>
@@ -412,6 +589,7 @@ public class UIPanel : MonoBehaviour
 		if (maxY < mMin.y) return false;
 		if (minX > mMax.x) return false;
 		if (minY > mMax.y) return false;
+
 		return true;
 	}
 
@@ -439,12 +617,6 @@ public class UIPanel : MonoBehaviour
 
 	public bool IsVisible (UIWidget w)
 	{
-		if (mAlpha < 0.001f) return false;
-		if (!w.enabled || !NGUITools.GetActive(w.cachedGameObject) || w.alpha < 0.001f) return false;
-
-		// No clipping? No point in checking.
-		if (mClipping == UIDrawCall.Clipping.None) return true;
-
 		Vector3[] corners = w.worldCorners;
 		return IsVisible(corners[0], corners[1], corners[2], corners[3]);
 	}
@@ -468,25 +640,13 @@ public class UIPanel : MonoBehaviour
 
 	/// <summary>
 	/// Invalidate the panel's draw calls, forcing them to be rebuilt on the next update.
-	/// This call also affects all child panels.
+	/// This call also affects all children.
 	/// </summary>
 
 	public void SetDirty ()
 	{
 		UIDrawCall.SetDirty(this);
-
-		for (int i = 0; i < UIWidget.list.size; ++i)
-		{
-			UIWidget w = UIWidget.list[i];
-			if (w.panel == this) w.MarkAsChangedLite();
-		}
-
-		for (int i = 0; i < list.size; ++i)
-		{
-			UIPanel p = list[i];
-			if (p != null && p != this && p.parent == this)
-				p.SetDirty();
-		}
+		Invalidate(true);
 	}
 
 	/// <summary>
@@ -497,13 +657,21 @@ public class UIPanel : MonoBehaviour
 	{
 		mGo = gameObject;
 		mTrans = transform;
+
+		mHalfPixelOffset = (Application.platform == RuntimePlatform.WindowsPlayer ||
+			Application.platform == RuntimePlatform.XBOX360 ||
+			Application.platform == RuntimePlatform.WindowsWebPlayer ||
+			Application.platform == RuntimePlatform.WindowsEditor);
+
+		// Only DirectX 9 needs the half-pixel offset
+		if (mHalfPixelOffset) mHalfPixelOffset = (SystemInfo.graphicsShaderLevel < 40);
 	}
 
 	/// <summary>
 	/// Layer is used to ensure that if it changes, widgets get moved as well.
 	/// </summary>
 
-	void Start ()
+	protected override void OnStart ()
 	{
 		mLayer = mGo.layer;
 		UICamera uic = UICamera.FindCameraForLayer(mLayer);
@@ -514,8 +682,10 @@ public class UIPanel : MonoBehaviour
 	/// Mark all widgets as having been changed so the draw calls get re-created.
 	/// </summary>
 
-	void OnEnable ()
+	protected override void OnEnable ()
 	{
+		base.OnEnable();
+
 		// Apparently having a rigidbody helps
 		if (rigidbody == null)
 		{
@@ -524,7 +694,6 @@ public class UIPanel : MonoBehaviour
 			rb.useGravity = false;
 		}
 
-		mFindParent = true;
 		mRebuild = true;
 		list.Add(this);
 		list.Sort(CompareFunc);
@@ -534,12 +703,12 @@ public class UIPanel : MonoBehaviour
 	/// Destroy all draw calls we've created when this script gets disabled.
 	/// </summary>
 
-	void OnDisable ()
+	protected override void OnDisable ()
 	{
-		mParent = null;
 		UIDrawCall.Destroy(this);
 		list.Remove(this);
 		if (list.size == 0) UIDrawCall.ReleaseAll();
+		base.OnDisable();
 	}
 
 	/// <summary>
@@ -548,54 +717,153 @@ public class UIPanel : MonoBehaviour
 
 	void UpdateTransformMatrix ()
 	{
-		if (mUpdateTime == 0f || mMatrixTime != mUpdateTime)
+		int fc = Time.frameCount;
+
+		if (mMatrixFrame != fc)
 		{
-			mMatrixTime = mUpdateTime;
+			mMatrixFrame = fc;
 			worldToLocal = cachedTransform.worldToLocalMatrix;
 
-			if (mClipping != UIDrawCall.Clipping.None)
-			{
-				Vector2 size = new Vector2(mClipRange.z, mClipRange.w);
+			Vector2 size = GetViewSize() * 0.5f;
 
-				if (size.x == 0f) size.x = (mCam == null) ? Screen.width  : mCam.pixelWidth;
-				if (size.y == 0f) size.y = (mCam == null) ? Screen.height : mCam.pixelHeight;
+			float x = mClipOffset.x + mClipRange.x;
+			float y = mClipOffset.y + mClipRange.y;
 
-				size *= 0.5f;
-
-				mMin.x = mClipRange.x - size.x;
-				mMin.y = mClipRange.y - size.y;
-				mMax.x = mClipRange.x + size.x;
-				mMax.y = mClipRange.y + size.y;
-			}
+			mMin.x = x - size.x;
+			mMin.y = y - size.y;
+			mMax.x = x + size.x;
+			mMax.y = y + size.y;
 		}
 	}
 
 	/// <summary>
-	/// Update the clipping rect in the shaders and draw calls' positions.
+	/// Update the edges after the anchors have been updated.
 	/// </summary>
 
-	void UpdateDrawcalls ()
+	protected override void OnAnchor ()
 	{
-		Vector4 range = Vector4.zero;
+		// No clipping = no edges to anchor
+		if (mClipping == UIDrawCall.Clipping.None) return;
 
-		if (mClipping != UIDrawCall.Clipping.None)
+		Transform trans = cachedTransform;
+		Transform parent = trans.parent;
+
+		Vector2 size = GetViewSize();
+		Vector2 offset = trans.localPosition;
+
+		float lt, bt, rt, tt;
+
+		// Attempt to fast-path if all anchors match
+		if (leftAnchor.target == bottomAnchor.target &&
+			leftAnchor.target == rightAnchor.target &&
+			leftAnchor.target == topAnchor.target)
 		{
-			range = new Vector4(mClipRange.x, mClipRange.y, mClipRange.z * 0.5f, mClipRange.w * 0.5f);
+			Vector3[] sides = leftAnchor.GetSides(parent);
+
+			if (sides != null)
+			{
+				lt = NGUIMath.Lerp(sides[0].x, sides[2].x, leftAnchor.relative) + leftAnchor.absolute;
+				rt = NGUIMath.Lerp(sides[0].x, sides[2].x, rightAnchor.relative) + rightAnchor.absolute;
+				bt = NGUIMath.Lerp(sides[3].y, sides[1].y, bottomAnchor.relative) + bottomAnchor.absolute;
+				tt = NGUIMath.Lerp(sides[3].y, sides[1].y, topAnchor.relative) + topAnchor.absolute;
+			}
+			else
+			{
+				// Anchored to a single transform
+				Vector2 lp = GetLocalPos(leftAnchor, parent);
+				lt = lp.x + leftAnchor.absolute;
+				bt = lp.y + bottomAnchor.absolute;
+				rt = lp.x + rightAnchor.absolute;
+				tt = lp.y + topAnchor.absolute;
+			}
+		}
+		else
+		{
+			// Left anchor point
+			if (leftAnchor.target)
+			{
+				Vector3[] sides = leftAnchor.GetSides(parent);
+
+				if (sides != null)
+				{
+					lt = NGUIMath.Lerp(sides[0].x, sides[2].x, leftAnchor.relative) + leftAnchor.absolute;
+				}
+				else
+				{
+					lt = GetLocalPos(leftAnchor, parent).x + leftAnchor.absolute;
+				}
+			}
+			else lt = mClipRange.x - 0.5f * size.x;
+
+			// Right anchor point
+			if (rightAnchor.target)
+			{
+				Vector3[] sides = rightAnchor.GetSides(parent);
+
+				if (sides != null)
+				{
+					rt = NGUIMath.Lerp(sides[0].x, sides[2].x, rightAnchor.relative) + rightAnchor.absolute;
+				}
+				else
+				{
+					rt = GetLocalPos(rightAnchor, parent).x + rightAnchor.absolute;
+				}
+			}
+			else rt = mClipRange.x + 0.5f * size.x;
+
+			// Bottom anchor point
+			if (bottomAnchor.target)
+			{
+				Vector3[] sides = bottomAnchor.GetSides(parent);
+
+				if (sides != null)
+				{
+					bt = NGUIMath.Lerp(sides[3].y, sides[1].y, bottomAnchor.relative) + bottomAnchor.absolute;
+				}
+				else
+				{
+					bt = GetLocalPos(bottomAnchor, parent).y + bottomAnchor.absolute;
+				}
+			}
+			else bt = mClipRange.y - 0.5f * size.y;
+
+			// Top anchor point
+			if (topAnchor.target)
+			{
+				Vector3[] sides = topAnchor.GetSides(parent);
+
+				if (sides != null)
+				{
+					tt = NGUIMath.Lerp(sides[3].y, sides[1].y, topAnchor.relative) + topAnchor.absolute;
+				}
+				else
+				{
+					tt = GetLocalPos(topAnchor, parent).y + topAnchor.absolute;
+				}
+			}
+			else tt = mClipRange.y + 0.5f * size.y;
 		}
 
-		if (range.z == 0f) range.z = Screen.width * 0.5f;
-		if (range.w == 0f) range.w = Screen.height * 0.5f;
+		// Take the offset into consideration
+		lt -= offset.x + mClipOffset.x;
+		rt -= offset.x + mClipOffset.x;
+		bt -= offset.y + mClipOffset.y;
+		tt -= offset.y + mClipOffset.y;
 
-		RuntimePlatform platform = Application.platform;
+		// Calculate the new position, width and height
+		float newX = Mathf.Lerp(lt, rt, 0.5f);
+		float newY = Mathf.Lerp(bt, tt, 0.5f);
+		float w = rt - lt;
+		float h = tt - bt;
 
-		if (platform == RuntimePlatform.WindowsPlayer ||
-			platform == RuntimePlatform.WindowsWebPlayer ||
-			platform == RuntimePlatform.WindowsEditor)
-		{
-			range.x -= 0.5f;
-			range.y += 0.5f;
-		}
-		UIDrawCall.Update(this);
+		float minx = Mathf.Max(20f, mClipSoftness.x);
+		float miny = Mathf.Max(20f, mClipSoftness.y);
+
+		if (w < minx) w = minx;
+		if (h < miny) h = miny;
+
+		// Update the clipping range
+		baseClipRegion = new Vector4(newX, newY, w, h);
 	}
 
 	/// <summary>
@@ -639,11 +907,7 @@ public class UIPanel : MonoBehaviour
 		}
 
 		// Update the clipping rects
-		for (int i = 0; i < list.size; ++i)
-		{
-			UIPanel panel = list[i];
-			panel.UpdateDrawcalls();
-		}
+		for (int i = 0; i < list.size; ++i) UIDrawCall.Update(list[i]);
 		mRebuild = false;
 	}
 
@@ -659,7 +923,7 @@ public class UIPanel : MonoBehaviour
 			mLayer = mGo.layer;
 			UICamera uic = UICamera.FindCameraForLayer(mLayer);
 			mCam = (uic != null) ? uic.cachedCamera : NGUITools.FindCameraForLayer(mLayer);
-			SetChildLayer(cachedTransform, mLayer);
+			NGUITools.SetChildLayer(cachedTransform, mLayer);
 			UIDrawCall.UpdateLayer(this);
 		}
 	}
@@ -671,9 +935,9 @@ public class UIPanel : MonoBehaviour
 	void UpdateWidgets()
 	{
 #if UNITY_EDITOR
-		bool forceVisible = cullWhileDragging ? false : (clipping == UIDrawCall.Clipping.None) || (Application.isPlaying && mCullTime > mUpdateTime);
+		bool forceVisible = cullWhileDragging ? false : (Application.isPlaying && mCullTime > mUpdateTime);
 #else
-		bool forceVisible = cullWhileDragging ? false : (clipping == UIDrawCall.Clipping.None) || (mCullTime > mUpdateTime);
+		bool forceVisible = cullWhileDragging ? false : (mCullTime > mUpdateTime);
 #endif
 		bool changed = false;
 
@@ -720,7 +984,11 @@ public class UIPanel : MonoBehaviour
 					}
 				}
 #endif
-				if (!w.UpdateGeometry(forceVisible)) continue;
+				bool vis = forceVisible ||
+					(mClipping == UIDrawCall.Clipping.None && !w.hideIfOffScreen) ||
+					(w.cumulativeAlpha > 0.001f && IsVisible(w));
+
+				if (!w.UpdateGeometry(vis)) continue;
 
 				changed = true;
 				
@@ -755,6 +1023,7 @@ public class UIPanel : MonoBehaviour
 		UIPanel p = w.panel;
 		if (p == null) return null;
 		Material mat = w.material;
+		Texture tex = w.mainTexture;
 		int depth = w.raycastDepth;
 		BetterList<UIDrawCall> dcs = UIDrawCall.activeList;
 
@@ -762,17 +1031,17 @@ public class UIPanel : MonoBehaviour
 		{
 			UIDrawCall dc = dcs.buffer[i];
 			if (dc.manager != p) continue;
-			int dcStart = (i == 0) ? int.MinValue : dcs.buffer[i-1].depthEnd + 1;
-			int dcEnd = (i + 1 == dcs.size) ? int.MaxValue : dcs.buffer[i+1].depthStart - 1;
-			
+			int dcStart = (i == 0) ? int.MinValue : dcs.buffer[i - 1].depthEnd + 1;
+			int dcEnd = (i + 1 == dcs.size) ? int.MaxValue : dcs.buffer[i + 1].depthStart - 1;
+
 			if (dcStart <= depth && dcEnd >= depth)
 			{
-				if (dc.baseMaterial == mat)
+				if (dc.baseMaterial == mat && dc.mainTexture == tex)
 				{
-					if (w.isVisible && w.hasVertices)
+					if (w.isVisible)
 					{
 						w.drawCall = dc;
-						dc.isDirty = true;
+						if (w.hasVertices) dc.isDirty = true;
 						return dc;
 					}
 				}
@@ -817,13 +1086,15 @@ public class UIPanel : MonoBehaviour
 
 	public virtual Vector3 CalculateConstrainOffset (Vector2 min, Vector2 max)
 	{
-		float offsetX = clipRange.z * 0.5f;
-		float offsetY = clipRange.w * 0.5f;
+		Vector4 cr = finalClipRegion;
+
+		float offsetX = cr.z * 0.5f;
+		float offsetY = cr.w * 0.5f;
 
 		Vector2 minRect = new Vector2(min.x, min.y);
 		Vector2 maxRect = new Vector2(max.x, max.y);
-		Vector2 minArea = new Vector2(clipRange.x - offsetX, clipRange.y - offsetY);
-		Vector2 maxArea = new Vector2(clipRange.x + offsetX, clipRange.y + offsetY);
+		Vector2 minArea = new Vector2(cr.x - offsetX, cr.y - offsetY);
+		Vector2 maxArea = new Vector2(cr.x + offsetX, cr.y + offsetY);
 
 		if (clipping == UIDrawCall.Clipping.SoftClip)
 		{
@@ -874,96 +1145,34 @@ public class UIPanel : MonoBehaviour
 	}
 
 	/// <summary>
-	/// Helper function that recursively sets all children with widgets' game objects layers to the specified value, stopping when it hits another UIPanel.
+	/// Find the UIPanel responsible for handling the specified transform.
 	/// </summary>
 
-	static void SetChildLayer (Transform t, int layer)
-	{
-		for (int i = 0; i < t.childCount; ++i)
-		{
-			Transform child = t.GetChild(i);
-
-			if (child.GetComponent<UIPanel>() == null)
-			{
-				if (child.GetComponent<UIWidget>() != null)
-				{
-					child.gameObject.layer = layer;
-				}					
-				SetChildLayer(child, layer);
-			}
-		}
-	}
+	static public UIPanel Find (Transform trans) { return Find(trans, false, -1); }
 
 	/// <summary>
 	/// Find the UIPanel responsible for handling the specified transform.
 	/// </summary>
 
-	static public UIPanel Find (Transform trans, bool createIfMissing)
+	static public UIPanel Find (Transform trans, bool createIfMissing) { return Find(trans, createIfMissing, -1); }
+
+	/// <summary>
+	/// Find the UIPanel responsible for handling the specified transform.
+	/// </summary>
+
+	static public UIPanel Find (Transform trans, bool createIfMissing, int layer)
 	{
-		Transform origin = trans;
 		UIPanel panel = null;
 
 		while (panel == null && trans != null)
 		{
 			panel = trans.GetComponent<UIPanel>();
-			if (panel != null) break;
+			if (panel != null) return panel;
 			if (trans.parent == null) break;
 			trans = trans.parent;
 		}
-		
-		if (createIfMissing && panel == null)
-		{
-			mRebuild = true;
-
-			UIRoot root = NGUITools.FindInParents<UIRoot>(origin.gameObject);
-
-			if (root == null && UIRoot.list.Count > 0)
-				root = UIRoot.list[0];
-
-			if (root == null)
-			{
-				GameObject go = NGUITools.AddChild(null, false);
-				go.name = "UI Root";
-				go.layer = origin.gameObject.layer;
-				root = go.AddComponent<UIRoot>();
-			}
-
-			panel = root.GetComponentInChildren<UIPanel>();
-
-			if (panel == null)
-			{
-				Camera cam = NGUITools.AddChild<Camera>(root.gameObject, false);
-				cam.gameObject.AddComponent<UICamera>();
-				cam.orthographic = true;
-				cam.orthographicSize = 1;
-				cam.nearClipPlane = -10;
-				cam.farClipPlane = 10;
-				cam.clearFlags = (Camera.main != null) ? CameraClearFlags.Depth : CameraClearFlags.Color;
-				cam.cullingMask = (1 << root.gameObject.layer);
-
-				if (Camera.main != null)
-					Camera.main.cullingMask = (Camera.main.cullingMask & (~cam.cullingMask));
-
-				UIAnchor anch = NGUITools.AddChild<UIAnchor>(cam.gameObject, false);
-				panel = NGUITools.AddChild<UIPanel>(anch.gameObject, false);
-#if UNITY_EDITOR
-				UnityEditor.Selection.activeGameObject = panel.gameObject;
-#endif
-			}
-
-			trans.parent = panel.transform;
-			trans.localScale = Vector3.one;
-			trans.localPosition = Vector3.zero;
-			SetChildLayer(panel.cachedTransform, panel.cachedGameObject.layer);
-		}
-		return panel;
+		return createIfMissing ? NGUITools.CreateUI(trans, false, layer) : null;
 	}
-
-	/// <summary>
-	/// Find the UIPanel responsible for handling the specified transform, creating a new one if necessary.
-	/// </summary>
-
-	static public UIPanel Find (Transform trans) { return Find(trans, true); }
 
 	/// <summary>
 	/// Fill the geometry fully, processing all widgets and re-creating all draw calls.
@@ -1046,6 +1255,7 @@ public class UIPanel : MonoBehaviour
 	void SubmitDrawCall (UIDrawCall dc)
 	{
 		dc.clipping = clipping;
+		dc.alwaysOnScreen = alwaysOnScreen && (clipping == UIDrawCall.Clipping.None || clipping == UIDrawCall.Clipping.ConstrainButDontClip);
 		dc.Set(mVerts, generateNormals ? mNorms : null, generateNormals ? mTans : null, mUvs, mCols);
 		mVerts.Clear();
 		mNorms.Clear();
@@ -1101,24 +1311,41 @@ public class UIPanel : MonoBehaviour
 	}
 
 	/// <summary>
+	/// Get the size of the game window in pixels.
+	/// </summary>
+
+	Vector2 GetWindowSize ()
+	{
+		UIRoot rt = root;
+#if UNITY_EDITOR
+		Vector2 size = GetMainGameViewSize();
+		if (rt != null) size *= rt.GetPixelSizeAdjustment(Mathf.RoundToInt(size.y));
+#else
+		Vector2 size = new Vector2(Screen.width, Screen.height);
+		if (rt != null) size *= rt.GetPixelSizeAdjustment(Screen.height);
+#endif
+		return size;
+	}
+
+	/// <summary>
 	/// Panel's size -- which is either the clipping rect, or the screen dimensions.
 	/// </summary>
 
-	Vector2 GetSize ()
+	public Vector2 GetViewSize ()
 	{
 		bool clip = (mClipping != UIDrawCall.Clipping.None);
 #if UNITY_EDITOR
-		Vector2 size = clip ? new Vector2(mClipRange.z, mClipRange.w) : new Vector2(mScreenWidth, mScreenHeight);
+		Vector2 size = clip ? new Vector2(mClipRange.z, mClipRange.w) : GetMainGameViewSize();
 #else
 		Vector2 size = clip ? new Vector2(mClipRange.z, mClipRange.w) : new Vector2(Screen.width, Screen.height);
 #endif
 		if (!clip)
 		{
-			UIRoot root = NGUITools.FindInParents<UIRoot>(cachedGameObject);
+			UIRoot rt = root;
 #if UNITY_EDITOR
-			if (root != null) size *= root.GetPixelSizeAdjustment(mScreenHeight);
+			if (rt != null) size *= rt.GetPixelSizeAdjustment(Mathf.RoundToInt(size.y));
 #else
-			if (root != null) size *= root.GetPixelSizeAdjustment(Screen.height);
+			if (rt != null) size *= rt.GetPixelSizeAdjustment(Screen.height);
 #endif
 		}
 		return size;
@@ -1126,13 +1353,24 @@ public class UIPanel : MonoBehaviour
 
 #if UNITY_EDITOR
 
-	int mScreenWidth = 1280;
-	int mScreenHeight = 720;
-	
-	void Update ()
+	static System.Reflection.MethodInfo s_GetSizeOfMainGameView;
+
+	/// <summary>
+	/// Major hax to get the size of the game view window.
+	/// </summary>
+
+	static public Vector2 GetMainGameViewSize ()
 	{
-		mScreenWidth = Screen.width;
-		mScreenHeight = Screen.height;
+		//if (Application.isPlaying)
+		//	return new Vector2(Screen.width, Screen.height);
+
+		if (s_GetSizeOfMainGameView == null)
+		{
+			System.Type type = System.Type.GetType("UnityEditor.GameView,UnityEditor");
+			s_GetSizeOfMainGameView = type.GetMethod("GetSizeOfMainGameView",
+				System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+		}
+		return (Vector2)s_GetSizeOfMainGameView.Invoke(null, null);
 	}
 
 	/// <summary>
@@ -1143,7 +1381,7 @@ public class UIPanel : MonoBehaviour
 	{
 		if (mCam == null) return;
 
-		Vector2 size = GetSize();
+		Vector2 size = GetViewSize();
 		GameObject go = UnityEditor.Selection.activeGameObject;
 		bool selected = (go != null) && (NGUITools.FindInParents<UIPanel>(go) == this);
 		bool clip = (mClipping != UIDrawCall.Clipping.None);
@@ -1152,7 +1390,7 @@ public class UIPanel : MonoBehaviour
 
 		if (t != null)
 		{
-			Vector3 pos = clip ? new Vector3(mClipRange.x, mClipRange.y) : Vector3.zero;
+			Vector3 pos = clip ? new Vector3(mClipOffset.x + mClipRange.x, mClipOffset.y + mClipRange.y) : Vector3.zero;
 			Gizmos.matrix = t.localToWorldMatrix;
 
 			if (selected)

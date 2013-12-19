@@ -1673,6 +1673,24 @@ public class GameLogic
         bool bDrop = false;             //是否有下落
         bool bNewSpace = true;          //是否有直线下落
 
+        //计算锁的位置
+        for (int i = 0; i < BlockCountX; ++i)
+        {
+            for (int j = 0; j < BlockCountY; ++j)
+            {
+                if (m_blocks[i, j] != null && m_blocks[i, j].IsDroping())     //若有下落块
+                {
+                    m_slopeDropLock[i] = j + (int)(m_blocks[i, j].y_move / BLOCKHEIGHT + 1);
+                    break;
+                }
+
+                if (j == BlockCountY - 1)       //已经到了最下面还没有在下落的块
+                {
+                    m_slopeDropLock[i] = 9;
+                }
+            }
+        }
+
         while (bNewSpace)                //若有新空间，就循环处理下落，直到没有新的空间出现为止
         {
             bNewSpace = true;

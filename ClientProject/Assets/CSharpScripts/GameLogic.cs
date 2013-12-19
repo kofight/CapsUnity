@@ -1365,10 +1365,13 @@ public class GameLogic
         {
             for (int j = 0; j < BlockCountY; ++j )
             {
-                if (m_blocks[i, j] != null && m_blocks[i, j].IsDroping())     //若有下落块
+                if (m_blocks[i, j] != null)     //若有下落块
                 {
-                    m_slopeDropLock[i] = j + (int)(m_blocks[i, j].y_move / BLOCKHEIGHT + 1);
-                    break;
+                    if (m_blocks[i, j].IsDroping() || m_blocks[i, j].IsEating())     //若有下落块或正在消的块
+                    {
+                        m_slopeDropLock[i] = j + (int)(m_blocks[i, j].y_move / BLOCKHEIGHT + 1);
+                        break;
+                    }
                 }
             }
         }
@@ -1678,10 +1681,13 @@ public class GameLogic
         {
             for (int j = 0; j < BlockCountY; ++j)
             {
-                if (m_blocks[i, j] != null && m_blocks[i, j].IsDroping())     //若有下落块
+                if (m_blocks[i, j] != null)     
                 {
-                    m_slopeDropLock[i] = j + (int)(m_blocks[i, j].y_move / BLOCKHEIGHT + 1);
-                    break;
+                    if (m_blocks[i, j].IsDroping() || m_blocks[i, j].IsEating())     //若有下落块或正在消的块
+                    {
+                        m_slopeDropLock[i] = j + (int)(m_blocks[i, j].y_move / BLOCKHEIGHT + 1);
+                        break;
+                    }
                 }
 
                 if (j == BlockCountY - 1)       //已经到了最下面还没有在下落的块
@@ -1724,10 +1730,13 @@ public class GameLogic
 	        {
 	            for (int j = 0; j < BlockCountY; ++j )
 	            {
-                    if (m_blocks[i, j] != null && m_blocks[i, j].IsDroping())     //若有下落块
+                    if (m_blocks[i, j] != null)     //若有下落块
 	                {
-	                    m_slopeDropLock[i] = j + (int)(m_blocks[i, j].y_move / BLOCKHEIGHT + 1);
-	                    break;
+                        if (m_blocks[i, j].IsDroping() || m_blocks[i, j].IsEating())     //若有下落块或正在消的块
+                        {
+                            m_slopeDropLock[i] = j + (int)(m_blocks[i, j].y_move / BLOCKHEIGHT + 1);
+                            break;
+                        }
 	                }
 	            }
 	        }

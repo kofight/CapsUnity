@@ -48,7 +48,7 @@ public class UIGameBottom : UIWindow
     public override void OnShow()
     {
         base.OnShow();
-        if (GlobalVars.CurGameLogic.PlayingStageData.TimeLimit > 0)
+        if (GameLogic.Singleton.PlayingStageData.TimeLimit > 0)
         {
             stageBoard.spriteName = "TimeBoard";
             m_timeBar.gameObject.SetActive(true);
@@ -102,7 +102,7 @@ public class UIGameBottom : UIWindow
         float completeRatio = 0.0f;
         if (GlobalVars.CurStageData.StarScore[2] > 0)
         {
-            completeRatio = (float)GlobalVars.CurGameLogic.GetProgress() / GlobalVars.CurStageData.StarScore[2];
+            completeRatio = (float)GameLogic.Singleton.GetProgress() / GlobalVars.CurStageData.StarScore[2];
         }
         completeRatio = Mathf.Min(1.0f, completeRatio);
         if (completeRatio != 0.0f)
@@ -113,19 +113,19 @@ public class UIGameBottom : UIWindow
 
         if (GlobalVars.CurStageData.TimeLimit > 0)          //限制时间的关卡
         {
-            int min = (int)GlobalVars.CurGameLogic.GetTimeRemain() / 60;
-            int second = (int)GlobalVars.CurGameLogic.GetTimeRemain() % 60;
+            int min = (int)GameLogic.Singleton.GetTimeRemain() / 60;
+            int second = (int)GameLogic.Singleton.GetTimeRemain() % 60;
             m_minNumber.SetNumber(min);
             m_secNumber.SetNumber(second);
 
-            m_timeBar.fillAmount = GlobalVars.CurGameLogic.GetTimeRemain() / GlobalVars.CurStageData.TimeLimit;
+            m_timeBar.fillAmount = GameLogic.Singleton.GetTimeRemain() / GlobalVars.CurStageData.TimeLimit;
         }
         if (GlobalVars.CurStageData.StepLimit > 0)          //限制步数的关卡
         {
-            m_stepDrawer.SetNumber(GlobalVars.CurGameLogic.PlayingStageData.StepLimit);
+            m_stepDrawer.SetNumber(GameLogic.Singleton.PlayingStageData.StepLimit);
         }
 
-        m_scoreDrawer.SetNumber(GlobalVars.CurGameLogic.GetProgress());
+        m_scoreDrawer.SetNumber(GameLogic.Singleton.GetProgress());
     }
 
     public void OnValueChange()

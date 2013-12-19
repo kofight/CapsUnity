@@ -4,13 +4,17 @@ using System.Collections.Generic;
 using System;
 public class GameState : State
 {
-    GameLogic m_gameLogic = new GameLogic();
     bool m_bGameLogicStarted = false;
 
     public override void DoInitState()
     {
         base.DoInitState();
-        
+
+        if (GameLogic.Singleton == null)
+        {
+            new GameLogic();
+        }
+
         UIWindowManager.Singleton.CreateWindow<UIGameHead>(UIWindowManager.Anchor.Top);
         UIWindowManager.Singleton.CreateWindow<UIGameBottom>(UIWindowManager.Anchor.Bottom);
         UIWindowManager.Singleton.CreateWindow<UIWindow>("UIGameBackground", UIWindowManager.Anchor.Center);
@@ -18,9 +22,8 @@ public class GameState : State
         UIWindowManager.Singleton.CreateWindow<UIRetry>();
 		UIWindowManager.Singleton.CreateWindow<UIPurchase>();
 		UIWindowManager.Singleton.CreateWindow<UIUseItem>();
-        m_gameLogic.Init();
+        GameLogic.Singleton.Init();
         m_bGameLogicStarted = false;
-        GlobalVars.CurGameLogic = m_gameLogic;
 		UIWindowManager.Singleton.GetUIWindow("UIGameBackground").ShowWindow();
         UIWindowManager.Singleton.GetUIWindow<UIGameHead>().ShowWindow();
         UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().ShowWindow();
@@ -33,7 +36,7 @@ public class GameState : State
         UIWindowManager.Singleton.GetUIWindow("UILoading").HideWindow(delegate()
         {
             UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
-            m_gameLogic.StartGame();
+            GameLogic.Singleton.StartGame();
             m_bGameLogicStarted = true;
         });
     }
@@ -44,7 +47,7 @@ public class GameState : State
         UIWindowManager.Singleton.GetUIWindow<UIGameHead>().HideWindow();
         UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().HideWindow();
         UIWindowManager.Singleton.GetUIWindow("UIGameBackground").HideWindow();
-        m_gameLogic.ClearGame();
+        GameLogic.Singleton.ClearGame();
     }
 
     public override void Update()
@@ -52,7 +55,7 @@ public class GameState : State
         base.Update();
         if (m_bGameLogicStarted)
         {
-            m_gameLogic.Update();
+            GameLogic.Singleton.Update();
         }
     }
 

@@ -30,7 +30,7 @@ public class ShowSimpleUIEffect : UIEffectPlayer
         if (mTweenAlpha == null)
         {
 			mTweenAlpha = TweenAlpha.Begin(gameObject, duration, endAlpah);
-            mTweenAlpha.alpha = startAlpah;
+            mTweenAlpha.value = startAlpah;
             mTweenAlpha.from = startAlpah;
 			mTweenAlpha.to = endAlpah;
 			mTweenAlpha.duration = duration;
@@ -46,7 +46,7 @@ public class ShowSimpleUIEffect : UIEffectPlayer
 				newAlpha = mTweenAlpha;
 
             newAlpha.animationCurve = mTweenAlpha.animationCurve;
-            newAlpha.alpha = startAlpah;
+            newAlpha.value = startAlpah;
             newAlpha.from = startAlpah;
 			newAlpha.to = endAlpah;
 			newAlpha.duration = duration;
@@ -86,7 +86,7 @@ public class ShowSimpleUIEffect : UIEffectPlayer
                 mTweenScale = TweenScale.Begin(transform.gameObject, duration, endScale);
             }
             
-            mTweenScale.scale = startScale;
+            mTweenScale.value = startScale;
             mTweenScale.from = startScale;
 			mTweenScale.to = endScale;
 			mTweenScale.duration = duration;

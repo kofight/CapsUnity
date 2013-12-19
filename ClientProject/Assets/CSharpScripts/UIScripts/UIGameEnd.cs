@@ -50,7 +50,7 @@ public class UIGameEnd : UIWindow
         base.OnShow();
         UISprite sprite = GetChildComponent<UISprite>("FailedReason");
 
-        if (GlobalVars.CurGameLogic.CheckLimit())
+        if (GameLogic.Singleton.CheckLimit())
         {
             if (GlobalVars.CurStageData.StepLimit > 0)
             {
@@ -66,10 +66,10 @@ public class UIGameEnd : UIWindow
             sprite.spriteName = "TextPressedMenuBtn";
         }
 
-		m_curScore.SetNumber(GlobalVars.CurGameLogic.GetProgress());
+		m_curScore.SetNumber(GameLogic.Singleton.GetProgress());
 		m_targetScore.SetNumber(GlobalVars.CurStageData.StarScore[0]);
 
-        m_scoreCheck.value = (GlobalVars.CurGameLogic.GetProgress() >= GlobalVars.CurStageData.StarScore[0]);
+        m_scoreCheck.value = (GameLogic.Singleton.GetProgress() >= GlobalVars.CurStageData.StarScore[0]);
         
 
         if (GlobalVars.CurStageData.Target == GameTarget.ClearJelly)
@@ -78,7 +78,7 @@ public class UIGameEnd : UIWindow
             m_nutsCheck.gameObject.SetActive(false);
 
             int totalJellyCount = GlobalVars.CurStageData.GetSingleJellyCount() + GlobalVars.CurStageData.GetDoubleJellyCount() * 2;
-            int curJellyCount = GlobalVars.CurGameLogic.PlayingStageData.GetSingleJellyCount() + GlobalVars.CurGameLogic.PlayingStageData.GetDoubleJellyCount() * 2;
+            int curJellyCount = GameLogic.Singleton.PlayingStageData.GetSingleJellyCount() + GameLogic.Singleton.PlayingStageData.GetDoubleJellyCount() * 2;
 
             m_curJelly.SetNumber(totalJellyCount - curJellyCount);
             m_targetJelly.SetNumber(totalJellyCount);
@@ -87,15 +87,15 @@ public class UIGameEnd : UIWindow
         }
         else if (GlobalVars.CurStageData.Target == GameTarget.BringFruitDown)
         {
-            m_curNut1.SetNumber(GlobalVars.CurGameLogic.PlayingStageData.Nut1Count);
+            m_curNut1.SetNumber(GameLogic.Singleton.PlayingStageData.Nut1Count);
             m_targetNut1.SetNumber(GlobalVars.CurStageData.Nut1Count);
-            m_curNut2.SetNumber(GlobalVars.CurGameLogic.PlayingStageData.Nut2Count);
+            m_curNut2.SetNumber(GameLogic.Singleton.PlayingStageData.Nut2Count);
             m_targetNut2.SetNumber(GlobalVars.CurStageData.Nut2Count);
 
             m_nutsCheck.gameObject.SetActive(true);
             m_jellyCheck.gameObject.SetActive(false);
 
-            m_nutsCheck.value = (GlobalVars.CurGameLogic.PlayingStageData.Nut1Count == GlobalVars.CurStageData.Nut1Count && GlobalVars.CurGameLogic.PlayingStageData.Nut2Count == GlobalVars.CurStageData.Nut2Count);
+            m_nutsCheck.value = (GameLogic.Singleton.PlayingStageData.Nut1Count == GlobalVars.CurStageData.Nut1Count && GameLogic.Singleton.PlayingStageData.Nut2Count == GlobalVars.CurStageData.Nut2Count);
         }
         else
         {
@@ -103,7 +103,7 @@ public class UIGameEnd : UIWindow
             m_jellyCheck.gameObject.SetActive(false);
         }
 
-        GlobalVars.CurGameLogic.HideHelp();
+        GameLogic.Singleton.HideHelp();
     }
     public override void OnUpdate()
     {
@@ -118,11 +118,11 @@ public class UIGameEnd : UIWindow
 
     private void OnPlayOnClicked()
     {
-        if (GlobalVars.CurGameLogic.PlayingStageData.StepLimit > 0)     //若还有步数
+        if (GameLogic.Singleton.PlayingStageData.StepLimit > 0)     //若还有步数
         {
             HideWindow(delegate()
             {
-                GlobalVars.CurGameLogic.ShowHelpAnim();
+                GameLogic.Singleton.ShowHelpAnim();
             });
         }
         else                                            //若没步数了，就要购买和使用道具
@@ -136,8 +136,8 @@ public class UIGameEnd : UIWindow
                     --GlobalVars.Coins;
                     GA.API.Business.NewEvent("BuyStep", "RMB", 1);
                     PlayerPrefs.SetInt("Coins", GlobalVars.Coins);
-                    GlobalVars.CurGameLogic.PlayingStageData.StepLimit += 5;        //步数加5
-                    GlobalVars.CurGameLogic.SetGameFlow(TGameFlow.EGameState_Playing);      //回到可以继续玩的状态
+                    GameLogic.Singleton.PlayingStageData.StepLimit += 5;        //步数加5
+                    GameLogic.Singleton.SetGameFlow(TGameFlow.EGameState_Playing);      //回到可以继续玩的状态
                 };
             }
         }

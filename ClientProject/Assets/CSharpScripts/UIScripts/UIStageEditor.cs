@@ -22,31 +22,31 @@ public class UIStageEditor : UIWindow
 
         AddChildComponentMouseClick("RestartBtn", delegate()
             {
-                GlobalVars.CurGameLogic.ClearGame();
-				GlobalVars.CurGameLogic.Init();
-                GlobalVars.CurGameLogic.StartGame();
+                GameLogic.Singleton.ClearGame();
+				GameLogic.Singleton.Init();
+                GameLogic.Singleton.StartGame();
                 RefreshControlls();
             });
 
         AddChildComponentMouseClick("ResortBtn", delegate()
         {
-            GlobalVars.CurGameLogic.AutoResort();
+            GameLogic.Singleton.AutoResort();
         });
 
         AddChildComponentMouseClick("HelpBtn", delegate()
         {
-            GlobalVars.CurGameLogic.ClearHelpPoint();
-            GlobalVars.CurGameLogic.Help();
-            GlobalVars.CurGameLogic.ShowHelpAnim();
+            GameLogic.Singleton.ClearHelpPoint();
+            GameLogic.Singleton.Help();
+            GameLogic.Singleton.ShowHelpAnim();
         });
 
         AddChildComponentMouseClick("ReSeedBtn", delegate()
         {
-            GlobalVars.CurGameLogic.ClearGame();
-			GlobalVars.CurGameLogic.Init();
-			GlobalVars.CurGameLogic.PlayingStageData.Seed = (int)(Time.realtimeSinceStartup * 1000 % 1000);
-            GlobalVars.CurGameLogic.StartGame();
-            m_seedLabel.text = GlobalVars.CurGameLogic.PlayingStageData.Seed.ToString();
+            GameLogic.Singleton.ClearGame();
+			GameLogic.Singleton.Init();
+			GameLogic.Singleton.PlayingStageData.Seed = (int)(Time.realtimeSinceStartup * 1000 % 1000);
+            GameLogic.Singleton.StartGame();
+            m_seedLabel.text = GameLogic.Singleton.PlayingStageData.Seed.ToString();
             RefreshControlls();
         });
 
@@ -105,7 +105,7 @@ public class UIStageEditor : UIWindow
             int targetType = i;
             AddChildComponentMouseClick("TargetMode" + i, delegate()
             {
-                GlobalVars.CurGameLogic.PlayingStageData.Target = (GameTarget)targetType;
+                GameLogic.Singleton.PlayingStageData.Target = (GameTarget)targetType;
             });
         }
 
@@ -150,15 +150,15 @@ public class UIStageEditor : UIWindow
 
         AddChildComponentMouseClick("ClearAllPortalBtn", delegate()
         {
-            GlobalVars.CurGameLogic.PlayingStageData.PortalFromMap.Clear();
-            GlobalVars.CurGameLogic.PlayingStageData.PortalToMap.Clear();
+            GameLogic.Singleton.PlayingStageData.PortalFromMap.Clear();
+            GameLogic.Singleton.PlayingStageData.PortalToMap.Clear();
             for (int i = 0; i < GameLogic.BlockCountX; ++i )
             {
                 for (int j = 0; j < GameLogic.BlockCountY; ++j )
                 {
-                    GlobalVars.CurGameLogic.PlayingStageData.ClearFlag(i, j, GridFlag.Portal);
-                    GlobalVars.CurGameLogic.PlayingStageData.ClearFlag(i, j, GridFlag.PortalEnd);
-                    GlobalVars.CurGameLogic.PlayingStageData.ClearFlag(i, j, GridFlag.PortalStart);
+                    GameLogic.Singleton.PlayingStageData.ClearFlag(i, j, GridFlag.Portal);
+                    GameLogic.Singleton.PlayingStageData.ClearFlag(i, j, GridFlag.PortalEnd);
+                    GameLogic.Singleton.PlayingStageData.ClearFlag(i, j, GridFlag.PortalStart);
                 }
             }
         });
@@ -219,13 +219,13 @@ public class UIStageEditor : UIWindow
         input.value = GlobalVars.CurStageNum.ToString();
 
         input = GetChildComponent<UIInput>("StepLimit");
-        input.value = GlobalVars.CurGameLogic.PlayingStageData.StepLimit.ToString();
+        input.value = GameLogic.Singleton.PlayingStageData.StepLimit.ToString();
 
         input = GetChildComponent<UIInput>("TimeLimit");
-        input.value = GlobalVars.CurGameLogic.PlayingStageData.TimeLimit.ToString();
+        input.value = GameLogic.Singleton.PlayingStageData.TimeLimit.ToString();
 
         input = GetChildComponent<UIInput>("ColorCount");
-        input.value = GlobalVars.CurGameLogic.PlayingStageData.ColorCount.ToString();
+        input.value = GameLogic.Singleton.PlayingStageData.ColorCount.ToString();
 
         input = GetChildComponent<UIInput>("Nut1");
         input.value = GlobalVars.CurStageData.Nut1Count.ToString();
@@ -257,13 +257,13 @@ public class UIStageEditor : UIWindow
         for (int i = 0; i < 3; ++i)
         {
             input = GetChildComponent<UIInput>("Star" + (i + 1));
-            input.value = GlobalVars.CurGameLogic.PlayingStageData.StarScore[i].ToString();
+            input.value = GameLogic.Singleton.PlayingStageData.StarScore[i].ToString();
         }
 
-        UIToggle targetCheck = GetChildComponent<UIToggle>("TargetMode" + (int)GlobalVars.CurGameLogic.PlayingStageData.Target);
+        UIToggle targetCheck = GetChildComponent<UIToggle>("TargetMode" + (int)GameLogic.Singleton.PlayingStageData.Target);
         targetCheck.value = true;
 
-        m_seedLabel.text = GlobalVars.CurGameLogic.PlayingStageData.Seed.ToString();
+        m_seedLabel.text = GameLogic.Singleton.PlayingStageData.Seed.ToString();
     }
 
     public override void OnShow()
@@ -296,84 +296,84 @@ public class UIStageEditor : UIWindow
     {
         UIInput input = GetChildComponent<UIInput>("StepLimit");
         int stepLimit = (int)System.Convert.ChangeType(input.value, typeof(int));
-        GlobalVars.CurGameLogic.PlayingStageData.StepLimit = stepLimit;
+        GameLogic.Singleton.PlayingStageData.StepLimit = stepLimit;
 
 
 
         input = GetChildComponent<UIInput>("TimeLimit");
         int timeLimit = (int)System.Convert.ChangeType(input.value, typeof(int));
-        GlobalVars.CurGameLogic.PlayingStageData.TimeLimit = timeLimit;
+        GameLogic.Singleton.PlayingStageData.TimeLimit = timeLimit;
 
         input = GetChildComponent<UIInput>("ColorCount");
         int colorCount = (int)System.Convert.ChangeType(input.value, typeof(int));
-        GlobalVars.CurGameLogic.PlayingStageData.ColorCount = colorCount;
+        GameLogic.Singleton.PlayingStageData.ColorCount = colorCount;
 
         for (int i = 0; i < 3; ++i )
         {
             input = GetChildComponent<UIInput>("Star" + (i + 1));
             int score = (int)System.Convert.ChangeType(input.value, typeof(int));
-            GlobalVars.CurGameLogic.PlayingStageData.StarScore[i] = score;
+            GameLogic.Singleton.PlayingStageData.StarScore[i] = score;
         }
 
         input = GetChildComponent<UIInput>("Nut1");
         int nut1Count = (int)System.Convert.ChangeType(input.value, typeof(int));
-        GlobalVars.CurGameLogic.PlayingStageData.Nut1Count = nut1Count;
+        GameLogic.Singleton.PlayingStageData.Nut1Count = nut1Count;
 
         input = GetChildComponent<UIInput>("Nut2");
         int nut2Count = (int)System.Convert.ChangeType(input.value, typeof(int));
-        GlobalVars.CurGameLogic.PlayingStageData.Nut2Count = nut2Count;
+        GameLogic.Singleton.PlayingStageData.Nut2Count = nut2Count;
 
         input = GetChildComponent<UIInput>("NutInitCount");
         int nutInitCount = (int)System.Convert.ChangeType(input.value, typeof(int));
-        GlobalVars.CurGameLogic.PlayingStageData.NutInitCount = nutInitCount;
+        GameLogic.Singleton.PlayingStageData.NutInitCount = nutInitCount;
 
         input = GetChildComponent<UIInput>("NutMaxCount");
         int nutMaxCount = (int)System.Convert.ChangeType(input.value, typeof(int));
-        GlobalVars.CurGameLogic.PlayingStageData.NutMaxCount = nutMaxCount;
+        GameLogic.Singleton.PlayingStageData.NutMaxCount = nutMaxCount;
 
         input = GetChildComponent<UIInput>("NutStep");
         int nutStep = (int)System.Convert.ChangeType(input.value, typeof(int));
-        GlobalVars.CurGameLogic.PlayingStageData.NutStep = nutStep;
+        GameLogic.Singleton.PlayingStageData.NutStep = nutStep;
 
         input = GetChildComponent<UIInput>("PlusInitCount");
         int plusInitCount = (int)System.Convert.ChangeType(input.value, typeof(int));
-        GlobalVars.CurGameLogic.PlayingStageData.PlusInitCount = plusInitCount;
+        GameLogic.Singleton.PlayingStageData.PlusInitCount = plusInitCount;
 
         input = GetChildComponent<UIInput>("PlusMaxCount");
         int plusMaxCount = (int)System.Convert.ChangeType(input.value, typeof(int));
-        GlobalVars.CurGameLogic.PlayingStageData.PlusMaxCount = plusMaxCount;
+        GameLogic.Singleton.PlayingStageData.PlusMaxCount = plusMaxCount;
 
         input = GetChildComponent<UIInput>("PlusStartTime");
         int plusStartTime = (int)System.Convert.ChangeType(input.value, typeof(int));
-        GlobalVars.CurGameLogic.PlayingStageData.PlusStartTime = plusStartTime;
+        GameLogic.Singleton.PlayingStageData.PlusStartTime = plusStartTime;
 
         input = GetChildComponent<UIInput>("PlusStep");
         int plusStep = (int)System.Convert.ChangeType(input.value, typeof(int));
-        GlobalVars.CurGameLogic.PlayingStageData.PlusStep = plusStep;
+        GameLogic.Singleton.PlayingStageData.PlusStep = plusStep;
 
         input = GetChildComponent<UIInput>("LevelInput");
         int levelNum = (int)System.Convert.ChangeType(input.value, typeof(int));
-        GlobalVars.CurGameLogic.PlayingStageData.SaveStageData(levelNum);
+        GameLogic.Singleton.PlayingStageData.SaveStageData(levelNum);
         GlobalVars.CurStageNum = levelNum;
 
         int stageType = 0;
-        if (GlobalVars.CurGameLogic.PlayingStageData.TimeLimit > 0)     //若为时间关卡
+        if (GameLogic.Singleton.PlayingStageData.TimeLimit > 0)     //若为时间关卡
         {
             stageType = (int)StageType.Time;
         }
-        else if (GlobalVars.CurGameLogic.PlayingStageData.Target == GameTarget.GetScore)
+        else if (GameLogic.Singleton.PlayingStageData.Target == GameTarget.GetScore)
         {
             stageType = (int)StageType.Score;
         }
-        else if (GlobalVars.CurGameLogic.PlayingStageData.Target == GameTarget.ClearJelly)
+        else if (GameLogic.Singleton.PlayingStageData.Target == GameTarget.ClearJelly)
         {
             stageType = (int)StageType.Jelly;
         }
-        else if (GlobalVars.CurGameLogic.PlayingStageData.Target == GameTarget.BringFruitDown)
+        else if (GameLogic.Singleton.PlayingStageData.Target == GameTarget.BringFruitDown)
         {
             stageType = (int)StageType.Nut;
         }
-        else if (GlobalVars.CurGameLogic.PlayingStageData.Target == GameTarget.Collect)
+        else if (GameLogic.Singleton.PlayingStageData.Target == GameTarget.Collect)
         {
             stageType = (int)StageType.Collect;
         }
@@ -394,7 +394,7 @@ public class UIStageEditor : UIWindow
     {
         UIInput input = GetChildComponent<UIInput>("LevelInput");
         int levelNum = (int)System.Convert.ChangeType(input.value, typeof(int));
-        GlobalVars.CurGameLogic.PlayingStageData = StageData.CreateStageData();
-        GlobalVars.CurGameLogic.PlayingStageData.LoadStageData(levelNum);
+        GameLogic.Singleton.PlayingStageData = StageData.CreateStageData();
+        GameLogic.Singleton.PlayingStageData.LoadStageData(levelNum);
     }
 }

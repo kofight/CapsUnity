@@ -65,8 +65,8 @@ public class UIStageInfo : UIWindow
         {
             HideWindow(delegate()
             {
-                GlobalVars.CurGameLogic.Init();
-                GlobalVars.CurGameLogic.StartGame();
+                GameLogic.Singleton.Init();
+                GameLogic.Singleton.StartGame();
             });
         }
     }

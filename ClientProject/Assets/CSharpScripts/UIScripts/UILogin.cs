@@ -67,7 +67,6 @@ public class UILogin : UIWindow
     public override void OnShow()
     {
         base.OnShow();
-        mEffectPlayerList[0].Delay = 0;
         if (CapsApplication.Singleton.GetPlayTime() > 20 * 3600)            //如果游戏时间超过20小时
         {
             UIButton button = GetChildComponent<UIButton>("PlayBtn");
@@ -88,6 +87,13 @@ public class UILogin : UIWindow
             m_debugBoard.SetActive(false);
         }
     }
+
+    public override void OnShowEffectPlayOver()
+    {
+        base.OnShowEffectPlayOver();
+        mEffectPlayerList[0].Delay = 0;
+    }
+
     public override void OnUpdate()
     {
         base.OnUpdate();

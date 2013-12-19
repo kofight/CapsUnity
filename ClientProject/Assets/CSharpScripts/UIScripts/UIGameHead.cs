@@ -46,7 +46,7 @@ public class UIGameHead : UIWindow
             if (GlobalVars.CurStageData.Nut1Count > 0)
             {
                 UIDrawer.Singleton.DrawSprite("Fruit1Icon", -40, 42, "Kiwifruit_Icon");
-                UIDrawer.Singleton.DrawNumber("Fruit1Count", 0, 42, GlobalVars.CurGameLogic.PlayingStageData.Nut1Count, "", 24, 1);
+                UIDrawer.Singleton.DrawNumber("Fruit1Count", 0, 42, GameLogic.Singleton.PlayingStageData.Nut1Count, "", 24, 1);
                 UIDrawer.Singleton.DrawSprite("Fruit1CountSplash", 31, 42, "backslash");
                 UIDrawer.Singleton.DrawNumber("Fruit1Total", 60, 42, GlobalVars.CurStageData.Nut1Count, "", 24, 1);
             }
@@ -54,7 +54,7 @@ public class UIGameHead : UIWindow
             if (GlobalVars.CurStageData.Nut2Count > 0)
             {
                 UIDrawer.Singleton.DrawSprite("Fruit2Icon", 140, 42, "Cherry_Icon");
-                UIDrawer.Singleton.DrawNumber("Fruit2Count", 180, 42, GlobalVars.CurGameLogic.PlayingStageData.Nut2Count, "", 24, 1);
+                UIDrawer.Singleton.DrawNumber("Fruit2Count", 180, 42, GameLogic.Singleton.PlayingStageData.Nut2Count, "", 24, 1);
                 UIDrawer.Singleton.DrawSprite("Fruit2CountSplash", 214, 42, "backslash");
                 UIDrawer.Singleton.DrawNumber("Fruit2Total", 240, 42, GlobalVars.CurStageData.Nut2Count, "", 24, 1);
             }
@@ -62,14 +62,14 @@ public class UIGameHead : UIWindow
         else if (GlobalVars.CurStageData.Target == GameTarget.ClearJelly)
         {
             UIDrawer.Singleton.DrawSprite("JellyCountIcon", -40, 40, "IceBlock_Icon");
-            UIDrawer.Singleton.DrawNumber("Jelly1", -2, 42, GlobalVars.CurGameLogic.PlayingStageData.GetSingleJellyCount(), "", 22, 2);
+            UIDrawer.Singleton.DrawNumber("Jelly1", -2, 42, GameLogic.Singleton.PlayingStageData.GetSingleJellyCount(), "", 22, 2);
             UIDrawer.Singleton.DrawSprite("JellyCountSplash", 40, 42, "backslash");
             UIDrawer.Singleton.DrawNumber("Jelly2", 65, 42, GlobalVars.CurStageData.GetSingleJellyCount(), "", 22, 2);
             
             if (GlobalVars.CurStageData.GetDoubleJellyCount() > 0)
             {
                 UIDrawer.Singleton.DrawSprite("DoubleJellyCountIcon", 140, 40, "DoubleIceBlock_Icon");
-                UIDrawer.Singleton.DrawNumber("DoubleJelly1", 170, 42, GlobalVars.CurGameLogic.PlayingStageData.GetDoubleJellyCount(), "", 23, 2);
+                UIDrawer.Singleton.DrawNumber("DoubleJelly1", 170, 42, GameLogic.Singleton.PlayingStageData.GetDoubleJellyCount(), "", 23, 2);
                 UIDrawer.Singleton.DrawSprite("DoubleJellyCountSplash", 220, 42, "backslash");
                 UIDrawer.Singleton.DrawNumber("DoubleJelly2", 240, 42, GlobalVars.CurStageData.GetDoubleJellyCount(), "", 23, 2);
             }
@@ -84,7 +84,7 @@ public class UIGameHead : UIWindow
 	
 	void UserOrBuyItem(PurchasedItem item)
 	{
-        if (GlobalVars.CurGameLogic.GetGameFlow() != TGameFlow.EGameState_Playing)
+        if (GameLogic.Singleton.GetGameFlow() != TGameFlow.EGameState_Playing)
         {
             return;
         }
@@ -100,11 +100,11 @@ public class UIGameHead : UIWindow
                     --GlobalVars.Coins;
                     GA.API.Business.NewEvent("BuyStep", "RMB", 1);
                     PlayerPrefs.SetInt("Coins", GlobalVars.Coins);
-                    GlobalVars.CurGameLogic.PlayingStageData.StepLimit += 5;        //步数加5
+                    GameLogic.Singleton.PlayingStageData.StepLimit += 5;        //步数加5
                 }
                 else if (item == PurchasedItem.Item_Hammer)
                 {
-                    GlobalVars.CurGameLogic.UsingItem = item;                       //进入使用道具状态，等着选目标
+                    GameLogic.Singleton.UsingItem = item;                       //进入使用道具状态，等着选目标
                 }
             };
             return;
@@ -116,11 +116,11 @@ public class UIGameHead : UIWindow
         {
             if (item == PurchasedItem.Item_Hammer)
             {
-                GlobalVars.CurGameLogic.UsingItem = item;
+                GameLogic.Singleton.UsingItem = item;
             }
             else if (item == PurchasedItem.Item_PlusStep)
             {
-                GlobalVars.CurGameLogic.PlayingStageData.StepLimit += 5;        //步数加5
+                GameLogic.Singleton.PlayingStageData.StepLimit += 5;        //步数加5
                 --GlobalVars.PurchasedItemArray[(int)item];                     //减少道具数量
                 RefreshItemCount();
                 PlayerPrefsExtend.SetIntArray("PurchasedItemArray", GlobalVars.PurchasedItemArray);

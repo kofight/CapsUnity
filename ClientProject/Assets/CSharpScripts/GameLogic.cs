@@ -167,6 +167,22 @@ public enum AudioEnum
 
 public class GameLogic
 {
+    #region Singleton
+    public static GameLogic Singleton { get; private set; }
+    public GameLogic()
+    {
+        if (Singleton == null)
+        {
+            Singleton = this;
+        }
+        else
+        {
+            throw new System.Exception();			//if singleton exist, throw a Exception
+        }
+        InitSingleton();
+    }
+    #endregion
+
     public static int BlockCountX = 9;	//游戏区有几列
     public static int BlockCountY = 9;	//游戏区有几行
 
@@ -334,13 +350,6 @@ public class GameLogic
         m_playSoundNextFrame.Add(audio);
     }
 
-    public GameLogic()
-    {
-        m_capsPool = GameObject.Find("CapsPool");
-        m_gameArea = GameObject.Find("GameArea");
-        TopLeftAnchor = GameObject.Find("TopLeftAnchor");
-    }
-
     public TGameFlow GetGameFlow() { return m_gameFlow; }
     public void SetGameFlow(TGameFlow flow) { m_gameFlow = flow; }
 
@@ -372,8 +381,12 @@ public class GameLogic
         m_gameFlow = gameFlow;
     }
 
-    public void Init()
+    public void InitSingleton()
     {
+        m_capsPool = GameObject.Find("CapsPool");
+        m_gameArea = GameObject.Find("GameArea");
+        TopLeftAnchor = GameObject.Find("TopLeftAnchor");
+
         m_gridInstance = GameObject.Find("GridInstance");
         m_angleInstance = GameObject.Find("Angle");
         m_angle2Instance = GameObject.Find("Angle2");
@@ -388,7 +401,7 @@ public class GameLogic
             m_capBlockFreeList.AddLast(capBlock);
         }
 
-        for (int j = 0; j < 10; ++j )
+        for (int j = 0; j < 10; ++j)
         {
             GameObject newObj = GameObject.Instantiate(m_shadowSpriteInstance) as GameObject;
             newObj.transform.parent = m_shadowSpriteInstance.transform.parent;
@@ -397,7 +410,10 @@ public class GameLogic
             m_freeShadowSpriteList.AddLast(sprite);
             newObj.SetActive(false);
         }
+    }
 
+    public void Init()
+    {
         for (int i = 0; i < 81; ++i)
         {
             ShowingNumberEffect numEffect = new ShowingNumberEffect();
@@ -788,43 +804,40 @@ public class GameLogic
 
     public void ClearGame()
     {
+        //回收Blocks
+        for (int i = 0; i < BlockCountX; ++i)
+        {
+            for (int j = 0; j < BlockCountY; ++j)
+            {
+                if (m_blocks[i, j] != null)
+                {
+                    if (m_blocks[i, j].m_shadowSprite != null)                           //已经落完的，若仍有shadowSprite, 释放
+                    {
+                        m_freeShadowSpriteList.AddLast(m_blocks[i, j].m_shadowSprite);   //放到空闲队列里
+                        m_blocks[i, j].m_shadowSprite.gameObject.SetActive(false);       //释放
+                        m_blocks[i, j].m_shadowSprite = null;
+                    }
+
+                    MakeSpriteFree(i, j);
+                }
+            }
+        }
+
         m_progress = 0;
-        //处理粒子////////////////////////////////////////////////////////////////////////
+        //回收粒子////////////////////////////////////////////////////////////////////////
         foreach (KeyValuePair<string, LinkedList<ParticleSystem>> pair in m_particleMap)
         {
             LinkedList<ParticleSystem> list = pair.Value;
+
             foreach (ParticleSystem par in list)
             {
-                GameObject.Destroy(par.gameObject);
+                par.Stop();
+                m_freeParticleMap[pair.Key].AddLast(par);           //添加空闲的
+                 
             }
+
+            list.Clear();
         }
-
-        m_particleMap.Clear();
-
-        foreach (KeyValuePair<string, LinkedList<ParticleSystem>> pair in m_freeParticleMap)
-        {
-            LinkedList<ParticleSystem> list = pair.Value;
-            foreach (ParticleSystem par in list)
-            {
-                GameObject.Destroy(par.gameObject);
-            }
-        }
-
-        m_freeParticleMap.Clear();
-
-        foreach (CapBlock block in m_capBlockFreeList)
-        {
-            GameObject.Destroy(block.m_blockTransform.gameObject);
-        }
-
-        m_capBlockFreeList.Clear();
-
-		foreach (UISprite sprite in m_freeShadowSpriteList) 
-		{
-			GameObject.Destroy(sprite.gameObject);		
-		}
-
-		m_freeShadowSpriteList.Clear ();
 
         foreach (GameObject obj in m_gridAngles)
         {

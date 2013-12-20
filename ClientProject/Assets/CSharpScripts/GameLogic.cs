@@ -167,6 +167,22 @@ public enum AudioEnum
 
 public class GameLogic
 {
+    #region Singleton
+    public static GameLogic Singleton { get; private set; }
+    public GameLogic()
+    {
+        if (Singleton == null)
+        {
+            Singleton = this;
+        }
+        else
+        {
+            throw new System.Exception();			//if singleton exist, throw a Exception
+        }
+        InitSingleton();
+    }
+    #endregion
+
     public static int BlockCountX = 9;	//游戏区有几列
     public static int BlockCountY = 9;	//游戏区有几行
 
@@ -202,7 +218,7 @@ public class GameLogic
     CapBlock[,] m_blocks = new CapBlock[BlockCountX, BlockCountY];		//屏幕上方块的数组
     GridSprites[,] m_gridBackImage = new GridSprites[BlockCountX, BlockCountY];        //用来记录背景块
     int[,] m_scoreToShow = new int[BlockCountX, BlockCountY];
-    int[] m_slopeDropLock = new int[BlockCountX];         				//斜下落的锁定
+    int[] m_slopeDropLock = new int[BlockCountX];         				//斜下落的锁定，值是锁在什么位置，锁和锁以下的位置都不能产生斜下落
 
     Position [] m_saveHelpBlocks = new Position[3];        //用来保存帮助找到的可消块
 
@@ -334,13 +350,6 @@ public class GameLogic
         m_playSoundNextFrame.Add(audio);
     }
 
-    public GameLogic()
-    {
-        m_capsPool = GameObject.Find("CapsPool");
-        m_gameArea = GameObject.Find("GameArea");
-        TopLeftAnchor = GameObject.Find("TopLeftAnchor");
-    }
-
     public TGameFlow GetGameFlow() { return m_gameFlow; }
     public void SetGameFlow(TGameFlow flow) { m_gameFlow = flow; }
 
@@ -372,8 +381,12 @@ public class GameLogic
         m_gameFlow = gameFlow;
     }
 
-    public void Init()
+    public void InitSingleton()
     {
+        m_capsPool = GameObject.Find("CapsPool");
+        m_gameArea = GameObject.Find("GameArea");
+        TopLeftAnchor = GameObject.Find("TopLeftAnchor");
+
         m_gridInstance = GameObject.Find("GridInstance");
         m_angleInstance = GameObject.Find("Angle");
         m_angle2Instance = GameObject.Find("Angle2");
@@ -388,7 +401,7 @@ public class GameLogic
             m_capBlockFreeList.AddLast(capBlock);
         }
 
-        for (int j = 0; j < 10; ++j )
+        for (int j = 0; j < 10; ++j)
         {
             GameObject newObj = GameObject.Instantiate(m_shadowSpriteInstance) as GameObject;
             newObj.transform.parent = m_shadowSpriteInstance.transform.parent;
@@ -397,7 +410,10 @@ public class GameLogic
             m_freeShadowSpriteList.AddLast(sprite);
             newObj.SetActive(false);
         }
+    }
 
+    public void Init()
+    {
         for (int i = 0; i < 81; ++i)
         {
             ShowingNumberEffect numEffect = new ShowingNumberEffect();
@@ -773,7 +789,8 @@ public class GameLogic
         if (CapsConfig.EnableGA)
         {
             Debug.Log("Stage Start GA");
-            GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Start");  //记录当前开始的关卡的数据
+            GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Start");        //记录当前开始的关卡的数据
+            //TalkingDataPlugin.TrackEvent("Stage" + GlobalVars.CurStageNum + ":Start");  //记录当前开始的关卡的数据
         }        
 
         AddPartile("StartGameAnim", 5, 5, false);
@@ -787,43 +804,40 @@ public class GameLogic
 
     public void ClearGame()
     {
+        //回收Blocks
+        for (int i = 0; i < BlockCountX; ++i)
+        {
+            for (int j = 0; j < BlockCountY; ++j)
+            {
+                if (m_blocks[i, j] != null)
+                {
+                    if (m_blocks[i, j].m_shadowSprite != null)                           //已经落完的，若仍有shadowSprite, 释放
+                    {
+                        m_freeShadowSpriteList.AddLast(m_blocks[i, j].m_shadowSprite);   //放到空闲队列里
+                        m_blocks[i, j].m_shadowSprite.gameObject.SetActive(false);       //释放
+                        m_blocks[i, j].m_shadowSprite = null;
+                    }
+
+                    MakeSpriteFree(i, j);
+                }
+            }
+        }
+
         m_progress = 0;
-        //处理粒子////////////////////////////////////////////////////////////////////////
+        //回收粒子////////////////////////////////////////////////////////////////////////
         foreach (KeyValuePair<string, LinkedList<ParticleSystem>> pair in m_particleMap)
         {
             LinkedList<ParticleSystem> list = pair.Value;
+
             foreach (ParticleSystem par in list)
             {
-                GameObject.Destroy(par.gameObject);
+                par.Stop();
+                m_freeParticleMap[pair.Key].AddLast(par);           //添加空闲的
+                 
             }
+
+            list.Clear();
         }
-
-        m_particleMap.Clear();
-
-        foreach (KeyValuePair<string, LinkedList<ParticleSystem>> pair in m_freeParticleMap)
-        {
-            LinkedList<ParticleSystem> list = pair.Value;
-            foreach (ParticleSystem par in list)
-            {
-                GameObject.Destroy(par.gameObject);
-            }
-        }
-
-        m_freeParticleMap.Clear();
-
-        foreach (CapBlock block in m_capBlockFreeList)
-        {
-            GameObject.Destroy(block.m_blockTransform.gameObject);
-        }
-
-        m_capBlockFreeList.Clear();
-
-		foreach (UISprite sprite in m_freeShadowSpriteList) 
-		{
-			GameObject.Destroy(sprite.gameObject);		
-		}
-
-		m_freeShadowSpriteList.Clear ();
 
         foreach (GameObject obj in m_gridAngles)
         {
@@ -875,7 +889,7 @@ public class GameLogic
 
         for (int i = 0; i < BlockCountX; ++i)
         {
-			m_slopeDropLock[i] = 0;
+			m_slopeDropLock[i] = 9;         //初始化成不加锁
             for (int j = 0; j < BlockCountY; ++j)
             {
                 m_tempBlocks[i, j] = 0;
@@ -1358,6 +1372,22 @@ public class GameLogic
             PlaySound(audio);
         }
         m_playSoundNextFrame.Clear();
+
+        //计算锁的位置
+        for (int i = 0; i < BlockCountX; ++i )
+        {
+            for (int j = 0; j < BlockCountY; ++j )
+            {
+                if (m_blocks[i, j] != null)     //若有下落块
+                {
+                    if (m_blocks[i, j].IsDroping() || m_blocks[i, j].IsEating())     //若有下落块或正在消的块
+                    {
+                        m_slopeDropLock[i] = j + (int)(m_blocks[i, j].y_move / BLOCKHEIGHT + 1);
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     public void ShowHelpAnim()
@@ -1397,8 +1427,6 @@ public class GameLogic
 
                             //清空block信息
                             MakeSpriteFree(i, j);
-                            //清除锁定信息
-                            --m_slopeDropLock[i];
 
                             bEat = true;
                         }
@@ -1641,8 +1669,6 @@ public class GameLogic
             m_blocks[to.x, to.y].x_move = 0;        //清除x_move
             m_blocks[to.x, to.y].y_move = 0;        //清除y_move
 
-            --m_slopeDropLock[to.x];                     //把锁定的数字减掉
-
             m_blocks[to.x, to.y].CurState = BlockState.MovingEnd;      //移动结束
         }
     }
@@ -1662,6 +1688,27 @@ public class GameLogic
     {
         bool bDrop = false;             //是否有下落
         bool bNewSpace = true;          //是否有直线下落
+
+        //计算锁的位置
+        for (int i = 0; i < BlockCountX; ++i)
+        {
+            for (int j = 0; j < BlockCountY; ++j)
+            {
+                if (m_blocks[i, j] != null)     
+                {
+                    if (m_blocks[i, j].IsDroping() || m_blocks[i, j].IsEating())     //若有下落块或正在消的块
+                    {
+                        m_slopeDropLock[i] = j + (int)(m_blocks[i, j].y_move / BLOCKHEIGHT + 1);
+                        break;
+                    }
+                }
+
+                if (j == BlockCountY - 1)       //已经到了最下面还没有在下落的块
+                {
+                    m_slopeDropLock[i] = 9;
+                }
+            }
+        }
 
         while (bNewSpace)                //若有新空间，就循环处理下落，直到没有新的空间出现为止
         {
@@ -1691,6 +1738,21 @@ public class GameLogic
                     break;
                 }
             }
+	        //计算锁的位置
+	        for (int i = 0; i < BlockCountX; ++i )
+	        {
+	            for (int j = 0; j < BlockCountY; ++j )
+	            {
+                    if (m_blocks[i, j] != null)     //若有下落块
+	                {
+                        if (m_blocks[i, j].IsDroping() || m_blocks[i, j].IsEating())     //若有下落块或正在消的块
+                        {
+                            m_slopeDropLock[i] = j + (int)(m_blocks[i, j].y_move / BLOCKHEIGHT + 1);
+                            break;
+                        }
+	                }
+	            }
+	        }
         }
         return bDrop;
     }
@@ -1742,7 +1804,6 @@ public class GameLogic
                     }
                     m_blocks[destPos.x, destPos.y].CurState = BlockState.Moving;
                     m_blocks[x, j] = null;                       //原块置空
-                    ++m_slopeDropLock[x];                 //锁上
                     
                     tag = true;
                 }
@@ -1771,7 +1832,6 @@ public class GameLogic
                     m_blocks[x, destY].CurState = BlockState.Moving;
                     m_blocks[x, destY].droppingFrom.Set(x, destY - (y - j) - 1);            //记录从哪里落过来的
                     m_blocks[x, destY].DropingStartTime = Timer.GetRealTimeSinceStartUp();    //记录下落开始时间
-                    ++m_slopeDropLock[x];
                     tag = true;
                     ++CapBlock.DropingBlockCount;
                 }
@@ -1804,7 +1864,7 @@ public class GameLogic
                     }
                 }
 
-                if (m_slopeDropLock[x] > 0)
+                if (m_slopeDropLock[x] <= j)        //若锁在当前位置的上方
                 {
                     continue;
                 }
@@ -1849,8 +1909,6 @@ public class GameLogic
             }
             m_blocks[fromPos.x, fromPos.y] = null;                       //原块置空
             m_blocks[x, toPos.y].DropingStartTime = Timer.GetRealTimeSinceStartUp();    //记录下落开始时间
-
-            ++m_slopeDropLock[x];                 //锁上
 			
             return true;
         }
@@ -2240,7 +2298,6 @@ public class GameLogic
     void EatBlockWithoutTrigger(int x, int y, float delay)
     {
         m_blocks[x, y].Eat(delay);
-        ++m_slopeDropLock[x];
     }
 
     void EatBlock(Position position, float delay = 0, int addScore = 0)                   //吃掉块，通过EatLine或特殊道具功能被调用，会触发被吃的块的功能
@@ -2491,10 +2548,20 @@ public class GameLogic
                     }
                 }
             }
-
-            if (GlobalVars.CurStageData.StepLimit > 0)
+            if (CapsConfig.EnableGA)
             {
                 GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed:StepLeft", PlayingStageData.StepLimit);  //胜利时提交剩余步数
+
+                //Dictionary<string, object> param = new Dictionary<string, object>();
+                //if (PlayingStageData.StepLimit > 10)
+                //{
+                //    param["Score"] = ">10";
+                //}
+                //else
+                //{
+                //    param["Score"] = PlayingStageData.StepLimit.ToString();
+                //}
+                //TalkingDataPlugin.TrackEventWithParameters("Stage" + GlobalVars.CurStageNum + ":Succeed", "", param);
             }
 
             if (foundSpecial || PlayingStageData.StepLimit > 0)     //若能进SugarCrush
@@ -2528,6 +2595,30 @@ public class GameLogic
                 {
                     GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed:JellyCount", PlayingStageData.GetDoubleJellyCount() * 2 + PlayingStageData.GetJellyCount());  //记录失败时的果冻数
                 }
+
+                //Dictionary<string, object> param = new Dictionary<string, object>();
+                //if (m_progress > PlayingStageData.StarScore[0])
+                //{
+                //    param["Score"] = "100";
+                //}
+                //else if (m_progress > PlayingStageData.StarScore[0] * 0.8)
+                //{
+                //    param["Score"] = "80-100";
+                //}
+                //else if (m_progress > PlayingStageData.StarScore[0] * 0.6)
+                //{
+                //    param["Score"] = "60-80";
+                //}
+                //else if (m_progress > PlayingStageData.StarScore[0] * 0.4)
+                //{
+                //    param["Score"] = "40-60";
+                //}
+                //else
+                //{
+                //    param["Score"] = "<40";
+                //}
+                
+                //TalkingDataPlugin.TrackEventWithParameters("Stage" + GlobalVars.CurStageNum + ":Failed", "", param);
             }
 
             UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();            //出游戏结束界面

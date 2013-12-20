@@ -22,6 +22,7 @@ public abstract class UIEffectPlayer : MonoBehaviour
 {
     public virtual bool IsPlaying() { return false; }           //是否正在播放特效
     public virtual void CreateEffect() { }                      //创建特效
+    public bool IsDelaying() { return m_delayStartTime > 0; }
 
     public void ShowEffect()                        //显示时的特效
     {
@@ -270,8 +271,7 @@ public class UIWindow
             bool stillPlaying = false;
             foreach (UIEffectPlayer player in mEffectPlayerList)
             {
-                if (player.transform.gameObject.activeInHierarchy 						//防止transform被停止,player没停止的情况
-                && player.IsPlaying())
+                if (player.IsDelaying() || (player.gameObject.activeInHierarchy && player.IsPlaying()))
                 {
                     stillPlaying = true;
                     break;
@@ -289,7 +289,7 @@ public class UIWindow
             bool stillPlaying = false;
             foreach (UIEffectPlayer player in mEffectPlayerList)
             {
-                if (player.gameObject.activeSelf && player.IsPlaying())
+                if (player.IsDelaying() || (player.gameObject.activeInHierarchy && player.IsPlaying()))
                 {
                     stillPlaying = true;
                 }

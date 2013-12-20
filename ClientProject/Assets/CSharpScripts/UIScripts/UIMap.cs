@@ -64,7 +64,7 @@ public class UIMap : UIWindow
 		
 		springPanel = mUIObject.AddComponent<SpringPanel>();
         UIPanel panel = mUIObject.GetComponent<UIPanel>();
-        panel.clipRange = new Vector4(0, 0, CapsApplication.Singleton.Width, CapsApplication.Singleton.Height);
+        panel.baseClipRegion = new Vector4(0, 0, CapsApplication.Singleton.Width, CapsApplication.Singleton.Height);
 
         m_timeNumber = UIToolkits.FindChild(m_heartUI.mUIObject.transform, "TimeNumber").gameObject;
         m_fullText = UIToolkits.FindChild(m_heartUI.mUIObject.transform, "HeartFull").gameObject;

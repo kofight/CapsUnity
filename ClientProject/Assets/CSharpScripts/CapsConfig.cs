@@ -51,7 +51,7 @@ public class CapsConfig
 
     public static AudioList CurAudioList;
 	
-	public static readonly bool EnableGA = true;
+	public static bool EnableGA = true;
 
     public static float EatLineEffectInterval = 0.04f;               //消行特效吃块的间隔
     public static float BombEffectInterval = 0.1f;                  //炸弹特效吃块的间隔

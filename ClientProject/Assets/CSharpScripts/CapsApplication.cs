@@ -48,6 +48,18 @@ public class CapsApplication : S5Application
 
     protected override void DoInit()
     {
+        if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer)
+        {
+            CapsConfig.EnableGA = true;
+        }
+        else
+        {
+            CapsConfig.EnableGA = false;
+        }
+        if (CapsConfig.EnableGA)
+        {
+            //TalkingDataPlugin.SessionStarted("8F604653A8CC694E6954B51FE6D26127", "Test");
+        }
         m_startAppTime = Time.realtimeSinceStartup;
         m_playTime = PlayerPrefs.GetFloat("PlayTime");
 
@@ -69,49 +81,48 @@ public class CapsApplication : S5Application
         new CapsConfig();
         new ResourceManager();
 
-        UIWindowManager.Singleton.CreateWindow<UILogin>().ShowWindow(delegate()
+        UIDrawer.Singleton.AddPrefab(ResourceManager.Singleton.GetUIPrefabByName("BaseTextLabel"));
+        UIDrawer.Singleton.fontDefaultPrefabID = UIDrawer.Singleton.AddPrefab(ResourceManager.Singleton.GetUIPrefabByName("OutlineTextLabel"));
+        UIDrawer.Singleton.AddPrefab(ResourceManager.Singleton.GetUIPrefabByName("ShadowTextLabel"));
+        UIDrawer.Singleton.spriteDefaultPrefabID = UIDrawer.Singleton.AddPrefab(ResourceManager.Singleton.GetUIPrefabByName("BaseSpriteCommonAtlas"));
+        UIDrawer.Singleton.numDefaultPrefabID = UIDrawer.Singleton.AddPrefab(ResourceManager.Singleton.GetUIPrefabByName("BaseNumber"));
+
+        TextTable.Singleton.AddTextMap(@"baseText");
+        TextTable.Singleton.AddTextMap(@"errorcode");
+
+        ChangeState((int)StateEnum.Login);
+
+        GlobalVars.TotalStageCount = CapsConfig.Instance.TotalStageCount;
+        if (CapsConfig.Instance.MoveTime > 0)
         {
-            UIDrawer.Singleton.AddPrefab(ResourceManager.Singleton.GetUIPrefabByName("BaseTextLabel"));
-            UIDrawer.Singleton.fontDefaultPrefabID = UIDrawer.Singleton.AddPrefab(ResourceManager.Singleton.GetUIPrefabByName("OutlineTextLabel"));
-            UIDrawer.Singleton.AddPrefab(ResourceManager.Singleton.GetUIPrefabByName("ShadowTextLabel"));
-            UIDrawer.Singleton.spriteDefaultPrefabID = UIDrawer.Singleton.AddPrefab(ResourceManager.Singleton.GetUIPrefabByName("BaseSpriteCommonAtlas"));
-            UIDrawer.Singleton.numDefaultPrefabID = UIDrawer.Singleton.AddPrefab(ResourceManager.Singleton.GetUIPrefabByName("BaseNumber"));
+            GameLogic.MOVE_TIME = CapsConfig.Instance.MoveTime;
+        }
+        if (CapsConfig.Instance.EatTime > 0)
+        {
+            GameLogic.EATBLOCK_TIME = CapsConfig.Instance.EatTime;
+        }
+        if (CapsConfig.Instance.DropAcc > 0)
+        {
+            GameLogic.DROP_ACC = CapsConfig.Instance.DropAcc;
+        }
+        if (CapsConfig.Instance.DropSpeed > 0)
+        {
+            GameLogic.DROP_SPEED = CapsConfig.Instance.DropSpeed;
+        }
+        if (CapsConfig.Instance.DropSpeed > 0)
+        {
+            GameLogic.SLIDE_SPEED = CapsConfig.Instance.SlideSpeed;
+        }
 
-            TextTable.Singleton.AddTextMap(@"baseText");
-            TextTable.Singleton.AddTextMap(@"errorcode");
+        //读取心数相关
+        if (PlayerPrefs.HasKey("HeartCount"))
+        {
+            GlobalVars.HeartCount = PlayerPrefs.GetInt("HeartCount");
+            string heartTimeString = PlayerPrefs.GetString("GetHeartTime");
+            GlobalVars.GetHeartTime = Convert.ToDateTime(heartTimeString);
+        }
 
-            ChangeState((int)StateEnum.Login);
-
-            GlobalVars.TotalStageCount = CapsConfig.Instance.TotalStageCount;
-            if (CapsConfig.Instance.MoveTime > 0)
-            {
-                GameLogic.MOVE_TIME = CapsConfig.Instance.MoveTime;
-            }
-            if (CapsConfig.Instance.EatTime > 0)
-            {
-                GameLogic.EATBLOCK_TIME = CapsConfig.Instance.EatTime;
-            }
-            if (CapsConfig.Instance.DropAcc > 0)
-            {
-                GameLogic.DROP_ACC = CapsConfig.Instance.DropAcc;
-            }
-            if (CapsConfig.Instance.DropSpeed > 0)
-            {
-                GameLogic.DROP_SPEED = CapsConfig.Instance.DropSpeed;
-            }
-            if (CapsConfig.Instance.DropSpeed > 0)
-            {
-                GameLogic.SLIDE_SPEED = CapsConfig.Instance.SlideSpeed;
-            }
-
-            //读取心数相关
-            if (PlayerPrefs.HasKey("HeartCount"))
-            {
-                GlobalVars.HeartCount = PlayerPrefs.GetInt("HeartCount");
-                string heartTimeString = PlayerPrefs.GetString("GetHeartTime");
-                GlobalVars.GetHeartTime = Convert.ToDateTime(heartTimeString);
-            }
-        });
+        UIWindowManager.Singleton.CreateWindow<UILogin>().ShowWindow();
     }
 
     protected override void DoUpdate()
@@ -125,10 +136,15 @@ public class CapsApplication : S5Application
         if (bPause)
         {
             PlayerPrefs.SetFloat("PlayTime", GetPlayTime());        //暂停时保存游戏时间
+            //if (CapsConfig.EnableGA)
+            //    TalkingDataPlugin.SessionStoped();
         }
         else
         {
             m_playTime = PlayerPrefs.GetFloat("PlayTime");          //恢复时读取游戏时间
+            m_startAppTime = Time.realtimeSinceStartup;
+            //if (CapsConfig.EnableGA)
+            //    TalkingDataPlugin.SessionStarted("8F604653A8CC694E6954B51FE6D26127", "Test");
         }
     }
 
@@ -142,6 +158,9 @@ public class CapsApplication : S5Application
         PlayerPrefs.SetString("GetHeartTime", Convert.ToString(GlobalVars.GetHeartTime));
 
         PlayerPrefs.SetFloat("PlayTime", GetPlayTime());
+
+        //if (CapsConfig.EnableGA)
+        //    TalkingDataPlugin.SessionStoped();
     }
 
     public float GetPlayTime()

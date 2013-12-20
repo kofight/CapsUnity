@@ -31,7 +31,7 @@ public class UIRetry : UIWindow
     public override void OnShow()
     {
         Transform nextBtn = UIToolkits.FindChild(mUIObject.transform, "NextLevelBtn");
-        if (GlobalVars.CurGameLogic.IsStageFinish())         //检查关卡是否结束
+        if (GameLogic.Singleton.IsStageFinish())         //检查关卡是否结束
         {
             nextBtn.gameObject.SetActive(true);
         }
@@ -42,7 +42,7 @@ public class UIRetry : UIWindow
         base.OnShow();
 
 
-        if (GlobalVars.CurGameLogic.GetProgress() < GlobalVars.CurStageData.StarScore[0])       //没到基础的分数要求的情况
+        if (GameLogic.Singleton.GetProgress() < GlobalVars.CurStageData.StarScore[0])       //没到基础的分数要求的情况
         {
             m_bWin = false;
             //m_resultLabel.text = "Failed!";
@@ -50,11 +50,11 @@ public class UIRetry : UIWindow
         }
         else if (GlobalVars.CurStageData.Target == GameTarget.ClearJelly)
         {
-            if (GlobalVars.CurGameLogic.PlayingStageData.GetJellyCount() != 0)
+            if (GameLogic.Singleton.PlayingStageData.GetJellyCount() != 0)
             {
                 m_bWin = false;
                 //m_resultLabel.text = "Failed!";
-                m_infoLabel.text = "Did not clear all jelly" + GlobalVars.CurGameLogic.PlayingStageData.GetJellyCount() + "/" + GlobalVars.CurStageData.GetJellyCount();
+                m_infoLabel.text = "Did not clear all jelly" + GameLogic.Singleton.PlayingStageData.GetJellyCount() + "/" + GlobalVars.CurStageData.GetJellyCount();
             }
             else
             {
@@ -65,7 +65,7 @@ public class UIRetry : UIWindow
         }
         else if (GlobalVars.CurStageData.Target == GameTarget.GetScore)
         {
-            if (GlobalVars.CurGameLogic.GetProgress() >= GlobalVars.CurStageData.StarScore[0])
+            if (GameLogic.Singleton.GetProgress() >= GlobalVars.CurStageData.StarScore[0])
             {
                 m_bWin = true;
                 //m_resultLabel.text = "Win!";
@@ -81,8 +81,8 @@ public class UIRetry : UIWindow
         }
         else if (GlobalVars.CurStageData.Target == GameTarget.BringFruitDown)
         {
-            if (GlobalVars.CurGameLogic.PlayingStageData.Nut1Count == GlobalVars.CurStageData.Nut1Count
-                && GlobalVars.CurGameLogic.PlayingStageData.Nut2Count == GlobalVars.CurStageData.Nut2Count)
+            if (GameLogic.Singleton.PlayingStageData.Nut1Count == GlobalVars.CurStageData.Nut1Count
+                && GameLogic.Singleton.PlayingStageData.Nut2Count == GlobalVars.CurStageData.Nut2Count)
             {
                 m_bWin = true;
                 //m_resultLabel.text = "Win!";
@@ -105,7 +105,7 @@ public class UIRetry : UIWindow
 
             for (int i = 2; i >= 0;--i )
             {
-                if (GlobalVars.CurGameLogic.GetProgress() > GlobalVars.CurStageData.StarScore[i])
+                if (GameLogic.Singleton.GetProgress() > GlobalVars.CurStageData.StarScore[i])
                 {
                     m_starCount = i + 1;
                     break;
@@ -119,18 +119,18 @@ public class UIRetry : UIWindow
                 PlayerPrefsExtend.SetIntArray("StageStars", GlobalVars.StageStarArray);         //保存进度
             }
 
-            if (GlobalVars.CurGameLogic.GetProgress() > GlobalVars.StageScoreArray[GlobalVars.CurStageNum - 1])     //记录分数记录
+            if (GameLogic.Singleton.GetProgress() > GlobalVars.StageScoreArray[GlobalVars.CurStageNum - 1])     //记录分数记录
             {
-                GlobalVars.StageScoreArray[GlobalVars.CurStageNum - 1] = GlobalVars.CurGameLogic.GetProgress();
+                GlobalVars.StageScoreArray[GlobalVars.CurStageNum - 1] = GameLogic.Singleton.GetProgress();
                 PlayerPrefsExtend.SetIntArray("StageScores", GlobalVars.StageScoreArray);
             }
 			
 			if(CapsConfig.EnableGA)	//游戏过关后的记录
 			{
                 Debug.Log("Stage succeed GA");
-				GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed", GlobalVars.CurGameLogic.GetProgress());  //分数
-	            GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed:Score_Percent", (float)GlobalVars.CurGameLogic.GetProgress() / GlobalVars.CurGameLogic.PlayingStageData.StarScore[0]);  //记录当前开始的关卡的百分比
-	            GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed:Score_3StarPercent", (float)GlobalVars.CurGameLogic.GetProgress() / GlobalVars.CurGameLogic.PlayingStageData.StarScore[2]);  //记录当前开始的关卡的百分比	
+				GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed", GameLogic.Singleton.GetProgress());  //分数
+	            GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed:Score_Percent", (float)GameLogic.Singleton.GetProgress() / GameLogic.Singleton.PlayingStageData.StarScore[0]);  //记录当前开始的关卡的百分比
+	            GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed:Score_3StarPercent", (float)GameLogic.Singleton.GetProgress() / GameLogic.Singleton.PlayingStageData.StarScore[2]);  //记录当前开始的关卡的百分比	
 			}
         }
         else
@@ -148,7 +148,7 @@ public class UIRetry : UIWindow
 
         m_starCount = GlobalVars.StageStarArray[GlobalVars.CurStageNum - 1];
         NumberDrawer number = GetChildComponent<NumberDrawer>("StageScore");
-        number.SetNumber(GlobalVars.CurGameLogic.GetProgress());
+        number.SetNumber(GameLogic.Singleton.GetProgress());
 
         m_stageNumber.SetNumber(GlobalVars.CurStageNum);
 
@@ -165,8 +165,8 @@ public class UIRetry : UIWindow
             }
         }
 
-        GlobalVars.CurGameLogic.EndGame();
-        GlobalVars.CurGameLogic.ChangeGameFlow(TGameFlow.EGameState_Clear);           //切换到结束状态
+        GameLogic.Singleton.EndGame();
+        GameLogic.Singleton.ChangeGameFlow(TGameFlow.EGameState_Clear);           //切换到结束状态
     }
     public override void OnUpdate()
     {
@@ -192,9 +192,9 @@ public class UIRetry : UIWindow
         }
 
         HideWindow();
-        GlobalVars.CurGameLogic.ClearGame();
-        GlobalVars.CurGameLogic.Init();
-        GlobalVars.CurGameLogic.StartGame();
+        GameLogic.Singleton.ClearGame();
+        GameLogic.Singleton.Init();
+        GameLogic.Singleton.StartGame();
     }
 
     private void OnNextLevelClicked()
@@ -212,7 +212,7 @@ public class UIRetry : UIWindow
         {
             GlobalVars.CurStageNum = GlobalVars.LastStage;                          //进下一关
             UIWindowManager.Singleton.GetUIWindow<UIStageInfo>().ShowWindow();      //显示关卡信息
-            GlobalVars.CurGameLogic.ClearGame();
+            GameLogic.Singleton.ClearGame();
         }
     }
 

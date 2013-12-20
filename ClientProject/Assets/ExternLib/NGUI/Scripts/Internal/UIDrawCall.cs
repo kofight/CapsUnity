@@ -37,9 +37,9 @@ public class UIDrawCall : MonoBehaviour
 	public enum Clipping : int
 	{
 		None = 0,
-		AlphaClip = 2,	// Adjust the alpha, compatible with all devices
-		SoftClip = 3,	// Alpha-based clipping with a softened edge
-		Invisible = 4,	// No actual clipping, but does have an area
+		AlphaClip = 2,				// Adjust the alpha, compatible with all devices
+		SoftClip = 3,				// Alpha-based clipping with a softened edge
+		ConstrainButDontClip = 4,	// No actual clipping, but does have an area
 	}
 
 	[HideInInspector]
@@ -58,6 +58,10 @@ public class UIDrawCall : MonoBehaviour
 	[System.NonSerialized]
 	public UIPanel panel;
 
+	[HideInInspector]
+	[System.NonSerialized]
+	public bool alwaysOnScreen = false;
+
 	Material		mMaterial;		// Material used by this screen
 	Texture			mTexture;		// Main texture used by the material
 	Shader			mShader;		// Shader used by the dynamically created material
@@ -75,8 +79,12 @@ public class UIDrawCall : MonoBehaviour
 	bool mRebuildMat = true;
 	bool mDirty = false;
 	bool mReset = true;
-	int mRenderQueue = 0;
+	int mRenderQueue = 3000;
 	Clipping mLastClip = Clipping.None;
+	int mTriangles = 0;
+#if UNITY_EDITOR
+	int mIndex = 0;
+#endif
 
 	/// <summary>
 	/// Whether the draw call needs to be re-created.
@@ -102,7 +110,7 @@ public class UIDrawCall : MonoBehaviour
 
 				if (mDynamicMat != null)
 				{
-					mDynamicMat.renderQueue = ((mMaterial != null) ? mMaterial.renderQueue : 3000) + value;
+					mDynamicMat.renderQueue = value;
 #if UNITY_EDITOR
 					if (mRenderer != null) mRenderer.enabled = isActive;
 #endif
@@ -119,13 +127,12 @@ public class UIDrawCall : MonoBehaviour
 	{
 		get
 		{
-			if (mDynamicMat != null) return mDynamicMat.renderQueue;
-			return ((mMaterial != null) ? mMaterial.renderQueue : 3000) + mRenderQueue;
+			return (mDynamicMat != null) ? mDynamicMat.renderQueue : mRenderQueue;
 		}
 	}
 
 #if UNITY_EDITOR
-	public string keyName { get { return "Draw Call " + (1 + mRenderQueue); } }
+	public string keyName { get { return "Draw Call " + mIndex; } }
 
 	public bool showDetails { get { return UnityEditor.EditorPrefs.GetBool(keyName, true); } }
 
@@ -229,7 +236,7 @@ public class UIDrawCall : MonoBehaviour
 	/// The number of triangles in this draw call.
 	/// </summary>
 
-	public int triangles { get { return (mMesh != null) ? mMesh.vertexCount >> 1 : 0; } }
+	public int triangles { get { return (mMesh != null) ? mTriangles : 0; } }
 
 	/// <summary>
 	/// Whether the draw call is currently using a clipped shader.
@@ -263,7 +270,7 @@ public class UIDrawCall : MonoBehaviour
 	{
 		const string alpha = " (AlphaClip)";
 		const string soft = " (SoftClip)";
-		string shaderName = (mMaterial != null) ? mShader.name :
+		string shaderName = (mShader != null) ? mShader.name :
 			((mMaterial != null) ? mMaterial.shader.name : "Unlit/Transparent Colored");
 
 		// Figure out the normal shader's name
@@ -323,8 +330,7 @@ public class UIDrawCall : MonoBehaviour
 		// Create a new material
 		CreateMaterial();
 
-		// Material's render queue generally begins at 3000
-		mDynamicMat.renderQueue = ((mMaterial != null) ? mMaterial.renderQueue : 3000) + mRenderQueue;
+		mDynamicMat.renderQueue = mRenderQueue;
 		mLastClip = mClipping;
 
 		// Assign the main texture
@@ -390,10 +396,13 @@ public class UIDrawCall : MonoBehaviour
 				}
 
 				// If the buffer length doesn't match, we need to trim all buffers
+#if !UNITY_FLASH
 				bool trim = (uvs.buffer.Length != verts.buffer.Length) ||
 				    (cols.buffer.Length != verts.buffer.Length) ||
 				    (norms != null && norms.buffer.Length != verts.buffer.Length) ||
 				    (tans != null && tans.buffer.Length != verts.buffer.Length);
+
+				mTriangles = (verts.size >> 1);
 
 				if (trim || verts.buffer.Length > 65000)
 				{
@@ -425,18 +434,33 @@ public class UIDrawCall : MonoBehaviour
 					if (norms != null) mMesh.normals = norms.buffer;
 					if (tans != null) mMesh.tangents = tans.buffer;
 				}
+#else
+				mTriangles = (verts.size >> 1);
 
+				if (mMesh.vertexCount != verts.size)
+				{
+					mMesh.Clear();
+					setIndices = true;
+				}
+
+				mMesh.vertices = verts.ToArray();
+				mMesh.uv = uvs.ToArray();
+				mMesh.colors32 = cols.ToArray();
+
+				if (norms != null) mMesh.normals = norms.ToArray();
+				if (tans != null) mMesh.tangents = tans.ToArray();
+#endif
 				if (setIndices)
 				{
 					mIndices = GenerateCachedIndexBuffer(count, indexCount);
 					mMesh.triangles = mIndices;
 				}
-
-				if (mClipping != Clipping.None) mMesh.RecalculateBounds();
+				if (!alwaysOnScreen) mMesh.RecalculateBounds();
 				mFilter.mesh = mMesh;
 			}
 			else
 			{
+				mTriangles = 0;
 				if (mFilter.mesh != null) mFilter.mesh.Clear();
 				Debug.LogError("Too many vertices on one panel: " + verts.size);
 			}
@@ -460,7 +484,12 @@ public class UIDrawCall : MonoBehaviour
 	}
 
 	const int maxIndexBufferCache = 10;
+
+#if UNITY_FLASH
+	List<int[]> mCache = new List<int[]>(maxIndexBufferCache);
+#else
 	static List<int[]> mCache = new List<int[]>(maxIndexBufferCache);
+#endif
 
 	/// <summary>
 	/// Generates a new index buffer for the specified number of vertices (or reuses an existing one).
@@ -508,7 +537,7 @@ public class UIDrawCall : MonoBehaviour
 			UpdateMaterials();
 		}
 
-		if (mDynamicMat != null && isClipped && mClipping != Clipping.Invisible)
+		if (mDynamicMat != null && isClipped && mClipping != Clipping.ConstrainButDontClip)
 		{
 			mDynamicMat.mainTextureOffset = new Vector2(-mClipRange.x / mClipRange.z, -mClipRange.y / mClipRange.w);
 			mDynamicMat.mainTextureScale = new Vector2(1f / mClipRange.z, 1f / mClipRange.w);
@@ -528,6 +557,9 @@ public class UIDrawCall : MonoBehaviour
 	{
 		mRebuildMat = true;
 		mActiveList.Add(this);
+#if UNITY_EDITOR
+		mIndex = mActiveList.size;
+#endif
 	}
 
 	/// <summary>
@@ -600,7 +632,32 @@ public class UIDrawCall : MonoBehaviour
 		dc.baseMaterial = mat;
 		dc.mainTexture = tex;
 		dc.shader = shader;
-		dc.renderQueue = mActiveList.size - 1;
+
+		int highestRQ = 0;
+
+		for (int i = 0; i < mActiveList.size - 1; ++i)
+		{
+			UIDrawCall adc = mActiveList.buffer[i];
+			if (highestRQ < adc.mRenderQueue)
+				highestRQ = adc.mRenderQueue;
+		}
+
+		if (pan.renderQueue == UIPanel.RenderQueue.Automatic)
+		{
+			if (highestRQ == 0)
+			{
+				dc.renderQueue = (mat != null) ? mat.renderQueue : 3000;
+			}
+			else dc.renderQueue = highestRQ + 1;
+		}
+		else if (pan.renderQueue == UIPanel.RenderQueue.StartAt)
+		{
+			dc.renderQueue = Mathf.Max(highestRQ + 1, pan.startingRenderQueue);
+		}
+		else
+		{
+			dc.renderQueue = pan.startingRenderQueue;
+		}
 		dc.manager = pan;
 		return dc;
 	}
@@ -736,23 +793,19 @@ public class UIDrawCall : MonoBehaviour
 	static public void Update (UIPanel panel)
 	{
 		Transform pt = panel.cachedTransform;
-
 		Vector4 range = Vector4.zero;
+		bool isUI = panel.usedForUI;
 
 		if (panel.clipping != UIDrawCall.Clipping.None)
 		{
-			Vector4 cr = panel.clipRange;
+			Vector4 cr = panel.finalClipRegion;
 			range = new Vector4(cr.x, cr.y, cr.z * 0.5f, cr.w * 0.5f);
 		}
 
 		if (range.z == 0f) range.z = Screen.width * 0.5f;
 		if (range.w == 0f) range.w = Screen.height * 0.5f;
 
-		RuntimePlatform platform = Application.platform;
-
-		if (platform == RuntimePlatform.WindowsPlayer ||
-			platform == RuntimePlatform.WindowsWebPlayer ||
-			platform == RuntimePlatform.WindowsEditor)
+		if (panel.halfPixelOffset)
 		{
 			range.x -= 0.5f;
 			range.y += 0.5f;
@@ -764,14 +817,41 @@ public class UIDrawCall : MonoBehaviour
 			
 			if (dc.manager == panel)
 			{
-				dc.clipping = panel.clipping;
-				dc.clipRange = range;
-				dc.clipSoftness = panel.clipSoftness;
-				
 				Transform dt = dc.cachedTransform;
-				dt.position = pt.position;
+
+				if (isUI)
+				{
+					Vector4 myRange = range;
+					Transform parent = panel.cachedTransform.parent;
+					Vector3 pos = panel.cachedTransform.localPosition;
+
+					if (parent != null)
+					{
+						// We want the position to always be on even pixels so that the
+						// scroll view's contents always appear pixel-perfect.
+						float x = Mathf.Round(pos.x);
+						float y = Mathf.Round(pos.y);
+						myRange.x += pos.x - x;
+						myRange.y += pos.y - y;
+						pos.x = x;
+						pos.y = y;
+						pos = parent.TransformPoint(pos);
+					}
+					
+					dt.position = pos + panel.drawCallOffset;
+					dc.clipRange = myRange;
+				}
+				else
+				{
+					dt.position = panel.cachedTransform.position;
+					dc.clipRange = range;
+				}
+
 				dt.rotation = pt.rotation;
 				dt.localScale = pt.lossyScale;
+
+				dc.clipping = panel.clipping;
+				dc.clipSoftness = panel.clipSoftness;
 			}
 		}
 	}

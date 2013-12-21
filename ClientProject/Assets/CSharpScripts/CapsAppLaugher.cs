@@ -8,6 +8,7 @@ public class CapsAppLaugher : MonoBehaviour {
 	// Use this for initialization
 	void Awake() 
 	{
+        useGUILayout = false;
         //Debug.Log("Compile Version: " + GolfConfig.Instance.version);
 	}
 	
@@ -23,11 +24,6 @@ public class CapsAppLaugher : MonoBehaviour {
 	void Update() 
 	{
 		mApp.Update();
-	}
-	
-	void OnGUI()
-	{
-        mApp.OnGUI();
 	}
 	
 	void OnLevelWasLoaded(int level)

@@ -45,12 +45,13 @@ public class CapsApplication : S5Application
 
     float m_startAppTime;                           //开始app的时间
     float m_playTime;
+    bool m_bHasShowLogin = false;
 
     protected override void DoInit()
     {
         if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer)
         {
-            CapsConfig.EnableGA = true;
+            CapsConfig.EnableGA = false;
         }
         else
         {
@@ -76,7 +77,7 @@ public class CapsApplication : S5Application
             GlobalVars.UseSFX = (PlayerPrefs.GetInt("SFX") == 1);
         }
 
-		Application.targetFrameRate = 60;			//
+		Application.targetFrameRate = 1000;			//
 		
         new CapsConfig();
         new ResourceManager();
@@ -122,12 +123,22 @@ public class CapsApplication : S5Application
             GlobalVars.GetHeartTime = Convert.ToDateTime(heartTimeString);
         }
 
-        UIWindowManager.Singleton.CreateWindow<UILogin>().ShowWindow();
+        UIWindowManager.Singleton.CreateWindow<UILogin>();
     }
 
     protected override void DoUpdate()
     {
         base.DoUpdate();
+        if (!m_bHasShowLogin)
+        {
+            UIWindowManager.Singleton.GetUIWindow<UILogin>().ShowWindow(delegate()
+            {
+                GameObject obj = GameObject.Find("FirstTimeBackground");           //为了让第一次进游戏的图平滑变化没有闪烁，先在场景里垫了一张图，现在用完了，把图删除
+                GameObject.Destroy(obj);
+
+            });
+            m_bHasShowLogin = true;
+        }
     }
 
     public override void OnApplicationPause(bool bPause)

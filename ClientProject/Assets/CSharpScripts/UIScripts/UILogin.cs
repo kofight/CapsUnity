@@ -91,7 +91,8 @@ public class UILogin : UIWindow
     public override void OnShowEffectPlayOver()
     {
         base.OnShowEffectPlayOver();
-        mEffectPlayerList[0].Delay = 0;
+		UIButton playBtn = GetChildComponent<UIButton>("PlayBtn");
+		playBtn.GetComponent<UIEffectPlayer>().Delay = 0;
     }
 
     public override void OnUpdate()
@@ -108,8 +109,8 @@ public class UILogin : UIWindow
     private void OnPlayBtnClick()
     {
         HideWindow();
+		UIWindowManager.Singleton.GetUIWindow<UIMap>().ShowWindow();
 		GlobalVars.DeveloperMode = m_developerMode.value;
-        UIWindowManager.Singleton.GetUIWindow<UIMap>().ShowWindow();
         LoginState.Instance.CurFlow = TLoginFlow.LoginFlow_Map;         //切换流程到显示地图
     }
 }

@@ -55,6 +55,14 @@ public class ShowAnimUIEffect : UIEffectPlayer
 
     public override bool IsPlaying()
     {
+        if (m_state == EffectState.Hiding)          //
+        {
+            if (Timer.GetRealTimeSinceStartUp() - m_curStateStartTime > StateTimeOut)       //若已经超时
+            {
+                m_animation.Stop();
+                return false;       //无论如何都认为播放完毕
+            }
+        }
         return m_animation.isPlaying;
     }
 }

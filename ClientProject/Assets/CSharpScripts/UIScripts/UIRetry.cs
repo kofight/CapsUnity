@@ -124,6 +124,8 @@ public class UIRetry : UIWindow
                 GlobalVars.StageScoreArray[GlobalVars.CurStageNum - 1] = GameLogic.Singleton.GetProgress();
                 PlayerPrefsExtend.SetIntArray("StageScores", GlobalVars.StageScoreArray);
             }
+
+            UIWindowManager.Singleton.GetUIWindow<UIMap>().RefreshButton(GlobalVars.CurStageNum);
 			
 			if(CapsConfig.EnableGA)	//游戏过关后的记录
 			{
@@ -207,7 +209,6 @@ public class UIRetry : UIWindow
                 CapsApplication.Singleton.ChangeState((int)StateEnum.Login);        //返回地图界面
             });
             
-            //UIWindowManager.Singleton.GetUIWindow<UIMap>().RefreshButtons();
             UIWindowManager.Singleton.GetUIWindow<UIMap>().ShowWindow();
             LoginState.Instance.CurFlow = TLoginFlow.LoginFlow_Map;         //切换流程到显示地图
         }

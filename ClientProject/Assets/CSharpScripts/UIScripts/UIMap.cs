@@ -72,6 +72,31 @@ public class UIMap : UIWindow
         m_secNumber = m_heartUI.GetChildComponent<NumberDrawer>("SecNumber");
     }
 
+    public void RefreshButton(int stageNum)
+    {
+        m_stageBtns[stageNum - 1].gameObject.SetActive(true);                                                    //显示对象
+
+        for (int j = 1; j <= 3; ++j)
+        {
+            if (GlobalVars.StageStarArray[stageNum - 1] >= j)       //若得到了星星
+            {
+                Transform starTrans = UIToolkits.FindChild(m_stageBtns[stageNum - 1], "Star" + j);
+                if (starTrans)
+                {
+                    starTrans.gameObject.SetActive(true);
+                }
+            }
+            else
+            {
+                Transform starTrans = UIToolkits.FindChild(m_stageBtns[stageNum - 1], "Star" + j);
+                if (starTrans)
+                {
+                    starTrans.gameObject.SetActive(false);
+                }
+            }
+        }
+    }
+
     public void RefreshButtons()
     {
         for (int i = 0; i < GlobalVars.TotalStageCount; ++i)

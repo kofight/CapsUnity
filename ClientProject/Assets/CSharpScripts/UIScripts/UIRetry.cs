@@ -199,29 +199,38 @@ public class UIRetry : UIWindow
 
     private void OnNextLevelClicked()
     {
-        HideWindow();
         ++GlobalVars.LastStage;
         if (GlobalVars.StageStarArray[GlobalVars.LastStage] == 0)       //若是新开的关
         {
-            CapsApplication.Singleton.ChangeState((int)StateEnum.Login);        //返回地图界面
-            UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
+            HideWindow(delegate()
+            {
+                CapsApplication.Singleton.ChangeState((int)StateEnum.Login);        //返回地图界面
+            });
+            
+            //UIWindowManager.Singleton.GetUIWindow<UIMap>().RefreshButtons();
             UIWindowManager.Singleton.GetUIWindow<UIMap>().ShowWindow();
             LoginState.Instance.CurFlow = TLoginFlow.LoginFlow_Map;         //切换流程到显示地图
         }
         else
         {
+            HideWindow();
             GlobalVars.CurStageNum = GlobalVars.LastStage;                          //进下一关
-            UIWindowManager.Singleton.GetUIWindow<UIStageInfo>().ShowWindow();      //显示关卡信息
-            GameLogic.Singleton.ClearGame();
+            UIWindowManager.Singleton.GetUIWindow<UIStageInfo>().ShowWindow(delegate()
+            {
+                GameLogic.Singleton.ClearGame();
+            });      //显示关卡信息
+
+            
         }
     }
 
     private void OnCloseClicked()
     {
-        HideWindow();
-        UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().HideWindow();
-        CapsApplication.Singleton.ChangeState((int)StateEnum.Login);        //返回地图界面
-        UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
+        HideWindow(delegate()
+        {
+            CapsApplication.Singleton.ChangeState((int)StateEnum.Login);        //返回地图界面
+        });
+        //UIWindowManager.Singleton.GetUIWindow<UIMap>().RefreshButtons();
         UIWindowManager.Singleton.GetUIWindow<UIMap>().ShowWindow();
         LoginState.Instance.CurFlow = TLoginFlow.LoginFlow_Map;         //切换流程到显示地图
     }

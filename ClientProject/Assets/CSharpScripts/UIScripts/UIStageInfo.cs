@@ -41,6 +41,7 @@ public class UIStageInfo : UIWindow
         {
             CapsApplication.Singleton.ChangeState((int)StateEnum.Login);        //返回地图界面
             UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
+            UIWindowManager.Singleton.GetUIWindow<UIMap>().RefreshButtons();
             UIWindowManager.Singleton.GetUIWindow<UIMap>().ShowWindow();
             LoginState.Instance.CurFlow = TLoginFlow.LoginFlow_Map;         //切换流程到显示地图
         }

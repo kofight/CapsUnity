@@ -71,13 +71,10 @@ public class UIMap : UIWindow
         m_minNumber = m_heartUI.GetChildComponent<NumberDrawer>("MinNumber");
         m_secNumber = m_heartUI.GetChildComponent<NumberDrawer>("SecNumber");
     }
-    public override void OnShow()
+
+    public void RefreshButtons()
     {
-        base.OnShow();
-
-        m_heartUI.ShowWindow();
-
-		for (int i = 0; i < GlobalVars.TotalStageCount; ++i)
+        for (int i = 0; i < GlobalVars.TotalStageCount; ++i)
         {
             Transform transform = UIToolkits.FindChild(mUIObject.transform, "Stage" + (i + 1));      //找到对象
 
@@ -92,10 +89,10 @@ public class UIMap : UIWindow
                 transform.gameObject.SetActive(false);
                 continue;
             }
-            
+
             transform.gameObject.SetActive(true);                                                    //显示对象
 
-            for (int j=1; j<=3; ++j)
+            for (int j = 1; j <= 3; ++j)
             {
                 if (GlobalVars.StageStarArray[i] >= j)       //若得到了星星
                 {
@@ -123,9 +120,19 @@ public class UIMap : UIWindow
             UIButton button = m_stageBtns[i].GetComponent<UIButton>();
             EventDelegate.Set(button.onClick, OnStageClicked);
         }
+    }
 
+    public override void OnShow()
+    {
+        base.OnShow();
+        m_heartUI.ShowWindow();
         UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
-        Transform curStageTrans = UIToolkits.FindChild(mUIObject.transform, "Stage" + GlobalVars.LastStage);      //找到对象
+    }
+
+    public override void OnShowEffectPlayOver()
+    {
+		base.OnShowEffectPlayOver();
+		Transform curStageTrans = UIToolkits.FindChild(mUIObject.transform, "Stage" + GlobalVars.LastStage);      //找到对象
         MoveTo(new Vector2(curStageTrans.localPosition.x, curStageTrans.localPosition.y));
     }
 
@@ -210,5 +217,6 @@ public class UIMap : UIWindow
     public void MoveTo(Vector2 pos) //移动到某个位置
     {
         springPanel.target = new Vector3(-pos.x, -pos.y, 0);
+		springPanel.enabled = true;
     }
 }

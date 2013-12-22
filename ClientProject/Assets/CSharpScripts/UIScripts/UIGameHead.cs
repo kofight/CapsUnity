@@ -97,10 +97,13 @@ public class UIGameHead : UIWindow
             {
                 if (item == PurchasedItem.Item_PlusStep)
                 {
-                    --GlobalVars.Coins;
-                    GA.API.Business.NewEvent("BuyStep", "RMB", 1);
-                    PlayerPrefs.SetInt("Coins", GlobalVars.Coins);
-                    GameLogic.Singleton.PlayingStageData.StepLimit += 5;        //步数加5
+                    if (GlobalVars.Coins > 0)
+                    {
+                        --GlobalVars.Coins;
+                        GA.API.Business.NewEvent("BuyStep", "RMB", 1);
+                        PlayerPrefs.SetInt("Coins", GlobalVars.Coins);
+                        GameLogic.Singleton.PlayingStageData.StepLimit += 5;        //步数加5
+                    }
                 }
                 else if (item == PurchasedItem.Item_Hammer)
                 {

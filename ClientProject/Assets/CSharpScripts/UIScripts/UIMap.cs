@@ -52,8 +52,8 @@ public class UIMap : UIWindow
 		
 		if(!PlayerPrefs.HasKey("Coins"))
 		{
-			GlobalVars.Coins = 30;
-			PlayerPrefs.SetInt("Coins", 30);
+			GlobalVars.Coins = 10;
+			PlayerPrefs.SetInt("Coins", 0);
 		}
 		else
 		{
@@ -227,7 +227,10 @@ public class UIMap : UIWindow
     {
         if (GlobalVars.HeartCount == 0)
         {
-            UIWindowManager.Singleton.GetUIWindow<UIBuyHeart>().ShowWindow();
+            if (GlobalVars.Coins > 0)
+            {
+                UIWindowManager.Singleton.GetUIWindow<UIBuyHeart>().ShowWindow();
+            }
             return;
         }
         string stageNum = UIButton.current.name.Substring(5);

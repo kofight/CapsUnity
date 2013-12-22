@@ -48,9 +48,10 @@ public class CapsApplication : S5Application
 
     protected override void DoInit()
     {
+        //根据平台开关数据分析
         if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer)
         {
-            CapsConfig.EnableGA = false;
+            CapsConfig.EnableGA = true;
         }
         else
         {

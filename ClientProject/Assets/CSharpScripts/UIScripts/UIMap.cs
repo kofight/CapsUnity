@@ -244,7 +244,12 @@ public class UIMap : UIWindow
 
     public void MoveTo(Vector2 pos) //移动到某个位置
     {
-        springPanel.target = new Vector3(-pos.x, -pos.y, 0);
+        int bottom = (2046 - CapsApplication.Singleton.Height) / 2;
+        if (-pos.y > bottom)
+        {
+            pos.y = -bottom;
+        }
+        springPanel.target = new Vector3(0, -pos.y, 0);
 		springPanel.enabled = true;
     }
 }

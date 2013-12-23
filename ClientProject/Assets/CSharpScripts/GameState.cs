@@ -59,9 +59,28 @@ public class GameState : State
         }
     }
 
-    public override void OnQuitGame()
+    public override void OnBackKey()
     {
-        base.OnQuitGame();
+        base.OnBackKey();
+        if (UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().Visible)
+        {
+            if (GameLogic.Singleton.GetGameFlow() != TGameFlow.EGameState_End)
+            {
+                UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().HideWindow();
+                return;
+            }
+        }
+        if (UIWindowManager.Singleton.GetUIWindow<UIRetry>().Visible)
+        {
+            UIWindowManager.Singleton.GetUIWindow<UIRetry>().HideWindow(delegate()
+            {
+                CapsApplication.Singleton.ChangeState((int)StateEnum.Login);        //返回地图界面
+            });
+
+            UIWindowManager.Singleton.GetUIWindow<UIMap>().ShowWindow();
+            return;
+        }
+        UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
     }
 
 }

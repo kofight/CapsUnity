@@ -22,6 +22,9 @@ public class LoginState : State
     public override void DoInitState()
     {
 		base.DoInitState();
+		
+		Instance = this;
+		
         UIWindowManager.Singleton.CreateWindow<UISplash>();
         UIWindowManager.Singleton.CreateWindow<UIHowToPlay>();
         UIWindowManager.Singleton.CreateWindow<UIMainMenu>(UIWindowManager.Anchor.BottomLeft);
@@ -39,11 +42,31 @@ public class LoginState : State
             UIToolkits.PlayMusic(CapsConfig.CurAudioList.MapMusic);
         }
 
-        Instance = this;
+        if (UIWindowManager.Singleton.GetUIWindow<UIMap>().Visible)
+        {
+            CurFlow = TLoginFlow.LoginFlow_Map;         //切换流程到显示地图
+        }
     }
 
-    public override void Update()
+    public override void OnBackKey()
     {
- 	    base.Update();
+        base.OnBackKey();
+        if (CurFlow == TLoginFlow.LoginFlow_Map)
+        {
+			if(UIWindowManager.Singleton.GetUIWindow<UIStageInfo>().Visible)
+			{
+				UIWindowManager.Singleton.GetUIWindow<UIStageInfo>().HideWindow();
+				UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
+				return;
+			}
+            UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().HideWindow();
+            UIWindowManager.Singleton.GetUIWindow<UIMap>().HideWindow();
+            UIWindowManager.Singleton.GetUIWindow<UILogin>().ShowWindow();
+			CurFlow = TLoginFlow.LoginFlow_LoginScreen;
+        }
+        else
+        {
+            UIWindowManager.Singleton.GetUIWindow<UIQuitConfirm>().ShowWindow();
+        }
     }
 }

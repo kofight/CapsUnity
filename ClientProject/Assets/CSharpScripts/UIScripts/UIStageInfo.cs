@@ -27,7 +27,10 @@ public class UIStageInfo : UIWindow
 
         NumberDrawer number = GetChildComponent<NumberDrawer>("StageTarget");
         number.SetNumber(GlobalVars.CurStageData.StarScore[2]);
+
+        UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().HideWindow();
     }
+
     public override void OnUpdate()
     {
         base.OnUpdate();
@@ -43,6 +46,10 @@ public class UIStageInfo : UIWindow
             UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
             UIWindowManager.Singleton.GetUIWindow<UIMap>().ShowWindow();        //返回地图，不需要刷新按钮
             LoginState.Instance.CurFlow = TLoginFlow.LoginFlow_Map;         //切换流程到显示地图
+        }
+        else
+        {
+            UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
         }
     }
 

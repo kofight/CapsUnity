@@ -6,7 +6,7 @@ public class UIQuitConfirm : UIWindow
     public override void OnCreate()
     {
         base.OnCreate();
-        AddChildComponentMouseClick("QuitBtn", OnQuitClicked);
+        AddChildComponentMouseClick("ConfirmBtn", OnQuitClicked);
         AddChildComponentMouseClick("CancelBtn", OnCancelClicked);
     }
     public override void OnShow()

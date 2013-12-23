@@ -22,7 +22,7 @@ public abstract class UIEffectPlayer : MonoBehaviour
 {
     public virtual bool IsPlaying() { return false; }           //是否正在播放特效
     public virtual void CreateEffect() { }                      //创建特效
-    public bool IsDelaying() { return m_delayStartTime > 0; }
+    public bool IsDelaying() { return m_state == EffectState.Showing && m_delayStartTime > 0; }
     public float StateTimeOut = 1;                              //切到某状态后状态失效时间(用来处理idle动画无法正确结束的问题)
     protected float m_curStateStartTime = 0;
 

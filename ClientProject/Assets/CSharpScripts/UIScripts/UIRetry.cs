@@ -101,6 +101,7 @@ public class UIRetry : UIWindow
             if (GlobalVars.AvailabeStageCount == GlobalVars.CurStageNum)
             {
                 ++GlobalVars.AvailabeStageCount;        //开启下一关
+                UIWindowManager.Singleton.GetUIWindow<UIMap>().RefreshButton(GlobalVars.AvailabeStageCount);
             }
 
             for (int i = 2; i >= 0;--i )
@@ -231,7 +232,6 @@ public class UIRetry : UIWindow
         {
             CapsApplication.Singleton.ChangeState((int)StateEnum.Login);        //返回地图界面
         });
-        //UIWindowManager.Singleton.GetUIWindow<UIMap>().RefreshButtons();
         UIWindowManager.Singleton.GetUIWindow<UIMap>().ShowWindow();
         LoginState.Instance.CurFlow = TLoginFlow.LoginFlow_Map;         //切换流程到显示地图
     }

@@ -481,6 +481,61 @@ public class GameLogic
         EasyTouch.On_Swipe += OnTouchMove;
         EasyTouch.On_TouchStart += OnTouchBegin;
         EasyTouch.On_TouchUp += OnTouchEnd;
+
+        if (PlayingStageData.Seed > 0)
+        {
+            m_random = new System.Random(PlayingStageData.Seed);
+        }
+        else
+        {
+            m_random = new System.Random((int)Time.timeSinceLevelLoad * 1000);
+        }
+
+        //初始化坚果数量
+        if (PlayingStageData.Target == GameTarget.BringFruitDown)
+        {
+            PlayingStageData.Nut1Count = 0;
+            PlayingStageData.Nut2Count = 0;
+        }
+
+        //从随机位置开始
+        int randomPos = m_random.Next() % BlockCountX;
+
+        bool startOver = true;
+        while (startOver)
+        {
+            startOver = false;
+            for (int i = 0; i < BlockCountX; i++)
+            {
+                int xPos = (randomPos + i) % BlockCountX;
+                for (int j = 0; j < BlockCountY; j++)
+                {
+                    if (PlayingStageData.CheckFlag(xPos, j, GridFlag.GenerateCap))
+                    {
+                        if (!CreateBlock(xPos, j, true))
+                        {
+                            startOver = true;       //重新生成所有块 
+                            break;
+                        }
+                    }
+                }
+                if (startOver)
+                {
+                    break;
+                }
+            }
+        }
+
+        UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().Reset();
+
+        ClearSelected();
+
+        if (CapsConfig.EnableGA)
+        {
+            Debug.Log("Stage Start GA");
+            GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Start");        //记录当前开始的关卡的数据
+            //TalkingDataPlugin.TrackEvent("Stage" + GlobalVars.CurStageNum + ":Start");  //记录当前开始的关卡的数据
+        }
     }
 
     void ProcessGridSprites(int x, int y)
@@ -726,72 +781,15 @@ public class GameLogic
     public void StartGame()     //开始游戏（及重新开始游戏）
     {
         Timer.s_currentTime = Time.realtimeSinceStartup;        //更新一次时间
-        long time = Timer.millisecondNow();
-        m_gameStartTime = time;
-
-        if (PlayingStageData.Seed > 0)
-        {
-            m_random = new System.Random(PlayingStageData.Seed);
-        }
-        else
-        {
-            m_random = new System.Random((int)Time.timeSinceLevelLoad * 1000);
-        }
-
-        //查找坚果的出口
-        if (PlayingStageData.Target == GameTarget.BringFruitDown)
-        {
-            PlayingStageData.Nut1Count = 0;
-            PlayingStageData.Nut2Count = 0;
-        }
-
-        //从随机位置开始
-        int randomPos = m_random.Next() % BlockCountX;
-
-        bool startOver = true;
-        while (startOver)
-        {
-            startOver = false;
-            for (int i = 0; i < BlockCountX; i++)
-            {
-                int xPos = (randomPos + i) % BlockCountX;
-                for (int j = 0; j < BlockCountY; j++)
-                {
-                    if (PlayingStageData.CheckFlag(xPos, j, GridFlag.GenerateCap))
-                    {
-                        if (!CreateBlock(xPos, j, true))
-                        {
-                            startOver = true;       //重新生成所有块 
-                            break;
-                        }
-                    }
-                }
-                if (startOver)
-                {
-                    break;
-                }
-            }
-        }
-
-        OnProgressChange();
-
+        m_gameStartTime = Timer.millisecondNow();
         m_lastHelpTime = Timer.GetRealTimeSinceStartUp();
-
-        UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().Reset();
 
         m_gameFlow = TGameFlow.EGameState_StartGameAnim;                //开始游戏
         m_curAnimStartTime = Timer.millisecondNow();
+
         //播放开始游戏的动画
         TweenPosition tweenPos = m_gameArea.GetComponent<TweenPosition>();
         tweenPos.Play(true);
-		ClearSelected();
-
-        if (CapsConfig.EnableGA)
-        {
-            Debug.Log("Stage Start GA");
-            GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Start");        //记录当前开始的关卡的数据
-            //TalkingDataPlugin.TrackEvent("Stage" + GlobalVars.CurStageNum + ":Start");  //记录当前开始的关卡的数据
-        }        
 
         AddPartile("StartGameAnim", 5, 5, false);
     }
@@ -2126,7 +2124,6 @@ public class GameLogic
 
         m_scoreToShow[position.x, position.y] += 50 * kQuantity * (kCombo + kItem + kLevel + 1);
 
-        OnProgressChange();
         ++m_comboCount;
         return true;
     }
@@ -3465,11 +3462,6 @@ public class GameLogic
         m_blocks[x, y].m_blockTransform.gameObject.SetActive(false);
         m_blocks[x, y].Reset();
         m_blocks[x, y] = null;
-    }
-
-    void OnProgressChange()
-    {
-
     }
 
     void ClearSelected()

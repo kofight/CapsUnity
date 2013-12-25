@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class UIRetry : UIWindow 
 {
@@ -128,17 +129,17 @@ public class UIRetry : UIWindow
 				if(CapsConfig.EnableTalkingData)
 				{
 					Dictionary<string, object> param = new Dictionary<string, object>();
-					if (GameLogic.m_stepCountWhenReachTarget > 10)
+					if (GameLogic.Singleton.m_stepCountWhenReachTarget > 10)
 					{
 						param["StepLeft"] = ">10";
 					}
-					else if(GameLogic.m_stepCountWhenReachTarget > 5)
+					else if(GameLogic.Singleton.m_stepCountWhenReachTarget > 5)
 					{
 						param["StepLeft"] = ">5";
 					}
 					else
 					{
-						param["StepLeft"] = GameLogic.m_stepCountWhenReachTarget.ToString();
+						param["StepLeft"] = GameLogic.Singleton.m_stepCountWhenReachTarget.ToString();
 					}
 
 					param["StarCount"] = m_starCount.ToString();

@@ -57,9 +57,9 @@ public class CapsApplication : S5Application
         {
             CapsConfig.EnableGA = false;
         }
-        if (CapsConfig.EnableGA)
+		if (CapsConfig.EnableTalkingData)
         {
-            //TalkingDataPlugin.SessionStarted("8F604653A8CC694E6954B51FE6D26127", "Test");
+            TalkingDataPlugin.SessionStarted("8F604653A8CC694E6954B51FE6D26127", "Test");
         }
         m_startAppTime = Time.realtimeSinceStartup;
         m_playTime = PlayerPrefs.GetFloat("PlayTime");
@@ -143,15 +143,15 @@ public class CapsApplication : S5Application
         if (bPause)
         {
             PlayerPrefs.SetFloat("PlayTime", GetPlayTime());        //暂停时保存游戏时间
-            //if (CapsConfig.EnableGA)
-            //    TalkingDataPlugin.SessionStoped();
+            if (CapsConfig.EnableTalkingData)
+                TalkingDataPlugin.SessionStoped();
         }
         else
         {
             m_playTime = PlayerPrefs.GetFloat("PlayTime");          //恢复时读取游戏时间
             m_startAppTime = Time.realtimeSinceStartup;
-            //if (CapsConfig.EnableGA)
-            //    TalkingDataPlugin.SessionStarted("8F604653A8CC694E6954B51FE6D26127", "Test");
+			if (CapsConfig.EnableTalkingData)
+                TalkingDataPlugin.SessionStarted("8F604653A8CC694E6954B51FE6D26127", "Test");
         }
     }
 
@@ -166,8 +166,8 @@ public class CapsApplication : S5Application
 
         PlayerPrefs.SetFloat("PlayTime", GetPlayTime());
 
-        //if (CapsConfig.EnableGA)
-        //    TalkingDataPlugin.SessionStoped();
+		if (CapsConfig.EnableTalkingData)
+            TalkingDataPlugin.SessionStoped();
     }
 
     public float GetPlayTime()

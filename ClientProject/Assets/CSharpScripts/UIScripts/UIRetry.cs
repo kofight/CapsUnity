@@ -112,6 +112,96 @@ public class UIRetry : UIWindow
                 }
             }
 
+			if(GlobalVars.StageStarArray[GlobalVars.CurStageNum] == 0)		//if it's the first time of finishing the stage
+			{
+				float scorePercent = (float)GameLogic.Singleton.GetProgress() / GameLogic.Singleton.PlayingStageData.StarScore[0];
+				if(CapsConfig.EnableGA)	//游戏过关后的记录
+				{
+					GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":FirstSucceed:StepLeft", GameLogic.Singleton.m_stepCountWhenReachTarget);  //
+					GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":FirstSucceed:Score_Percent", scorePercent);  //记录当前开始的关卡的百分比
+					GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":FirstSucceed:StarCount", m_starCount);	
+					GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":FirstSucceed:FailedTimes", GlobalVars.StageFailedArray[GlobalVars.CurStageNum]);	
+					GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":FirstSucceed:PlayTime", GameLogic.Singleton.GetStagePlayTime());	
+					
+				}
+				if(CapsConfig.EnableTalkingData)
+				{
+					Dictionary<string, object> param = new Dictionary<string, object>();
+					if (GameLogic.m_stepCountWhenReachTarget > 10)
+					{
+						param["StepLeft"] = ">10";
+					}
+					else if(GameLogic.m_stepCountWhenReachTarget > 5)
+					{
+						param["StepLeft"] = ">5";
+					}
+					else
+					{
+						param["StepLeft"] = GameLogic.m_stepCountWhenReachTarget.ToString();
+					}
+
+					param["StarCount"] = m_starCount.ToString();
+
+					if(scorePercent > 5)
+					{
+						param["ScorePercent"] = ">5";
+					}
+					else if(scorePercent > 3)
+					{
+						param["ScorePercent"] = ">3";
+					}
+					else if(scorePercent > 2)
+					{
+						param["ScorePercent"] = ">2";
+					}
+					else if(scorePercent > 1.5)
+					{
+						param["ScorePercent"] = ">1.5";
+					}
+					else
+					{
+						param["ScorePercent"] = ">1";
+					}
+
+					float playTime = GameLogic.Singleton.GetStagePlayTime();
+
+					if(playTime > 600)
+					{
+						param["PlayTime"] = ">10min";
+					}
+					else if(playTime > 60)
+					{
+						param["PlayTime"] = ((int)(playTime / 60)).ToString() + "min";
+					}
+					else
+					{
+						param["PlayTime"] = "<1min";
+					}
+
+					int failedTimes = GlobalVars.StageFailedArray[GlobalVars.CurStageNum];
+
+					if(failedTimes > 20)
+					{
+						param["FailedTime"] = ">20";
+					}
+					else if(failedTimes > 10)
+					{
+						param["PlayTime"] = ">10";
+					}
+					else if(failedTimes > 5)
+					{
+						param["PlayTime"] = ">5";
+					}
+					else
+					{
+						param["PlayTime"] = failedTimes.ToString();
+					}
+
+
+					TalkingDataPlugin.TrackEventWithParameters("Stage" + GlobalVars.CurStageNum + ":FirstSucceed", "", param);
+				}
+			}
+
             PlayerPrefs.SetInt("StageAvailableCount", GlobalVars.AvailabeStageCount);       //保存进度
             if (m_starCount > GlobalVars.StageStarArray[GlobalVars.CurStageNum - 1])
             {
@@ -126,14 +216,6 @@ public class UIRetry : UIWindow
             }
 
             UIWindowManager.Singleton.GetUIWindow<UIMap>().RefreshButton(GlobalVars.CurStageNum);
-			
-			if(CapsConfig.EnableGA)	//游戏过关后的记录
-			{
-                Debug.Log("Stage succeed GA");
-				GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed", GameLogic.Singleton.GetProgress());  //分数
-	            GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed:Score_Percent", (float)GameLogic.Singleton.GetProgress() / GameLogic.Singleton.PlayingStageData.StarScore[0]);  //记录当前开始的关卡的百分比
-	            GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed:Score_3StarPercent", (float)GameLogic.Singleton.GetProgress() / GameLogic.Singleton.PlayingStageData.StarScore[2]);  //记录当前开始的关卡的百分比	
-			}
         }
         else
         {
@@ -144,6 +226,9 @@ public class UIRetry : UIWindow
                     GlobalVars.GetHeartTime = System.DateTime.Now;          //初始化获得心的时间
                 }
                 --GlobalVars.HeartCount;            //消耗一个心
+
+				GlobalVars.StageFailedArray[GlobalVars.CurStageNum]++;
+				PlayerPrefsExtend.SetIntArray("StageFailed", GlobalVars.StageFailedArray);
             }
         }
 

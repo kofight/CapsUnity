@@ -234,11 +234,14 @@ public class GameLogic
     bool m_changeBack;		//在交换方块动画中标志是否为换回动画
     System.Random m_random;
     long m_gameStartTime = 0;                              //游戏开始时间
+	float m_gameStartTimeReal = 0;						   //the game start time to calculate stage duration
     long m_curAnimStartTime = 0;                    //sugarCrush动画的开始时间
     long m_lastStepRewardTime = 0;                         //上次生成StepReward的时间
     public StageData PlayingStageData;                      //当前的关卡数据
     bool m_bDropFromLeft = true;                            //用来控制左右斜下落的开关
     bool m_bHidingHelp = false;                             //弹其他界面时隐藏Help
+	public int m_stepCountWhenReachTarget;							//save it for submit data
+	public float GetStagePlayTime(){ return CapsApplication.Singleton.GetPlayTime() - m_gameStartTimeReal; }
 
     //计时器
     Timer timerMoveBlock = new Timer();
@@ -728,6 +731,7 @@ public class GameLogic
         Timer.s_currentTime = Time.realtimeSinceStartup;        //更新一次时间
         long time = Timer.millisecondNow();
         m_gameStartTime = time;
+		m_gameStartTimeReal = CapsApplication.Singleton.GetPlayTime ();
 
         if (PlayingStageData.Seed > 0)
         {
@@ -786,11 +790,12 @@ public class GameLogic
         tweenPos.Play(true);
 		ClearSelected();
 
-        if (CapsConfig.EnableGA)
+        if (GlobalVars.StageStarArray[GlobalVars.CurStageNum] == 0)	//Only send start stage data when first time enters
         {
-            Debug.Log("Stage Start GA");
-            GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Start");        //记录当前开始的关卡的数据
-            //TalkingDataPlugin.TrackEvent("Stage" + GlobalVars.CurStageNum + ":Start");  //记录当前开始的关卡的数据
+			if(CapsConfig.EnableGA)
+            	GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Start");        //记录当前开始的关卡的数据
+			if(CapsConfig.EnableTalkingData)
+            	TalkingDataPlugin.TrackEvent("Stage" + GlobalVars.CurStageNum + ":Start");  //记录当前开始的关卡的数据
         }        
 
         AddPartile("StartGameAnim", 5, 5, false);
@@ -2541,6 +2546,8 @@ public class GameLogic
     {
         if (IsStageFinish())                 //检查关卡是否完成，若已经完成
         {
+			m_stepCountWhenReachTarget = PlayingStageData.StepLimit;		//save the step for submit data later
+
             bool foundSpecial = false;
             for (int i = 0; i < BlockCountX; ++i)
             {
@@ -2552,21 +2559,6 @@ public class GameLogic
                         break;
                     }
                 }
-            }
-            if (CapsConfig.EnableGA)
-            {
-                GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Succeed:StepLeft", PlayingStageData.StepLimit);  //胜利时提交剩余步数
-
-                //Dictionary<string, object> param = new Dictionary<string, object>();
-                //if (PlayingStageData.StepLimit > 10)
-                //{
-                //    param["Score"] = ">10";
-                //}
-                //else
-                //{
-                //    param["Score"] = PlayingStageData.StepLimit.ToString();
-                //}
-                //TalkingDataPlugin.TrackEventWithParameters("Stage" + GlobalVars.CurStageNum + ":Succeed", "", param);
             }
 
             if (foundSpecial || PlayingStageData.StepLimit > 0)     //若能进SugarCrush
@@ -2593,38 +2585,71 @@ public class GameLogic
             if (CapsConfig.EnableGA)        //游戏结束的数据
             {
                 Debug.Log("GameEnd GA");
-                GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed", m_progress);  //记录记录失败的分数
                 GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed:Score_Percent", (float)m_progress / PlayingStageData.StarScore[0]);  //记录当前开始的关卡的百分比
-                GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed:Score_3StarPercent", (float)m_progress / PlayingStageData.StarScore[2]);  //记录当前开始的关卡的百分比
                 if (PlayingStageData.Target == GameTarget.ClearJelly)
                 {
                     GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed:JellyCount", PlayingStageData.GetDoubleJellyCount() * 2 + PlayingStageData.GetJellyCount());  //记录失败时的果冻数
                 }
-
-                //Dictionary<string, object> param = new Dictionary<string, object>();
-                //if (m_progress > PlayingStageData.StarScore[0])
-                //{
-                //    param["Score"] = "100";
-                //}
-                //else if (m_progress > PlayingStageData.StarScore[0] * 0.8)
-                //{
-                //    param["Score"] = "80-100";
-                //}
-                //else if (m_progress > PlayingStageData.StarScore[0] * 0.6)
-                //{
-                //    param["Score"] = "60-80";
-                //}
-                //else if (m_progress > PlayingStageData.StarScore[0] * 0.4)
-                //{
-                //    param["Score"] = "40-60";
-                //}
-                //else
-                //{
-                //    param["Score"] = "<40";
-                //}
-                
-                //TalkingDataPlugin.TrackEventWithParameters("Stage" + GlobalVars.CurStageNum + ":Failed", "", param);
+				else if(PlayingStageData.Target == GameTarget.BringFruitDown)
+				{
+					GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed:NutCount", m_nut1Count + m_nut2Count);  //记录失败时的果冻数
+				}
             }
+
+			if(CapsConfig.EnableTalkingData)
+			{
+				Dictionary<string, object> param = new Dictionary<string, object>();
+
+
+				if (PlayingStageData.Target == GameTarget.ClearJelly)
+				{
+					int jellyCount = PlayingStageData.GetDoubleJellyCount() * 2 + PlayingStageData.GetJellyCount();
+					if(jellyCount > 15)
+					{
+						param["JellyCount"] = ">15";
+					}
+					else if(jellyCount > 10)
+					{
+						param["JellyCount"] = ">10";
+					}
+					else if(jellyCount > 5)
+					{
+						param["JellyCount"] = ">5";
+					} 
+					else
+					{
+						param["JellyCount"] = jellyCount.ToString();
+					} 
+				}
+				else if(PlayingStageData.Target == GameTarget.BringFruitDown)
+				{
+					int nutCount = m_nut1Count + m_nut2Count;
+					param["NutsCount"] = nutCount.ToString();
+				}
+
+				if (m_progress > PlayingStageData.StarScore[0])
+				{
+				    param["Score"] = ">100";
+				}
+				else if (m_progress > PlayingStageData.StarScore[0] * 0.8)
+				{
+				    param["Score"] = "80-100";
+				}
+				else if (m_progress > PlayingStageData.StarScore[0] * 0.6)
+				{
+				    param["Score"] = "60-80";
+				}
+				else if (m_progress > PlayingStageData.StarScore[0] * 0.4)
+				{
+				    param["Score"] = "40-60";
+				}
+				else
+				{
+				    param["Score"] = "<40";
+				}
+				
+				TalkingDataPlugin.TrackEventWithParameters("Stage" + GlobalVars.CurStageNum + ":Failed", "", param);
+			}
 
             UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();            //出游戏结束界面
         }

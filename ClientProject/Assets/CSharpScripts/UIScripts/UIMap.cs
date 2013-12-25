@@ -48,6 +48,7 @@ public class UIMap : UIWindow
         }
 		GlobalVars.StageStarArray = PlayerPrefsExtend.GetIntArray("StageStars", 0, 100);
         GlobalVars.StageScoreArray = PlayerPrefsExtend.GetIntArray("StageScores", 0, 100);
+		GlobalVars.StageFailedArray = PlayerPrefsExtend.GetIntArray("StageFailed", 0, 100);
         GlobalVars.LastStage = GlobalVars.AvailabeStageCount;
 		
 		if(!PlayerPrefs.HasKey("Coins"))

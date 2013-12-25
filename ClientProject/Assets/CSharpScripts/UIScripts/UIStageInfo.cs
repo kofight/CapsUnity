@@ -72,6 +72,7 @@ public class UIStageInfo : UIWindow
         {
             HideWindow(delegate()
             {
+				UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
                 GameLogic.Singleton.Init();
                 GameLogic.Singleton.StartGame();
             });

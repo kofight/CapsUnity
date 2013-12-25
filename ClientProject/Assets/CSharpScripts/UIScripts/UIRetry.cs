@@ -289,7 +289,7 @@ public class UIRetry : UIWindow
     private void OnNextLevelClicked()
     {
         ++GlobalVars.LastStage;
-        if (GlobalVars.StageStarArray[GlobalVars.LastStage] == 0)       //若是新开的关
+        if (GlobalVars.StageStarArray[GlobalVars.LastStage-1] == 0)       //若是新开的关
         {
             HideWindow(delegate()
             {

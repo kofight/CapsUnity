@@ -52,10 +52,12 @@ public class CapsApplication : S5Application
         if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer)
         {
             CapsConfig.EnableGA = true;
+            //CapsConfig.EnableTalkingData = true;
         }
         else
         {
             CapsConfig.EnableGA = false;
+            CapsConfig.EnableTalkingData = false;
         }
 		if (CapsConfig.EnableTalkingData)
         {

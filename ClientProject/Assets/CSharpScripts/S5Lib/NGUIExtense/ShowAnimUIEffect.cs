@@ -63,6 +63,10 @@ public class ShowAnimUIEffect : UIEffectPlayer
                 return false;       //无论如何都认为播放完毕
             }
         }
+		if(m_state == EffectState.Idle)
+		{
+			return false;			//take it as stop when idle, even if the anim is playing
+		}
         return m_animation.isPlaying;
     }
 }

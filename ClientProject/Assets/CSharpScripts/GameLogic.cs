@@ -79,6 +79,7 @@ struct ShowingNumberEffect
     Position position;                           //位置
     long startTime;          //开始时间
     static long effectTime = 1000;              //特效显示时间
+    int numberCount;
 
     public void Init(GameObject numInstance)
     {
@@ -98,22 +99,22 @@ struct ShowingNumberEffect
     public void SetNumber(int num, int x, int y)
     {
         trans.gameObject.SetActive(true);
-        int numIndex = 0;
+        numberCount = 0;
         while (num > 0)
         {
-            sprites[numIndex].spriteName = "Score" + (num % 10);
-            sprites[numIndex].gameObject.SetActive(true);
+            sprites[numberCount].spriteName = "Score" + (num % 10);
+            sprites[numberCount].gameObject.SetActive(true);
             num /= 10;
-            ++numIndex;
+            ++numberCount;
         }
 
-        for (int i = numIndex; i < 5; ++i)
+        for (int i = numberCount; i < 5; ++i)
         {
             sprites[i].gameObject.SetActive(false);
         }
 
         position = new Position(x, y);
-        trans.localPosition = new Vector3(x, -y, -120);
+        trans.localPosition = new Vector3(x + numberCount * 27 / 2, -y, -120);
         startTime = Timer.millisecondNow();
     }
 
@@ -131,7 +132,7 @@ struct ShowingNumberEffect
         if (!IsEnd())
         {
             long yOffset = (Timer.millisecondNow() - startTime) * 50 / effectTime;
-            trans.localPosition = new Vector3(position.x, -(position.y - yOffset), -120);
+            trans.localPosition = new Vector3(position.x + numberCount * 27 / 2, -(position.y - yOffset), -120);
 
             for (int i = 0; i < 5; ++i)
             {
@@ -1479,6 +1480,7 @@ public class GameLogic
                     EatALLDirLine(m_selectedPos[1], false);
                     EatBlockWithoutTrigger(m_selectedPos[1].x, m_selectedPos[1].y, 0);      //自己消失
                     EatBlockWithoutTrigger(m_selectedPos[0].x, m_selectedPos[0].y, 0);      //自己消失
+                    --PlayingStageData.StepLimit;           //扣步数
                 }
                 else
                 {
@@ -2306,6 +2308,8 @@ public class GameLogic
     void EatBlockWithoutTrigger(int x, int y, float delay)
     {
         m_blocks[x, y].Eat(delay);
+        if (m_tempBlocks[x, y] == 0)
+            m_tempBlocks[x, y] = 1;       //记录吃块，用来改变Grid属性
     }
 
     void EatBlock(Position position, float delay = 0, int addScore = 0)                   //吃掉块，通过EatLine或特殊道具功能被调用，会触发被吃的块的功能
@@ -2508,6 +2512,11 @@ public class GameLogic
         }
         return false;
     }
+	
+	public bool CheckGetEnoughScore()
+	{
+		return m_progress >= PlayingStageData.StarScore[0];
+	}
 
     public bool IsStageFinish()                  //检测关卡结束条件
     {
@@ -2525,7 +2534,7 @@ public class GameLogic
                 return true;
             }
         }
-        else if (PlayingStageData.Target == GameTarget.GetScore && m_progress >= PlayingStageData.StarScore[0])     //分数满足最低要求了
+        else if (PlayingStageData.Target == GameTarget.GetScore && CheckGetEnoughScore())     //分数满足最低要求了
         {
             if (GlobalVars.CurStageData.StepLimit > 0 && PlayingStageData.StepLimit == 0)            //限制步数的关卡步用完了
             {
@@ -3056,8 +3065,9 @@ public class GameLogic
 
         TSpecialBlock special0 = m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special;
         TSpecialBlock special1 = m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special;
-        if (special0 == TSpecialBlock.ESpecial_Normal
-            && special1 == TSpecialBlock.ESpecial_Normal)
+        if ((special0 == TSpecialBlock.ESpecial_Normal && special1 == TSpecialBlock.ESpecial_Normal)                //两个都是普通块
+            || (special0 == TSpecialBlock.ESpecial_Normal && special1 != TSpecialBlock.ESpecial_EatAColor)          //一个普通块，另一个不是彩虹
+            || (special1 == TSpecialBlock.ESpecial_Normal && special0 != TSpecialBlock.ESpecial_EatAColor))         //一个普通块，另一个不是彩虹
         {
             MoveBlockPair(m_selectedPos[0], m_selectedPos[1]);
         }
@@ -3068,7 +3078,6 @@ public class GameLogic
             {
                 EatAColor(TBlockColor.EColor_None);         //消全部
             }
-
             else if (special0 == TSpecialBlock.ESpecial_EatAColor && special1 == TSpecialBlock.ESpecial_Normal)
             {
                 EatBlockWithoutTrigger(m_selectedPos[0].x, m_selectedPos[0].y, 0);      //自己消失
@@ -3083,7 +3092,6 @@ public class GameLogic
                 AddPartile("EatColorEffect", m_selectedPos[0].x, m_selectedPos[0].y);
                 PlaySoundNextFrame(AudioEnum.Audio_EatColor);
             }
-
             else if (special0 == TSpecialBlock.ESpecial_EatAColor &&
                 (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
                     special1 == TSpecialBlock.ESpecial_EatLineDir1))
@@ -3092,7 +3100,6 @@ public class GameLogic
                 EatBlockWithoutTrigger(m_selectedPos[0].x, m_selectedPos[0].y, 0);      //自己消失
                 EatALLDirLine(m_selectedPos[1], true);
             }
-
             else if (special1 == TSpecialBlock.ESpecial_EatAColor &&
                     (special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
                     special0 == TSpecialBlock.ESpecial_EatLineDir1))
@@ -3101,7 +3108,6 @@ public class GameLogic
                 EatBlockWithoutTrigger(m_selectedPos[0].x, m_selectedPos[0].y, 0);      //自己消失
                 EatALLDirLine(m_selectedPos[1], true);
             }
-
             else if ((special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
                     special0 == TSpecialBlock.ESpecial_EatLineDir1) &&
                 (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
@@ -3111,7 +3117,6 @@ public class GameLogic
                 EatBlockWithoutTrigger(m_selectedPos[0].x, m_selectedPos[0].y, 0);      //自己消失
                 EatALLDirLine(m_selectedPos[1], false);
             }
-
             else if (special0 == TSpecialBlock.ESpecial_Bomb && (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||     //炸弹跟条状交换，单方向加粗
                     special1 == TSpecialBlock.ESpecial_EatLineDir1))
             {
@@ -3119,7 +3124,6 @@ public class GameLogic
                 EatBlockWithoutTrigger(m_selectedPos[0].x, m_selectedPos[0].y, 0);      //自己消失
                 EatALLDirLine(m_selectedPos[1], true, (int)special1);
             }
-
             else if (special1 == TSpecialBlock.ESpecial_Bomb && (special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir2 ||
                     special0 == TSpecialBlock.ESpecial_EatLineDir1))
             {
@@ -3149,10 +3153,8 @@ public class GameLogic
                 EatBlockWithoutTrigger(m_selectedPos[1].x, m_selectedPos[1].y, 0);
                 BigBomb(m_selectedPos[1]);
             }
-            else
-            {
-                MoveBlockPair(m_selectedPos[0], m_selectedPos[1]);
-            }
+
+            --PlayingStageData.StepLimit;       //扣掉步数
         }
         ProcessTempBlocks();
     }

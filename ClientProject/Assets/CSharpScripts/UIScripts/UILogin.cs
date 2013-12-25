@@ -110,7 +110,14 @@ public class UILogin : UIWindow
     {
         HideWindow();
 		UIWindowManager.Singleton.GetUIWindow<UIMap>().ShowWindow();
+
 		GlobalVars.DeveloperMode = m_developerMode.value;
+		
+		if (GlobalVars.DeveloperMode)
+        {
+            UIWindowManager.Singleton.GetUIWindow<UIMap>().RefreshButtons();
+        }
+		
         LoginState.Instance.CurFlow = TLoginFlow.LoginFlow_Map;         //切换流程到显示地图
     }
 }

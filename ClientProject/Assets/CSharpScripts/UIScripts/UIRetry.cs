@@ -32,7 +32,7 @@ public class UIRetry : UIWindow
     public override void OnShow()
     {
         Transform nextBtn = UIToolkits.FindChild(mUIObject.transform, "NextLevelBtn");
-        if (GameLogic.Singleton.IsStageFinish())         //检查关卡是否结束
+        if (GameLogic.Singleton.IsStageFinish() && GameLogic.Singleton.CheckGetEnoughScore())         //检查关卡是否结束
         {
             nextBtn.gameObject.SetActive(true);
         }
@@ -43,7 +43,7 @@ public class UIRetry : UIWindow
         base.OnShow();
 
 
-        if (GameLogic.Singleton.GetProgress() < GlobalVars.CurStageData.StarScore[0])       //没到基础的分数要求的情况
+        if (!GameLogic.Singleton.CheckGetEnoughScore())       //没到基础的分数要求的情况
         {
             m_bWin = false;
             //m_resultLabel.text = "Failed!";

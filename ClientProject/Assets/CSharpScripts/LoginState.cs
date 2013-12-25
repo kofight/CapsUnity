@@ -25,16 +25,23 @@ public class LoginState : State
 		
 		Instance = this;
 		
-        UIWindowManager.Singleton.CreateWindow<UISplash>();
-        UIWindowManager.Singleton.CreateWindow<UIHowToPlay>();
-        UIWindowManager.Singleton.CreateWindow<UIMainMenu>(UIWindowManager.Anchor.BottomLeft);
-        UIWindowManager.Singleton.CreateWindow<UIOption>();
-        UIWindowManager.Singleton.CreateWindow<UIQuitConfirm>();
-        UIWindowManager.Singleton.CreateWindow<UIStageInfo>();
-        UIWindowManager.Singleton.CreateWindow<UIMap>();
-		UIWindowManager.Singleton.GetUIWindow<UIMap>().RefreshButtons();
-        UIWindowManager.Singleton.CreateWindow<UIBuyHeart>();
-        UIWindowManager.Singleton.CreateWindow<UIWindow>("UILoading", UIWindowManager.Anchor.Center);
+        //UIWindowManager.Singleton.CreateWindow<UISplash>();
+        //UIWindowManager.Singleton.CreateWindow<UIHowToPlay>();
+        
+        //UIWindowManager.Singleton.CreateWindow<UIOption>();
+
+        if (UIWindowManager.Singleton.GetUIWindow<UIMap>() == null)
+        {
+            UIWindowManager.Singleton.CreateWindow<UIMainMenu>(UIWindowManager.Anchor.BottomLeft);
+            UIWindowManager.Singleton.CreateWindow<UIQuitConfirm>();
+            UIWindowManager.Singleton.CreateWindow<UIStageInfo>();
+            UIWindowManager.Singleton.CreateWindow<UIMap>();
+            UIWindowManager.Singleton.CreateWindow<UIBuyHeart>();
+            UIWindowManager.Singleton.CreateWindow<UIWindow>("UILoading", UIWindowManager.Anchor.Center);
+
+            UIWindowManager.Singleton.GetUIWindow<UIMap>().RefreshButtons();
+        }
+        
         //UIWindowManager.Singleton.GetUIWindow<UISplash>().ShowWindow();
 
         if (GlobalVars.UseMusic)

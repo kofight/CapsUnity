@@ -5,6 +5,7 @@ using System;
 public class GameState : State
 {
     bool m_bGameLogicStarted = false;
+    float m_waitLoadingStart;
 
     public override void DoInitState()
     {
@@ -33,12 +34,8 @@ public class GameState : State
             UIToolkits.PlayMusic(CapsConfig.CurAudioList.GameMusic);
         }
 
-        UIWindowManager.Singleton.GetUIWindow("UILoading").HideWindow(delegate()
-        {
-            UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
-            GameLogic.Singleton.StartGame();
-            m_bGameLogicStarted = true;
-        });
+        m_waitLoadingStart = Time.realtimeSinceStartup;
+
     }
 
     public override void DoDeInitState()
@@ -53,6 +50,16 @@ public class GameState : State
     public override void Update()
     {
         base.Update();
+        if (m_waitLoadingStart > 0 && Time.realtimeSinceStartup - m_waitLoadingStart > 0.5f)
+        {
+            m_waitLoadingStart = 0.0f;
+            UIWindowManager.Singleton.GetUIWindow("UILoading").HideWindow(delegate()
+            {
+                UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
+                GameLogic.Singleton.StartGame();
+                m_bGameLogicStarted = true;
+            });
+        }
         if (m_bGameLogicStarted)
         {
             GameLogic.Singleton.Update();

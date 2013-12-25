@@ -109,14 +109,17 @@ public class UIMap : UIWindow
                 Debug.LogError("There's no " + "Stage" + (i + 1).ToString() + " Button");
                 continue;
             }
+			
+			m_stageBtns[i] = transform;
 
             if (!GlobalVars.DeveloperMode && i >= GlobalVars.AvailabeStageCount)     //隐藏超出范围的按钮
             {
                 transform.gameObject.SetActive(false);
-                continue;
             }
-
-            transform.gameObject.SetActive(true);                                                    //显示对象
+			else
+			{
+				transform.gameObject.SetActive(true);                                                    //显示对象	
+			}
 
             for (int j = 1; j <= 3; ++j)
             {
@@ -140,8 +143,6 @@ public class UIMap : UIWindow
 
             UISprite sprite = transform.FindChild("BtnBackground").GetComponent<UISprite>();
             sprite.spriteName = "StageType" + CapsConfig.StageTypeArray[i];
-
-            m_stageBtns[i] = transform;
 
             UIButton button = m_stageBtns[i].GetComponent<UIButton>();
             EventDelegate.Set(button.onClick, OnStageClicked);

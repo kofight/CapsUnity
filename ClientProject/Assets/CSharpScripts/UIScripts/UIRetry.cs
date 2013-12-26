@@ -99,6 +99,13 @@ public class UIRetry : UIWindow
 
         if (m_bWin)
         {
+			if(GlobalVars.HeartCount < 5)		//return heart back if win
+			{
+				++GlobalVars.HeartCount;
+				if(GlobalVars.HeartCount > 5)
+					GlobalVars.HeartCount = 5;
+			}
+
             if (GlobalVars.AvailabeStageCount == GlobalVars.CurStageNum)
             {
                 ++GlobalVars.AvailabeStageCount;        //开启下一关
@@ -221,17 +228,8 @@ public class UIRetry : UIWindow
         }
         else
         {
-            if (GlobalVars.HeartCount > 0)
-            {
-                if (GlobalVars.HeartCount == 5)     //若还没用过心
-                {
-                    GlobalVars.GetHeartTime = System.DateTime.Now;          //初始化获得心的时间
-                }
-                --GlobalVars.HeartCount;            //消耗一个心
-
-				GlobalVars.StageFailedArray[GlobalVars.CurStageNum]++;
-				PlayerPrefsExtend.SetIntArray("StageFailed", GlobalVars.StageFailedArray);
-            }
+			GlobalVars.StageFailedArray[GlobalVars.CurStageNum]++;
+			PlayerPrefsExtend.SetIntArray("StageFailed", GlobalVars.StageFailedArray);
         }
 
 
@@ -306,9 +304,7 @@ public class UIRetry : UIWindow
             UIWindowManager.Singleton.GetUIWindow<UIStageInfo>().ShowWindow(delegate()
             {
                 GameLogic.Singleton.ClearGame();
-            });      //显示关卡信息
-
-            
+            });      //显示关卡信息 
         }
     }
 

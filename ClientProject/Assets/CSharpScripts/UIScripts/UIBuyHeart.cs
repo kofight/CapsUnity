@@ -24,18 +24,12 @@ public class UIBuyHeart : UIWindow
 		GA.API.Business.NewEvent("BuyHearts", "RMB", 1);
 		
 		GlobalVars.HeartCount = 5;
-        if (CapsApplication.Singleton.CurStateEnum == StateEnum.Game)
-        {
-            UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();
-        }
+		UIWindowManager.Singleton.GetUIWindow<UIStageInfo>().ShowWindow();
     }
 
     private void OnCancelClicked()
     {
         HideWindow();
-        if (CapsApplication.Singleton.CurStateEnum == StateEnum.Game)
-        {
-            UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();
-        }
+		UIWindowManager.Singleton.GetUIWindow<UIStageInfo>().ShowWindow();
     }
 }

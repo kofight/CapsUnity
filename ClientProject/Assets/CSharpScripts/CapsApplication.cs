@@ -137,6 +137,23 @@ public class CapsApplication : S5Application
     protected override void DoUpdate()
     {
         base.DoUpdate();
+
+		if (GlobalVars.HeartCount < 5)          //若心没有满，处理心数量变化
+		{
+			int ticks = (int)((System.DateTime.Now.Ticks - GlobalVars.GetHeartTime.Ticks) / 10000);
+			int GetHeartCount = 0;
+			if (ticks > CapsConfig.Instance.GetHeartInterval * 1000)        //若已经到了得心时间
+			{
+				GetHeartCount = (ticks / (CapsConfig.Instance.GetHeartInterval * 1000));
+				GlobalVars.HeartCount += (int)GetHeartCount;                     //增加心数
+				GlobalVars.GetHeartTime = GlobalVars.GetHeartTime.AddSeconds(GetHeartCount * CapsConfig.Instance.GetHeartInterval);          //更改获取心的时间记录
+			}
+			
+			if (GlobalVars.HeartCount > 5)
+			{
+				GlobalVars.HeartCount = 5;
+			}
+		}
     }
 
     public override void OnApplicationPause(bool bPause)

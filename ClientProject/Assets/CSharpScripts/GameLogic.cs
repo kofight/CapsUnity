@@ -2744,6 +2744,11 @@ public class GameLogic
 
         if (UsingItem == PurchasedItem.Item_Hammer)     //若正在使用锤子道具
         {
+			if(m_blocks[p.x, p.y] == null)
+			{
+				UsingItem = PurchasedItem.None;
+				return;
+			}
             if (GlobalVars.PurchasedItemArray[(int)UsingItem] > 0)      //若有道具，扣道具
             {
                 --GlobalVars.PurchasedItemArray[(int)UsingItem];

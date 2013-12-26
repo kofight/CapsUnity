@@ -172,27 +172,10 @@ public class UIMap : UIWindow
     public override void OnUpdate()
     {
         base.OnUpdate();
-		if(GlobalVars.HeartCount > 5) GlobalVars.HeartCount = 5;
+
 
         UISprite heartNum = m_heartUI.GetChildComponent<UISprite>("HeartNum");
         heartNum.spriteName = "Large_" + GlobalVars.HeartCount;
-
-        if (GlobalVars.HeartCount < 5)          //若心没有满，处理心数量变化
-        {
-            int ticks = (int)((System.DateTime.Now.Ticks - GlobalVars.GetHeartTime.Ticks) / 10000);
-            int GetHeartCount = 0;
-            if (ticks > CapsConfig.Instance.GetHeartInterval * 1000)        //若已经到了得心时间
-            {
-                GetHeartCount = (ticks / (CapsConfig.Instance.GetHeartInterval * 1000));
-                GlobalVars.HeartCount += (int)GetHeartCount;                     //增加心数
-                GlobalVars.GetHeartTime = GlobalVars.GetHeartTime.AddSeconds(GetHeartCount * CapsConfig.Instance.GetHeartInterval);          //更改获取心的时间记录
-            }
-
-            if (GlobalVars.HeartCount > 5)
-            {
-                GlobalVars.HeartCount = 5;
-            }
-        }
 		
 		if(GlobalVars.HeartCount < 5)               //若心没满，要显示时间
 		{
@@ -227,14 +210,6 @@ public class UIMap : UIWindow
 
     private void OnStageClicked()
     {
-        if (GlobalVars.HeartCount == 0)
-        {
-            if (GlobalVars.Coins > 0)
-            {
-                UIWindowManager.Singleton.GetUIWindow<UIBuyHeart>().ShowWindow();
-            }
-            return;
-        }
         string stageNum = UIButton.current.name.Substring(5);
         GlobalVars.CurStageNum = System.Convert.ToInt32(stageNum);
         GlobalVars.CurStageData = StageData.CreateStageData();

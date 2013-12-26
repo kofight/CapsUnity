@@ -81,32 +81,17 @@ public class UIRetry : UIWindow
         else
         {
 			m_bWin = false;
-        }
-		
-        if (!GameLogic.Singleton.CheckGetEnoughScore())       //没到基础的分数要求的情况
-        {
-            m_infoLabel.text = "Did not get any star";
-        }
-        else if (GlobalVars.CurStageData.Target == GameTarget.ClearJelly)
-        {
-			if (!m_bWin)
+            if (!GameLogic.Singleton.CheckGetEnoughScore())       //没到基础的分数要求的情况
             {
-                m_infoLabel.text = "Did not clear all jelly" + GameLogic.Singleton.PlayingStageData.GetJellyCount() + "/" + GlobalVars.CurStageData.GetJellyCount();
+                m_infoLabel.text = "Did not get any star";
             }
-            else
+            else if (GlobalVars.CurStageData.Target == GameTarget.ClearJelly)
             {
-                m_infoLabel.text = "All jellies has been cleared";
+                m_infoLabel.text = "Did not clear all ice block";
             }
-        }
-        else if (GlobalVars.CurStageData.Target == GameTarget.BringFruitDown)
-        {
-			if (m_bWin)
+            else if (GlobalVars.CurStageData.Target == GameTarget.BringFruitDown)
             {
-                m_infoLabel.text = "You've brought all fruit down";
-            }
-            else
-            {
-                m_infoLabel.text = "You didn't brought all fruit down";
+                m_infoLabel.text = "You didn't brought all nuts down";
             }
         }
 

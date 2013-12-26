@@ -380,11 +380,6 @@ public class GameLogic
         return timeRemain;
     }
 
-    public void ChangeGameFlow(TGameFlow gameFlow)
-    {
-        m_gameFlow = gameFlow;
-    }
-
     public void InitSingleton()
     {
         m_capsPool = GameObject.Find("CapsPool");
@@ -801,8 +796,9 @@ public class GameLogic
         AddPartile("StartGameAnim", 5, 5, false);
     }
 
-    public void EndGame()
+    public void PlayEndGameAnim()
     {
+		m_gameFlow = TGameFlow.EGameState_Clear;
         TweenPosition tweenPos = m_gameArea.GetComponent<TweenPosition>();
         tweenPos.Play(false);
     }

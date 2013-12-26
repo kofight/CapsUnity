@@ -14,15 +14,17 @@ public class GameState : State
         if (GameLogic.Singleton == null)
         {
             new GameLogic();
+
+			UIWindowManager.Singleton.CreateWindow<UIGameHead>(UIWindowManager.Anchor.Top);
+			UIWindowManager.Singleton.CreateWindow<UIGameBottom>(UIWindowManager.Anchor.Bottom);
+			UIWindowManager.Singleton.CreateWindow<UIWindow>("UIGameBackground", UIWindowManager.Anchor.Center);
+			UIWindowManager.Singleton.CreateWindow<UIGameEnd>();
+			UIWindowManager.Singleton.CreateWindow<UIRetry>();
+			UIWindowManager.Singleton.CreateWindow<UIPurchase>();
+			UIWindowManager.Singleton.CreateWindow<UIUseItem>();
         }
 
-        UIWindowManager.Singleton.CreateWindow<UIGameHead>(UIWindowManager.Anchor.Top);
-        UIWindowManager.Singleton.CreateWindow<UIGameBottom>(UIWindowManager.Anchor.Bottom);
-        UIWindowManager.Singleton.CreateWindow<UIWindow>("UIGameBackground", UIWindowManager.Anchor.Center);
-        UIWindowManager.Singleton.CreateWindow<UIGameEnd>();
-        UIWindowManager.Singleton.CreateWindow<UIRetry>();
-		UIWindowManager.Singleton.CreateWindow<UIPurchase>();
-		UIWindowManager.Singleton.CreateWindow<UIUseItem>();
+        
         GameLogic.Singleton.Init();
         m_bGameLogicStarted = false;
 		UIWindowManager.Singleton.GetUIWindow("UIGameBackground").ShowWindow();
@@ -35,7 +37,6 @@ public class GameState : State
         }
 
         m_waitLoadingStart = Time.realtimeSinceStartup;
-
     }
 
     public override void DoDeInitState()
@@ -44,7 +45,6 @@ public class GameState : State
         UIWindowManager.Singleton.GetUIWindow<UIGameHead>().HideWindow();
         UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().HideWindow();
         UIWindowManager.Singleton.GetUIWindow("UIGameBackground").HideWindow();
-        GameLogic.Singleton.ClearGame();
     }
 
     public override void Update()

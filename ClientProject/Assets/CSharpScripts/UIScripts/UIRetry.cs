@@ -34,10 +34,12 @@ public class UIRetry : UIWindow
         Transform nextBtn = UIToolkits.FindChild(mUIObject.transform, "NextLevelBtn");
         if (GameLogic.Singleton.IsStageFinish() && GameLogic.Singleton.CheckGetEnoughScore())         //检查关卡是否结束
         {
+			m_bWin = true;
             nextBtn.gameObject.SetActive(true);
         }
         else
         {
+			m_bWin = false;
             nextBtn.gameObject.SetActive(false);
         }
         base.OnShow();
@@ -45,54 +47,27 @@ public class UIRetry : UIWindow
 
         if (!GameLogic.Singleton.CheckGetEnoughScore())       //没到基础的分数要求的情况
         {
-            m_bWin = false;
-            //m_resultLabel.text = "Failed!";
             m_infoLabel.text = "Did not get any star";
         }
         else if (GlobalVars.CurStageData.Target == GameTarget.ClearJelly)
         {
-            if (GameLogic.Singleton.PlayingStageData.GetJellyCount() != 0)
+			if (!m_bWin)
             {
-                m_bWin = false;
-                //m_resultLabel.text = "Failed!";
                 m_infoLabel.text = "Did not clear all jelly" + GameLogic.Singleton.PlayingStageData.GetJellyCount() + "/" + GlobalVars.CurStageData.GetJellyCount();
             }
             else
             {
-                m_bWin = true;
-                //m_resultLabel.text = "Win!";
                 m_infoLabel.text = "All jellies has been cleared";
-            }
-        }
-        else if (GlobalVars.CurStageData.Target == GameTarget.GetScore)
-        {
-            if (GameLogic.Singleton.GetProgress() >= GlobalVars.CurStageData.StarScore[0])
-            {
-                m_bWin = true;
-                //m_resultLabel.text = "Win!";
-                m_infoLabel.text = "You got enough score";
-
-            }
-            else
-            {
-                m_bWin = false;
-                //m_resultLabel.text = "Failed!";
-                m_infoLabel.text = "You didn't get enough score";
             }
         }
         else if (GlobalVars.CurStageData.Target == GameTarget.BringFruitDown)
         {
-            if (GameLogic.Singleton.PlayingStageData.Nut1Count == GlobalVars.CurStageData.Nut1Count
-                && GameLogic.Singleton.PlayingStageData.Nut2Count == GlobalVars.CurStageData.Nut2Count)
+			if (m_bWin)
             {
-                m_bWin = true;
-                //m_resultLabel.text = "Win!";
                 m_infoLabel.text = "You've brought all fruit down";
             }
             else
             {
-                m_bWin = false;
-                //m_resultLabel.text = "Failed!";
                 m_infoLabel.text = "You didn't brought all fruit down";
             }
         }
@@ -252,8 +227,7 @@ public class UIRetry : UIWindow
             }
         }
 
-        GameLogic.Singleton.EndGame();
-        GameLogic.Singleton.ChangeGameFlow(TGameFlow.EGameState_Clear);           //切换到结束状态
+        GameLogic.Singleton.PlayEndGameAnim();		//play the end anim(move the game area out of screen)
     }
     public override void OnUpdate()
     {
@@ -313,6 +287,7 @@ public class UIRetry : UIWindow
         HideWindow(delegate()
         {
             CapsApplication.Singleton.ChangeState((int)StateEnum.Login);        //返回地图界面
+			GameLogic.Singleton.ClearGame();
         });
         UIWindowManager.Singleton.GetUIWindow<UIMap>().ShowWindow();
         LoginState.Instance.CurFlow = TLoginFlow.LoginFlow_Map;         //切换流程到显示地图

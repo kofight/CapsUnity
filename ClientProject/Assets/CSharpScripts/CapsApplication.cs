@@ -52,7 +52,7 @@ public class CapsApplication : S5Application
         if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer)
         {
             CapsConfig.EnableGA = true;
-            //CapsConfig.EnableTalkingData = true;
+            CapsConfig.EnableTalkingData = true;
         }
         else
         {

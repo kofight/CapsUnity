@@ -3,10 +3,30 @@ using System.Collections;
 
 public class UIMainMenu : UIWindow 
 {
+    UIWindow m_mainMenuExtend;
     public override void OnCreate()
     {
         base.OnCreate();
-        AddChildComponentMouseClick("QuitBtn", OnQuitClicked);
+        m_mainMenuExtend = UIWindowManager.Singleton.CreateWindow<UIWindow>("UIMainMenuExtend", UIWindowManager.Anchor.BottomLeft);
+
+        m_mainMenuExtend.AddChildComponentMouseClick("QuitBtn", OnQuitClicked);
+        m_mainMenuExtend.AddChildComponentMouseClick("HelpBtn", delegate()
+        {
+            UIWindowManager.Singleton.GetUIWindow<UIHowToPlay>().ShowWindow();
+            m_mainMenuExtend.HideWindow();
+        });
+
+        m_mainMenuExtend.AddChildComponentMouseClick("HideBtn", delegate()
+        {
+            m_mainMenuExtend.HideWindow();      //隐藏窗口
+            ShowWindow();
+        });
+
+        AddChildComponentMouseClick("MainBtn", delegate()
+        {
+            m_mainMenuExtend.ShowWindow();
+            HideWindow();
+        });
     }
     public override void OnShow()
     {
@@ -19,6 +39,7 @@ public class UIMainMenu : UIWindow
 
     private void OnQuitClicked()
     {
+        m_mainMenuExtend.HideWindow();
         if (CapsApplication.Singleton.CurStateEnum == StateEnum.Game)
         {
             if (UIWindowManager.Singleton.GetUIWindow<UIStageEditor>() != null && UIWindowManager.Singleton.GetUIWindow<UIStageEditor>().Visible)

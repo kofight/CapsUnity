@@ -55,16 +55,6 @@ public class UIStageInfo : UIWindow
 
     private void OnPlayClicked()
     {
-		if (GlobalVars.HeartCount == 0)
-		{
-			if (GlobalVars.Coins > 0)
-			{
-				UIWindowManager.Singleton.GetUIWindow<UIBuyHeart>().ShowWindow();
-			}
-			HideWindow();
-			return;
-		}
-
 		if (GlobalVars.HeartCount == 5)     //若还没用过心
 		{
 			GlobalVars.GetHeartTime = System.DateTime.Now;          //初始化获得心的时间

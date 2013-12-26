@@ -1137,6 +1137,7 @@ public class GameLogic
             {
                 m_gameStartTime = 0;
                 m_gameFlow = TGameFlow.EGameState_End;
+				UIWindowManager.Singleton.GetUIWindow<UIRetry>().RefreshData();
                 UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();      //弹游戏结束的窗口
             }
             return;
@@ -2575,6 +2576,7 @@ public class GameLogic
             {
                 //否则直接结束游戏
                 m_gameStartTime = 0;
+                UIWindowManager.Singleton.GetUIWindow<UIRetry>().RefreshData();
                 UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();
             }
             return;

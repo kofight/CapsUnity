@@ -36,7 +36,8 @@ public class LoginState : State
             UIWindowManager.Singleton.CreateWindow<UIQuitConfirm>();
             UIWindowManager.Singleton.CreateWindow<UIStageInfo>();
             UIWindowManager.Singleton.CreateWindow<UIMap>();
-            UIWindowManager.Singleton.CreateWindow<UIBuyHeart>();
+            UIWindowManager.Singleton.CreateWindow<UINoMoreHearts>();
+            UIWindowManager.Singleton.CreateWindow<UIHowToPlay>();
             UIWindowManager.Singleton.CreateWindow<UIWindow>("UILoading", UIWindowManager.Anchor.Center);
 
             UIWindowManager.Singleton.GetUIWindow<UIMap>().RefreshButtons();

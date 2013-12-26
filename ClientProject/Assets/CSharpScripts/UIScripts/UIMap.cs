@@ -210,13 +210,20 @@ public class UIMap : UIWindow
 
     private void OnStageClicked()
     {
+        NGUITools.PlaySound(CapsConfig.CurAudioList.ButtonClip);
         string stageNum = UIButton.current.name.Substring(5);
         GlobalVars.CurStageNum = System.Convert.ToInt32(stageNum);
         GlobalVars.CurStageData = StageData.CreateStageData();
+        GlobalVars.LastStage = GlobalVars.CurStageNum;
+
+        if (GlobalVars.HeartCount == 0)
+        {
+            UIWindowManager.Singleton.GetUIWindow<UINoMoreHearts>().ShowWindow();
+            return;
+        }
+
         GlobalVars.CurStageData.LoadStageData(GlobalVars.CurStageNum);
         UIWindowManager.Singleton.GetUIWindow<UIStageInfo>().ShowWindow();
-        GlobalVars.LastStage = GlobalVars.CurStageNum;
-		NGUITools.PlaySound(CapsConfig.CurAudioList.ButtonClip);
     }
 
     public void MoveTo(Vector2 pos) //移动到某个位置

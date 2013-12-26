@@ -11,6 +11,9 @@ public class UIRetry : UIWindow
     UISprite[] m_starsSprites = new UISprite[3];
     NumberDrawer m_stageNumber;
 
+    Transform m_winBoard;
+    Transform m_failedBoard;
+
     public override void OnCreate()
     {
         base.OnCreate();
@@ -19,6 +22,9 @@ public class UIRetry : UIWindow
         m_infoLabel = UIToolkits.FindComponent<UILabel>(mUIObject.transform, "EndInfomation");
 
         m_stageNumber = GetChildComponent<NumberDrawer>("LevelNumber");
+
+        m_winBoard = UIToolkits.FindChild(mUIObject.transform, "WinBoard");
+        m_failedBoard = UIToolkits.FindChild(mUIObject.transform, "FailedBoard");
 
         AddChildComponentMouseClick("CloseBtn", OnCloseClicked);
         AddChildComponentMouseClick("RetryBtn", OnRetryClicked);
@@ -29,22 +35,54 @@ public class UIRetry : UIWindow
             m_starsSprites[i] = GetChildComponent<UISprite>("Star" + (i + 1));      //查找sprite
         }
     }
-    public override void OnShow()
-    {
-        Transform nextBtn = UIToolkits.FindChild(mUIObject.transform, "NextLevelBtn");
+	
+	public override void OnShow ()
+	{
+		base.OnShow ();
+		Transform nextBtn = UIToolkits.FindChild(mUIObject.transform, "NextLevelBtn");
+		if (m_bWin)
+        {
+			nextBtn.gameObject.SetActive(true);
+			
+            m_winBoard.gameObject.SetActive(true);
+            m_failedBoard.gameObject.SetActive(false);
+
+            m_starCount = GlobalVars.StageStarArray[GlobalVars.CurStageNum - 1];
+            NumberDrawer number = GetChildComponent<NumberDrawer>("StageScore");
+            number.SetNumber(GameLogic.Singleton.GetProgress());
+
+            //根据starCount显示星星
+            for (int i = 0; i < 3; ++i)
+            {
+                if (i < m_starCount)
+                {
+                    m_starsSprites[i].spriteName = "Star_Large";
+                }
+                else
+                {
+                    m_starsSprites[i].spriteName = "Grey_Star_Large";
+                }
+            }
+        }
+        else
+        {
+			nextBtn.gameObject.SetActive(false);
+            m_winBoard.gameObject.SetActive(false);
+            m_failedBoard.gameObject.SetActive(true);
+        }
+	}
+	
+	public void RefreshData()
+	{
         if (GameLogic.Singleton.IsStageFinish() && GameLogic.Singleton.CheckGetEnoughScore())         //检查关卡是否结束
         {
 			m_bWin = true;
-            nextBtn.gameObject.SetActive(true);
         }
         else
         {
 			m_bWin = false;
-            nextBtn.gameObject.SetActive(false);
         }
-        base.OnShow();
-
-
+		
         if (!GameLogic.Singleton.CheckGetEnoughScore())       //没到基础的分数要求的情况
         {
             m_infoLabel.text = "Did not get any star";
@@ -207,28 +245,11 @@ public class UIRetry : UIWindow
 			PlayerPrefsExtend.SetIntArray("StageFailed", GlobalVars.StageFailedArray);
         }
 
-
-        m_starCount = GlobalVars.StageStarArray[GlobalVars.CurStageNum - 1];
-        NumberDrawer number = GetChildComponent<NumberDrawer>("StageScore");
-        number.SetNumber(GameLogic.Singleton.GetProgress());
-
         m_stageNumber.SetNumber(GlobalVars.CurStageNum);
 
-        //根据starCount显示星星
-        for (int i = 0; i < 3; ++i)
-        {
-            if (i < m_starCount)
-            {
-                m_starsSprites[i].spriteName = "Star_Large";
-            }
-            else
-            {
-                m_starsSprites[i].spriteName = "Grey_Star_Large";
-            }
-        }
-
         GameLogic.Singleton.PlayEndGameAnim();		//play the end anim(move the game area out of screen)
-    }
+	}
+	
     public override void OnUpdate()
     {
         base.OnUpdate();
@@ -242,20 +263,20 @@ public class UIRetry : UIWindow
 
     private void OnRetryClicked()
     {
-        if (GlobalVars.HeartCount == 0)
+		if (GlobalVars.HeartCount == 0)         //若没有心了
         {
-            if (GlobalVars.Coins > 0)
-            {
-                HideWindow();
-                UIWindowManager.Singleton.GetUIWindow<UIBuyHeart>().ShowWindow();
-            }
+            HideWindow();
+            GameLogic.Singleton.ClearGame();
+            UIWindowManager.Singleton.GetUIWindow<UINoMoreHearts>().ShowWindow();           //显示买心界面
             return;
         }
+		
+		UIWindowManager.Singleton.GetUIWindow<UIStageInfo>().ShowWindow(delegate()
+        {
+                GameLogic.Singleton.ClearGame();
+        });      //显示关卡信息 
 
-        HideWindow();
-        GameLogic.Singleton.ClearGame();
-        GameLogic.Singleton.Init();
-        GameLogic.Singleton.StartGame();
+        HideWindow();       //隐藏自己
     }
 
     private void OnNextLevelClicked()

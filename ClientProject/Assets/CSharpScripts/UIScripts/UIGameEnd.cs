@@ -113,6 +113,7 @@ public class UIGameEnd : UIWindow
     private void OnEndGameClicked()
     {
         HideWindow();
+		UIWindowManager.Singleton.GetUIWindow<UIRetry>().RefreshData();
         UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();
     }
 
@@ -124,6 +125,7 @@ public class UIGameEnd : UIWindow
             {
                 GameLogic.Singleton.ShowHelpAnim();
             });
+            UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
         }
         else                                            //若没步数了，就要购买和使用道具
         {

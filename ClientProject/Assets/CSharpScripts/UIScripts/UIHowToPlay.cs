@@ -6,13 +6,10 @@ public class UIHowToPlay : UIWindow
     public override void OnCreate()
     {
         base.OnCreate();
-    }
-    public override void OnShow()
-    {
-        base.OnShow();
-    }
-    public override void OnUpdate()
-    {
-        base.OnUpdate();
+        AddChildComponentMouseClick("CloseBtn", delegate()
+        {
+            HideWindow();
+            UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
+        });
     }
 }

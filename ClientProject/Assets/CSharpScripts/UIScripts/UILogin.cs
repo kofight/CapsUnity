@@ -25,6 +25,12 @@ public class UILogin : UIWindow
             GlobalVars.HeartCount = 5;
         });
 
+        AddChildComponentMouseClick("AddCoinBtn", delegate()
+        {
+            GlobalVars.Coins += 10;
+            PlayerPrefs.SetInt("Coins", GlobalVars.Coins);
+        });
+
         AddChildComponentMouseClick("DebugBtn", delegate()
         {
             ++m_clickDebugCount;

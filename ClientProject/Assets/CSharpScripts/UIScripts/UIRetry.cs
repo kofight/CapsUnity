@@ -13,6 +13,8 @@ public class UIRetry : UIWindow
 
     Transform m_winBoard;
     Transform m_failedBoard;
+	
+	bool m_bStartNewStage = false;		//record if started a new stage
 
     public override void OnCreate()
     {
@@ -74,6 +76,7 @@ public class UIRetry : UIWindow
 	
 	public void RefreshData()
 	{
+		m_bStartNewStage = false;
         if (GameLogic.Singleton.IsStageFinish() && GameLogic.Singleton.CheckGetEnoughScore())         //检查关卡是否结束
         {
 			m_bWin = true;
@@ -107,6 +110,7 @@ public class UIRetry : UIWindow
             if (GlobalVars.AvailabeStageCount == GlobalVars.CurStageNum)
             {
                 ++GlobalVars.AvailabeStageCount;        //开启下一关
+				m_bStartNewStage = true;
                 UIWindowManager.Singleton.GetUIWindow<UIMap>().RefreshButton(GlobalVars.AvailabeStageCount);
             }
 
@@ -267,7 +271,8 @@ public class UIRetry : UIWindow
     private void OnNextLevelClicked()
     {
         ++GlobalVars.LastStage;
-        if (GlobalVars.StageStarArray[GlobalVars.LastStage-1] == 0)       //若是新开的关
+		GameLogic.Singleton.ClearGame();
+        if (m_bStartNewStage)       //若是新开的关
         {
             HideWindow(delegate()
             {
@@ -281,10 +286,7 @@ public class UIRetry : UIWindow
         {
             HideWindow();
             GlobalVars.CurStageNum = GlobalVars.LastStage;                          //进下一关
-            UIWindowManager.Singleton.GetUIWindow<UIStageInfo>().ShowWindow(delegate()
-            {
-                GameLogic.Singleton.ClearGame();
-            });      //显示关卡信息 
+            UIWindowManager.Singleton.GetUIWindow<UIStageInfo>().ShowWindow();   //显示关卡信息 
         }
     }
 

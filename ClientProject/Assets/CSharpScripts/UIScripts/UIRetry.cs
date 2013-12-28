@@ -135,6 +135,8 @@ public class UIRetry : UIWindow
 					GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":FirstSucceed:PlayTime", GameLogic.Singleton.GetStagePlayTime());	
 					
 				}
+
+#if UNITY_ANDROID
 				if(CapsConfig.EnableTalkingData)
 				{
 					Dictionary<string, object> param = new Dictionary<string, object>();
@@ -212,7 +214,7 @@ public class UIRetry : UIWindow
 					TalkingDataPlugin.TrackEventWithParameters("Stage" + GlobalVars.CurStageNum + ":FirstSucceed", "", param);
 				}
 			}
-
+#endif
             PlayerPrefs.SetInt("StageAvailableCount", GlobalVars.AvailabeStageCount);       //保存进度
             if (m_starCount > GlobalVars.StageStarArray[GlobalVars.CurStageNum - 1])
             {

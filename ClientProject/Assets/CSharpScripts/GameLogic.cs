@@ -349,7 +349,7 @@ public class GameLogic
 		NGUITools.PlaySound(clip);
     }
 
-    void PlaySoundNextFrame(AudioEnum audio)
+    void PlaySoundNextFrame(AudioEnum audio)                            //为了同一声音在一帧内播放多次，把要播放的声音存起来下一帧播放
     {
         m_playSoundNextFrame.Add(audio);
     }
@@ -373,7 +373,7 @@ public class GameLogic
         m_showingNumberEffectList.AddLast(numEffect);
     }
 
-    public float GetTimeRemain()
+    public float GetTimeRemain()                            //获得剩余时间
     {
         float timeRemain = GlobalVars.CurStageData.TimeLimit - (Timer.millisecondNow() - m_gameStartTime) / 1000.0f;
         timeRemain = Mathf.Max(0, timeRemain);
@@ -533,8 +533,10 @@ public class GameLogic
 		{
 			if(CapsConfig.EnableGA)
 				GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Start");        //记录当前开始的关卡的数据
+#if UNITY_ANDROID
 			if(CapsConfig.EnableTalkingData)
 				TalkingDataPlugin.TrackEvent("Stage" + GlobalVars.CurStageNum + ":Start");  //记录当前开始的关卡的数据
+#endif
 		}        
     }
 
@@ -2601,6 +2603,7 @@ public class GameLogic
 				}
             }
 
+#if UNITY_ANDROID
 			if(CapsConfig.EnableTalkingData)
 			{
 				Dictionary<string, object> param = new Dictionary<string, object>();
@@ -2655,6 +2658,8 @@ public class GameLogic
 				
 				TalkingDataPlugin.TrackEventWithParameters("Stage" + GlobalVars.CurStageNum + ":Failed", "", param);
 			}
+
+#endif
 
             UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();            //出游戏结束界面
         }

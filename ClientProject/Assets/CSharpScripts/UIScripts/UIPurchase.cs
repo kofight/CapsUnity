@@ -19,7 +19,7 @@ public class UIPurchase : UIWindow
     public override void OnShow()
     {
         base.OnShow();
-        GameLogic.Singleton.HideHelp();
+        GameLogic.Singleton.PauseGame();
 		m_msgLabel.text = string.Format("You have {0} coins now,\nThe item will take you 1 coin,\nAre you sure about the purchasing?", GlobalVars.Coins);
     }
 
@@ -27,7 +27,7 @@ public class UIPurchase : UIWindow
     {
         HideWindow(delegate()
         {
-            GameLogic.Singleton.ShowHelpAnim();
+            GameLogic.Singleton.ResumeGame();
         });
 		OnPurchase();
     }
@@ -36,7 +36,7 @@ public class UIPurchase : UIWindow
     {
         HideWindow(delegate()
         {
-            GameLogic.Singleton.ShowHelpAnim();
+            GameLogic.Singleton.ResumeGame();
         });
         if (GameLogic.Singleton.GetGameFlow() == TGameFlow.EGameState_End)
         {

@@ -20,7 +20,14 @@ public class UIPurchase : UIWindow
     {
         base.OnShow();
         GameLogic.Singleton.PauseGame();
-		m_msgLabel.text = string.Format("You have {0} coins now,\nThe item will take you 1 coin,\nAre you sure about the purchasing?", GlobalVars.Coins);
+        if (GlobalVars.CurStageData.StepLimit > 0)
+        {
+            m_msgLabel.text = string.Format("You have {0} coins now,\nit will take you 1 coin to get extra 5 step,\nAre you sure about the purchasing?", GlobalVars.Coins);
+        }
+        else if(GlobalVars.CurStageData.TimeLimit > 0)
+        {
+            m_msgLabel.text = string.Format("You have {0} coins now,\nit will take you 1 coin to get extra 15 seconds,\nAre you sure about the purchasing?", GlobalVars.Coins);
+        }
     }
 
     private void OnConfirmClicked()

@@ -365,6 +365,16 @@ public class GameLogic
         AddNumber(progress, GetXPos(x), GetYPos(x, y));
     }
 
+    public void AddGameTime(int seconds)
+    {
+        m_gameStartTime += seconds * 1000;
+    }
+	
+	public void SetGameTime(int seconds)
+    {
+        m_gameStartTime = Timer.millisecondNow() - (GlobalVars.CurStageData.TimeLimit - seconds) * 1000;
+    }
+
     //暂停游戏
     public void PauseGame()
     {
@@ -2049,7 +2059,7 @@ public class GameLogic
         {
             if (m_blocks[position.x, position.y].special == TSpecialBlock.ESpecial_NormalPlus5)
             {
-                m_gameStartTime += 5000;               //增加5秒时间
+                AddGameTime(5);               //增加5秒时间
             }
             generateSpecial = TSpecialBlock.ESpecial_EatAColor;         //生成彩虹
             kItem = 3;
@@ -2058,7 +2068,7 @@ public class GameLogic
         {
             if (m_blocks[position.x, position.y].special == TSpecialBlock.ESpecial_NormalPlus5)
             {
-                m_gameStartTime += 5000;               //增加5秒时间
+                AddGameTime(5);               //增加5秒时间
             }
             generateSpecial = TSpecialBlock.ESpecial_Bomb;
             kItem = 2;
@@ -2067,7 +2077,7 @@ public class GameLogic
         {
             if (m_blocks[position.x, position.y].special == TSpecialBlock.ESpecial_NormalPlus5)
             {
-                m_gameStartTime += 5000;               //增加5秒时间
+                AddGameTime(5);               //增加5秒时间
             }
             if (m_moveDirection == TDirection.EDir_Up || m_moveDirection == TDirection.EDir_Down)
             {
@@ -2391,7 +2401,7 @@ public class GameLogic
                     }
                     else
                     {
-                        m_gameStartTime += 5000;               //增加5秒时间
+                        AddGameTime(5);               //增加5秒时间
                     }
                 }
                 break;

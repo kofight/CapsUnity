@@ -113,13 +113,16 @@ public class UIGameEnd : UIWindow
     private void OnEndGameClicked()
     {
         HideWindow();
+		GameLogic.Singleton.ResumeGame();
 		UIWindowManager.Singleton.GetUIWindow<UIRetry>().RefreshData();
         UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();
     }
 
     private void OnPlayOnClicked()
     {
-        if (GameLogic.Singleton.PlayingStageData.StepLimit > 0)     //若还有步数
+        if (GlobalVars.CurStageData.StepLimit > 0 && GameLogic.Singleton.PlayingStageData.StepLimit > 0 ||          //若是限制步数的关卡，还有步数
+            GlobalVars.CurStageData.TimeLimit > 0 && GameLogic.Singleton.GetTimeRemain() > 0                        //若是限制时间的关卡，还有时间
+            )     
         {
             HideWindow(delegate()
             {
@@ -127,18 +130,27 @@ public class UIGameEnd : UIWindow
             });
             UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
         }
-        else                                            //若没步数了，就要购买和使用道具
+        else                                            //若没步数或时间了，就要购买和使用道具
         {
-            HideWindow();
             if (GlobalVars.Coins > 0)
             {
+                HideWindow();
                 UIWindowManager.Singleton.GetUIWindow<UIPurchase>().ShowWindow();
                 UIWindowManager.Singleton.GetUIWindow<UIPurchase>().OnPurchase = delegate()
                 {
                     --GlobalVars.Coins;
-                    GA.API.Business.NewEvent("BuyStep", "RMB", 1);
                     PlayerPrefs.SetInt("Coins", GlobalVars.Coins);
-                    GameLogic.Singleton.PlayingStageData.StepLimit += 5;        //步数加5
+                    if (GlobalVars.CurStageData.StepLimit > 0)
+                    {
+                        GA.API.Business.NewEvent("BuyStep", "RMB", 1);
+                        GameLogic.Singleton.PlayingStageData.StepLimit += 5;        //步数加5
+                        
+                    }
+                    else if (GlobalVars.CurStageData.TimeLimit > 0)
+                    {
+                        GA.API.Business.NewEvent("BuyTime", "RMB", 1);
+                        GameLogic.Singleton.SetGameTime(15);               //增加15秒时间
+                    }
                     GameLogic.Singleton.SetGameFlow(TGameFlow.EGameState_Playing);      //回到可以继续玩的状态
                 };
             }

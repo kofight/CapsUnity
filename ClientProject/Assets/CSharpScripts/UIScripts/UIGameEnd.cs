@@ -103,7 +103,7 @@ public class UIGameEnd : UIWindow
             m_jellyCheck.gameObject.SetActive(false);
         }
 
-        GameLogic.Singleton.HideHelp();
+        GameLogic.Singleton.PauseGame();
     }
     public override void OnUpdate()
     {
@@ -123,7 +123,7 @@ public class UIGameEnd : UIWindow
         {
             HideWindow(delegate()
             {
-                GameLogic.Singleton.ShowHelpAnim();
+                GameLogic.Singleton.ResumeGame();
             });
             UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
         }

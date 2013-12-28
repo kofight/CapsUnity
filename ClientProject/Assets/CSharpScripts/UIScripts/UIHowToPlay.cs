@@ -14,7 +14,10 @@ public class UIHowToPlay : UIWindow
 
         AddChildComponentMouseClick("CloseBtn", delegate()
         {
-            HideWindow();
+            HideWindow(delegate()
+            {
+                GameLogic.Singleton.ResumeGame();
+            });
             UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
         });
 		
@@ -27,6 +30,7 @@ public class UIHowToPlay : UIWindow
         m_curPicNum = 0;
         Texture tex = ResourceManager.Singleton.GetIconByName("help" + m_curPicNum);
         m_helpTex.mainTexture = tex;
+        GameLogic.Singleton.PauseGame();
     }
 
     void Next()

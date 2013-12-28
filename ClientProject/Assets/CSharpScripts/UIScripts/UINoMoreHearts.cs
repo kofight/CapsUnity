@@ -75,7 +75,7 @@ public class UINoMoreHearts : UIWindow
             m_minNumber.SetNumber(min);
             m_secNumber.SetNumber(second);
 
-            m_heartSprite.fillAmount = (ticksToGetHeart / 1000.0f) / CapsConfig.Instance.GetHeartInterval;
+            m_heartSprite.fillAmount = 1.0f - (ticksToGetHeart / 1000.0f) / CapsConfig.Instance.GetHeartInterval;
         }
         else
         {

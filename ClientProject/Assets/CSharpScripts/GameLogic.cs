@@ -365,6 +365,20 @@ public class GameLogic
         AddNumber(progress, GetXPos(x), GetYPos(x, y));
     }
 
+    //暂停游戏
+    public void PauseGame()
+    {
+        HideHelp();
+        CapsConfig.Instance.GameSpeed = 0.0f;
+    }
+
+    //恢复游戏
+    public void ResumeGame()
+    {
+        ShowHelpAnim();
+        CapsConfig.Instance.GameSpeed = 1.0f;
+    }
+
     void AddNumber(int number, int x, int y)                //添加一个数字特效
     {
         ShowingNumberEffect numEffect = m_freeNumberList.Last.Value;
@@ -657,6 +671,11 @@ public class GameLogic
                 for (TDirection dir = TDirection.EDir_Up; dir <= TDirection.EDir_LeftUp; dir = (TDirection)(dir + 1))		//遍历6个方向
                 {
                     Position curPos = GoTo(position, dir, 1);
+                    if (GetBlockColor(curPos) >= TBlockColor.EColor_Nut1)           //若是坚果，不参与查找
+                    {
+                        continue;
+                    }
+
                     if (CheckPosAvailable(curPos))
                     {
                         if (m_blocks[curPos.x, curPos.y] == null || m_blocks[curPos.x, curPos.y].CurState != BlockState.Normal)             //空格或空块

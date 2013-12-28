@@ -19,7 +19,7 @@ public class UIUseItem : UIWindow
     public override void OnShow()
     {
         base.OnShow();
-        GameLogic.Singleton.HideHelp();
+        GameLogic.Singleton.PauseGame();
 		//m_msgLabel.text = string.Format("You have {} coins now,\nThe item will take you 1 coin,\nAre you sure about the purchasing?", GlobalVars.Coins);
     }
 
@@ -27,7 +27,7 @@ public class UIUseItem : UIWindow
     {
         HideWindow(delegate()
         {
-            GameLogic.Singleton.ShowHelpAnim();
+            GameLogic.Singleton.ResumeGame();
         });
         OnUse();
     }
@@ -36,7 +36,7 @@ public class UIUseItem : UIWindow
     {
         HideWindow(delegate()
         {
-            GameLogic.Singleton.ShowHelpAnim();
+            GameLogic.Singleton.ResumeGame();
         });
     }
 }

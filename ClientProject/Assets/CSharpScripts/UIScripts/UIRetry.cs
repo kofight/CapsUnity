@@ -212,9 +212,10 @@ public class UIRetry : UIWindow
 
 
 					TalkingDataPlugin.TrackEventWithParameters("Stage" + GlobalVars.CurStageNum + ":FirstSucceed", "", param);
-				}
-			}
+                }
 #endif
+            }
+
             PlayerPrefs.SetInt("StageAvailableCount", GlobalVars.AvailabeStageCount);       //保存进度
             if (m_starCount > GlobalVars.StageStarArray[GlobalVars.CurStageNum - 1])
             {

@@ -65,14 +65,21 @@ public class UINoMoreHearts : UIWindow
 	public override void OnUpdate ()
 	{
 		base.OnUpdate ();
-		
-		int ticks = (int)((System.DateTime.Now.Ticks - GlobalVars.GetHeartTime.Ticks) / 10000);
-		int ticksToGetHeart = CapsConfig.Instance.GetHeartInterval * 1000 - ticks;
-		int min = ticksToGetHeart / 1000 / 60;
-		int second = ticksToGetHeart / 1000 % 60;
-        m_minNumber.SetNumber(min);
-        m_secNumber.SetNumber(second);
-		
-		m_heartSprite.fillAmount = (ticksToGetHeart / 1000.0f) / CapsConfig.Instance.GetHeartInterval;
+
+        if (GlobalVars.HeartCount == 0)
+        {
+            int ticks = (int)((System.DateTime.Now.Ticks - GlobalVars.GetHeartTime.Ticks) / 10000);
+            int ticksToGetHeart = CapsConfig.Instance.GetHeartInterval * 1000 - ticks;
+            int min = ticksToGetHeart / 1000 / 60;
+            int second = ticksToGetHeart / 1000 % 60;
+            m_minNumber.SetNumber(min);
+            m_secNumber.SetNumber(second);
+
+            m_heartSprite.fillAmount = (ticksToGetHeart / 1000.0f) / CapsConfig.Instance.GetHeartInterval;
+        }
+        else
+        {
+            m_heartSprite.fillAmount = 1.0f;
+        }
 	}
 }

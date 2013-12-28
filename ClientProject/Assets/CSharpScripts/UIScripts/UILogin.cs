@@ -21,8 +21,7 @@ public class UILogin : UIWindow
 
         AddChildComponentMouseClick("RecoverHeartBtn", delegate()
         {
-            PlayerPrefs.SetInt("HeartCount", 5);            //恢复爱心
-            GlobalVars.HeartCount = 5;
+            GlobalVars.AddHeart(5);
         });
 
         AddChildComponentMouseClick("AddCoinBtn", delegate()

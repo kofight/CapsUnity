@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 
 public class UIRetry : UIWindow 
 {
@@ -100,13 +101,11 @@ public class UIRetry : UIWindow
 
         if (m_bWin)
         {
-			if(GlobalVars.HeartCount < 5)		//return heart back if win
-			{
-				++GlobalVars.HeartCount;
-				if(GlobalVars.HeartCount > 5)
-					GlobalVars.HeartCount = 5;
-			}
+            GlobalVars.AddHeart(1);          //若关卡成功，需要把之前扣的心恢复回来
+        }
 
+        if (m_bWin)
+        {
             if (GlobalVars.AvailabeStageCount == GlobalVars.CurStageNum)
             {
                 ++GlobalVars.AvailabeStageCount;        //开启下一关
@@ -255,6 +254,8 @@ public class UIRetry : UIWindow
 
     private void OnRetryClicked()
     {
+        GlobalVars.RefreshHeart();              //刷新心数
+
 		if (GlobalVars.HeartCount == 0)         //若没有心了
         {
             HideWindow();

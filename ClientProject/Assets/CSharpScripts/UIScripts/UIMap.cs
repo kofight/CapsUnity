@@ -173,7 +173,9 @@ public class UIMap : UIWindow
     {
         base.OnUpdate();
 
+        GlobalVars.RefreshHeart();
 
+        //显示心数和时间////////////////////////////////////////////////////////////////////////
         UISprite heartNum = m_heartUI.GetChildComponent<UISprite>("HeartNum");
         heartNum.spriteName = "Large_" + GlobalVars.HeartCount;
 		
@@ -216,7 +218,7 @@ public class UIMap : UIWindow
         GlobalVars.CurStageData = StageData.CreateStageData();
         GlobalVars.LastStage = GlobalVars.CurStageNum;
 
-        if (GlobalVars.HeartCount == 0)
+        if (GlobalVars.HeartCount == 0)         //若没有心了
         {
             UIWindowManager.Singleton.GetUIWindow<UINoMoreHearts>().ShowWindow();
             return;

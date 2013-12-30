@@ -39,6 +39,7 @@ public class LoginState : State
             UIWindowManager.Singleton.CreateWindow<UINoMoreHearts>();
             UIWindowManager.Singleton.CreateWindow<UIHowToPlay>();
             UIWindowManager.Singleton.CreateWindow<UIWindow>("UILoading", UIWindowManager.Anchor.Center);
+            UIWindowManager.Singleton.CreateWindow<UIDialog>(UIWindowManager.Anchor.Bottom);
 
             UIWindowManager.Singleton.GetUIWindow<UIMap>().RefreshButtons();
         }

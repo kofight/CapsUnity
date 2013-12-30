@@ -106,7 +106,7 @@ public class UITextList : MonoBehaviour
 	/// Height of each line.
 	/// </summary>
 
-	protected float lineHeight { get { return (textLabel != null) ? textLabel.fontSize : 20f; } }
+	protected float lineHeight { get { return (textLabel != null) ? textLabel.fontSize + textLabel.spacingY : 20f; } }
 
 	/// <summary>
 	/// Height of the scrollable area (outside of the visible area's bounds).
@@ -256,9 +256,7 @@ public class UITextList : MonoBehaviour
 			// over and over every paragraph, which is not ideal. It's faster to only do it once
 			// and then do wrapping ourselves in the 'for' loop below.
 			textLabel.UpdateNGUIText();
-			NGUIText.current.lineHeight = 1000000;
-
-			UIFont bitmapFont = textLabel.bitmapFont;
+			NGUIText.lineHeight = 1000000;
 			mTotalLines = 0;
 
 			for (int i = 0; i < mParagraphs.size; ++i)
@@ -266,21 +264,11 @@ public class UITextList : MonoBehaviour
 				string final;
 				Paragraph p = mParagraphs.buffer[i];
 
-				if (bitmapFont != null)
-				{
-					if (bitmapFont.WrapText(p.text, out final))
-					{
-						p.lines = final.Split('\n');
-						mTotalLines += p.lines.Length;
-					}
-				}
-#if DYNAMIC_FONT
-				else if (NGUIText.WrapText(textLabel.trueTypeFont, p.text, out final))
+				if (NGUIText.WrapText(p.text, out final))
 				{
 					p.lines = final.Split('\n');
 					mTotalLines += p.lines.Length;
 				}
-#endif
 			}
 
 			// Recalculate the total number of lines

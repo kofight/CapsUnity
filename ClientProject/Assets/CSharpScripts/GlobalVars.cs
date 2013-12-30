@@ -72,7 +72,14 @@ public class GlobalVars {
             GlobalVars.HeartCount = PlayerPrefs.GetInt("HeartCount");
 
             string heartTimeString = PlayerPrefs.GetString("GetHeartTime");
-            GlobalVars.GetHeartTime = Convert.ToDateTime(heartTimeString);
+			if(heartTimeString == string.Empty)
+			{
+				GlobalVars.GetHeartTime = System.DateTime.Now;
+			}
+            else
+			{
+				GlobalVars.GetHeartTime = Convert.ToDateTime(heartTimeString);
+			}
         }
         else                                            //若没有数据
         {

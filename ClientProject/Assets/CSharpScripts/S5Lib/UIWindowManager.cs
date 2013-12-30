@@ -45,7 +45,7 @@ public class UIWindowManager
 
     public void OnCreate()
     {
-        Transform uiRootTransform = GameObject.Find("Camera2D").transform;
+        Transform uiRootTransform = GameObject.Find("Camera").transform;
         for (Anchor i = Anchor.Center; i <= Anchor.BottomRight; i++)
         {
             AnchorObject[(int)i] = uiRootTransform.FindChild(i + "Anchor").gameObject;

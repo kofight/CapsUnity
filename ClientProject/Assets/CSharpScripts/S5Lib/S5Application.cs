@@ -17,7 +17,7 @@ public class S5Application
     public MonoBehaviour mCoroutineStarter { private get; set; }				  //Any Exist MonoBehaviour could be a starter, usually is AppLaugher
     public S5Application()
     {
-        GameObject obj = GameObject.Find("UI Root (2D)");
+        GameObject obj = GameObject.Find("UI Root");
         UIRoot root = obj.GetComponent<UIRoot>();
 
         if ((float)Screen.width / Screen.height > 0.667)           //如果长宽比低于2/3， 按长度计算大小

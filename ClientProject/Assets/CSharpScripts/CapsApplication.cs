@@ -60,7 +60,7 @@ public class CapsApplication : S5Application
             CapsConfig.EnableTalkingData = false;
         }
 
-#if UNITY_ANDROID
+#if UNITY_ANDROID || UNITY_IPHONE
         if (CapsConfig.EnableTalkingData)
         {
             TalkingDataPlugin.SessionStarted("8F604653A8CC694E6954B51FE6D26127", "Test");
@@ -142,7 +142,7 @@ public class CapsApplication : S5Application
         if (bPause)
         {
             PlayerPrefs.SetFloat("PlayTime", GetPlayTime());        //暂停时保存游戏时间
-#if UNITY_ANDROID
+#if UNITY_ANDROID || UNITY_IPHONE
             if (CapsConfig.EnableTalkingData)
                 TalkingDataPlugin.SessionStoped();
 #endif
@@ -151,8 +151,8 @@ public class CapsApplication : S5Application
         {
             m_playTime = PlayerPrefs.GetFloat("PlayTime");          //恢复时读取游戏时间
             m_startAppTime = Time.realtimeSinceStartup;
-#if UNITY_ANDROID
-			if (CapsConfig.EnableTalkingData)
+#if UNITY_ANDROID || UNITY_IPHONE
+            if (CapsConfig.EnableTalkingData)
                 TalkingDataPlugin.SessionStarted("8F604653A8CC694E6954B51FE6D26127", "Test");
 #endif
         }
@@ -165,8 +165,8 @@ public class CapsApplication : S5Application
 
         PlayerPrefs.SetFloat("PlayTime", GetPlayTime());
 
-#if UNITY_ANDROID
-		if (CapsConfig.EnableTalkingData)
+#if UNITY_ANDROID || UNITY_IPHONE
+        if (CapsConfig.EnableTalkingData)
             TalkingDataPlugin.SessionStoped();
 #endif
     }

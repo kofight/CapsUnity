@@ -557,8 +557,8 @@ public class GameLogic
 		{
 			if(CapsConfig.EnableGA)
 				GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Start");        //记录当前开始的关卡的数据
-#if UNITY_ANDROID
-			if(CapsConfig.EnableTalkingData)
+#if UNITY_ANDROID || UNITY_IPHONE
+            if (CapsConfig.EnableTalkingData)
 				TalkingDataPlugin.TrackEvent("Stage" + GlobalVars.CurStageNum + ":Start");  //记录当前开始的关卡的数据
 #endif
 		}        
@@ -2632,8 +2632,8 @@ public class GameLogic
 				}
             }
 
-#if UNITY_ANDROID
-			if(CapsConfig.EnableTalkingData)
+#if UNITY_ANDROID || UNITY_IPHONE
+            if (CapsConfig.EnableTalkingData)
 			{
 				Dictionary<string, object> param = new Dictionary<string, object>();
 

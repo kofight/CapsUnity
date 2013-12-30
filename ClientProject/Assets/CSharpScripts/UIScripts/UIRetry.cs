@@ -131,12 +131,12 @@ public class UIRetry : UIWindow
 					GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":FirstSucceed:Score_Percent", scorePercent);  //记录当前开始的关卡的百分比
 					GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":FirstSucceed:StarCount", m_starCount);	
 					GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":FirstSucceed:FailedTimes", GlobalVars.StageFailedArray[GlobalVars.CurStageNum]);	
-					GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":FirstSucceed:PlayTime", GameLogic.Singleton.GetStagePlayTime());	
-					
-				}
+					GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":FirstSucceed:PlayTime", GameLogic.Singleton.GetStagePlayTime());
 
-#if UNITY_ANDROID
-				if(CapsConfig.EnableTalkingData)
+                }
+
+#if UNITY_ANDROID || UNITY_IPHONE
+                if (CapsConfig.EnableTalkingData)
 				{
 					Dictionary<string, object> param = new Dictionary<string, object>();
 					if (GameLogic.Singleton.m_stepCountWhenReachTarget > 10)

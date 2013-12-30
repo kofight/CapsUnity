@@ -23,10 +23,12 @@ public class TweenColor : UITweener
 	void Cache ()
 	{
 		mCached = true;
-		mWidget = GetComponentInChildren<UIWidget>();
+		mWidget = GetComponent<UIWidget>();
 		Renderer ren = renderer;
 		if (ren != null) mMat = ren.material;
 		mLight = light;
+		if (mWidget == null && mMat == null && mLight == null)
+			mWidget = GetComponentInChildren<UIWidget>();
 	}
 
 	[System.Obsolete("Use 'value' instead")]
@@ -49,11 +51,20 @@ public class TweenColor : UITweener
 		set
 		{
 			if (!mCached) Cache();
-			if (mWidget != null) mWidget.color = value;
-			if (mMat != null) mMat.color = value;
+            if (mWidget != null)
+            {
+                value.a = mWidget.color.a;
+                mWidget.color = value;
+            }
+            if (mMat != null)
+            {
+                value.a = mMat.color.a;
+                mMat.color = value;
+            }
 
 			if (mLight != null)
 			{
+                value.a = mLight.color.a;
 				mLight.color = value;
 				mLight.enabled = (value.r + value.g + value.b) > 0.01f;
 			}

@@ -158,6 +158,7 @@ public class UIScrollView : MonoBehaviour
 			if (!mCalculatedBounds)
 			{
 				mCalculatedBounds = true;
+				mTrans = transform;
 				mBounds = NGUIMath.CalculateRelativeWidgetBounds(mTrans, mTrans);
 			}
 			return mBounds;
@@ -520,14 +521,17 @@ public class UIScrollView : MonoBehaviour
 	[ContextMenu("Reset Clipping Position")]
 	public void ResetPosition()
 	{
-		// Invalidate the bounds
-		mCalculatedBounds = false;
+		if (NGUITools.GetActive(this))
+		{
+			// Invalidate the bounds
+			mCalculatedBounds = false;
 
-		// First move the position back to where it would be if the scroll bars got reset to zero
-		SetDragAmount(relativePositionOnReset.x, relativePositionOnReset.y, false);
+			// First move the position back to where it would be if the scroll bars got reset to zero
+			SetDragAmount(relativePositionOnReset.x, relativePositionOnReset.y, false);
 
-		// Next move the clipping area back and update the scroll bars
-		SetDragAmount(relativePositionOnReset.x, relativePositionOnReset.y, true);
+			// Next move the clipping area back and update the scroll bars
+			SetDragAmount(relativePositionOnReset.x, relativePositionOnReset.y, true);
+		}
 	}
 
 	/// <summary>
@@ -791,15 +795,17 @@ public class UIScrollView : MonoBehaviour
 		{
 			if (movement == Movement.Horizontal || movement == Movement.Unrestricted)
 			{
-				mMomentum.x -= mScroll * 0.05f;
+				mMomentum -= mTrans.TransformDirection(new Vector3(mScroll * 0.05f, 0f, 0f));
 			}
 			else if (movement == Movement.Vertical)
 			{
-				mMomentum.y -= mScroll * 0.05f;
+				mMomentum -= mTrans.TransformDirection(new Vector3(0f, mScroll * 0.05f, 0f));
 			}
 			else
 			{
-				mMomentum -= (Vector3)(customMovement * (mScroll * 0.05f));
+				mMomentum -= mTrans.TransformDirection(new Vector3(
+					mScroll * customMovement.x * 0.05f,
+					mScroll * customMovement.y * 0.05f, 0f));
 			}
 
 			if (mMomentum.magnitude > 0.0001f)

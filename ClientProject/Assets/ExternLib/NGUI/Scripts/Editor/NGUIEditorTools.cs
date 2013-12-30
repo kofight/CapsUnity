@@ -1408,15 +1408,19 @@ public class NGUIEditorTools
 	{
 		BetterList<UIWidget> list = new BetterList<UIWidget>();
 
-		for (int i = 0; i < UIWidget.list.size; ++i)
+		for (int i = 0; i < UIPanel.list.size; ++i)
 		{
-			UIWidget w = UIWidget.list[i];
-			Vector3[] corners = w.worldCorners;
-			if (SceneViewDistanceToRectangle(corners, mousePos) == 0f)
-				list.Add(w);
-		}
+			UIPanel p = UIPanel.list.buffer[i];
 
-		list.Sort(UIWidget.CompareFunc);
+			for (int b = 0; b < p.widgets.size; ++b)
+			{
+				UIWidget w = p.widgets.buffer[b];
+				Vector3[] corners = w.worldCorners;
+				if (SceneViewDistanceToRectangle(corners, mousePos) == 0f)
+					list.Add(w);
+			}
+		}
+		list.Sort(UIWidget.FullCompareFunc);
 		return list;
 	}
 
@@ -1791,11 +1795,11 @@ public class NGUIEditorTools
 
 	static public Object GUIDToObject (string guid)
 	{
+		if (string.IsNullOrEmpty(guid)) return null;
 #if !UNITY_3_5
 		// This method is not going to be available in Unity 3.5
 		if (s_GetInstanceIDFromGUID == null)
-			s_GetInstanceIDFromGUID = typeof(AssetDatabase).GetMethod("GetInstanceIDFromGUID");
-
+			s_GetInstanceIDFromGUID = typeof(AssetDatabase).GetMethod("GetInstanceIDFromGUID", BindingFlags.Static | BindingFlags.NonPublic);
 		int id = (int)s_GetInstanceIDFromGUID.Invoke(null, new object[] { guid });
 		if (id != 0) return EditorUtility.InstanceIDToObject(id);
 #endif

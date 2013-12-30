@@ -31,7 +31,7 @@ public class UIInputEditor : UIWidgetContainerEditor
 			if (Application.isPlaying) NGUIEditorTools.DrawPaddedProperty("Value", serializedObject, "mValue");
 			else NGUIEditorTools.DrawPaddedProperty("Starting Value", serializedObject, "mValue");
 			NGUIEditorTools.DrawPaddedProperty(serializedObject, "savedAs");
-			NGUIEditorTools.DrawProperty("Active Text", serializedObject, "activeTextColor");
+			NGUIEditorTools.DrawProperty("Active Text Color", serializedObject, "activeTextColor");
 
 			EditorGUI.BeginDisabledGroup(serializedObject.isEditingMultipleObjects);
 			{
@@ -39,12 +39,15 @@ public class UIInputEditor : UIWidgetContainerEditor
 				{
 					SerializedObject ob = new SerializedObject(label.objectReferenceValue);
 					ob.Update();
-					NGUIEditorTools.DrawProperty("Inactive", ob, "mColor");
+					NGUIEditorTools.DrawProperty("Inactive Color", ob, "mColor");
 					ob.ApplyModifiedProperties();
 				}
-				else EditorGUILayout.ColorField("Inactive", Color.white);
+				else EditorGUILayout.ColorField("Inactive Color", Color.white);
 			}
 			EditorGUI.EndDisabledGroup();
+
+			NGUIEditorTools.DrawProperty("Caret Color", serializedObject, "caretColor");
+			NGUIEditorTools.DrawProperty("Selection Color", serializedObject, "selectionColor");
 #if !MOBILE
 			NGUIEditorTools.DrawProperty(serializedObject, "selectOnTab");
 #endif

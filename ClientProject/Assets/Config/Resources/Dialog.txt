@@ -1,0 +1,8 @@
+﻿//段落编号   左边激活    左边头像    右边头像    中间道具   对话速度(1-3)    对话内容
+////////////////////////////////////////////////////////////////////
+1             Y            Girl       Dog         None          3   Hello 
+1             N            Girl       Dog         None          3   Hello 
+1             Y            Girl       Dog         None          3   Hello  
+1             N            Girl       Dog         None          3   Hello 
+1             Y            Girl       Dog         None          3   Hello 
+1             N            Girl       Dog         None          3   Hello 

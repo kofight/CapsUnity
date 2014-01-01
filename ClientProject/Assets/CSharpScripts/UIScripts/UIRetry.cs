@@ -116,7 +116,7 @@ public class UIRetry : UIWindow
 
             for (int i = 2; i >= 0;--i )
             {
-                if (GameLogic.Singleton.GetProgress() > GlobalVars.CurStageData.StarScore[i])
+                if (GameLogic.Singleton.GetProgress() >= GlobalVars.CurStageData.StarScore[i])
                 {
                     m_starCount = i + 1;
                     break;

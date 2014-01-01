@@ -81,6 +81,7 @@ public class UIRetry : UIWindow
         if (GameLogic.Singleton.IsStageFinish() && GameLogic.Singleton.CheckGetEnoughScore())         //检查关卡是否结束
         {
 			m_bWin = true;
+            m_infoLabel.text = "You win!";
         }
         else
         {
@@ -115,7 +116,7 @@ public class UIRetry : UIWindow
 
             for (int i = 2; i >= 0;--i )
             {
-                if (GameLogic.Singleton.GetProgress() > GlobalVars.CurStageData.StarScore[i])
+                if (GameLogic.Singleton.GetProgress() >= GlobalVars.CurStageData.StarScore[i])
                 {
                     m_starCount = i + 1;
                     break;

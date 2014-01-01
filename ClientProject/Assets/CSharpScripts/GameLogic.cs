@@ -2768,6 +2768,11 @@ public class GameLogic
 
     public void OnTap(Gesture ges)
     {
+        if (!IsMoveAble())
+        {
+            return;
+        }
+
         Position p = GetBlockByTouch((int)ges.position.x, (int)ges.position.y);
         if (!p.IsAvailable())
         {
@@ -3000,6 +3005,10 @@ public class GameLogic
 
     bool IsMoveAble()
     {
+        if (CapsConfig.Instance.GameSpeed == 0.0f)
+        {
+            return false;
+        }
         if (m_gameFlow != TGameFlow.EGameState_Playing)
         {
             return false;
@@ -3021,6 +3030,13 @@ public class GameLogic
         {
             return;
         }
+		
+		Position pos = GetBlockByTouch((int)ges.position.x, (int)ges.position.y);
+		if(!pos.IsAvailable())
+		{
+			m_selectedPos[0].MakeItUnAvailable();
+			return;
+		}
 
         float angle = ges.GetSwipeOrDragAngle();
 
@@ -3035,13 +3051,6 @@ public class GameLogic
         //若没选好第一个块，看看移动中能否选到第一个块
         if (m_selectedPos[0].x == -1)		
         {
-            Position pos = GetBlockByTouch((int)ges.position.x, (int)ges.position.y);
-			
-			if (!pos.IsAvailable())
-			{
-				return;
-			}
-			
 			if (GetBlock(pos) == null || !GetBlock(pos).SelectAble())
 	        {
 	            return;

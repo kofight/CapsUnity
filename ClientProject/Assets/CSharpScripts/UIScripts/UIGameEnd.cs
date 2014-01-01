@@ -121,9 +121,10 @@ public class UIGameEnd : UIWindow
     private void OnPlayOnClicked()
     {
         if (GlobalVars.CurStageData.StepLimit > 0 && GameLogic.Singleton.PlayingStageData.StepLimit > 0 ||          //若是限制步数的关卡，还有步数
-            GlobalVars.CurStageData.TimeLimit > 0 && GameLogic.Singleton.GetTimeRemain() > 0                        //若是限制时间的关卡，还有时间
-            )     
+            GlobalVars.CurStageData.TimeLimit > 0 && GameLogic.Singleton.GetTimeRemain() > 0            ||            //若是限制时间的关卡，还有时间
+            GameLogic.Singleton.GetGameFlow() != TGameFlow.EGameState_Playing)                                        //若不是在Playing状态
         {
+            //直接关闭窗口恢复游戏
             HideWindow(delegate()
             {
                 GameLogic.Singleton.ResumeGame();
@@ -136,6 +137,14 @@ public class UIGameEnd : UIWindow
             {
                 HideWindow();
                 UIWindowManager.Singleton.GetUIWindow<UIPurchase>().ShowWindow();
+                if (GlobalVars.CurStageData.StepLimit > 0)
+                {
+                    UIWindowManager.Singleton.GetUIWindow<UIPurchase>().SetString(string.Format("You have {0} coins now,\nit will take you 1 coin to get extra 5 step,\nAre you sure about the purchasing?", GlobalVars.Coins));
+                }
+                else if (GlobalVars.CurStageData.TimeLimit > 0)
+                {
+                    UIWindowManager.Singleton.GetUIWindow<UIPurchase>().SetString(string.Format("You have {0} coins now,\nit will take you 1 coin to get extra 15 seconds,\nAre you sure about the purchasing?", GlobalVars.Coins));
+                }
                 UIWindowManager.Singleton.GetUIWindow<UIPurchase>().OnPurchase = delegate()
                 {
                     --GlobalVars.Coins;

@@ -69,11 +69,19 @@ public class GameState : State
     public override void OnBackKey()
     {
         base.OnBackKey();
+        if (UIWindowManager.Singleton.GetUIWindow("UIMainMenuExtend").Visible)      //若主菜单开启状态
+        {
+            UIWindowManager.Singleton.GetUIWindow("UIMainMenuExtend").HideWindow();
+            UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();       //显示主菜单按钮
+            return;
+        }
         if (UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().Visible)
         {
             if (GameLogic.Singleton.GetGameFlow() != TGameFlow.EGameState_End)
             {
                 UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().HideWindow();
+                UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();       //显示主菜单按钮
+                GameLogic.Singleton.ResumeGame();
                 return;
             }
         }

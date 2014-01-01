@@ -93,6 +93,7 @@ public class UIGameHead : UIWindow
         {
             UIPurchase purchaseWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchase>();
             purchaseWindow.ShowWindow();
+            purchaseWindow.SetString("Are you sure about using the item?");
             purchaseWindow.OnPurchase = delegate()
             {
                 if (item == PurchasedItem.Item_PlusStep)

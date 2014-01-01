@@ -13,6 +13,20 @@ public struct DialogData
 	public string content;
 }
 
+public enum DialogTriggerPos
+{
+    StageStart,
+    StageEnd,
+}
+
+public struct DialogEvent
+{
+    public string backPic;
+    public int dialogGroupNum;
+    public bool need3Star;
+    public DialogTriggerPos triggerPos;
+}
+
 public class UIDialog : UIWindow
 {
 	UILabel m_dialogText;
@@ -23,7 +37,40 @@ public class UIDialog : UIWindow
     int m_curDialogGroupNum;
     int m_curDialogIndex;
 
+    WindowEffectFinished m_afterDialogFunc;
+
     Dictionary<int, List<DialogData> > m_dialogGroupMap = new Dictionary<int, List<DialogData> >();
+    Dictionary<KeyValuePair<int, DialogTriggerPos>, DialogEvent> m_dialogEventMap = new Dictionary<KeyValuePair<int, DialogTriggerPos>, DialogEvent>();
+
+    public bool TriggerDialog(int stageNum, DialogTriggerPos pos, WindowEffectFinished func)                //尝试触发一个对话，返回值是是否成功触发了对话(失败是对话触发过了或者此处没对话)
+    {
+        DialogEvent dialogEvent;
+        if (!m_dialogEventMap.TryGetValue(new KeyValuePair<int,DialogTriggerPos>(stageNum, pos), out dialogEvent))
+        {
+            if (func != null)
+                func();
+            return false;
+        }
+		
+        //若出现过的开始对话就不再出现
+		if(pos == DialogTriggerPos.StageStart)
+		{
+			if(PlayerPrefs.GetInt("StageStartDialogFinished") >= stageNum)
+			{
+                if (func != null)
+                    func();
+				return false;
+			}
+			else
+			{
+				PlayerPrefs.SetInt("StageStartDialogFinished", stageNum);
+			}
+		}
+		
+        OpenDialog(dialogEvent.dialogGroupNum);                                 //触发对话
+        m_afterDialogFunc = func;
+        return true;
+    }
 	
 	public void OpenDialog(int number)			//开启一段对话
 	{
@@ -82,15 +129,15 @@ public class UIDialog : UIWindow
 	
 	public void OnClick()
 	{
-		if(m_curDialogIndex < m_dialogGroupMap[m_curDialogGroupNum].Count)
+		if(m_curDialogIndex < m_dialogGroupMap[m_curDialogGroupNum].Count-1)
         {
+			++m_curDialogIndex;
             ShowText(m_curDialogIndex);
-            ++m_curDialogIndex;
 		}
 		else
 		{
             m_curDialogGroupNum = -1;
-			HideWindow();
+			HideWindow(m_afterDialogFunc);
 		}
 	}
 	
@@ -102,10 +149,46 @@ public class UIDialog : UIWindow
 		m_head2Sprite = GetChildComponent<UISprite>("RightHead");
 		m_itemBoard = GetChildComponent<UISprite>("ItemBoard");
 
-        string content = ResourceManager.Singleton.LoadTextFile("Dialog");
-        //解析配置文件////////////////////////////////////////////////////////////////////////
-        StringReader sr = new StringReader(content);
+        //解析DialogEvent配置文件
+        string eventContent = ResourceManager.Singleton.LoadTextFile("DialogEvent");
+        //解析Dialog配置文件////////////////////////////////////////////////////////////////////////
+        StringReader sr = new StringReader(eventContent);
         string line = sr.ReadLine();
+        while (line != null)
+        {
+            if (line.Contains("//"))
+            {
+                line = sr.ReadLine();
+                continue;
+            }
+            if (string.IsNullOrEmpty(line))
+            {
+                line = sr.ReadLine();
+                continue;
+            }
+            string[] values = line.Split(new string[] { "\t", " " }, System.StringSplitOptions.RemoveEmptyEntries);
+            if (values.Length > 0)
+            {
+                int curStageNum = System.Convert.ToInt32(values[0]);
+                DialogTriggerPos triggerPos = (DialogTriggerPos)System.Convert.ToInt32(values[1]);
+
+                DialogEvent data = new DialogEvent();
+                data.dialogGroupNum = System.Convert.ToInt32(values[2]);
+                data.need3Star = (values[2] == "Y");
+                data.backPic = values[3];
+                data.triggerPos = triggerPos;
+
+                m_dialogEventMap.Add(new KeyValuePair<int, DialogTriggerPos>(curStageNum, triggerPos), data);                               //添加对话数据
+            }
+
+            line = sr.ReadLine();
+        }
+        sr.Close();
+
+        string content = ResourceManager.Singleton.LoadTextFile("Dialog");
+        //解析Dialog配置文件////////////////////////////////////////////////////////////////////////
+        sr = new StringReader(content);
+        line = sr.ReadLine();
         int curDialogGroupNum = -1;
         List<DialogData> curDialogGroup = new List<DialogData>();
         while (line != null)
@@ -124,11 +207,16 @@ public class UIDialog : UIWindow
             if (values.Length > 0)
             {
                 int num = System.Convert.ToInt32(values[0]);
-                if (num != curDialogGroupNum)                           //若数字变化了，新加一组对话
+				if(curDialogGroupNum == -1)
+				{
+					curDialogGroupNum = num;
+					m_dialogGroupMap.Add(curDialogGroupNum, curDialogGroup);
+				}
+                else if (num != curDialogGroupNum)                           //若数字变化了，新加一组对话
                 {
+					curDialogGroup = new List<DialogData>();            //重新创建一个对话组数据
+					curDialogGroupNum = num;                            //更改当前在编的对话组数字
                     m_dialogGroupMap.Add(curDialogGroupNum, curDialogGroup);
-                    curDialogGroupNum = num;                            //更改当前在编的对话组数字
-                    curDialogGroup = new List<DialogData>();            //重新创建一个对话组数据
                 }
 
                 DialogData data = new DialogData();

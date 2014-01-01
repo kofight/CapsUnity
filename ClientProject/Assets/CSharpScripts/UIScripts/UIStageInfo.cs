@@ -62,12 +62,16 @@ public class UIStageInfo : UIWindow
             UIWindowManager.Singleton.GetUIWindow<UIMap>().HideWindow();
             HideWindow();
 
-            UIWindowManager.Singleton.GetUIWindow("UILoading").ShowWindow(
+            UIWindowManager.Singleton.GetUIWindow<UIDialog>().TriggerDialog(GlobalVars.CurStageNum, DialogTriggerPos.StageStart, delegate()
+            {
+                UIWindowManager.Singleton.GetUIWindow("UILoading").ShowWindow(
                 delegate()
                 {
                     CapsApplication.Singleton.ChangeState((int)StateEnum.Game);
                 }
                 );
+            });
+
             UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().HideWindow();
         }
         else

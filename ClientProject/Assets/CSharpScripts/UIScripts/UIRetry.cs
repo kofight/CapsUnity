@@ -278,13 +278,16 @@ public class UIRetry : UIWindow
 		GameLogic.Singleton.ClearGame();
         if (m_bStartNewStage)       //若是新开的关
         {
-            HideWindow(delegate()
+			HideWindow();
+            //触发关卡结束对话，并在对话结束后切回大地图
+            UIWindowManager.Singleton.GetUIWindow<UIDialog>().TriggerDialog(GlobalVars.CurStageNum, DialogTriggerPos.StageEnd, delegate()
             {
-                CapsApplication.Singleton.ChangeState((int)StateEnum.Login);        //返回地图界面
+                UIWindowManager.Singleton.GetUIWindow<UIMap>().ShowWindow(delegate()
+                {
+                    CapsApplication.Singleton.ChangeState((int)StateEnum.Login);        //返回地图界面
+                });
+                LoginState.Instance.CurFlow = TLoginFlow.LoginFlow_Map;         //切换流程到显示地图
             });
-            
-            UIWindowManager.Singleton.GetUIWindow<UIMap>().ShowWindow();
-            LoginState.Instance.CurFlow = TLoginFlow.LoginFlow_Map;         //切换流程到显示地图
         }
         else
         {

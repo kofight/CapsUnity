@@ -1435,9 +1435,12 @@ public class GameLogic
             m_bHidingHelp = false;
             for (int i = 0; i < 3; ++i )
             {
-                m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.Play("Help");
-                m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_dropDownStartTime = 0;
-                m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.enabled = true;
+                if (m_saveHelpBlocks[i].IsAvailable())
+                {
+                    m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.Play("Help");
+                    m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_dropDownStartTime = 0;
+                    m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.enabled = true;
+                }
             }
         }
     }

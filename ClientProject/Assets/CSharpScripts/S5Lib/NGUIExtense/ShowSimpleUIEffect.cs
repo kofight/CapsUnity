@@ -132,7 +132,7 @@ public class ShowSimpleUIEffect : UIEffectPlayer
     {
         foreach (UITweener tweener in mTweenList)
         {
-            if (tweener.gameObject.activeSelf && tweener.mStarted) 
+            if (tweener.gameObject.activeInHierarchy && tweener.mStarted) 
 				return true;
         }
         return false;

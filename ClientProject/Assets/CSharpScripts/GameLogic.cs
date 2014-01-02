@@ -3047,13 +3047,6 @@ public class GameLogic
 			return;
 		}
 
-        float angle = ges.GetSwipeOrDragAngle();
-
-        if (angle == 0 || angle == 180)     //EasyTouch会错误的抛上来一个angle为0的move,丢掉
-        {
-            return;
-        }
-
         int x = (int)ges.position.x * CapsApplication.Singleton.Height / Screen.height;
         int y = (int)(Screen.height - ges.position.y) * CapsApplication.Singleton.Height / Screen.height;
 
@@ -3074,6 +3067,8 @@ public class GameLogic
         {
             return;
         }
+
+		float angle = Mathf.Atan2( touchBeginPos.y - y, x - touchBeginPos.x) * Mathf.Rad2Deg;	
 		
 		TDirection dir;
 		if(angle > 0)

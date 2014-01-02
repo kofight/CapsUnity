@@ -544,6 +544,7 @@ public class GameLogic
                 }
                 if (startOver)
                 {
+                    FreeAllBlocks();                //清理
                     break;
                 }
             }
@@ -834,7 +835,7 @@ public class GameLogic
         tweenPos.Play(false);
     }
 
-    public void ClearGame()
+    void FreeAllBlocks()
     {
         //回收Blocks
         for (int i = 0; i < BlockCountX; ++i)
@@ -853,7 +854,12 @@ public class GameLogic
                 }
             }
         }
+    }
 
+    public void ClearGame()
+    {
+        FreeAllBlocks();
+		
         //隐藏shadowSprite
         foreach (UISprite sprite in m_freeShadowSpriteList)
         {

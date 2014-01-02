@@ -78,7 +78,14 @@ public class GlobalVars {
 			}
             else
 			{
-				GlobalVars.GetHeartTime = Convert.ToDateTime(heartTimeString);
+                try
+                {
+                    GlobalVars.GetHeartTime = Convert.ToDateTime(heartTimeString);
+                }
+                catch (System.Exception ex)
+                {
+                    GlobalVars.GetHeartTime = System.DateTime.Now;
+                }
 			}
         }
         else                                            //若没有数据

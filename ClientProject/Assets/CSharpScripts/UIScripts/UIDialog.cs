@@ -220,7 +220,7 @@ public class UIDialog : UIWindow
                 }
 
                 DialogData data = new DialogData();
-                data.activeLeftHead = (values[1] == "Y");
+                data.activeLeftHead = (values[1] == "L");
                 data.headLeft = values[2];
                 data.headRight = values[3];
                 data.itemSprite = values[4];

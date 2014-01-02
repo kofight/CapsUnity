@@ -149,6 +149,11 @@ public class UIWindow
         {
             return;
         }
+		
+		if(uiWindowState == UIWindowStateEnum.PlayingShowEffect)
+		{
+			OnShowEffectPlayOver();
+		}
 
 		EnableColliders(false);
 
@@ -192,6 +197,11 @@ public class UIWindow
         {
             return;
         }
+		
+		if(uiWindowState == UIWindowStateEnum.Hide)
+		{
+			OnHideEffectPlayOver();
+		}
 
         DoShowWindow();
         

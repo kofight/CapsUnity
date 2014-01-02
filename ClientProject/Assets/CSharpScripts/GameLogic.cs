@@ -544,6 +544,7 @@ public class GameLogic
                 }
                 if (startOver)
                 {
+                    FreeAllBlocks();                //清理
                     break;
                 }
             }
@@ -834,7 +835,7 @@ public class GameLogic
         tweenPos.Play(false);
     }
 
-    public void ClearGame()
+    void FreeAllBlocks()
     {
         //回收Blocks
         for (int i = 0; i < BlockCountX; ++i)
@@ -853,7 +854,12 @@ public class GameLogic
                 }
             }
         }
+    }
 
+    public void ClearGame()
+    {
+        FreeAllBlocks();
+		
         //隐藏shadowSprite
         foreach (UISprite sprite in m_freeShadowSpriteList)
         {
@@ -1435,9 +1441,12 @@ public class GameLogic
             m_bHidingHelp = false;
             for (int i = 0; i < 3; ++i )
             {
-                m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.Play("Help");
-                m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_dropDownStartTime = 0;
-                m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.enabled = true;
+                if (m_saveHelpBlocks[i].IsAvailable())
+                {
+                    m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.Play("Help");
+                    m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_dropDownStartTime = 0;
+                    m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.enabled = true;
+                }
             }
         }
     }
@@ -3038,13 +3047,6 @@ public class GameLogic
 			return;
 		}
 
-        float angle = ges.GetSwipeOrDragAngle();
-
-        if (angle == 0 || angle == 180)     //EasyTouch会错误的抛上来一个angle为0的move,丢掉
-        {
-            return;
-        }
-
         int x = (int)ges.position.x * CapsApplication.Singleton.Height / Screen.height;
         int y = (int)(Screen.height - ges.position.y) * CapsApplication.Singleton.Height / Screen.height;
 
@@ -3065,6 +3067,8 @@ public class GameLogic
         {
             return;
         }
+
+		float angle = Mathf.Atan2( touchBeginPos.y - y, x - touchBeginPos.x) * Mathf.Rad2Deg;	
 		
 		TDirection dir;
 		if(angle > 0)

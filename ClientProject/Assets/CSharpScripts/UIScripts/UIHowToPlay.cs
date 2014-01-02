@@ -29,8 +29,11 @@ public class UIHowToPlay : UIWindow
         base.OnShow();
         m_curPicNum = 0;
         Texture tex = ResourceManager.Singleton.GetIconByName("help" + m_curPicNum);
-        m_helpTex.mainTexture = tex;
-        GameLogic.Singleton.PauseGame();
+        if (tex != null)
+        {
+            m_helpTex.mainTexture = tex;
+            GameLogic.Singleton.PauseGame();
+        }
     }
 
     void Next()

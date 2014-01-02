@@ -300,11 +300,9 @@ public class UIRetry : UIWindow
 
     private void OnCloseClicked()
     {
-        HideWindow(delegate()
-        {
-            CapsApplication.Singleton.ChangeState((int)StateEnum.Login);        //返回地图界面
-			GameLogic.Singleton.ClearGame();
-        });
+        CapsApplication.Singleton.ChangeState((int)StateEnum.Login);        //返回地图界面
+        GameLogic.Singleton.ClearGame();
+        HideWindow();
         UIWindowManager.Singleton.GetUIWindow<UIMap>().ShowWindow();
         LoginState.Instance.CurFlow = TLoginFlow.LoginFlow_Map;         //切换流程到显示地图
     }

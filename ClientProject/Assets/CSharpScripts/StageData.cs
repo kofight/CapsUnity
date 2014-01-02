@@ -198,6 +198,8 @@ public class StageData
         _config.GetValue<int>("PlusStep", out PlusStep);
         _config.GetValue<int>("Seed", out Seed);
 
+        Seed = 1;
+
         if (ColorCount == 0)
         {
             ColorCount = 7;

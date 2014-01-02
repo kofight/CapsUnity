@@ -1235,11 +1235,8 @@ public class GameLogic
         {
             for (int j = 0; j < BlockCountY; ++j)
             {
-                if (m_blocks[i, j] != null && m_blocks[i, j].CurState == BlockState.NeedCheckEatLine)
+                if (m_blocks[i, j] != null)
                 {
-                    --CapBlock.DropingBlockCount;
-                    m_blocks[i, j].CurState = BlockState.Normal;
-
                     if (m_blocks[i, j].color > TBlockColor.EColor_Grey)                     //若为坚果
                     {
                         //到了消失点
@@ -1249,7 +1246,7 @@ public class GameLogic
                             bEat = true;
                         }
                     }
-                    else                   //若为普通块
+                    else if(m_blocks[i, j].NeedCheckEatLine == true || m_blocks[i, j].CurState == BlockState.MovingEnd)                  //若为普通块
                     {
                         Position leftDown = GoTo(new Position(i, j), TDirection.EDir_DownRight, 1);
                         Position rightDown = GoTo(new Position(i, j), TDirection.EDir_LeftDown, 1);
@@ -1257,17 +1254,25 @@ public class GameLogic
                             && !CheckPosCanDropDown(leftDown.x, leftDown.y)
                             && !CheckPosCanDropDown(rightDown.x, rightDown.y))
                         {
-                            if (EatLine(new Position(i, j)))
-                            {
-                                bEat = true;
-                            }
-                            else
-                            {
-                                m_blocks[i, j].m_animation.enabled = true;
+							if(m_blocks[i, j].NeedCheckEatLine == true)
+							{
+								m_blocks[i, j].NeedCheckEatLine = false;
+								if (EatLine(new Position(i, j)))
+	                            {
+	                                bEat = true;
+	                            }
+							}
+                            
+                            if(m_blocks[i, j].CurState == BlockState.MovingEnd)
+							{
+								m_blocks[i, j].CurState = BlockState.Normal;
+								--CapBlock.DropingBlockCount;
+								
+								m_blocks[i, j].m_animation.enabled = true;
                                 m_blocks[i, j].m_animation.Play("DropDown");                                    //播放下落动画
                                 PlaySoundNextFrame(AudioEnum.Audio_Drop);
                                 m_blocks[i, j].m_dropDownStartTime = Timer.GetRealTimeSinceStartUp();           //记录开始时间
-                            }
+							}
                         }
                     }
 
@@ -1326,7 +1331,7 @@ public class GameLogic
                     {
                         if (m_blocks[i, j] != null && m_blocks[i, j].CurState == BlockState.MovingEnd)
                         {
-                            m_blocks[i, j].CurState = BlockState.NeedCheckEatLine;          //经过一次DropDown后，状态仍然是MovingEnd的，把状态变为NeedCheckLine
+                            m_blocks[i, j].NeedCheckEatLine = true;          //经过一次DropDown后，状态仍然是MovingEnd的，把状态变为NeedCheckLine
                         }
                     }
                 }
@@ -2359,7 +2364,8 @@ public class GameLogic
 
         if (m_blocks[position.x, position.y] == null) return;
 
-        if (m_blocks[position.x, position.y].CurState != BlockState.Normal)
+        if (m_blocks[position.x, position.y].CurState == BlockState.Eating 
+			|| m_blocks[position.x, position.y].CurState == BlockState.Moving)
         {
             return;
         }
@@ -2856,10 +2862,6 @@ public class GameLogic
         if (GlobalVars.EditState == TEditState.EditStageGrid)
         {
             PlayingStageData.GridData[p.x, p.y] = GlobalVars.EditingGrid;
-            if ((GlobalVars.EditingGrid & (int)GridFlag.Cage) > 0)
-            {
-                m_blocks[p.x, p.y].CurState = BlockState.Locked;
-            }
             if ((GlobalVars.EditingGrid & (int)GridFlag.Stone) > 0 || (GlobalVars.EditingGrid & (int)GridFlag.Chocolate) > 0)
             {
                 if (m_blocks[p.x, p.y] != null)
@@ -3703,7 +3705,7 @@ public class GameLogic
         {
             return TBlockColor.EColor_None;
         }
-        if (m_blocks[p.x, p.y].CurState == BlockState.Normal || m_blocks[p.x, p.y].CurState == BlockState.Locked)
+        if (m_blocks[p.x, p.y].CurState != BlockState.Moving && m_blocks[p.x, p.y].CurState != BlockState.Eating)
         {
             return m_blocks[p.x, p.y].color;
         }

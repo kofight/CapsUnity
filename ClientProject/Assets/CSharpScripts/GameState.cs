@@ -87,12 +87,14 @@ public class GameState : State
         }
         if (UIWindowManager.Singleton.GetUIWindow<UIRetry>().Visible)
         {
+            GameLogic.Singleton.ClearGame();
             UIWindowManager.Singleton.GetUIWindow<UIRetry>().HideWindow(delegate()
             {
                 CapsApplication.Singleton.ChangeState((int)StateEnum.Login);        //返回地图界面
             });
 
             UIWindowManager.Singleton.GetUIWindow<UIMap>().ShowWindow();
+            LoginState.Instance.CurFlow = TLoginFlow.LoginFlow_Map;         //切换流程到显示地图
             return;
         }
         UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();

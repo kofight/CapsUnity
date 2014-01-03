@@ -1641,7 +1641,7 @@ public class GameLogic
                     ClearChocolateAround(i, j);
                 }
 
-                if (m_tempBlocks[i, j] == 2)        //若有正常消除
+                if (m_tempBlocks[i, j] >= 2)        //若有正常消除
                 {
                     ClearStoneAround(i, j);         //清周围的石块
                 }
@@ -1965,7 +1965,7 @@ public class GameLogic
         return false;			//返回是否发生了掉落
     }
 
-    int[,] m_tempBlocks = new int[BlockCountX, BlockCountY];		//一个临时数组，用来记录哪些块要消除, 0 代表不消除 1 代表功能块消除  2代表正常消除
+    int[,] m_tempBlocks = new int[BlockCountX, BlockCountY];		//一个临时数组，用来记录哪些块要消除, 0 代表不消除 1 代表功能块消除  2代表正常消除 3代表消除且生成了特殊块
 
     bool EatLine(Position position)
     {
@@ -2129,7 +2129,7 @@ public class GameLogic
             {
                 m_blocks[availablePos.x, availablePos.y].special = generateSpecial;                                                 //生成特殊块
                 m_blocks[availablePos.x, availablePos.y].RefreshBlockSprite(PlayingStageData.GridData[position.x, position.y]);     //刷新图标
-                m_tempBlocks[availablePos.x, availablePos.y] = 2;                                                                   //记录正常消除
+                m_tempBlocks[availablePos.x, availablePos.y] = 3;                                                                   //记录正常消除
                 PlaySoundNextFrame(AudioEnum.Audio_itemBirth);
             }
         }
@@ -3702,7 +3702,7 @@ public class GameLogic
         {
             return TBlockColor.EColor_None;
         }
-        if (m_blocks[p.x, p.y].CurState != BlockState.Moving && m_blocks[p.x, p.y].CurState != BlockState.Eating)
+        if (m_blocks[p.x, p.y].CurState != BlockState.Moving)
         {
             return m_blocks[p.x, p.y].color;
         }

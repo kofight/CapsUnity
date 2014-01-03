@@ -120,9 +120,10 @@ public class UIGameEnd : UIWindow
 
     private void OnPlayOnClicked()
     {
-        if (GlobalVars.CurStageData.StepLimit > 0 && GameLogic.Singleton.PlayingStageData.StepLimit > 0 ||          //若是限制步数的关卡，还有步数
-            GlobalVars.CurStageData.TimeLimit > 0 && GameLogic.Singleton.GetTimeRemain() > 0            ||            //若是限制时间的关卡，还有时间
-            GameLogic.Singleton.GetGameFlow() != TGameFlow.EGameState_Playing)                                        //若不是在Playing状态
+        if ((GameLogic.Singleton.GetGameFlow() == TGameFlow.EGameState_Playing && GlobalVars.CurStageData.StepLimit > 0 && GameLogic.Singleton.PlayingStageData.StepLimit > 0) ||          //若是限制步数的关卡，还有步数
+            (GameLogic.Singleton.GetGameFlow() == TGameFlow.EGameState_Playing && GlobalVars.CurStageData.TimeLimit > 0 && GameLogic.Singleton.GetTimeRemain() > 0)            ||            //若是限制时间的关卡，还有时间
+            (GameLogic.Singleton.GetGameFlow() != TGameFlow.EGameState_Clear && GameLogic.Singleton.GetGameFlow() != TGameFlow.EGameState_End && GameLogic.Singleton.GetGameFlow() != TGameFlow.EGameState_Playing)	//若不是在Playing状态
+			)
         {
             //直接关闭窗口恢复游戏
             HideWindow(delegate()

@@ -1237,46 +1237,43 @@ public class GameLogic
             {
                 if (m_blocks[i, j] != null)
                 {
-                    if (m_blocks[i, j].color > TBlockColor.EColor_Grey)                     //若为坚果
+                    if(m_blocks[i, j].CurState == BlockState.MovingEnd)                  //若为普通块
                     {
-                        //到了消失点
-                        if (PlayingStageData.Target == GameTarget.BringFruitDown && PlayingStageData.CheckFlag(i, j, GridFlag.FruitExit))
-                        {
-                            EatFruit(i, j);
-                            bEat = true;
-                        }
-                    }
-                    else if(m_blocks[i, j].NeedCheckEatLine == true || m_blocks[i, j].CurState == BlockState.MovingEnd)                  //若为普通块
-                    {
-                        Position leftDown = GoTo(new Position(i, j), TDirection.EDir_DownRight, 1);
+						Position leftDown = GoTo(new Position(i, j), TDirection.EDir_DownRight, 1);
                         Position rightDown = GoTo(new Position(i, j), TDirection.EDir_LeftDown, 1);
                         if (!CheckPosCanDropDown(i, j + 1)          //
                             && !CheckPosCanDropDown(leftDown.x, leftDown.y)
                             && !CheckPosCanDropDown(rightDown.x, rightDown.y))
                         {
-							if(m_blocks[i, j].NeedCheckEatLine == true)
+							m_blocks[i, j].CurState = BlockState.Normal;
+							--CapBlock.DropingBlockCount;
+							
+							m_blocks[i, j].m_animation.enabled = true;
+                            m_blocks[i, j].m_animation.Play("DropDown");                                    //播放下落动画
+                            PlaySoundNextFrame(AudioEnum.Audio_Drop);
+                            m_blocks[i, j].m_dropDownStartTime = Timer.GetRealTimeSinceStartUp();           //记录开始时间
+							
+							if (m_blocks[i, j].color > TBlockColor.EColor_Grey)                     //若为坚果
+		                    {
+		                        //到了消失点
+		                        if (PlayingStageData.CheckFlag(i, j, GridFlag.FruitExit))
+		                        {
+		                            EatFruit(i, j);
+		                            bEat = true;
+		                        }
+		                    }
+							else if(m_blocks[i, j].NeedCheckEatLine == true)
 							{
 								m_blocks[i, j].NeedCheckEatLine = false;
 								if (EatLine(new Position(i, j)))
-	                            {
-	                                bEat = true;
-	                            }
+		                        {
+		                            bEat = true;
+		                        }
 							}
-                            
-                            if(m_blocks[i, j].CurState == BlockState.MovingEnd)
-							{
-								m_blocks[i, j].CurState = BlockState.Normal;
-								--CapBlock.DropingBlockCount;
-								
-								m_blocks[i, j].m_animation.enabled = true;
-                                m_blocks[i, j].m_animation.Play("DropDown");                                    //播放下落动画
-                                PlaySoundNextFrame(AudioEnum.Audio_Drop);
-                                m_blocks[i, j].m_dropDownStartTime = Timer.GetRealTimeSinceStartUp();           //记录开始时间
-							}
+							
+							bDroped = true;
                         }
                     }
-
-                    bDroped = true;
                 }
             }
         }

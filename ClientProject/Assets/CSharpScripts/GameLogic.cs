@@ -1289,9 +1289,11 @@ public class GameLogic
             {
                 if (m_cageCheckList.Count > 0)          //若有笼子消除完了需要多检查一次消除的可能
                 {
-                    foreach (Position pos in m_cageCheckList)
+                    while (m_cageCheckList.Count > 0)
                     {
-                        EatLine(pos);
+                        Position item = m_cageCheckList[m_cageCheckList.Count-1];
+                        EatLine(item);
+                        m_cageCheckList.Remove(item);
                     }
                     m_cageCheckList.Clear();
                 }

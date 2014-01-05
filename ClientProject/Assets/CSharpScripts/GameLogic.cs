@@ -221,6 +221,8 @@ public class GameLogic
     int[,] m_scoreToShow = new int[BlockCountX, BlockCountY];
     int[] m_slopeDropLock = new int[BlockCountX];         				//斜下落的锁定，值是锁在什么位置，锁和锁以下的位置都不能产生斜下落
 
+    List<Position> m_cageCheckList = new List<Position>();              //笼子消除时，消除结束后还有再额外检查一次是否有消除的可能，中间要检查的位置就放在这个里面
+
     Position [] m_saveHelpBlocks = new Position[3];        //用来保存帮助找到的可消块
 
     //用这4个数来记录每关实际块的范围，用来计算游戏区位置及优化性能
@@ -243,6 +245,7 @@ public class GameLogic
     bool m_bHidingHelp = false;                             //弹其他界面时隐藏Help
 	public int m_stepCountWhenReachTarget;							//save it for submit data
 	public float GetStagePlayTime(){ return CapsApplication.Singleton.GetPlayTime() - m_gameStartTimeReal; }
+    public bool m_bNeedCheckEatAllLineAgain = false;        //是否需要在下落都完成都额外检查一次消除的可能(当发生笼子消除时)
 
     //计时器
     Timer timerMoveBlock = new Timer();
@@ -259,7 +262,6 @@ public class GameLogic
     Dictionary<string, LinkedList<ParticleSystem>> m_particleMap = new Dictionary<string, LinkedList<ParticleSystem>>();
     Dictionary<string, LinkedList<ParticleSystem>> m_freeParticleMap = new Dictionary<string, LinkedList<ParticleSystem>>();
     LinkedList<ShowingNumberEffect> m_freeNumberList = new LinkedList<ShowingNumberEffect>();                 //用来存放数字图片的池
-
     LinkedList<ShowingNumberEffect> m_showingNumberEffectList = new LinkedList<ShowingNumberEffect>();      //用来管理正在播放的数字
 
     GameObject m_gameArea;                  //游戏区域
@@ -859,6 +861,8 @@ public class GameLogic
     public void ClearGame()
     {
         FreeAllBlocks();
+
+        m_cageCheckList.Clear();
 		
         //隐藏shadowSprite
         foreach (UISprite sprite in m_freeShadowSpriteList)
@@ -1073,6 +1077,8 @@ public class GameLogic
                                 m_blocks[i, j].EatDelay = 0;
                                 m_blocks[i, j].m_animation.enabled = true;
                                 m_blocks[i, j].m_animation.Play("Eat");
+                                AddPartile("EatEffect", i, j);
+                                PlaySoundNextFrame(AudioEnum.Audio_Eat);
                                 m_blocks[i, j].m_dropDownStartTime = 0;
                                 if (m_scoreToShow[i, j] > 0)
 						        {
@@ -1224,76 +1230,74 @@ public class GameLogic
 
         m_scoreToShow[x, y] += CapsConfig.FruitDropDown;
         EatBlockWithoutTrigger(x, y, 0);
+
+        UIWindowManager.Singleton.GetUIWindow<UIGameHead>().RefreshTarget();
     }
 
     //处理下落完成后的判断////////////////////////////////////////////////////////////////////////
-    void ProcessBlocksDropDown()
+    void ProcessMoveEnd()
     {
-        bool bDroped = false;
+        bool bDroped = false;   //记录是否发生了落到底事件
         bool bEat = false;      //记录是否形成了消块
         for (int i = 0; i < BlockCountX; ++i)
         {
             for (int j = 0; j < BlockCountY; ++j)
             {
-                if (m_blocks[i, j] != null)
+                if (m_blocks[i, j] != null && m_blocks[i, j].CurState == BlockState.MovingEnd)      //若为普通块且移动结束
                 {
-                    if(m_blocks[i, j].CurState == BlockState.MovingEnd)                  //若为普通块
+					Position leftDown = GoTo(new Position(i, j), TDirection.EDir_DownRight, 1);
+                    Position rightDown = GoTo(new Position(i, j), TDirection.EDir_LeftDown, 1);
+                    //这里判断一下是否落到底了（即不能下方向或斜方向下落）
+                    if (!CheckPosCanDropDown(i, j + 1)          //
+                        && !CheckPosCanDropDown(leftDown.x, leftDown.y)
+                        && !CheckPosCanDropDown(rightDown.x, rightDown.y))
                     {
-						Position leftDown = GoTo(new Position(i, j), TDirection.EDir_DownRight, 1);
-                        Position rightDown = GoTo(new Position(i, j), TDirection.EDir_LeftDown, 1);
-                        if (!CheckPosCanDropDown(i, j + 1)          //
-                            && !CheckPosCanDropDown(leftDown.x, leftDown.y)
-                            && !CheckPosCanDropDown(rightDown.x, rightDown.y))
-                        {
-							m_blocks[i, j].CurState = BlockState.Normal;
-							--CapBlock.DropingBlockCount;
+                        m_blocks[i, j].CurState = BlockState.Normal;        //先去掉下落状态
+						--CapBlock.DropingBlockCount;                       //清理下落计数
 							
-							m_blocks[i, j].m_animation.enabled = true;
-                            m_blocks[i, j].m_animation.Play("DropDown");                                    //播放下落动画
-                            PlaySoundNextFrame(AudioEnum.Audio_Drop);
-                            m_blocks[i, j].m_dropDownStartTime = Timer.GetRealTimeSinceStartUp();           //记录开始时间
+						m_blocks[i, j].m_animation.enabled = true;
+                        m_blocks[i, j].m_animation.Play("DropDown");                                    //播放下落动画
+                        PlaySoundNextFrame(AudioEnum.Audio_Drop);
+                        m_blocks[i, j].m_dropDownStartTime = Timer.GetRealTimeSinceStartUp();           //记录开始时间(用于强制停止下落动画)
 							
-							if (m_blocks[i, j].color > TBlockColor.EColor_Grey)                     //若为坚果
+						if (m_blocks[i, j].color > TBlockColor.EColor_Grey)                     //若为坚果
+		                {
+		                    //到了消失点
+		                    if (PlayingStageData.CheckFlag(i, j, GridFlag.FruitExit))
 		                    {
-		                        //到了消失点
-		                        if (PlayingStageData.CheckFlag(i, j, GridFlag.FruitExit))
-		                        {
-		                            EatFruit(i, j);
-		                            bEat = true;
-		                        }
+		                        EatFruit(i, j);
+		                        bEat = true;
 		                    }
-							else if(m_blocks[i, j].NeedCheckEatLine == true)
-							{
-								m_blocks[i, j].NeedCheckEatLine = false;
-								if (EatLine(new Position(i, j)))
-		                        {
-		                            bEat = true;
-		                        }
-							}
+		                }
+						else
+						{
+							if (EatLine(new Position(i, j)))
+		                    {
+		                        bEat = true;
+		                    }
+						}
 							
-							bDroped = true;
-                        }
+						bDroped = true;         //发生了落到底，就记下来
                     }
                 }
             }
         }
 
-
-
-        if (bDroped)        //若有下落
+        if (bDroped)        //落到底发生
         {
-            if (bEat)       //若有消块
+            if (CapBlock.DropingBlockCount == 0 && !bEat)       //若下落结束
             {
-                ProcessTempBlocks();
-            }
-            else       //若没有消块
-            {
-                DropDown();
-            }
-
-            if (CapBlock.DropingBlockCount == 0 && !bEat)
-            {
-                OnDropEnd();
+                if (m_cageCheckList.Count > 0)          //若有笼子消除完了需要多检查一次消除的可能
+                {
+                    foreach (Position pos in m_cageCheckList)
+                    {
+                        EatLine(pos);
+                    }
+                }
+				else                    //到这儿就是什么未处理的消除都没了
+				{
+                    OnDropEnd();
+				}
             }
         }
     }
@@ -1319,20 +1323,10 @@ public class GameLogic
                     }
                 }
             }
-            if (bFound)     //若找到了MovingEnd的块，再进行一次下落
+            if (bFound)     //若找到了MovingEnd的块
             {
-                DropDown();
-                for (int i = 0; i < BlockCountX; ++i)
-                {
-                    for (int j = 0; j < BlockCountY; ++j)
-                    {
-                        if (m_blocks[i, j] != null && m_blocks[i, j].CurState == BlockState.MovingEnd)
-                        {
-                            m_blocks[i, j].NeedCheckEatLine = true;          //经过一次DropDown后，状态仍然是MovingEnd的，把状态变为NeedCheckLine
-                        }
-                    }
-                }
-                ProcessBlocksDropDown();
+                DropDown();                     //再处理一次下落
+                ProcessMoveEnd();        //处理下落结束的块（消块）
             }
         }
 
@@ -1483,7 +1477,7 @@ public class GameLogic
                 }
             }
 
-            if (bEat)
+            if (bEat)               //若有块被消除，相当于产生了新的空间，要处理一次下落
             {
                 DropDown();
             }
@@ -1576,6 +1570,7 @@ public class GameLogic
 
     void ProcessTempBlocks()
     {
+        bool jellyChanged = false;
         for (int i = 0; i < BlockCountX; ++i)
         {
             for (int j = 0; j < BlockCountY; ++j)
@@ -1600,7 +1595,7 @@ public class GameLogic
                         PlayingStageData.ClearFlag(i, j, GridFlag.NotGenerateCap);
                         PlayingStageData.AddFlag(i, j, GridFlag.GenerateCap);
                         AddPartile("ChocolateEffect", i, j);
-                        PlaySoundNextFrame(AudioEnum.Audio_Stone);
+                        PlaySoundNextFrame(AudioEnum.Audio_Chocolate);
                         m_scoreToShow[i, j] += CapsConfig.EatChocolate;
                         m_gridBackImage[i, j].layer1.gameObject.SetActive(false);
                     }
@@ -1608,10 +1603,12 @@ public class GameLogic
                     {
                         PlayingStageData.ClearFlag(i, j, GridFlag.Cage);
                         AddPartile("CageEffect", i, j);
-                        PlaySoundNextFrame(AudioEnum.Audio_Stone);
+                        PlaySoundNextFrame(AudioEnum.Audio_Cage);
                         m_blocks[i, j].CurState = BlockState.Normal;
                         m_scoreToShow[i, j] += CapsConfig.EatCagePoint;
                         m_gridBackImage[i, j].layer1.gameObject.SetActive(false);
+
+                        m_cageCheckList.Add(new Position(i, j));                //记录一个位置，之后需要再检查一次消除
                     }
                     else if (PlayingStageData.CheckFlag(i, j, GridFlag.JellyDouble))
                     {
@@ -1621,6 +1618,7 @@ public class GameLogic
                         AddPartile("JellyEffect", i, j);
                         m_scoreToShow[i, j] += CapsConfig.EatJellyDouble;
                         m_gridBackImage[i, j].layer0.spriteName = "Jelly" + ((j + (i % 2)) % 3);
+                        jellyChanged = true;
                     }
                     else if (PlayingStageData.CheckFlag(i, j, GridFlag.Jelly))
                     {
@@ -1636,6 +1634,7 @@ public class GameLogic
                         {
                             m_gridBackImage[i, j].layer0.spriteName = "Grid" + ((j + 1) % 3);
                         }
+                        jellyChanged = true;
                     }
 
                     ClearChocolateAround(i, j);
@@ -1658,6 +1657,11 @@ public class GameLogic
 					m_scoreToShow[i, j] = 0;
 				}
             }
+        }
+
+        if (jellyChanged)
+        {
+            UIWindowManager.Singleton.GetUIWindow<UIGameHead>().RefreshTarget();
         }
     }
 
@@ -2172,6 +2176,8 @@ public class GameLogic
         m_scoreToShow[position.x, position.y] += 50 * kQuantity * (kCombo + kItem + kLevel + 1);
 
         ++m_comboCount;
+
+        ProcessTempBlocks();
         return true;
     }
 
@@ -2369,14 +2375,11 @@ public class GameLogic
 
         if (PlayingStageData.CheckFlag(position.x, position.y, GridFlag.Cage)) return;                       //有笼子的块不消(先消笼子)
 
-        if (m_blocks[position.x, position.y].color > TBlockColor.EColor_Grey) return;                        //
+        if (m_blocks[position.x, position.y].color > TBlockColor.EColor_Grey) return;                        //水果不能消
 
-        if (m_blocks[position.x, position.y].x_move > 0 || m_blocks[position.x, position.y].y_move > 0)     //正在移动的不能消除
-            return;
+        EatBlockWithoutTrigger(position.x, position.y, delay);                                              //吃掉当前块
 
-        EatBlockWithoutTrigger(position.x, position.y, delay);              //吃掉当前块
-
-        m_scoreToShow[position.x, position.y] += addScore;
+        m_scoreToShow[position.x, position.y] += addScore;                                                  //增加当前位置的计分（用来显示）
 
         switch (m_blocks[position.x, position.y].special)
         {
@@ -2482,9 +2485,9 @@ public class GameLogic
             m_blocks[position.x, position.y].m_animation.enabled = true;
             m_blocks[position.x, position.y].m_animation.Play("Eat");
             m_blocks[position.x, position.y].m_dropDownStartTime = 0;
+            AddPartile("EatEffect", position.x, position.y);
+            PlaySoundNextFrame(AudioEnum.Audio_Eat);
         }
-        AddPartile("EatEffect", position.x, position.y);
-        PlaySoundNextFrame(AudioEnum.Audio_Eat);
     }
 
     public void AddPartile(string name, int x, int y, bool addToGameArea = true)
@@ -2859,6 +2862,10 @@ public class GameLogic
         if (GlobalVars.EditState == TEditState.EditStageGrid)
         {
             PlayingStageData.GridData[p.x, p.y] = GlobalVars.EditingGrid;
+            if ((GlobalVars.EditingGrid & (int)GridFlag.Cage) > 0)
+            {
+                m_blocks[p.x, p.y].CurState = BlockState.Locked;
+            }
             if ((GlobalVars.EditingGrid & (int)GridFlag.Stone) > 0 || (GlobalVars.EditingGrid & (int)GridFlag.Chocolate) > 0)
             {
                 if (m_blocks[p.x, p.y] != null)
@@ -3204,8 +3211,8 @@ public class GameLogic
             }
 
             --PlayingStageData.StepLimit;       //扣掉步数
+			ProcessTempBlocks();
         }
-        ProcessTempBlocks();
     }
 
     void BigBomb(Position pos)

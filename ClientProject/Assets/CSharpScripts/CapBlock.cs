@@ -31,9 +31,10 @@ public enum TSpecialBlock
 public enum BlockState
 {
     Normal,                         //普通状态（静止状态）
+    Locked,                         //被锁状态
     Moving,                         //移动状态
     MovingEnd,                      //移动结束状态
-    Eating,                         //吃块
+    Eating,                         //吃块状态
 }
 
 public class CapBlock  
@@ -45,6 +46,11 @@ public class CapBlock
         if (m_blockSprite == null)
         {
             return;
+        }
+
+        if ((flag & (int)GridFlag.Cage) > 0)
+        {
+            CurState = BlockState.Locked;
         }
 
         switch (special)
@@ -102,8 +108,6 @@ public class CapBlock
 
     public float EatDelay;
     public float m_dropDownStartTime;                  //下落开始时间，用来停止下落动画
-	
-	public bool NeedCheckEatLine;				//A flag to check eat line
 
     public Animation m_animation;
     public UISprite m_blockSprite;		//精灵动画

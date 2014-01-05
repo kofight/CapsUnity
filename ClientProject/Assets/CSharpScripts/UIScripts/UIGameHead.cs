@@ -5,6 +5,10 @@ public class UIGameHead : UIWindow
 {
     UILabel [] m_itemUILabel = new UILabel [2];
 
+    GameObject m_fruitBoard;
+    GameObject m_jellyBoard;
+    GameObject m_scoreBoard;
+
     public override void OnCreate()
     {
         base.OnCreate();
@@ -20,6 +24,10 @@ public class UIGameHead : UIWindow
 			UserOrBuyItem(PurchasedItem.Item_PlusStep);
 		});
 
+        m_fruitBoard = UIToolkits.FindChild(mUIObject.transform, "FruitBoard").gameObject;
+        m_jellyBoard = UIToolkits.FindChild(mUIObject.transform, "JellyBoard").gameObject;
+        m_scoreBoard = UIToolkits.FindChild(mUIObject.transform, "ScoreBoard").gameObject;
+
         for (int i = 0; i < 2; ++i )
         {
             m_itemUILabel[i] = GetChildComponent<UILabel>("ItemCount" + (i + 1));
@@ -29,58 +37,84 @@ public class UIGameHead : UIWindow
     {
         base.OnShow();
         RefreshItemCount();
-    }
-	
-	public void Reset()
-	{
-
-	}
-	
-    public override void OnUpdate()
-    {
-        base.OnUpdate();
-        UIDrawer.Singleton.DefaultAnchor = UIWindowManager.Anchor.Top;
-
         if (GlobalVars.CurStageData.Target == GameTarget.BringFruitDown)
         {
+            m_fruitBoard.SetActive(true);
+            m_jellyBoard.SetActive(false);
+            m_scoreBoard.SetActive(false);
             if (GlobalVars.CurStageData.Nut1Count > 0)
             {
-                UIDrawer.Singleton.DrawSprite("Fruit1Icon", -40, 42, "Kiwifruit_Icon");
-                UIDrawer.Singleton.DrawNumber("Fruit1Count", 0, 42, GameLogic.Singleton.PlayingStageData.Nut1Count, "", 24, 1);
-                UIDrawer.Singleton.DrawSprite("Fruit1CountSplash", 31, 42, "backslash");
-                UIDrawer.Singleton.DrawNumber("Fruit1Total", 60, 42, GlobalVars.CurStageData.Nut1Count, "", 24, 1);
+                UIToolkits.FindChild(m_fruitBoard.transform, "Fruit1Board").gameObject.SetActive(true);
+                UIToolkits.FindComponent<UISprite>(m_fruitBoard.transform, "FruitNumTotal1").spriteName = GlobalVars.CurStageData.Nut1Count.ToString();
             }
-            
+            else
+            {
+                UIToolkits.FindChild(m_fruitBoard.transform, "Fruit1Board").gameObject.SetActive(false);
+            }
             if (GlobalVars.CurStageData.Nut2Count > 0)
             {
-                UIDrawer.Singleton.DrawSprite("Fruit2Icon", 140, 42, "Cherry_Icon");
-                UIDrawer.Singleton.DrawNumber("Fruit2Count", 180, 42, GameLogic.Singleton.PlayingStageData.Nut2Count, "", 24, 1);
-                UIDrawer.Singleton.DrawSprite("Fruit2CountSplash", 214, 42, "backslash");
-                UIDrawer.Singleton.DrawNumber("Fruit2Total", 240, 42, GlobalVars.CurStageData.Nut2Count, "", 24, 1);
+                UIToolkits.FindChild(m_fruitBoard.transform, "Fruit2Board").gameObject.SetActive(true);
+                UIToolkits.FindComponent<UISprite>(m_fruitBoard.transform, "FruitNumTotal2").spriteName = GlobalVars.CurStageData.Nut2Count.ToString();
+            }
+            else
+            {
+                UIToolkits.FindChild(m_fruitBoard.transform, "Fruit2Board").gameObject.SetActive(false);
             }
         }
         else if (GlobalVars.CurStageData.Target == GameTarget.ClearJelly)
         {
-            UIDrawer.Singleton.DrawSprite("JellyCountIcon", -40, 40, "IceBlock_Icon");
-            UIDrawer.Singleton.DrawNumber("Jelly1", -2, 42, GameLogic.Singleton.PlayingStageData.GetSingleJellyCount(), "", 22, 2);
-            UIDrawer.Singleton.DrawSprite("JellyCountSplash", 40, 42, "backslash");
-            UIDrawer.Singleton.DrawNumber("Jelly2", 65, 42, GlobalVars.CurStageData.GetSingleJellyCount(), "", 22, 2);
-            
+            m_fruitBoard.SetActive(false);
+            m_jellyBoard.SetActive(true);
+            m_scoreBoard.SetActive(false);
             if (GlobalVars.CurStageData.GetDoubleJellyCount() > 0)
             {
-                UIDrawer.Singleton.DrawSprite("DoubleJellyCountIcon", 140, 40, "DoubleIceBlock_Icon");
-                UIDrawer.Singleton.DrawNumber("DoubleJelly1", 170, 42, GameLogic.Singleton.PlayingStageData.GetDoubleJellyCount(), "", 23, 2);
-                UIDrawer.Singleton.DrawSprite("DoubleJellyCountSplash", 220, 42, "backslash");
-                UIDrawer.Singleton.DrawNumber("DoubleJelly2", 240, 42, GlobalVars.CurStageData.GetDoubleJellyCount(), "", 23, 2);
+                UIToolkits.FindChild(m_jellyBoard.transform, "DoubleJellyBoard").gameObject.SetActive(true);
+            }
+            else
+            {
+                UIToolkits.FindChild(m_jellyBoard.transform, "DoubleJellyBoard").gameObject.SetActive(false);
             }
         }
         else if (GlobalVars.CurStageData.Target == GameTarget.GetScore)
         {
-            UIDrawer.Singleton.DrawSprite("TargetText", 10, 42, "TargetTextImg");
-            UIDrawer.Singleton.DrawNumber("TargetScore", 104, 42, GlobalVars.CurStageData.StarScore[0], "", 24, 7);
+            m_fruitBoard.SetActive(false);
+            m_jellyBoard.SetActive(false);
+            m_scoreBoard.SetActive(true);
+            UIToolkits.FindComponent<NumberDrawer>(m_scoreBoard.transform, "ScoreNum").SetNumber(GlobalVars.CurStageData.StarScore[0]);
         }
-        UIDrawer.Singleton.DefaultAnchor = UIWindowManager.Anchor.TopLeft;
+
+        RefreshTarget();
     }
+	
+	public void RefreshTarget()
+	{
+        if (GlobalVars.CurStageData.Target == GameTarget.BringFruitDown)
+        {
+            if (GlobalVars.CurStageData.Nut1Count > 0)
+            {
+                UIToolkits.FindComponent<UISprite>(m_fruitBoard.transform, "FruitNumCur1").spriteName = GameLogic.Singleton.PlayingStageData.Nut1Count.ToString();
+            }
+            if (GlobalVars.CurStageData.Nut2Count > 0)
+            {
+                UIToolkits.FindComponent<UISprite>(m_fruitBoard.transform, "FruitNumCur2").spriteName = GameLogic.Singleton.PlayingStageData.Nut2Count.ToString();
+            }
+        }
+        else if (GlobalVars.CurStageData.Target == GameTarget.ClearJelly)
+        {
+            m_fruitBoard.SetActive(false);
+            m_jellyBoard.SetActive(true);
+            m_scoreBoard.SetActive(false);
+            if (GlobalVars.CurStageData.GetJellyCount() > 0)
+            {
+                UIToolkits.FindComponent<NumberDrawer>(m_jellyBoard.transform, "JellyNum").SetNumber(GameLogic.Singleton.PlayingStageData.GetSingleJellyCount());
+            }
+
+            if (GlobalVars.CurStageData.GetDoubleJellyCount() > 0)
+            {
+                UIToolkits.FindComponent<NumberDrawer>(m_jellyBoard.transform, "DoubleJellyNum").SetNumber(GameLogic.Singleton.PlayingStageData.GetDoubleJellyCount());
+            }
+        }
+	}
 	
 	void UserOrBuyItem(PurchasedItem item)
 	{

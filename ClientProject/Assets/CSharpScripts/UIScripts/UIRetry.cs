@@ -81,7 +81,6 @@ public class UIRetry : UIWindow
         if (GameLogic.Singleton.IsStageFinish() && GameLogic.Singleton.CheckGetEnoughScore())         //检查关卡是否结束
         {
 			m_bWin = true;
-            m_infoLabel.text = "You win!";
         }
         else
         {

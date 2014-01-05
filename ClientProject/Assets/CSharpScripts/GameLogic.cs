@@ -1293,6 +1293,7 @@ public class GameLogic
                     {
                         EatLine(pos);
                     }
+                    m_cageCheckList.Clear();
                 }
 				else                    //到这儿就是什么未处理的消除都没了
 				{

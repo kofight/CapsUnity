@@ -1,0 +1,36 @@
+{"frames": {
+
+"Dog.png":
+{
+	"frame": {"x":172,"y":2,"w":180,"h":220},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":80,"w":180,"h":220},
+	"sourceSize": {"w":180,"h":300}
+},
+"Speicher.png":
+{
+	"frame": {"x":2,"y":2,"w":168,"h":294},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":6,"w":168,"h":294},
+	"sourceSize": {"w":180,"h":300}
+},
+"TextBox.png":
+{
+	"frame": {"x":2,"y":298,"w":250,"h":176},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":250,"h":176},
+	"sourceSize": {"w":250,"h":176}
+}},
+"meta": {
+	"app": "http://www.texturepacker.com",
+	"version": "1.0",
+	"image": "dialogAtlas.png",
+	"format": "RGBA8888",
+	"size": {"w":512,"h":512},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:739a95b6de35f099683a1b8e99ddfa3c$"
+}
+}

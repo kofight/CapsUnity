@@ -29,10 +29,12 @@ public struct DialogEvent
 
 public class UIDialog : UIWindow
 {
-	UILabel m_dialogText;
+    AocTypewriterEffect m_dialogText;
+    UISprite m_dialogBoardSprite;
 	UISprite m_head1Sprite;
 	UISprite m_head2Sprite;
 	UISprite m_itemBoard;
+    UISprite m_backPic;
 
     int m_curDialogGroupNum;
     int m_curDialogIndex;
@@ -66,6 +68,18 @@ public class UIDialog : UIWindow
 				PlayerPrefs.SetInt("StageStartDialogFinished", stageNum);
 			}
 		}
+
+        if (dialogEvent.backPic == "None")
+        {
+            m_backPic.gameObject.SetActive(false);
+        }
+        else
+        {
+            m_backPic.gameObject.SetActive(true);
+            m_backPic.spriteName = dialogEvent.backPic;
+        }
+
+        m_backPic.gameObject.SetActive(false);
 		
         OpenDialog(dialogEvent.dialogGroupNum);                                 //触发对话
         m_afterDialogFunc = func;
@@ -88,11 +102,27 @@ public class UIDialog : UIWindow
 	
 	void ShowText(string head1, string head2, bool activeLeftHead, string itemSprite, int speed, string content)
 	{
+        if (itemSprite != "None")
+        {
+
+        }
+        else
+        {
+            m_itemBoard.gameObject.SetActive(false);
+        }
+        if (activeLeftHead)
+        {
+            m_dialogBoardSprite.transform.LocalScaleX(1.0f);
+        }
+        else
+        {
+            m_dialogBoardSprite.transform.LocalScaleX(-1.0f);
+        }
 		if(head1 != "None")
 		{
 			m_head1Sprite.gameObject.SetActive(true);
 			m_head1Sprite.spriteName = head1;
-			if(activeLeftHead)
+			if(!activeLeftHead)
 			{
 				m_head1Sprite.color = new Color(0.5f, 0.5f, 0.5f, 1.0f);
 			}
@@ -110,21 +140,24 @@ public class UIDialog : UIWindow
 		{
 			m_head2Sprite.gameObject.SetActive(true);
 			m_head2Sprite.spriteName = head2;
-			if(!activeLeftHead)
+			if(activeLeftHead)
 			{
-				m_head1Sprite.color = new Color(0.5f, 0.5f, 0.5f, 1.0f);
+				m_head2Sprite.color = new Color(0.5f, 0.5f, 0.5f, 1.0f);
 			}
 			else
 			{
-				m_head1Sprite.color = Color.white;
+				m_head2Sprite.color = Color.white;
 			}
 		}
 		else
 		{
 			m_head2Sprite.gameObject.SetActive(false);
 		}
-		
-		m_dialogText.text = content;
+
+        m_dialogText.Play(content, delegate()
+        {
+
+        });
 	}
 	
 	public void OnClick()
@@ -144,9 +177,12 @@ public class UIDialog : UIWindow
     public override void OnCreate()
     {
         base.OnCreate();
-		m_dialogText = GetChildComponent<UILabel>("DialogText");
+		m_dialogText = GetChildComponent<AocTypewriterEffect>("DialogText");
 		m_head1Sprite = GetChildComponent<UISprite>("LeftHead");
 		m_head2Sprite = GetChildComponent<UISprite>("RightHead");
+        m_dialogBoardSprite = GetChildComponent<UISprite>("DialogBoard");
+
+        m_backPic = GetChildComponent<UISprite>("Background");
 		m_itemBoard = GetChildComponent<UISprite>("ItemBoard");
 
         //解析DialogEvent配置文件

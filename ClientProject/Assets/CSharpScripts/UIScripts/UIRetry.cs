@@ -237,8 +237,6 @@ public class UIRetry : UIWindow
         }
 
         m_stageNumber.SetNumber(GlobalVars.CurStageNum);
-
-        GameLogic.Singleton.PlayEndGameAnim();		//play the end anim(move the game area out of screen)
 	}
 	
     public override void OnUpdate()
@@ -279,15 +277,12 @@ public class UIRetry : UIWindow
         if (m_bStartNewStage)       //若是新开的关
         {
 			HideWindow();
-            //触发关卡结束对话，并在对话结束后切回大地图
-            UIWindowManager.Singleton.GetUIWindow<UIDialog>().TriggerDialog(GlobalVars.CurStageNum, DialogTriggerPos.StageEnd, delegate()
+
+            UIWindowManager.Singleton.GetUIWindow<UIMap>().ShowWindow(delegate()
             {
-                UIWindowManager.Singleton.GetUIWindow<UIMap>().ShowWindow(delegate()
-                {
-                    CapsApplication.Singleton.ChangeState((int)StateEnum.Login);        //返回地图界面
-                });
-                LoginState.Instance.CurFlow = TLoginFlow.LoginFlow_Map;         //切换流程到显示地图
+                CapsApplication.Singleton.ChangeState((int)StateEnum.Login);        //返回地图界面
             });
+            LoginState.Instance.CurFlow = TLoginFlow.LoginFlow_Map;         //切换流程到显示地图
         }
         else
         {

@@ -28,8 +28,6 @@ public class GameState : State
         GameLogic.Singleton.Init();
         m_bGameLogicStarted = false;
 		UIWindowManager.Singleton.GetUIWindow("UIGameBackground").ShowWindow();
-        UIWindowManager.Singleton.GetUIWindow<UIGameHead>().ShowWindow();
-        UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().ShowWindow();
 
         if (GlobalVars.UseMusic)
         {
@@ -50,14 +48,19 @@ public class GameState : State
     public override void Update()
     {
         base.Update();
-        if (m_waitLoadingStart > 0 && Time.realtimeSinceStartup - m_waitLoadingStart > 0.5f)
+        if (!m_bGameLogicStarted && m_waitLoadingStart > 0 && Time.realtimeSinceStartup - m_waitLoadingStart > 0.5f)
         {
             m_waitLoadingStart = 0.0f;
             UIWindowManager.Singleton.GetUIWindow("UILoading").HideWindow(delegate()
             {
-                UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
-                GameLogic.Singleton.StartGame();
-                m_bGameLogicStarted = true;
+                UIWindowManager.Singleton.GetUIWindow<UIDialog>().TriggerDialog(GlobalVars.CurStageNum, DialogTriggerPos.StageStart, delegate()
+                {
+                    UIWindowManager.Singleton.GetUIWindow<UIGameHead>().ShowWindow();
+                    UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().ShowWindow();
+                    UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
+                    GameLogic.Singleton.StartGame();
+                    m_bGameLogicStarted = true;
+                });
             });
         }
         if (m_bGameLogicStarted)

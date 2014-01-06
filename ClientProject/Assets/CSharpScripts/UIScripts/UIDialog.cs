@@ -15,8 +15,9 @@ public struct DialogData
 
 public enum DialogTriggerPos
 {
-    StageStart,
-    StageEnd,
+    StageStart,               //关卡开始前（地图界面）
+    //StageStart,                     //关卡开始时（Loading后，游戏区出现前）
+    StageEnd,                       //关卡结束时(切回大地图前)
 }
 
 public struct DialogEvent

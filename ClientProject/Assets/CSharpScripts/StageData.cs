@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using Webgame.Utility;
 
 public enum GridFlag
@@ -50,6 +51,15 @@ public enum GameTarget
     Collect,
 }
 
+public class FTUEData
+{
+    public string headImage;
+    public string dialog;
+    public Position from;
+    public Position to;
+    public List<Position> highLightPosList;
+}
+
 public class Portal
 {
     public Portal()
@@ -90,6 +100,8 @@ public class StageData
 
     public int[]    StarScore = new int[3];          //获得星星的分数
     public int [, ] GridData = new int[GameLogic.BlockCountX, GameLogic.BlockCountY];                        //关卡初始地块数据
+
+    public Dictionary<int, FTUEData> FTUEMap = new Dictionary<int, FTUEData>();                             //FTUE地图
 
 
     public Dictionary<int, Portal> PortalToMap = new Dictionary<int, Portal>();                                                                //用来储存所有的传送门，键值是传送目标的编码
@@ -246,6 +258,55 @@ public class StageData
         }
 
         Debug.Log("Level " + levelNum + " Loaded");
+
+        string ftue = ResourceManager.Singleton.LoadTextFile("FTUE" + levelNum);
+        if (ftue != string.Empty)
+        {
+            StringReader sr = new StringReader(ftue);
+            string line = sr.ReadLine();
+            while (line != null)
+            {
+                if (line.Contains("//"))
+                {
+                    line = sr.ReadLine();
+                    continue;
+                }
+                if (string.IsNullOrEmpty(line))
+                {
+                    line = sr.ReadLine();
+                    continue;
+                }
+                string[] values = line.Split(new string[] { "\t", " " }, System.StringSplitOptions.RemoveEmptyEntries);
+                if (values.Length > 0)
+                {
+                    int step = System.Convert.ToInt32(values[0]);
+                    FTUEData data = new FTUEData();
+                    data.highLightPosList = new List<Position>();
+                    data.headImage = values[1];
+                    data.dialog = values[2];
+                    string [] posArray = values[3].Split(',');
+                    data.from.x = System.Convert.ToInt32(posArray[0]);
+                    data.from.y = System.Convert.ToInt32(posArray[1]);
+
+                    posArray = values[4].Split(',');
+                    data.to.x = System.Convert.ToInt32(posArray[0]);
+                    data.to.y = System.Convert.ToInt32(posArray[1]);
+
+                    posArray = values[5].Split(',');
+                    for (int i = 0; i < posArray.Length / 2; ++i )
+                    {
+                        int x = System.Convert.ToInt32(posArray[i * 2]);
+                        int y = System.Convert.ToInt32(posArray[i * 2 + 1]);
+                        data.highLightPosList.Add(new Position(x, y));
+                    }
+
+                    FTUEMap.Add(step, data);                               //添加对话数据
+                }
+
+                line = sr.ReadLine();
+            }
+            sr.Close();
+        }
     }
 
     public void SaveStageData(int levelNum)              //保存关卡数据到一个文件

@@ -56,6 +56,10 @@ public class ResourceManager
             case RuntimePlatform.WindowsPlayer:
                 {
                     TextAsset XMLFile = (TextAsset)Resources.Load(filePath);    //Load from asset
+                    if (XMLFile == null)
+                    {
+                        return string.Empty;
+                    }
                     return XMLFile.text;
                 }
 

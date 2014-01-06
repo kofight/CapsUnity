@@ -12,6 +12,7 @@ public enum TGameFlow
     EGameState_EndStepRewarding,                //结束后根据步数奖励
     EGameState_End,
     EGameState_Clear,                           //过了结束画面进入这个状态，清掉画面显示
+    EGameState_FTUE,                            //FTUE状态
 };
 
 enum TDirection
@@ -830,6 +831,34 @@ public class GameLogic
         AddPartile("StartGameAnim", 5, 5, false);
     }
 
+    public void CheckFTUE()
+    {
+        if (PlayingStageData.FTUEMap.Count == 0)
+        {
+            return;
+        }
+        FTUEData data;
+        if(PlayingStageData.FTUEMap.TryGetValue(GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit, out data))      //查看是否有FTUE数据
+        {
+            //进入FTUE状态
+            m_gameFlow = TGameFlow.EGameState_FTUE;
+            UIFTUE ftue = UIWindowManager.Singleton.GetUIWindow<UIFTUE>();
+            if (ftue == null)
+            {
+                ftue = UIWindowManager.Singleton.CreateWindow<UIFTUE>();
+            }
+            ftue.ShowText(data.headImage, data.dialog, delegate()
+            {
+                int step = GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit;
+                SetHighLight(true, PlayingStageData.FTUEMap[step].from);
+                foreach (Position highLightPos in PlayingStageData.FTUEMap[step].highLightPosList)
+                {
+                    SetHighLight(true, highLightPos);
+                }
+            });
+        }
+    }
+
     public void PlayEndGameAnim()
     {
 		m_gameFlow = TGameFlow.EGameState_Clear;
@@ -1132,6 +1161,7 @@ public class GameLogic
             {
                 m_gameFlow = TGameFlow.EGameState_Playing;                           //开始游戏
                 DropDown();                                               //开始先尝试进行一次下落
+                CheckFTUE();                                                         //检查是否有FTUE
                 return;
             }
         }
@@ -2724,6 +2754,8 @@ public class GameLogic
 
         m_lastHelpTime = Timer.GetRealTimeSinceStartUp();
         m_lastGCTime = Timer.GetRealTimeSinceStartUp();
+
+        CheckFTUE();            //检测一次FTUE
     }
 
     public Position GetBlockByTouch(int xPos, int yPos)     //一个点的位置获得对应的块
@@ -2791,11 +2823,18 @@ public class GameLogic
             return;
         }
 
+        if (m_gameFlow == TGameFlow.EGameState_FTUE)        //在FTUE状态下，只能点击起始点
+        {
+            return;
+        }
+
         Position p = GetBlockByTouch((int)ges.position.x, (int)ges.position.y);
         if (!p.IsAvailable())
         {
             return;
         }
+
+        
 
         if (UsingItem == PurchasedItem.Item_Hammer)     //若正在使用锤子道具
         {
@@ -2980,6 +3019,15 @@ public class GameLogic
             return;
         }
 
+        if (m_gameFlow == TGameFlow.EGameState_FTUE)        //在FTUE状态下，只能点击起始点
+        {
+            int step = GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit;
+            if (p.x != PlayingStageData.FTUEMap[step].from.x || p.y != PlayingStageData.FTUEMap[step].from.y)
+            {
+                return;
+            }
+        }
+
         //如果选中一个状态处于不可移动的块，或者一个特殊块，置选中标志为空，返回
         if (m_blocks[p.x, p.y] == null || !m_blocks[p.x, p.y].SelectAble())
         {
@@ -3005,6 +3053,11 @@ public class GameLogic
         }
     }
 
+    void SetHighLight(bool bVal, Position p)
+    {
+        SetHighLight(bVal, p.x, p.y);
+    }
+
     void SetHighLight(bool bVal, int x, int y)         //设置某块高亮
     {
         if (m_blocks[x, y] == null)
@@ -3027,7 +3080,7 @@ public class GameLogic
         {
             return false;
         }
-        if (m_gameFlow != TGameFlow.EGameState_Playing)
+        if (m_gameFlow != TGameFlow.EGameState_Playing && m_gameFlow != TGameFlow.EGameState_FTUE)
         {
             return false;
         }
@@ -3062,6 +3115,10 @@ public class GameLogic
         //若没选好第一个块，看看移动中能否选到第一个块
         if (m_selectedPos[0].x == -1)		
         {
+            if (m_gameFlow == TGameFlow.EGameState_FTUE)        //在FTUE状态下，只能从起始点开始点击
+            {
+                return;
+            }
 			if (GetBlock(pos) == null || !GetBlock(pos).SelectAble())
 	        {
 	            return;
@@ -3103,6 +3160,15 @@ public class GameLogic
             return;
         }
 
+        if (m_gameFlow == TGameFlow.EGameState_FTUE)        //在FTUE状态下，只能移向目标点
+        {
+            int step = GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit;
+            if (p.x != PlayingStageData.FTUEMap[step].to.x || p.y != PlayingStageData.FTUEMap[step].to.y)
+            {
+                return;
+            }
+        }
+
         m_selectedPos[1] = p;
 
         //取消开始触控点的高亮
@@ -3114,6 +3180,19 @@ public class GameLogic
 
         //处理移动
         ProcessMove();
+
+        if (m_gameFlow == TGameFlow.EGameState_FTUE)        //在FTUE状态下，产生移动后FTUE就消失了
+        {
+            m_gameFlow = TGameFlow.EGameState_Playing;
+            UIWindowManager.Singleton.GetUIWindow<UIFTUE>().HideWindow();
+            //清理高光
+            int step = GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit;
+            SetHighLight(false, PlayingStageData.FTUEMap[step].from);
+            foreach (Position highLightPos in PlayingStageData.FTUEMap[step].highLightPosList)
+            {
+                SetHighLight(false, highLightPos);
+            }
+        }
     }
 
     void ProcessMove()

@@ -73,6 +73,9 @@ public class UIRetry : UIWindow
             m_winBoard.gameObject.SetActive(false);
             m_failedBoard.gameObject.SetActive(true);
         }
+		
+		UIWindowManager.Singleton.GetUIWindow<UIGameHead>().HideWindow();
+		UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().HideWindow();
 	}
 	
 	public void RefreshData()
@@ -268,6 +271,9 @@ public class UIRetry : UIWindow
         });      //显示关卡信息 
 
         HideWindow();       //隐藏自己
+		
+		UIWindowManager.Singleton.GetUIWindow<UIGameHead>().ShowWindow();
+		UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().ShowWindow();
     }
 
     private void OnNextLevelClicked()
@@ -288,6 +294,7 @@ public class UIRetry : UIWindow
         {
             HideWindow();
             GlobalVars.CurStageNum = GlobalVars.LastStage;                          //进下一关
+            GlobalVars.CurStageData.LoadStageData(GlobalVars.CurStageNum);          //装载关卡信息
             UIWindowManager.Singleton.GetUIWindow<UIStageInfo>().ShowWindow();   //显示关卡信息 
         }
     }

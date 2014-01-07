@@ -114,6 +114,7 @@ public class UIGameEnd : UIWindow
     {
         HideWindow();
 		GameLogic.Singleton.ResumeGame();
+		GameLogic.Singleton.PlayEndGameAnim();		//play the end anim(move the game area out of screen)
 		UIWindowManager.Singleton.GetUIWindow<UIRetry>().RefreshData();
         UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();
     }

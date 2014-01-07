@@ -36,7 +36,7 @@ public class UIStageInfo : UIWindow
         base.OnUpdate();
     }
 
-    private void OnCloseClicked()
+    public void OnCloseClicked()
     {
         HideWindow();
 
@@ -76,9 +76,11 @@ public class UIStageInfo : UIWindow
         {
             HideWindow(delegate()
             {
-				UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
                 GameLogic.Singleton.Init();
                 GameLogic.Singleton.StartGame();
+				UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
+				UIWindowManager.Singleton.GetUIWindow<UIGameHead>().ShowWindow();
+				UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().ShowWindow();
             });
         }
     }

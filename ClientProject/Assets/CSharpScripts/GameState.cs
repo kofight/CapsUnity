@@ -78,6 +78,13 @@ public class GameState : State
             UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();       //显示主菜单按钮
             return;
         }
+
+        if (UIWindowManager.Singleton.GetUIWindow<UIStageInfo>().Visible)
+        {
+            UIWindowManager.Singleton.GetUIWindow<UIStageInfo>().OnCloseClicked();
+            return;
+        }
+
         if (UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().Visible)
         {
             if (GameLogic.Singleton.GetGameFlow() != TGameFlow.EGameState_End)

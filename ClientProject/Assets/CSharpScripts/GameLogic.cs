@@ -3219,7 +3219,8 @@ public class GameLogic
         TSpecialBlock special1 = m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special;
         if ((special0 == TSpecialBlock.ESpecial_Normal && special1 == TSpecialBlock.ESpecial_Normal)                //两个都是普通块
             || (special0 == TSpecialBlock.ESpecial_Normal && special1 != TSpecialBlock.ESpecial_EatAColor)          //一个普通块，另一个不是彩虹
-            || (special1 == TSpecialBlock.ESpecial_Normal && special0 != TSpecialBlock.ESpecial_EatAColor))         //一个普通块，另一个不是彩虹
+            || (special1 == TSpecialBlock.ESpecial_Normal && special0 != TSpecialBlock.ESpecial_EatAColor)          //一个普通块，另一个不是彩虹
+            || (m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color >= TBlockColor.EColor_Nut1 || m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color >= TBlockColor.EColor_Nut1))    //其中一个是坚果
         {
             MoveBlockPair(m_selectedPos[0], m_selectedPos[1]);
         }

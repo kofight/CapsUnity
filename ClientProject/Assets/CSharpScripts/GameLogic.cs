@@ -282,6 +282,8 @@ public class GameLogic
     int m_nut1Count;                        //当前屏幕上的坚果数量
     int m_nut2Count;                        //当前屏幕上的坚果数量
 
+    bool m_chocolateNeedGrow;               //是否需要巧克力生长
+
     HashSet<AudioEnum> m_playSoundNextFrame = new HashSet<AudioEnum>();     //有声音要播放时，放在这个容器里，下一帧播放,这样做是为了避免重复播放
 
     void PlaySound(AudioEnum audio)
@@ -1322,7 +1324,7 @@ public class GameLogic
 
         if (bDroped)        //落到底发生
         {
-            if (CapBlock.DropingBlockCount == 0 && !bEat)       //若下落结束
+            if (CapBlock.DropingBlockCount == 0 && CapBlock.EatingBlockCount == 0 && !bEat)       //若下落结束
             {
                 if (m_cageCheckList.Count > 0)          //若有笼子消除完了需要多检查一次消除的可能
                 {
@@ -1337,6 +1339,7 @@ public class GameLogic
 				else                    //到这儿就是什么未处理的消除都没了
 				{
                     OnDropEnd();
+                    Debug.Log("Drop Finished!!!!!!!!!!");
 				}
             }
         }
@@ -1638,6 +1641,7 @@ public class GameLogic
                         PlaySoundNextFrame(AudioEnum.Audio_Chocolate);
                         m_scoreToShow[i, j] += CapsConfig.EatChocolate;
                         m_gridBackImage[i, j].layer1.gameObject.SetActive(false);
+                        m_chocolateNeedGrow = false;
                     }
                     else if (PlayingStageData.CheckFlag(i, j, GridFlag.Cage))
                     {
@@ -1676,12 +1680,11 @@ public class GameLogic
                         }
                         jellyChanged = true;
                     }
-
-                    ClearChocolateAround(i, j);
                 }
 
                 if (m_tempBlocks[i, j] >= 2)        //若有正常消除
                 {
+                    ClearChocolateAround(i, j);
                     ClearStoneAround(i, j);         //清周围的石块
                 }
             }
@@ -2313,6 +2316,7 @@ public class GameLogic
 					m_scoreToShow[pos.x, pos.y] += CapsConfig.EatChocolate;
                     AddPartile("ChocolateEffect", pos.x, pos.y);
                     PlaySoundNextFrame(AudioEnum.Audio_Jelly);
+					m_chocolateNeedGrow = false;
                 }
             }
         }
@@ -2770,6 +2774,66 @@ public class GameLogic
         m_lastGCTime = Timer.GetRealTimeSinceStartUp();
 
         CheckFTUE();            //检测一次FTUE
+
+        if (m_chocolateNeedGrow)        //若需要巧克力生长
+        {
+            ChocolateGrow();
+        }
+    }
+
+    void ChocolateGrow()        //生长一个巧克力
+    {
+        //先找到待用的巧克力
+        //从随机位置开始
+        int randomPos = m_random.Next() % BlockCountX;
+
+        for (int i = 0; i < BlockCountX; i++)
+        {
+            int xPos = (randomPos + i) % BlockCountX;
+            for (int j = 0; j < BlockCountY; j++)
+            {
+                if (PlayingStageData.CheckFlag(xPos, j, GridFlag.Chocolate))        //找到块了
+                {
+                    //看相邻的6方向能否生成
+                    for (int dir = (int)TDirection.EDir_Up; dir <= (int)TDirection.EDir_LeftUp; ++dir)
+                    {
+                        Position newPos = GoTo(new Position(xPos, j), (TDirection)dir, 1);
+                        if (newPos.x >= BlockCountX || newPos.y >= BlockCountY || newPos.x < 0 || newPos.y < 0)
+                            continue;
+                        if (PlayingStageData.CheckFlag(newPos.x, newPos.y, GridFlag.Cage))                //若是笼子
+                        {
+                            continue;
+                        }
+                        if (m_blocks[newPos.x, newPos.y] == null)
+                        {
+                            continue;
+                        }
+                        if (m_blocks[newPos.x, newPos.y].color >= TBlockColor.EColor_Nut1)               //若为坚果
+                        {
+                            continue;
+                        }
+                        //找到了，生成一个巧克力
+                        MakeSpriteFree(newPos.x, newPos.y);       //把块置空
+                        PlayingStageData.AddFlag(newPos.x, newPos.y, GridFlag.Chocolate);       //增加巧克力标记
+                        PlayingStageData.ClearFlag(newPos.x, newPos.y, GridFlag.GenerateCap);
+                        PlayingStageData.AddFlag(newPos.x, newPos.y, GridFlag.NotGenerateCap);
+
+                        if (m_gridBackImage[newPos.x, newPos.y].layer1 == null)
+                        {
+                            GameObject newObj = GameObject.Instantiate(m_gridInstance) as GameObject;
+                            m_gridBackImage[newPos.x, newPos.y].layer1 = newObj.GetComponent<UISprite>();
+
+                            m_gridBackImage[newPos.x, newPos.y].layer1.transform.parent = m_gridInstance.transform.parent;
+                            m_gridBackImage[newPos.x, newPos.y].layer1.transform.localScale = m_gridInstance.transform.localScale;
+                            m_gridBackImage[newPos.x, newPos.y].layer1.transform.localPosition = new Vector3(GetXPos(newPos.x), -GetYPos(newPos.x, newPos.y), -110);
+                        }
+                        m_gridBackImage[newPos.x, newPos.y].layer1.spriteName = "Chocolate";
+                        m_gridBackImage[newPos.x, newPos.y].layer1.gameObject.SetActive(true);
+                        return;
+                    }
+                }
+            }
+        }
     }
 
     public Position GetBlockByTouch(int xPos, int yPos)     //一个点的位置获得对应的块
@@ -3212,6 +3276,8 @@ public class GameLogic
     void ProcessMove()
     {
         m_lastGCTime = 0;
+
+        m_chocolateNeedGrow = true;
 
         ClearHelpPoint();
 

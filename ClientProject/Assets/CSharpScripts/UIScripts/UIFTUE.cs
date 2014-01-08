@@ -36,7 +36,7 @@ public class UIFTUE : UIWindow
 		
         m_dialogText.Play(m_dialogContents[m_curDialogIndex], delegate()
         {
-            if (m_curDialogIndex == m_dialogContents.Length)
+            if (m_curDialogIndex == m_dialogContents.Length - 1)
             {
                 func();
             }

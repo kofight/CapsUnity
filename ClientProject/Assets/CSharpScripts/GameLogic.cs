@@ -1306,6 +1306,7 @@ public class GameLogic
 		                    if (PlayingStageData.CheckFlag(i, j, GridFlag.FruitExit))
 		                    {
 		                        EatFruit(i, j);
+                                ProcessTempBlocks();
 		                        bEat = true;
 		                    }
 		                }

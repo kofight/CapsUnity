@@ -50,7 +50,7 @@ public class UINoMoreHearts : UIWindow
         HideWindow();
     }
 
-    void Close()
+    public void Close()
 	{
 		HideWindow();
         if (CapsApplication.Singleton.CurStateEnum == StateEnum.Game)       //若在游戏中

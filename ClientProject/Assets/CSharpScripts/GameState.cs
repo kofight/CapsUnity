@@ -79,6 +79,18 @@ public class GameState : State
             return;
         }
 
+        if (UIWindowManager.Singleton.GetUIWindow<UIHowToPlay>().Visible)
+        {
+            UIWindowManager.Singleton.GetUIWindow<UIHowToPlay>().OnClose();
+            return;
+        }
+
+        if (UIWindowManager.Singleton.GetUIWindow<UINoMoreHearts>().Visible)
+        {
+            UIWindowManager.Singleton.GetUIWindow<UINoMoreHearts>().Close();
+            return;
+        }
+
         if (UIWindowManager.Singleton.GetUIWindow<UIStageInfo>().Visible)
         {
             UIWindowManager.Singleton.GetUIWindow<UIStageInfo>().OnCloseClicked();

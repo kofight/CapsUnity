@@ -271,9 +271,6 @@ public class UIRetry : UIWindow
         });      //显示关卡信息 
 
         HideWindow();       //隐藏自己
-		
-		UIWindowManager.Singleton.GetUIWindow<UIGameHead>().ShowWindow();
-		UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().ShowWindow();
     }
 
     private void OnNextLevelClicked()

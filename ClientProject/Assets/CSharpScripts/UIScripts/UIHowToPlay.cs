@@ -12,14 +12,7 @@ public class UIHowToPlay : UIWindow
 
         m_helpTex = GetChildComponent<UITexture>("HelpPic");
 
-        AddChildComponentMouseClick("CloseBtn", delegate()
-        {
-            HideWindow(delegate()
-            {
-                GameLogic.Singleton.ResumeGame();
-            });
-            UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
-        });
+        AddChildComponentMouseClick("CloseBtn", OnClose);
 		
 		AddChildComponentMouseClick("NextBtn", Next);
     }
@@ -34,6 +27,15 @@ public class UIHowToPlay : UIWindow
             m_helpTex.mainTexture = tex;
             GameLogic.Singleton.PauseGame();
         }
+    }
+
+    public void OnClose()
+    {
+        HideWindow(delegate()
+        {
+            GameLogic.Singleton.ResumeGame();
+        });
+        UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
     }
 
     void Next()

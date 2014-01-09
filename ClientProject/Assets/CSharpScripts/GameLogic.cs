@@ -7,6 +7,7 @@ public enum TGameFlow
     EGameState_StartGameAnim,                   //开始游戏动画
     EGameState_ResortAnim,                      //重排动画
     EGameState_Playing,                         //游戏中
+    EGameState_EffectTime,                      //特效时间
     EGameState_SugarCrushAnim,                  //进入特殊奖励前的动画
     EGameState_EndEatingSpecial,                //结束后开始逐个吃屏幕上的特殊块
     EGameState_EndStepRewarding,                //结束后根据步数奖励
@@ -1339,7 +1340,6 @@ public class GameLogic
 				else                    //到这儿就是什么未处理的消除都没了
 				{
                     OnDropEnd();
-                    Debug.Log("Drop Finished!!!!!!!!!!");
 				}
             }
         }
@@ -1783,6 +1783,11 @@ public class GameLogic
 
     bool DropDown()
     {
+        if (m_gameFlow == TGameFlow.EGameState_EffectTime)      //若在特效等待时间
+        {
+            return false;                                             //停止正常的下落
+        }
+
         bool bDrop = false;             //是否有下落
         bool bNewSpace = true;          //是否有直线下落
 
@@ -3100,9 +3105,12 @@ public class GameLogic
         if (m_gameFlow == TGameFlow.EGameState_FTUE)        //在FTUE状态下，只能点击起始点
         {
             int step = GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit;
-            if (p.x != PlayingStageData.FTUEMap[step].from.x || p.y != PlayingStageData.FTUEMap[step].from.y)
+            if (PlayingStageData.FTUEMap.ContainsKey(step))
             {
-                return;
+                if (p.x != PlayingStageData.FTUEMap[step].from.x || p.y != PlayingStageData.FTUEMap[step].from.y)
+                {
+                    return;
+                }
             }
         }
 

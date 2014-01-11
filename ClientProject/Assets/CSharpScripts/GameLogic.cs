@@ -1136,8 +1136,8 @@ public class GameLogic
                             {
                                 m_blocks[i, j].EatDelay = 0;
                                 m_blocks[i, j].m_animation.enabled = true;
-                                m_blocks[i, j].m_animation.Play("Eat");
-                                AddPartile("EatEffect", AudioEnum.Audio_Eat, i, j);
+                                m_blocks[i, j].m_animation.Play(m_blocks[i, j].EatAnimationName);
+                                AddPartile(m_blocks[i, j].EatEffectName, AudioEnum.Audio_Eat, i, j);
                                 m_blocks[i, j].m_dropDownStartTime = 0;
                                 if (m_scoreToShow[i, j] > 0)
 						        {
@@ -2499,6 +2499,9 @@ public class GameLogic
 
         m_scoreToShow[position.x, position.y] += addScore;                                                  //增加当前位置的计分（用来显示）
 
+        m_blocks[position.x, position.y].EatAnimationName= "Eat";
+        m_blocks[position.x, position.y].EatEffectName = "EatEffect";
+
         switch (m_blocks[position.x, position.y].special)
         {
             case TSpecialBlock.ESpecial_Bomb:
@@ -2536,24 +2539,6 @@ public class GameLogic
                     }
                 }
                 break;
-            case TSpecialBlock.ESpecial_Painter:
-                {
-                    Position[] excludePos = new Position[4];
-                    for (int i = 0; i < 4; ++i)
-                    {
-                        excludePos[i] = position;           //先用当前位置初始化排除的位置数组
-                    }
-                    for (int i = 0; i < 3; ++i)            //取得随机点
-                    {
-                        excludePos[i + 1] = FindRandomPos(m_blocks[position.x, position.y].color, excludePos);
-                    }
-                    //TODO 这里要放特效
-                    for (int i = 1; i < 4; ++i)
-                    {
-                        ChangeColor(excludePos[i], m_blocks[position.x, position.y].color);
-                    }
-                }
-                break;
             case TSpecialBlock.ESpecial_EatLineDir0:
                 {
                     for (int i = 0; i < BlockCountX; ++i)
@@ -2562,6 +2547,8 @@ public class GameLogic
                         EatBlock(GoTo(position, TDirection.EDir_Up, i), i * CapsConfig.EatLineEffectInterval + 0.1f + delay, 50);
                     }
                     AddPartile("Dir0Effect", AudioEnum.Audio_Line1, position.x, position.y, true, 0.1f + delay);
+                    m_blocks[position.x, position.y].EatAnimationName = "EatLine0";
+                    m_blocks[position.x, position.y].EatEffectName = "EatLineEffect";
                 }
                 break;
             case TSpecialBlock.ESpecial_EatLineDir1:
@@ -2572,6 +2559,8 @@ public class GameLogic
                         EatBlock(GoTo(position, TDirection.EDir_LeftDown, i), i * CapsConfig.EatLineEffectInterval + 0.1f + delay, 50);
                     }
                     AddPartile("Dir1Effect", AudioEnum.Audio_Line1, position.x, position.y, true, 0.1f + delay);
+                    m_blocks[position.x, position.y].EatAnimationName = "EatLine1";
+                    m_blocks[position.x, position.y].EatEffectName = "EatLineEffect";
                 }
                 break;
             case TSpecialBlock.ESpecial_EatLineDir2:
@@ -2582,6 +2571,8 @@ public class GameLogic
                         EatBlock(GoTo(position, TDirection.EDir_DownRight, i), i * CapsConfig.EatLineEffectInterval + 0.1f + delay, 50);
                     }
                     AddPartile("Dir2Effect", AudioEnum.Audio_Line1, position.x, position.y, true, 0.1f + delay);
+                    m_blocks[position.x, position.y].EatAnimationName = "EatLine2";
+                    m_blocks[position.x, position.y].EatEffectName = "EatLineEffect";
                 }
                 break;
             case TSpecialBlock.ESpecial_EatAColor:
@@ -2595,9 +2586,9 @@ public class GameLogic
         if (delay == 0)
         {
             m_blocks[position.x, position.y].m_animation.enabled = true;
-            m_blocks[position.x, position.y].m_animation.Play("Eat");
+            m_blocks[position.x, position.y].m_animation.Play(m_blocks[position.x, position.y].EatAnimationName);
             m_blocks[position.x, position.y].m_dropDownStartTime = 0;
-            AddPartile("EatEffect", AudioEnum.Audio_Eat, position.x, position.y);
+            AddPartile(m_blocks[position.x, position.y].EatEffectName, AudioEnum.Audio_Eat, position.x, position.y);
         }
     }
 

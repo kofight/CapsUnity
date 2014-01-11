@@ -24,7 +24,6 @@ public enum TSpecialBlock
     ESpecial_EatLineDir1,			//一次消一线，方向1
     ESpecial_EatLineDir2,			//一次消一线，方向2
     ESpecial_Bomb,					//一次消周围9个
-    ESpecial_Painter,				//刷子
     ESpecial_EatAColor,				//一次消一个颜色
 };
 
@@ -77,11 +76,6 @@ public class CapBlock
             case TSpecialBlock.ESpecial_Bomb:
                 m_blockSprite.spriteName = "Bomb" + (int)(color - TBlockColor.EColor_None);
                 break;
-            case TSpecialBlock.ESpecial_Painter:
-                {
-                    m_blockSprite.spriteName = "Painter" + (int)(color - TBlockColor.EColor_None);
-                }
-                break;
             case TSpecialBlock.ESpecial_EatAColor:
                 m_blockSprite.spriteName = "Rainbow";
                 break;
@@ -107,6 +101,9 @@ public class CapBlock
     public TSpecialBlock special;				//特殊功能块
 
     public float EatDelay;
+    public string EatAnimationName;             //消块的动画名称
+    public string EatEffectName;             //消块的动画名称
+
     public float m_dropDownStartTime;                  //下落开始时间，用来停止下落动画
 
     public Animation m_animation;

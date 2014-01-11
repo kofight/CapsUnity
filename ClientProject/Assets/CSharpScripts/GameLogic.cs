@@ -16,6 +16,17 @@ public enum TGameFlow
     EGameState_FTUE,                            //FTUE状态
 };
 
+//特殊效果(一般是两个特殊块交换得到的，需要根据不同特效单独写代码)
+public enum TSpecialEffect
+{
+    EAllDir,
+    EAllDirBig,
+    EEatAColor,
+    EEatAllColor,
+    EBigBomb,
+    EEatAColorNDBomb,
+}
+
 enum TDirection
 {
     EDir_Up,
@@ -235,12 +246,21 @@ public class GameLogic
 
     int m_progress;										//当前进度
     TGameFlow m_gameFlow;								//游戏状态
+    long m_curStateStartTime = 0;                       //当前状态的开始时间
+
+
+    TSpecialEffect m_curSpecialEffect;                  //当前的特殊效果
+    Position m_curSpecialEffectPos;                     //当前特殊效果的开始位置
+    int m_effectStep;                                   //当前特殊效果进行到第几步了
+    int m_effectStateDuration;                              //特效演出时长
+
+
+
     int m_comboCount;				//记录当前连击数
     bool m_changeBack;		//在交换方块动画中标志是否为换回动画
     System.Random m_random;
     long m_gameStartTime = 0;                              //游戏开始时间
 	float m_gameStartTimeReal = 0;						   //the game start time to calculate stage duration
-    long m_curAnimStartTime = 0;                    //sugarCrush动画的开始时间
     long m_lastStepRewardTime = 0;                         //上次生成StepReward的时间
     public StageData PlayingStageData;                      //当前的关卡数据
     bool m_bDropFromLeft = true;                            //用来控制左右斜下落的开关
@@ -825,7 +845,7 @@ public class GameLogic
         m_lastHelpTime = Timer.GetRealTimeSinceStartUp();
 
         m_gameFlow = TGameFlow.EGameState_StartGameAnim;                //开始游戏
-        m_curAnimStartTime = Timer.millisecondNow();
+        m_curStateStartTime = Timer.millisecondNow();
 
         //播放开始游戏的动画
         TweenPosition tweenPos = m_gameArea.GetComponent<TweenPosition>();
@@ -959,7 +979,7 @@ public class GameLogic
         }
         m_nut1Count = 0;
         m_nut2Count = 0;
-        m_curAnimStartTime = 0;
+        m_curStateStartTime = 0;
         m_lastStepRewardTime = 0;
         m_lastHelpTime = 0;
 
@@ -1158,9 +1178,46 @@ public class GameLogic
 
     void ProcessState()     //处理各个状态
     {
+        //特效演出
+        if (m_gameFlow == TGameFlow.EGameState_EffectTime)
+        {
+            long timePast = Timer.millisecondNow() - m_curStateStartTime;
+            if (timePast > m_effectStateDuration)
+            {
+                m_gameFlow = TGameFlow.EGameState_Playing;                           //开始游戏
+                DropDown();                                                          //开始先尝试进行一次下落
+            }
+            else                                                                    //这里处理各种特殊效果
+            {
+                if (m_curSpecialEffect == TSpecialEffect.EAllDir)                   //消全部方向
+                {
+                    if (m_effectStep == 0 && timePast > m_effectStateDuration / 4)          //若到了第一步的时间
+                    {
+                        m_effectStep = 1;
+                        EatALLDirLine(m_curSpecialEffectPos, false, (int)TSpecialBlock.ESpecial_EatLineDir0);
+                        ProcessTempBlocks();
+                    }
+                    
+                    if (m_effectStep == 1 && timePast > m_effectStateDuration * 2 / 4)      //到了第二步的时间
+                    {
+                        m_effectStep = 2;
+                        EatALLDirLine(m_curSpecialEffectPos, false, (int)TSpecialBlock.ESpecial_EatLineDir1);
+                        ProcessTempBlocks();
+                    }
+
+                    if (m_effectStep == 2 && timePast > m_effectStateDuration * 3 / 4)      //到了第二步的时间
+                    {
+                        m_effectStep = 3;
+                        EatALLDirLine(m_curSpecialEffectPos, false, (int)TSpecialBlock.ESpecial_EatLineDir2);
+                        ProcessTempBlocks();
+                    }
+                }
+            }
+        }
+
         if (m_gameFlow == TGameFlow.EGameState_StartGameAnim)
         {
-            if (Timer.millisecondNow() - m_curAnimStartTime > StartAnimTime)        //若时间到
+            if (Timer.millisecondNow() - m_curStateStartTime > StartAnimTime)        //若时间到
             {
                 m_gameFlow = TGameFlow.EGameState_Playing;                           //开始游戏
                 DropDown();                                               //开始先尝试进行一次下落
@@ -1171,7 +1228,7 @@ public class GameLogic
 
         if (m_gameFlow == TGameFlow.EGameState_ResortAnim)        //正在显示“没有可交换块，需要重排”
         {
-            if (Timer.millisecondNow() - m_curAnimStartTime > ShowNoPossibleExhangeTextTime)       //时间已到
+            if (Timer.millisecondNow() - m_curStateStartTime > ShowNoPossibleExhangeTextTime)       //时间已到
             {
                 AutoResort();
                 m_gameFlow = TGameFlow.EGameState_Playing;
@@ -1181,7 +1238,7 @@ public class GameLogic
         //处理流程////////////////////////////////////////////////////////////////////////
         if (m_gameFlow == TGameFlow.EGameState_SugarCrushAnim)        //播放sugarcrush动画状态
         {
-            if (Timer.millisecondNow() - m_curAnimStartTime > SugarCrushAnimTime)        //若时间到
+            if (Timer.millisecondNow() - m_curStateStartTime > SugarCrushAnimTime)        //若时间到
             {
                 m_gameFlow = TGameFlow.EGameState_EndEatingSpecial;                           //切下一状态
                 return;
@@ -1389,7 +1446,7 @@ public class GameLogic
                     {
                         if (!Help())
                         {
-                            m_curAnimStartTime = Timer.millisecondNow();
+                            m_curStateStartTime = Timer.millisecondNow();
                             AddPartile("ResortAnim", 5, 5, false);                                    //显示需要重排
                             m_gameFlow = TGameFlow.EGameState_ResortAnim;
                         }
@@ -2666,7 +2723,7 @@ public class GameLogic
                 m_gameFlow = TGameFlow.EGameState_SugarCrushAnim;
                 AddPartile("SugarCrushAnim", 5, 5, false);
                 ClearHelpPoint();
-                m_curAnimStartTime = Timer.millisecondNow();
+                m_curStateStartTime = Timer.millisecondNow();
             }
             else
             {
@@ -3327,6 +3384,7 @@ public class GameLogic
                 EatBlockWithoutTrigger(m_selectedPos[1].x, m_selectedPos[1].y, 0);      //自己消失
                 EatBlockWithoutTrigger(m_selectedPos[0].x, m_selectedPos[0].y, 0);      //自己消失
                 EatALLDirLine(m_selectedPos[1], true);
+
             }
             else if (special1 == TSpecialBlock.ESpecial_EatAColor &&
                     (special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
@@ -3343,7 +3401,14 @@ public class GameLogic
             {
                 EatBlockWithoutTrigger(m_selectedPos[1].x, m_selectedPos[1].y, 0);      //自己消失
                 EatBlockWithoutTrigger(m_selectedPos[0].x, m_selectedPos[0].y, 0);      //自己消失
-                EatALLDirLine(m_selectedPos[1], false);
+                //EatALLDirLine(m_selectedPos[1], false);
+
+                m_gameFlow = TGameFlow.EGameState_EffectTime;                           //切换游戏状态到特效演出时间，等待特效演出
+                m_curStateStartTime = Timer.millisecondNow();                           //保存下切状态的时间
+                m_effectStateDuration = CapsConfig.EffectAllDirTime;                                           //2秒的演出时间
+                m_curSpecialEffect = TSpecialEffect.EAllDir;                            //全方向消除特效
+                m_curSpecialEffectPos = m_selectedPos[1];                               //把特效位置保存起来
+                m_effectStep = 0;                                                       //从第0步开始
             }
             else if (special0 == TSpecialBlock.ESpecial_Bomb && (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||     //炸弹跟条状交换，单方向加粗
                     special1 == TSpecialBlock.ESpecial_EatLineDir1))

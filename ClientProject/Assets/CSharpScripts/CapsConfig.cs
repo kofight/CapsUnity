@@ -49,6 +49,13 @@ public class CapsConfig
     public static readonly int EatStonePoint = 400;
     public static readonly int EatChocolate = 400;
 
+    public static readonly int EffectAllDirTime = 2000;
+    public static readonly int EffectAllDirBigTime = 2000;
+    public static readonly int EffectEatAColorTime = 2000;
+    public static readonly int EffectEatAllColorTime = 2000;
+    public static readonly int EffectBigBombTime = 2000;
+    public static readonly int EffectEatAColorNDBombTime = 2000;
+
     public static AudioList CurAudioList;
 	
 	public static bool EnableGA = false;

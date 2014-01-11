@@ -168,10 +168,12 @@ class DelayParticle
 {
     public ParticleSystem par;          //粒子系统
     public float startTime;             //开始时间0代表已开始
+    public AudioEnum audio;             //声音
 }
 
 public enum AudioEnum
 {
+    Audio_None,
     Audio_Bomb,
     Audio_Drop,
     Audio_Eat,
@@ -857,7 +859,7 @@ public class GameLogic
         TweenPosition tweenPos = m_gameArea.GetComponent<TweenPosition>();
         tweenPos.Play(true);
 
-        AddPartile("StartGameAnim", 5, 5, false);
+        AddPartile("StartGameAnim", AudioEnum.Audio_None, 5, 5, false);
     }
 
     public void CheckFTUE()
@@ -1135,8 +1137,7 @@ public class GameLogic
                                 m_blocks[i, j].EatDelay = 0;
                                 m_blocks[i, j].m_animation.enabled = true;
                                 m_blocks[i, j].m_animation.Play("Eat");
-                                AddPartile("EatEffect", i, j);
-                                PlaySoundNextFrame(AudioEnum.Audio_Eat);
+                                AddPartile("EatEffect", AudioEnum.Audio_Eat, i, j);
                                 m_blocks[i, j].m_dropDownStartTime = 0;
                                 if (m_scoreToShow[i, j] > 0)
 						        {
@@ -1453,7 +1454,7 @@ public class GameLogic
                         if (!Help())
                         {
                             m_curStateStartTime = Timer.millisecondNow();
-                            AddPartile("ResortAnim", 5, 5, false);                                    //显示需要重排
+                            AddPartile("ResortAnim", AudioEnum.Audio_None, 5, 5, false);                                    //显示需要重排
                             m_gameFlow = TGameFlow.EGameState_ResortAnim;
                         }
                     }
@@ -1701,8 +1702,7 @@ public class GameLogic
                         PlayingStageData.ClearFlag(i, j, GridFlag.NotGenerateCap);
                         PlayingStageData.AddFlag(i, j, GridFlag.GenerateCap);
 
-                        AddPartile("StoneEffect", i, j);
-                        PlaySoundNextFrame(AudioEnum.Audio_Stone);
+                        AddPartile("StoneEffect", AudioEnum.Audio_Stone, i, j);
                         m_scoreToShow[i, j] += CapsConfig.EatStonePoint;
 
                         m_gridBackImage[i, j].layer1.gameObject.SetActive(false);
@@ -1712,8 +1712,7 @@ public class GameLogic
                         PlayingStageData.ClearFlag(i, j, GridFlag.Chocolate);
                         PlayingStageData.ClearFlag(i, j, GridFlag.NotGenerateCap);
                         PlayingStageData.AddFlag(i, j, GridFlag.GenerateCap);
-                        AddPartile("ChocolateEffect", i, j);
-                        PlaySoundNextFrame(AudioEnum.Audio_Chocolate);
+                        AddPartile("ChocolateEffect", AudioEnum.Audio_Chocolate, i, j);
                         m_scoreToShow[i, j] += CapsConfig.EatChocolate;
                         m_gridBackImage[i, j].layer1.gameObject.SetActive(false);
                         m_chocolateNeedGrow = false;
@@ -1721,8 +1720,7 @@ public class GameLogic
                     else if (PlayingStageData.CheckFlag(i, j, GridFlag.Cage))
                     {
                         PlayingStageData.ClearFlag(i, j, GridFlag.Cage);
-                        AddPartile("CageEffect", i, j);
-                        PlaySoundNextFrame(AudioEnum.Audio_Cage);
+                        AddPartile("CageEffect", AudioEnum.Audio_Cage, i, j);
                         m_blocks[i, j].CurState = BlockState.Normal;
                         m_scoreToShow[i, j] += CapsConfig.EatCagePoint;
                         m_gridBackImage[i, j].layer1.gameObject.SetActive(false);
@@ -1733,8 +1731,7 @@ public class GameLogic
                     {
                         PlayingStageData.ClearFlag(i, j, GridFlag.JellyDouble);
                         PlayingStageData.AddFlag(i, j, GridFlag.Jelly);
-                        PlaySoundNextFrame(AudioEnum.Audio_Jelly);
-                        AddPartile("JellyEffect", i, j);
+                        AddPartile("JellyEffect", AudioEnum.Audio_Jelly, i, j);
                         m_scoreToShow[i, j] += CapsConfig.EatJellyDouble;
                         m_gridBackImage[i, j].layer0.spriteName = "Jelly" + ((j + (i % 2)) % 3);
                         jellyChanged = true;
@@ -1742,8 +1739,7 @@ public class GameLogic
                     else if (PlayingStageData.CheckFlag(i, j, GridFlag.Jelly))
                     {
                         PlayingStageData.ClearFlag(i, j, GridFlag.Jelly);
-                        AddPartile("JellyEffect", i, j);
-                        PlaySoundNextFrame(AudioEnum.Audio_Jelly);
+                        AddPartile("JellyEffect", AudioEnum.Audio_Jelly, i, j);
                         m_scoreToShow[i, j] += CapsConfig.EatJelly;
                         if (i % 2 == 0)
                         {
@@ -2394,8 +2390,7 @@ public class GameLogic
 
                     m_gridBackImage[pos.x, pos.y].layer1.gameObject.SetActive(false);
 					m_scoreToShow[pos.x, pos.y] += CapsConfig.EatChocolate;
-                    AddPartile("ChocolateEffect", pos.x, pos.y);
-                    PlaySoundNextFrame(AudioEnum.Audio_Jelly);
+                    AddPartile("ChocolateEffect", AudioEnum.Audio_Jelly, pos.x, pos.y);
 					m_chocolateNeedGrow = false;
                 }
             }
@@ -2418,8 +2413,7 @@ public class GameLogic
 
                     m_gridBackImage[pos.x, pos.y].layer1.gameObject.SetActive(false);
 					m_scoreToShow[pos.x, pos.y] += CapsConfig.EatStonePoint;
-                    AddPartile("StoneEffect", pos.x, pos.y);
-                    PlaySoundNextFrame(AudioEnum.Audio_Stone);
+                    AddPartile("StoneEffect", AudioEnum.Audio_Stone, pos.x, pos.y);
                 }
             }
         }
@@ -2515,8 +2509,7 @@ public class GameLogic
 
                         EatBlock(GoTo(position, dir, 2), CapsConfig.BombEffectInterval * 2 + delay, 50);
                     }
-                    AddPartile("BombEffect", position.x, position.y);
-                    PlaySoundNextFrame(AudioEnum.Audio_Bomb);
+                    AddPartile("BombEffect", AudioEnum.Audio_Bomb, position.x, position.y);
                 }
                 break;
             case TSpecialBlock.ESpecial_NormalPlus5:
@@ -2535,8 +2528,7 @@ public class GameLogic
                             newPos = GoTo(newPos, (TDirection)(((int)dir + 2) % 6), 1);     //第二层向下一个方向走一步
                             EatBlock(newPos, CapsConfig.BombEffectInterval * 2, 50);
                         }
-                        AddPartile("BombEffect", position.x, position.y);
-                        PlaySoundNextFrame(AudioEnum.Audio_Bomb);
+                        AddPartile("BombEffect", AudioEnum.Audio_Bomb, position.x, position.y);
                     }
                     else
                     {
@@ -2569,8 +2561,7 @@ public class GameLogic
                         EatBlock(GoTo(position, TDirection.EDir_Down, i), i * CapsConfig.EatLineEffectInterval + 0.1f + delay, 50);
                         EatBlock(GoTo(position, TDirection.EDir_Up, i), i * CapsConfig.EatLineEffectInterval + 0.1f + delay, 50);
                     }
-                    AddPartile("Dir0Effect", position.x, position.y, true, 0.1f + delay);
-                    PlaySoundNextFrame(AudioEnum.Audio_Line1);
+                    AddPartile("Dir0Effect", AudioEnum.Audio_Line1, position.x, position.y, true, 0.1f + delay);
                 }
                 break;
             case TSpecialBlock.ESpecial_EatLineDir1:
@@ -2580,8 +2571,7 @@ public class GameLogic
                         EatBlock(GoTo(position, TDirection.EDir_UpRight, i), i * CapsConfig.EatLineEffectInterval + 0.1f + delay, 50);
                         EatBlock(GoTo(position, TDirection.EDir_LeftDown, i), i * CapsConfig.EatLineEffectInterval + 0.1f + delay, 50);
                     }
-                    AddPartile("Dir1Effect", position.x, position.y, true, 0.1f + delay);
-                    PlaySoundNextFrame(AudioEnum.Audio_Line1);
+                    AddPartile("Dir1Effect", AudioEnum.Audio_Line1, position.x, position.y, true, 0.1f + delay);
                 }
                 break;
             case TSpecialBlock.ESpecial_EatLineDir2:
@@ -2591,15 +2581,13 @@ public class GameLogic
                         EatBlock(GoTo(position, TDirection.EDir_LeftUp, i), i * CapsConfig.EatLineEffectInterval + 0.1f + delay, 50);
                         EatBlock(GoTo(position, TDirection.EDir_DownRight, i), i * CapsConfig.EatLineEffectInterval + 0.1f + delay, 50);
                     }
-                    AddPartile("Dir2Effect", position.x, position.y, true, 0.1f + delay);
-                    PlaySoundNextFrame(AudioEnum.Audio_Line1);
+                    AddPartile("Dir2Effect", AudioEnum.Audio_Line1, position.x, position.y, true, 0.1f + delay);
                 }
                 break;
             case TSpecialBlock.ESpecial_EatAColor:
                 {
                     EatAColor(GetRandomColor(false));
-                    AddPartile("EatColorEffect", position.x, position.y);
-                    PlaySoundNextFrame(AudioEnum.Audio_EatColor);
+                    AddPartile("EatColorEffect", AudioEnum.Audio_EatColor, position.x, position.y);
                 }
                 break;
         }
@@ -2609,12 +2597,11 @@ public class GameLogic
             m_blocks[position.x, position.y].m_animation.enabled = true;
             m_blocks[position.x, position.y].m_animation.Play("Eat");
             m_blocks[position.x, position.y].m_dropDownStartTime = 0;
-            AddPartile("EatEffect", position.x, position.y);
-            PlaySoundNextFrame(AudioEnum.Audio_Eat);
+            AddPartile("EatEffect", AudioEnum.Audio_Eat, position.x, position.y);
         }
     }
 
-    public void AddPartile(string name, int x, int y, bool addToGameArea = true, float delay = 0.0f)
+    public void AddPartile(string name, AudioEnum audio, int x, int y, bool addToGameArea = true, float delay = 0.0f)
     {
         //先看freeParticleList里面有没有可用的
         LinkedList<ParticleSystem> freeParticleList;
@@ -2659,26 +2646,28 @@ public class GameLogic
             particleList = new LinkedList<DelayParticle>();
             m_particleMap.Add(name, particleList);
         }
-        
+
+        DelayParticle delayPar = new DelayParticle();
+        delayPar.par = par;
+
         if (delay == 0.0f)
         {
             gameObj.SetActive(true);
             par.Play();
 
-            DelayParticle delayPar = new DelayParticle();
+            if (audio != AudioEnum.Audio_None)
+            {
+                PlaySoundNextFrame(audio);
+            }
+            
             delayPar.startTime = 0.0f;
-            delayPar.par = par;
-
             particleList.AddLast(delayPar);
         }
         else
         {
             gameObj.SetActive(false);           //先隐藏起来
-
-            DelayParticle delayPar = new DelayParticle();
             delayPar.startTime = Timer.GetRealTimeSinceStartUp() + delay;
-            delayPar.par = par;
-
+            delayPar.audio = audio;
             particleList.AddLast(delayPar);
         }
     }
@@ -2756,7 +2745,7 @@ public class GameLogic
             if (foundSpecial || PlayingStageData.StepLimit > 0)     //若能进SugarCrush
             {
                 m_gameFlow = TGameFlow.EGameState_SugarCrushAnim;
-                AddPartile("SugarCrushAnim", 5, 5, false);
+                AddPartile("SugarCrushAnim", AudioEnum.Audio_None, 5, 5, false);
                 ClearHelpPoint();
                 m_curStateStartTime = Timer.millisecondNow();
             }
@@ -3402,15 +3391,13 @@ public class GameLogic
             {
                 EatBlockWithoutTrigger(m_selectedPos[0].x, m_selectedPos[0].y, 0);      //自己消失
                 EatAColor(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color);      //吃同颜色
-                AddPartile("EatColorEffect", m_selectedPos[1].x, m_selectedPos[1].y);
-                PlaySoundNextFrame(AudioEnum.Audio_EatColor);
+                AddPartile("EatColorEffect", AudioEnum.Audio_EatColor, m_selectedPos[1].x, m_selectedPos[1].y);
             }
             else if(special1 == TSpecialBlock.ESpecial_EatAColor && special0 == TSpecialBlock.ESpecial_Normal)
             {
                 EatBlockWithoutTrigger(m_selectedPos[1].x, m_selectedPos[1].y, 0);      //自己消失
                 EatAColor(m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color);      //吃同颜色
-                AddPartile("EatColorEffect", m_selectedPos[0].x, m_selectedPos[0].y);
-                PlaySoundNextFrame(AudioEnum.Audio_EatColor);
+                AddPartile("EatColorEffect", AudioEnum.Audio_EatColor, m_selectedPos[0].x, m_selectedPos[0].y);
             }
             else if (special0 == TSpecialBlock.ESpecial_EatAColor &&
                 (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
@@ -3511,8 +3498,7 @@ public class GameLogic
             EatBlock(newPos, CapsConfig.BombEffectInterval * 3, 50);
         }
 
-        AddPartile("BigBombEffect", pos.x, pos.y);
-        PlaySoundNextFrame(AudioEnum.Audio_Bomb);
+        AddPartile("BigBombEffect", AudioEnum.Audio_Bomb, pos.x, pos.y);
     }
 
     void EatALLDirLine(Position startPos, bool extraEat, int dir = -1)
@@ -3549,11 +3535,11 @@ public class GameLogic
             }
 			if (extraEat)
 			{
-				AddPartile("Dir1BigEffect", startPos.x, startPos.y);
+                AddPartile("Dir1BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y);
 			}
 			else
 			{
-				AddPartile("Dir1Effect", startPos.x, startPos.y);
+                AddPartile("Dir1Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y);
 			}
         }
         if (dir == -1 || dir == (int)TSpecialBlock.ESpecial_EatLineDir0)
@@ -3584,11 +3570,11 @@ public class GameLogic
             }
             if (extraEat)
             {
-                AddPartile("Dir0BigEffect", startPos.x, startPos.y);
+                AddPartile("Dir0BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y);
             }
             else
             {
-                AddPartile("Dir0Effect", startPos.x, startPos.y);
+                AddPartile("Dir0Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y);
             }
         }
         if (dir == -1 || dir == (int)TSpecialBlock.ESpecial_EatLineDir2)
@@ -3620,14 +3606,13 @@ public class GameLogic
             }
             if (extraEat)
             {
-                AddPartile("Dir2BigEffect", startPos.x, startPos.y);
+                AddPartile("Dir2BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y);
             }
             else
             {
-                AddPartile("Dir2Effect", startPos.x, startPos.y);
+                AddPartile("Dir2Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y);
             }
         }
-        PlaySoundNextFrame(AudioEnum.Audio_Line1);
     }
 
     void EatAColor(TBlockColor color)

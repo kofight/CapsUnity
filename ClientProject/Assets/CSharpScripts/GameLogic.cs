@@ -164,6 +164,12 @@ struct ShowingNumberEffect
     }
 }
 
+class DelayParticle
+{
+    public ParticleSystem par;          //粒子系统
+    public float startTime;             //开始时间0代表已开始
+}
+
 public enum AudioEnum
 {
     Audio_Bomb,
@@ -281,7 +287,7 @@ public class GameLogic
     //物件池
     LinkedList<CapBlock> m_capBlockFreeList = new LinkedList<CapBlock>();				//用来存放可用的Sprite
     LinkedList<UISprite> m_freeShadowSpriteList = new LinkedList<UISprite>();           //用来存放可用的ShadowSprite
-    Dictionary<string, LinkedList<ParticleSystem>> m_particleMap = new Dictionary<string, LinkedList<ParticleSystem>>();
+    Dictionary<string, LinkedList<DelayParticle>> m_particleMap = new Dictionary<string, LinkedList<DelayParticle>>();
     Dictionary<string, LinkedList<ParticleSystem>> m_freeParticleMap = new Dictionary<string, LinkedList<ParticleSystem>>();
     LinkedList<ShowingNumberEffect> m_freeNumberList = new LinkedList<ShowingNumberEffect>();                 //用来存放数字图片的池
     LinkedList<ShowingNumberEffect> m_showingNumberEffectList = new LinkedList<ShowingNumberEffect>();      //用来管理正在播放的数字
@@ -924,14 +930,14 @@ public class GameLogic
 
         m_progress = 0;
         //回收粒子////////////////////////////////////////////////////////////////////////
-        foreach (KeyValuePair<string, LinkedList<ParticleSystem>> pair in m_particleMap)
+        foreach (KeyValuePair<string, LinkedList<DelayParticle>> pair in m_particleMap)
         {
-            LinkedList<ParticleSystem> list = pair.Value;
+            LinkedList<DelayParticle> list = pair.Value;
 
-            foreach (ParticleSystem par in list)
+            foreach (DelayParticle par in list)
             {
-                par.Stop();
-                m_freeParticleMap[pair.Key].AddLast(par);           //添加空闲的
+                par.par.Stop();
+                m_freeParticleMap[pair.Key].AddLast(par.par);           //添加空闲的
                  
             }
 
@@ -1461,19 +1467,30 @@ public class GameLogic
         }
 
         //处理粒子////////////////////////////////////////////////////////////////////////
-        foreach (KeyValuePair<string, LinkedList<ParticleSystem>> pair in m_particleMap)
+        foreach (KeyValuePair<string, LinkedList<DelayParticle>> pair in m_particleMap)
         {
-            LinkedList<ParticleSystem> list = pair.Value;
+            LinkedList<DelayParticle> list = pair.Value;
 
-            ParticleSystem parToDelete = null;
-            foreach (ParticleSystem par in list)
+            //处理延迟开始的粒子
+            foreach (DelayParticle par in list)
             {
-                if (par.isStopped)
+                if (par.startTime != 0.0f && Timer.GetRealTimeSinceStartUp() > par.startTime)       //到了开始时间
                 {
-                    m_freeParticleMap[pair.Key].AddLast(par);           //添加空闲的
-                    parToDelete = par;
-                    par.Stop();
-                    par.gameObject.SetActive(false);
+                    par.par.gameObject.SetActive(true);
+                    par.par.Play();
+                    par.startTime = 0.0f;
+                }
+            }
+
+            DelayParticle parToDelete = null;
+            foreach (DelayParticle parPair in list)
+            {
+                if (parPair.startTime == 0.0f && parPair.par.isStopped)
+                {
+                    m_freeParticleMap[pair.Key].AddLast(parPair.par);           //添加空闲的
+                    parToDelete = parPair;
+                    parPair.par.Stop();
+                    parPair.par.gameObject.SetActive(false);
                     break;                                              //每帧只处理一个
                 }
             }
@@ -2494,9 +2511,9 @@ public class GameLogic
                 {
                     for (TDirection dir = TDirection.EDir_Up; dir <= TDirection.EDir_LeftUp; ++dir)
                     {
-                        EatBlock(GoTo(position, dir, 1), CapsConfig.BombEffectInterval, 50);
+                        EatBlock(GoTo(position, dir, 1), CapsConfig.BombEffectInterval + delay, 50);
 
-                        EatBlock(GoTo(position, dir, 2), CapsConfig.BombEffectInterval * 2, 50);
+                        EatBlock(GoTo(position, dir, 2), CapsConfig.BombEffectInterval * 2 + delay, 50);
                     }
                     AddPartile("BombEffect", position.x, position.y);
                     PlaySoundNextFrame(AudioEnum.Audio_Bomb);
@@ -2549,10 +2566,10 @@ public class GameLogic
                 {
                     for (int i = 0; i < BlockCountX; ++i)
                     {
-                        EatBlock(GoTo(position, TDirection.EDir_Down, i), i * CapsConfig.EatLineEffectInterval, 50);
-                        EatBlock(GoTo(position, TDirection.EDir_Up, i), i * CapsConfig.EatLineEffectInterval, 50);
+                        EatBlock(GoTo(position, TDirection.EDir_Down, i), i * CapsConfig.EatLineEffectInterval + 0.1f + delay, 50);
+                        EatBlock(GoTo(position, TDirection.EDir_Up, i), i * CapsConfig.EatLineEffectInterval + 0.1f + delay, 50);
                     }
-                    AddPartile("Dir0Effect", position.x, position.y);
+                    AddPartile("Dir0Effect", position.x, position.y, true, 0.1f + delay);
                     PlaySoundNextFrame(AudioEnum.Audio_Line1);
                 }
                 break;
@@ -2560,10 +2577,10 @@ public class GameLogic
                 {
                     for (int i = 1; i < BlockCountX - 1; ++i)
                     {
-                        EatBlock(GoTo(position, TDirection.EDir_UpRight, i), i * CapsConfig.EatLineEffectInterval, 50);
-                        EatBlock(GoTo(position, TDirection.EDir_LeftDown, i), i * CapsConfig.EatLineEffectInterval, 50);
+                        EatBlock(GoTo(position, TDirection.EDir_UpRight, i), i * CapsConfig.EatLineEffectInterval + 0.1f + delay, 50);
+                        EatBlock(GoTo(position, TDirection.EDir_LeftDown, i), i * CapsConfig.EatLineEffectInterval + 0.1f + delay, 50);
                     }
-                    AddPartile("Dir1Effect", position.x, position.y);
+                    AddPartile("Dir1Effect", position.x, position.y, true, 0.1f + delay);
                     PlaySoundNextFrame(AudioEnum.Audio_Line1);
                 }
                 break;
@@ -2571,10 +2588,10 @@ public class GameLogic
                 {
                     for (int i = 0; i < BlockCountX; ++i)
                     {
-                        EatBlock(GoTo(position, TDirection.EDir_LeftUp, i), i * CapsConfig.EatLineEffectInterval, 50);
-                        EatBlock(GoTo(position, TDirection.EDir_DownRight, i), i * CapsConfig.EatLineEffectInterval, 50);
+                        EatBlock(GoTo(position, TDirection.EDir_LeftUp, i), i * CapsConfig.EatLineEffectInterval + 0.1f + delay, 50);
+                        EatBlock(GoTo(position, TDirection.EDir_DownRight, i), i * CapsConfig.EatLineEffectInterval + 0.1f + delay, 50);
                     }
-                    AddPartile("Dir2Effect", position.x, position.y);
+                    AddPartile("Dir2Effect", position.x, position.y, true, 0.1f + delay);
                     PlaySoundNextFrame(AudioEnum.Audio_Line1);
                 }
                 break;
@@ -2597,7 +2614,7 @@ public class GameLogic
         }
     }
 
-    public void AddPartile(string name, int x, int y, bool addToGameArea = true)
+    public void AddPartile(string name, int x, int y, bool addToGameArea = true, float delay = 0.0f)
     {
         //先看freeParticleList里面有没有可用的
         LinkedList<ParticleSystem> freeParticleList;
@@ -2615,9 +2632,6 @@ public class GameLogic
             par = freeParticleList.First.Value;
             gameObj = freeParticleList.First.Value.gameObject;
             freeParticleList.RemoveFirst();
-
-            par.gameObject.SetActive(true);
-            par.Play();                     //播放
         }
         else   //没有，创建新粒子
         {
@@ -2633,19 +2647,40 @@ public class GameLogic
                 gameObj.transform.parent = TopLeftAnchor.transform;
             }
             par = gameObj.GetComponent<ParticleSystem>();
+            par.Stop();     //这里先不播放
         }
-
+        
         gameObj.transform.localPosition = new Vector3(GetXPos(x), -GetYPos(x, y), -200);        //指定位置
 
         //放到正在播放的列表里
-        LinkedList<ParticleSystem> particleList;
+        LinkedList<DelayParticle> particleList;
         if (!m_particleMap.TryGetValue(name, out particleList))
         {
-            particleList = new LinkedList<ParticleSystem>();
+            particleList = new LinkedList<DelayParticle>();
             m_particleMap.Add(name, particleList);
         }
+        
+        if (delay == 0.0f)
+        {
+            gameObj.SetActive(true);
+            par.Play();
 
-        particleList.AddLast(par);
+            DelayParticle delayPar = new DelayParticle();
+            delayPar.startTime = 0.0f;
+            delayPar.par = par;
+
+            particleList.AddLast(delayPar);
+        }
+        else
+        {
+            gameObj.SetActive(false);           //先隐藏起来
+
+            DelayParticle delayPar = new DelayParticle();
+            delayPar.startTime = Timer.GetRealTimeSinceStartUp() + delay;
+            delayPar.par = par;
+
+            particleList.AddLast(delayPar);
+        }
     }
 
     public bool CheckLimit()

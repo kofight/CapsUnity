@@ -82,9 +82,9 @@ public class CapBlock
             default:
                 break;
         }
-		if(m_addColorTranform != null)
+        if (m_addColorSprite != null)
 		{
-			m_addColorTranform.renderer.material.mainTexture = Resources.Load(m_blockSprite.spriteName, typeof(Texture)) as Texture;	
+            m_addColorSprite.spriteName = m_blockSprite.spriteName;
 		}
     }
 
@@ -110,7 +110,7 @@ public class CapBlock
     public UISprite m_blockSprite;		//精灵动画
     public UISprite m_shadowSprite;		//影子精灵动画，用来在传送门另一端表现另一半
     public Transform m_blockTransform;         //
-	public Transform m_addColorTranform;		//
+	public UISprite m_addColorSprite;		//
 
     public static int EatingBlockCount = 0;     //正在消除的块的数量
     public static int DropingBlockCount = 0;    //下落中的块的数量
@@ -179,7 +179,7 @@ public class CapBlock
         m_blockTransform = newObj.transform;
         m_blockSprite = UIToolkits.FindComponent<UISprite>(m_blockTransform);
         m_animation = UIToolkits.FindComponent<Animation>(m_blockTransform);
-        m_addColorTranform = m_blockSprite.transform.Find("AddColor");
+        m_addColorSprite = m_blockSprite.transform.Find("AddColor").GetComponent<UISprite>();
 
         m_blockSprite.transform.localScale = Vector3.one;
         m_blockSprite.transform.localPosition = Vector3.zero;

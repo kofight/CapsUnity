@@ -2431,7 +2431,7 @@ public class GameLogic
                     m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.enabled = false;
                     m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.Stop();
                     m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.transform.localScale = Vector3.one;          //恢复缩放
-                    m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_addColorTranform.renderer.material.SetColor("_TintColor", new Color(0, 0, 0, 0));
+                    m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_addColorSprite.color = new Color(0, 0, 0, 0);
                 }
             }
             catch (System.Exception ex)
@@ -2452,7 +2452,7 @@ public class GameLogic
                     m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.enabled = false;
                     m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.Stop();
                     m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.transform.localScale = Vector3.one;          //恢复缩放
-                    m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_addColorTranform.renderer.material.SetColor("_TintColor", new Color(0, 0, 0, 0));
+                    m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_addColorSprite.color = new Color(0, 0, 0, 0);
                 }
             }
             catch (System.Exception ex)
@@ -3225,11 +3225,11 @@ public class GameLogic
         }
         if (bVal)
         {
-            m_blocks[x, y].m_addColorTranform.renderer.material.SetColor("_TintColor", new Color(255, 255, 255, 255));
+            m_blocks[x, y].m_addColorSprite.color = new Color(255, 255, 255, 255);
         }
         else
         {
-            m_blocks[x, y].m_addColorTranform.renderer.material.SetColor("_TintColor", new Color(0, 0, 0, 0));
+            m_blocks[x, y].m_addColorSprite.color = new Color(0, 0, 0, 0);
         }
     }
 
@@ -3787,7 +3787,7 @@ public class GameLogic
 
     void MakeSpriteFree(int x, int y)
     {
-        m_blocks[x, y].m_addColorTranform.renderer.material.SetColor("_TintColor", new Color(0, 0, 0, 0));
+        m_blocks[x, y].m_addColorSprite.color = new Color(0, 0, 0, 0);
         m_blocks[x, y].m_animation.Stop();
         m_blocks[x, y].m_animation.enabled = false;
         m_capBlockFreeList.AddLast(m_blocks[x, y]);

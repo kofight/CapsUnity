@@ -84,7 +84,7 @@ public class CapBlock
         }
         if (m_addColorSprite != null)
 		{
-            m_addColorSprite.spriteName = m_blockSprite.spriteName;
+            m_addColorSprite.spriteName = m_blockSprite.spriteName + "Additive";
 		}
     }
 

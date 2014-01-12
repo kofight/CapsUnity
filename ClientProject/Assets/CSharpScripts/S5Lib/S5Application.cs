@@ -20,7 +20,7 @@ public class S5Application
         GameObject obj = GameObject.Find("UI Root");
         UIRoot root = obj.GetComponent<UIRoot>();
 
-        if ((float)Screen.width / Screen.height > 0.667)           //如果长宽比低于2/3， 按长度计算大小
+        if ((float)Screen.width / Screen.height > 0.667)           //如果长宽比低于2/3， 按长度计算大小(iphone4, ipad等)
         {
             float factor = Screen.height / 960.0f;          //
             root.manualHeight = 960;

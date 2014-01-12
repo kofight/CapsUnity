@@ -3180,7 +3180,7 @@ public class GameLogic
             int step = GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit;
             if (PlayingStageData.FTUEMap.ContainsKey(step))
             {
-                if (p.x != PlayingStageData.FTUEMap[step].from.x || p.y != PlayingStageData.FTUEMap[step].from.y)
+                if (PlayingStageData.FTUEMap[step].from.IsAvailable() && (p.x != PlayingStageData.FTUEMap[step].from.x || p.y != PlayingStageData.FTUEMap[step].from.y))
                 {
                     return;
                 }
@@ -3322,7 +3322,7 @@ public class GameLogic
         if (m_gameFlow == TGameFlow.EGameState_FTUE)        //在FTUE状态下，只能移向目标点
         {
             int step = GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit;
-            if (p.x != PlayingStageData.FTUEMap[step].to.x || p.y != PlayingStageData.FTUEMap[step].to.y)
+            if (PlayingStageData.FTUEMap[step].to.IsAvailable() && (p.x != PlayingStageData.FTUEMap[step].to.x || p.y != PlayingStageData.FTUEMap[step].to.y))
             {
                 return;
             }

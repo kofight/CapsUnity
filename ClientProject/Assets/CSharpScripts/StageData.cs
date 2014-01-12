@@ -282,20 +282,39 @@ public class StageData
                     data.highLightPosList = new List<Position>();
                     data.headImage = values[1];
                     data.dialog = values[2];
-                    string [] posArray = values[3].Split(',');
-                    data.from.x = System.Convert.ToInt32(posArray[0]);
-                    data.from.y = System.Convert.ToInt32(posArray[1]);
-
-                    posArray = values[4].Split(',');
-                    data.to.x = System.Convert.ToInt32(posArray[0]);
-                    data.to.y = System.Convert.ToInt32(posArray[1]);
-
-                    posArray = values[5].Split(',');
-                    for (int i = 0; i < posArray.Length / 2; ++i )
+                    string[] posArray;
+                    if (values[3] != "None")
                     {
-                        int x = System.Convert.ToInt32(posArray[i * 2]);
-                        int y = System.Convert.ToInt32(posArray[i * 2 + 1]);
-                        data.highLightPosList.Add(new Position(x, y));
+                        posArray = values[3].Split(',');
+                        data.from.x = System.Convert.ToInt32(posArray[0]);
+                        data.from.y = System.Convert.ToInt32(posArray[1]);
+                    }
+                    else
+                    {
+                        data.from.MakeItUnAvailable();
+                    }
+
+
+                    if (values[4] != "None")
+                    {
+                        posArray = values[4].Split(',');
+                        data.to.x = System.Convert.ToInt32(posArray[0]);
+                        data.to.y = System.Convert.ToInt32(posArray[1]);
+                    }
+                    else
+                    {
+                        data.to.MakeItUnAvailable();
+                    }
+
+                    if (values[5] != "None")
+                    {
+                        posArray = values[5].Split(',');
+                        for (int i = 0; i < posArray.Length / 2; ++i)
+                        {
+                            int x = System.Convert.ToInt32(posArray[i * 2]);
+                            int y = System.Convert.ToInt32(posArray[i * 2 + 1]);
+                            data.highLightPosList.Add(new Position(x, y));
+                        }
                     }
 
                     FTUEMap.Add(step, data);                               //添加对话数据

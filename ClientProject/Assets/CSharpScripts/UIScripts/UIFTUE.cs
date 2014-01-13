@@ -16,6 +16,68 @@ public class UIFTUE : UIWindow
 	
 	bool m_bLock;
 
+    int m_FTUEIndex = 0;
+	int m_curStep = 0;
+
+    List<FTUEData> m_ftueData;
+
+    public override void OnHide()
+    {
+        base.OnHide();
+		
+		if(m_ftueData[m_FTUEIndex].from.IsAvailable())
+		{
+        	GameLogic.Singleton.SetHighLight(false, m_ftueData[m_FTUEIndex].from);
+	        foreach (Position highLightPos in m_ftueData[m_FTUEIndex].highLightPosList)
+	        {
+	            GameLogic.Singleton.SetHighLight(false, highLightPos);
+	        }
+		}
+    }
+
+    public void ShowFTUE(int step)
+    {
+		m_curStep = step;
+        if (GameLogic.Singleton.PlayingStageData.FTUEMap.TryGetValue(step, out m_ftueData))
+        {
+            if (!m_ftueData[m_FTUEIndex].from.IsAvailable())
+            {
+                ShowText(m_ftueData[m_FTUEIndex].headImage, m_ftueData[m_FTUEIndex].dialog, null);
+            }
+            else
+            {
+                ShowText(m_ftueData[m_FTUEIndex].headImage, m_ftueData[m_FTUEIndex].dialog, delegate()
+                {
+                    GameLogic.Singleton.SetHighLight(true, m_ftueData[m_FTUEIndex].from);
+                    foreach (Position highLightPos in m_ftueData[m_FTUEIndex].highLightPosList)
+                    {
+                        GameLogic.Singleton.SetHighLight(true, highLightPos);
+                    }
+                });
+            }
+        }
+    }
+
+    public bool CheckMoveTo(Position to)
+    {
+        if (to.x == m_ftueData[m_FTUEIndex].to.x && to.y == m_ftueData[m_FTUEIndex].to.y)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool CheckMoveFrom(Position from)
+    {
+        if (from.x == m_ftueData[m_FTUEIndex].from.x && from.y == m_ftueData[m_FTUEIndex].from.y)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
     public void ShowText(string head, string content, WindowEffectFinished func)
 	{
 		ShowWindow();
@@ -34,14 +96,20 @@ public class UIFTUE : UIWindow
 		
 		m_bLock = true;
 		
+        //开始播放文字
         m_dialogText.Play(m_dialogContents[m_curDialogIndex], delegate()
         {
+			m_bLock = false;
+            //若是最后一段文字，调用结尾函数
             if (m_curDialogIndex == m_dialogContents.Length - 1)
             {
-                func();
+				if(func != null)
+				{
+                	func();
+					m_bLock = true;
+				}
             }
 			++m_curDialogIndex;
-			m_bLock = false;
         });
 
         m_afterDialogFunc = func;
@@ -61,24 +129,52 @@ public class UIFTUE : UIWindow
 	{
 		if(m_bLock)
 			return;
-		
-		if(m_curDialogIndex < m_dialogContents.Length)
-		{
-			m_dialogText.Play(m_dialogContents[m_curDialogIndex], delegate()
-	        {
-				++m_curDialogIndex;
-				if(m_curDialogIndex == m_dialogContents.Length)
-				{
-					m_bLock = true;
-                    m_afterDialogFunc();
-				}
-				else
-				{
-					m_bLock = false;
-				}
-	        });	
-			
-			m_bLock = true;
-		}
+
+        if (m_curDialogIndex < m_dialogContents.Length)      //若不是最后一段文字
+        {
+            //播放下一段
+            m_dialogText.Play(m_dialogContents[m_curDialogIndex], delegate()
+            {
+                ++m_curDialogIndex;
+                if (m_curDialogIndex == m_dialogContents.Length)        //下一段若是最后一段文字, 结束播放
+                {
+                    if (m_afterDialogFunc != null)          //若有结束函数
+                    {
+                        m_afterDialogFunc();
+                        m_bLock = true;
+                    }
+                    else                                    //若无结束函数，直接进下一步或关闭
+                    {
+                        if (m_FTUEIndex < m_ftueData.Count - 1)
+                        {
+                            ++m_FTUEIndex;
+                            ShowFTUE(m_curStep);                         //若有步数，循环调用
+                        }
+                        else                                            //若没有
+                        {
+                            HideWindow();                               //隐藏窗体
+                            GameLogic.Singleton.SetGameFlow(TGameFlow.EGameState_Playing);
+                        }
+                    }
+                }
+                else
+                {
+                    m_bLock = false;
+                }
+            });
+        }
+        else        //若是最后一段文字
+        {
+            if (m_FTUEIndex < m_ftueData.Count - 1)
+            {
+                ++m_FTUEIndex;
+                ShowFTUE(m_curStep);                         //若有步数，循环调用
+            }
+            else                                            //若没有
+            {
+                HideWindow();                               //隐藏窗体
+                GameLogic.Singleton.SetGameFlow(TGameFlow.EGameState_Playing);
+            }
+        }
 	}
 }

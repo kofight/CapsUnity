@@ -101,7 +101,7 @@ public class StageData
     public int[]    StarScore = new int[3];          //获得星星的分数
     public int [, ] GridData = new int[GameLogic.BlockCountX, GameLogic.BlockCountY];                        //关卡初始地块数据
 
-    public Dictionary<int, FTUEData> FTUEMap = new Dictionary<int, FTUEData>();                             //FTUE地图
+    public Dictionary<int, List<FTUEData>> FTUEMap = new Dictionary<int, List<FTUEData>>();                             //FTUE地图
 
 
     public Dictionary<int, Portal> PortalToMap = new Dictionary<int, Portal>();                                                                //用来储存所有的传送门，键值是传送目标的编码
@@ -260,6 +260,8 @@ public class StageData
         string ftue = ResourceManager.Singleton.LoadTextFile("FTUE" + levelNum);
         if (ftue != string.Empty)
         {
+            List<FTUEData> curFTUEGroup = new List<FTUEData>();
+            int step = -1;
             StringReader sr = new StringReader(ftue);
             string line = sr.ReadLine();
             while (line != null)
@@ -277,7 +279,21 @@ public class StageData
                 string[] values = line.Split(new string[] { "\t", " " }, System.StringSplitOptions.RemoveEmptyEntries);
                 if (values.Length > 0)
                 {
-                    int step = System.Convert.ToInt32(values[0]);
+                    int num = System.Convert.ToInt32(values[0]);
+
+                    if (step == -1)
+                    {
+                        step = num;
+                        FTUEMap.Add(step, curFTUEGroup);                               //添加一个组
+                    }
+                    else if(num != step)
+                    {
+                        curFTUEGroup = new List<FTUEData>();
+                        step = num;
+                        FTUEMap.Add(step, curFTUEGroup);                               //添加一个组
+                    }
+                    
+
                     FTUEData data = new FTUEData();
                     data.highLightPosList = new List<Position>();
                     data.headImage = values[1];
@@ -317,7 +333,7 @@ public class StageData
                         }
                     }
 
-                    FTUEMap.Add(step, data);                               //添加对话数据
+                    curFTUEGroup.Add(data);                               //添加对话数据
                 }
 
                 line = sr.ReadLine();

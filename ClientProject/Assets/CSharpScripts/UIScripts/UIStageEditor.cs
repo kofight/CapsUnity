@@ -43,8 +43,7 @@ public class UIStageEditor : UIWindow
         AddChildComponentMouseClick("ReSeedBtn", delegate()
         {
             GameLogic.Singleton.ClearGame();
-			GameLogic.Singleton.Init();
-			GameLogic.Singleton.PlayingStageData.Seed = (int)(Time.realtimeSinceStartup * 1000 % 1000);
+			GameLogic.Singleton.Init((int)(Time.realtimeSinceStartup * 1000 % 1000));
             GameLogic.Singleton.StartGame();
             m_seedLabel.text = GameLogic.Singleton.PlayingStageData.Seed.ToString();
             RefreshControlls();

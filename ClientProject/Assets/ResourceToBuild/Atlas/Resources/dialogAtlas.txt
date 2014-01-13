@@ -2,23 +2,23 @@
 
 "Dog.png":
 {
-	"frame": {"x":172,"y":2,"w":180,"h":220},
+	"frame": {"x":184,"y":2,"w":180,"h":248},
 	"rotated": false,
 	"trimmed": true,
-	"spriteSourceSize": {"x":0,"y":80,"w":180,"h":220},
+	"spriteSourceSize": {"x":0,"y":52,"w":180,"h":248},
 	"sourceSize": {"w":180,"h":300}
 },
 "Speicher.png":
 {
-	"frame": {"x":2,"y":2,"w":168,"h":294},
+	"frame": {"x":2,"y":2,"w":180,"h":266},
 	"rotated": false,
 	"trimmed": true,
-	"spriteSourceSize": {"x":0,"y":6,"w":168,"h":294},
+	"spriteSourceSize": {"x":0,"y":34,"w":180,"h":266},
 	"sourceSize": {"w":180,"h":300}
 },
 "TextBox.png":
 {
-	"frame": {"x":2,"y":298,"w":250,"h":176},
+	"frame": {"x":2,"y":270,"w":250,"h":176},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":250,"h":176},
@@ -31,6 +31,6 @@
 	"format": "RGBA8888",
 	"size": {"w":512,"h":512},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:739a95b6de35f099683a1b8e99ddfa3c$"
+	"smartupdate": "$TexturePacker:SmartUpdate:0d9b9738341c55e34e272ebd0c6acbf1$"
 }
 }

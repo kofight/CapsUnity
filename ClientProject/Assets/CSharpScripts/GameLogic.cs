@@ -872,7 +872,7 @@ public class GameLogic
         {
             return;
         }
-        FTUEData data;
+        List<FTUEData> data;
         if(PlayingStageData.FTUEMap.TryGetValue(GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit, out data))      //查看是否有FTUE数据
         {
             //进入FTUE状态
@@ -882,15 +882,8 @@ public class GameLogic
             {
                 ftue = UIWindowManager.Singleton.CreateWindow<UIFTUE>();
             }
-            ftue.ShowText(data.headImage, data.dialog, delegate()
-            {
-                int step = GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit;
-                SetHighLight(true, PlayingStageData.FTUEMap[step].from);
-                foreach (Position highLightPos in PlayingStageData.FTUEMap[step].highLightPosList)
-                {
-                    SetHighLight(true, highLightPos);
-                }
-            });
+
+            ftue.ShowFTUE(GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit);
         }
     }
 
@@ -2547,10 +2540,10 @@ public class GameLogic
                 {
                     for (int i = 0; i < BlockCountX; ++i)
                     {
-                        EatBlock(GoTo(position, TDirection.EDir_Down, i), i * CapsConfig.EatLineEffectInterval + 0.1f + delay, 50);
-                        EatBlock(GoTo(position, TDirection.EDir_Up, i), i * CapsConfig.EatLineEffectInterval + 0.1f + delay, 50);
+                        EatBlock(GoTo(position, TDirection.EDir_Down, i), i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay, 50);
+                        EatBlock(GoTo(position, TDirection.EDir_Up, i), i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay, 50);
                     }
-                    AddPartile("Dir0Effect", AudioEnum.Audio_Line1, position.x, position.y, true, 0.1f + delay);
+                    AddPartile("Dir0Effect", AudioEnum.Audio_Line1, position.x, position.y, true, delay);
                     m_blocks[position.x, position.y].EatAnimationName = "EatLine0";
                     m_blocks[position.x, position.y].EatEffectName = "EatLineEffect";
                 }
@@ -2559,10 +2552,10 @@ public class GameLogic
                 {
                     for (int i = 1; i < BlockCountX - 1; ++i)
                     {
-                        EatBlock(GoTo(position, TDirection.EDir_UpRight, i), i * CapsConfig.EatLineEffectInterval + 0.1f + delay, 50);
-                        EatBlock(GoTo(position, TDirection.EDir_LeftDown, i), i * CapsConfig.EatLineEffectInterval + 0.1f + delay, 50);
+                        EatBlock(GoTo(position, TDirection.EDir_UpRight, i), i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay, 50);
+                        EatBlock(GoTo(position, TDirection.EDir_LeftDown, i), i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay, 50);
                     }
-                    AddPartile("Dir1Effect", AudioEnum.Audio_Line1, position.x, position.y, true, 0.1f + delay);
+                    AddPartile("Dir1Effect", AudioEnum.Audio_Line1, position.x, position.y, true, delay);
                     m_blocks[position.x, position.y].EatAnimationName = "EatLine1";
                     m_blocks[position.x, position.y].EatEffectName = "EatLineEffect";
                 }
@@ -2571,10 +2564,10 @@ public class GameLogic
                 {
                     for (int i = 0; i < BlockCountX; ++i)
                     {
-                        EatBlock(GoTo(position, TDirection.EDir_LeftUp, i), i * CapsConfig.EatLineEffectInterval + 0.1f + delay, 50);
-                        EatBlock(GoTo(position, TDirection.EDir_DownRight, i), i * CapsConfig.EatLineEffectInterval + 0.1f + delay, 50);
+                        EatBlock(GoTo(position, TDirection.EDir_LeftUp, i), i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay, 50);
+                        EatBlock(GoTo(position, TDirection.EDir_DownRight, i), i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay, 50);
                     }
-                    AddPartile("Dir2Effect", AudioEnum.Audio_Line1, position.x, position.y, true, 0.1f + delay);
+                    AddPartile("Dir2Effect", AudioEnum.Audio_Line1, position.x, position.y, true, delay);
                     m_blocks[position.x, position.y].EatAnimationName = "EatLine2";
                     m_blocks[position.x, position.y].EatEffectName = "EatLineEffect";
                 }
@@ -3182,12 +3175,10 @@ public class GameLogic
         if (m_gameFlow == TGameFlow.EGameState_FTUE)        //在FTUE状态下，只能点击起始点
         {
             int step = GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit;
-            if (PlayingStageData.FTUEMap.ContainsKey(step))
+            UIFTUE ftue = UIWindowManager.Singleton.GetUIWindow<UIFTUE>();
+            if (!ftue.CheckMoveFrom(p))
             {
-                if (PlayingStageData.FTUEMap[step].from.IsAvailable() && (p.x != PlayingStageData.FTUEMap[step].from.x || p.y != PlayingStageData.FTUEMap[step].from.y))
-                {
-                    return;
-                }
+                return;
             }
         }
 
@@ -3216,12 +3207,12 @@ public class GameLogic
         }
     }
 
-    void SetHighLight(bool bVal, Position p)
+    public void SetHighLight(bool bVal, Position p)
     {
         SetHighLight(bVal, p.x, p.y);
     }
 
-    void SetHighLight(bool bVal, int x, int y)         //设置某块高亮
+    public void SetHighLight(bool bVal, int x, int y)         //设置某块高亮
     {
         if (m_blocks[x, y] == null)
         {
@@ -3326,7 +3317,8 @@ public class GameLogic
         if (m_gameFlow == TGameFlow.EGameState_FTUE)        //在FTUE状态下，只能移向目标点
         {
             int step = GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit;
-            if (PlayingStageData.FTUEMap[step].to.IsAvailable() && (p.x != PlayingStageData.FTUEMap[step].to.x || p.y != PlayingStageData.FTUEMap[step].to.y))
+            UIFTUE ftue = UIWindowManager.Singleton.GetUIWindow<UIFTUE>();
+            if (!ftue.CheckMoveTo(p))
             {
                 return;
             }
@@ -3347,14 +3339,8 @@ public class GameLogic
         if (m_gameFlow == TGameFlow.EGameState_FTUE)        //在FTUE状态下，产生移动后FTUE就消失了
         {
             m_gameFlow = TGameFlow.EGameState_Playing;
-            UIWindowManager.Singleton.GetUIWindow<UIFTUE>().HideWindow();
-            //清理高光
-            int step = GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit;
-            SetHighLight(false, PlayingStageData.FTUEMap[step].from);
-            foreach (Position highLightPos in PlayingStageData.FTUEMap[step].highLightPosList)
-            {
-                SetHighLight(false, highLightPos);
-            }
+            UIFTUE ftue = UIWindowManager.Singleton.GetUIWindow<UIFTUE>();
+            ftue.HideWindow();
         }
     }
 

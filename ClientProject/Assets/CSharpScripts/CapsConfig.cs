@@ -62,6 +62,8 @@ public class CapsConfig
 	public static bool EnableTalkingData = false;
 
     public static float EatLineEffectInterval = 0.04f;               //消行特效吃块的间隔
+    public static float EatLineEffectStartInterval = 0.1f;           //消行特效吃块的开始时间
+
     public static float BombEffectInterval = 0.1f;                  //炸弹特效吃块的间隔
 
     public static int[] StageTypeArray;                             //存每关的类型

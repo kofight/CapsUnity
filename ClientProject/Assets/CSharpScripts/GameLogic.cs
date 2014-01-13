@@ -469,7 +469,7 @@ public class GameLogic
         }
     }
 
-    public void Init()
+    public void Init(int seed = -1)         //seed > -1时，指定seed
     {
         for (int i = 0; i < 81; ++i)
         {
@@ -480,6 +480,10 @@ public class GameLogic
 
         PlayingStageData = StageData.CreateStageData();
         PlayingStageData.LoadStageData(GlobalVars.CurStageNum);
+        if (seed > -1)
+        {
+            PlayingStageData.Seed = seed;
+        }
 
         //计算游戏区位置////////////////////////////////////////////////////////////////////////
         int BlockXStart = 999;

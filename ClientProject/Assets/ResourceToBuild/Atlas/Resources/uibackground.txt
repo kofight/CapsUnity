@@ -2,6 +2,22 @@
 
 "MapPic0.png":
 {
+	"frame": {"x":1367,"y":1,"w":682,"h":2045},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":682,"h":2045},
+	"sourceSize": {"w":682,"h":2045}
+},
+"MapPic1.png":
+{
+	"frame": {"x":684,"y":1,"w":682,"h":2045},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":682,"h":2045},
+	"sourceSize": {"w":682,"h":2045}
+},
+"MapPic2.png":
+{
 	"frame": {"x":1,"y":1,"w":682,"h":2045},
 	"rotated": false,
 	"trimmed": false,
@@ -13,8 +29,8 @@
 	"version": "1.0",
 	"image": "uibackground.png",
 	"format": "RGBA8888",
-	"size": {"w":1024,"h":2048},
+	"size": {"w":4096,"h":2048},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:d007242d0e3226994452c033d4b0799f$"
+	"smartupdate": "$TexturePacker:SmartUpdate:c16b1ef49c1837b514ded3d8bac3afac$"
 }
 }

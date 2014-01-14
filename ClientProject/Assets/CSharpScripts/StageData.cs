@@ -336,7 +336,7 @@ public class StageData
                         }
                     }
 
-                    if (values.Length > 5)
+                    if (values.Length > 6)
                     {
                         data.pic = values[6];
                     }

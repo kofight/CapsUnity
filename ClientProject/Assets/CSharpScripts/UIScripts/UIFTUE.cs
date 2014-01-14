@@ -8,6 +8,7 @@ public class UIFTUE : UIWindow
     UISprite m_dialogBoardSprite;
 	UISprite m_headSprite;
     UISprite m_backPic;
+    UISprite m_pic;             //配的图片
 
     WindowEffectFinished m_afterDialogFunc;
 	
@@ -42,11 +43,11 @@ public class UIFTUE : UIWindow
         {
             if (!m_ftueData[m_FTUEIndex].from.IsAvailable())
             {
-                ShowText(m_ftueData[m_FTUEIndex].headImage, m_ftueData[m_FTUEIndex].dialog, null);
+                ShowText(m_ftueData[m_FTUEIndex].headImage, m_ftueData[m_FTUEIndex].pic, m_ftueData[m_FTUEIndex].dialog, null);
             }
             else
             {
-                ShowText(m_ftueData[m_FTUEIndex].headImage, m_ftueData[m_FTUEIndex].dialog, delegate()
+                ShowText(m_ftueData[m_FTUEIndex].headImage, m_ftueData[m_FTUEIndex].pic, m_ftueData[m_FTUEIndex].dialog, delegate()
                 {
                     GameLogic.Singleton.SetHighLight(true, m_ftueData[m_FTUEIndex].from);
                     foreach (Position highLightPos in m_ftueData[m_FTUEIndex].highLightPosList)
@@ -78,7 +79,7 @@ public class UIFTUE : UIWindow
         return false;
     }
 
-    public void ShowText(string head, string content, WindowEffectFinished func)
+    public void ShowText(string head, string pic, string content, WindowEffectFinished func)
 	{
 		ShowWindow();
 		if(head != "None")
@@ -90,6 +91,16 @@ public class UIFTUE : UIWindow
 		{
             m_headSprite.gameObject.SetActive(false);
 		}
+
+        if (pic != "None")
+        {
+            m_pic.gameObject.SetActive(true);
+            m_pic.spriteName = pic;
+        }
+        else
+        {
+            m_pic.gameObject.SetActive(false);
+        }
 		
 		m_dialogContents = content.Split('@');
 		m_curDialogIndex = 0;
@@ -121,7 +132,7 @@ public class UIFTUE : UIWindow
 		m_dialogText = GetChildComponent<AocTypewriterEffect>("DialogText");
 		m_headSprite = GetChildComponent<UISprite>("Head");
         m_dialogBoardSprite = GetChildComponent<UISprite>("DialogBoard");
-		
+        m_pic = GetChildComponent<UISprite>("Picture");
 		AddChildComponentMouseClick("DialogBoard", OnClick);
     }
 	

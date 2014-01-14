@@ -2,23 +2,23 @@
 
 "Dog.png":
 {
-	"frame": {"x":184,"y":2,"w":180,"h":248},
+	"frame": {"x":324,"y":2,"w":274,"h":374},
 	"rotated": false,
 	"trimmed": true,
-	"spriteSourceSize": {"x":0,"y":52,"w":180,"h":248},
-	"sourceSize": {"w":180,"h":300}
+	"spriteSourceSize": {"x":0,"y":226,"w":274,"h":374},
+	"sourceSize": {"w":320,"h":600}
 },
 "Speicher.png":
 {
-	"frame": {"x":2,"y":2,"w":180,"h":266},
+	"frame": {"x":2,"y":2,"w":320,"h":472},
 	"rotated": false,
 	"trimmed": true,
-	"spriteSourceSize": {"x":0,"y":34,"w":180,"h":266},
-	"sourceSize": {"w":180,"h":300}
+	"spriteSourceSize": {"x":0,"y":128,"w":320,"h":472},
+	"sourceSize": {"w":320,"h":600}
 },
 "TextBox.png":
 {
-	"frame": {"x":2,"y":270,"w":250,"h":176},
+	"frame": {"x":600,"y":2,"w":250,"h":176},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":250,"h":176},
@@ -29,8 +29,8 @@
 	"version": "1.0",
 	"image": "dialogAtlas.png",
 	"format": "RGBA8888",
-	"size": {"w":512,"h":512},
+	"size": {"w":1024,"h":512},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:0d9b9738341c55e34e272ebd0c6acbf1$"
+	"smartupdate": "$TexturePacker:SmartUpdate:c87914d2e01d8a8777cbe689b3b0e084$"
 }
 }

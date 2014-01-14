@@ -55,6 +55,7 @@ public class FTUEData
 {
     public string headImage;
     public string dialog;
+    public string pic;
     public Position from;
     public Position to;
     public List<Position> highLightPosList;
@@ -333,6 +334,15 @@ public class StageData
                             int y = System.Convert.ToInt32(posArray[i * 2 + 1]);
                             data.highLightPosList.Add(new Position(x, y));
                         }
+                    }
+
+                    if (values.Length > 5)
+                    {
+                        data.pic = values[6];
+                    }
+                    else
+                    {
+                        data.pic = "None";
                     }
 
                     curFTUEGroup.Add(data);                               //添加对话数据

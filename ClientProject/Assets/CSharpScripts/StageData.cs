@@ -257,6 +257,8 @@ public class StageData
 
         Debug.Log("Level " + levelNum + " Loaded");
 
+        FTUEMap.Clear();
+
         string ftue = ResourceManager.Singleton.LoadTextFile("FTUE" + levelNum);
         if (ftue != string.Empty)
         {

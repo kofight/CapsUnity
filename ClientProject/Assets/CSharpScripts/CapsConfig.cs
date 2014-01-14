@@ -23,7 +23,7 @@ public class CapsConfig
     public int TotalStageCount = 4;
     public float DropAcc = 5.0f;
     public float DropSpeed = 3.0f;
-    public float SlideSpeed = 3.0f;
+    public float SlideSpeed = 8.0f;
     public float GameSpeed = 1.0f;
     public float EatTime = 0.2f;
     public int MoveTime = 200;

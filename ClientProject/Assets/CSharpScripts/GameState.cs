@@ -72,10 +72,12 @@ public class GameState : State
     public override void OnBackKey()
     {
         base.OnBackKey();
-        if (UIWindowManager.Singleton.GetUIWindow("UIMainMenuExtend").Visible)      //若主菜单开启状态
+
+        //////////////////前面弹出窗口//////////////////////////////////////
+
+        if (UIWindowManager.Singleton.GetUIWindow<UIDialog>().Visible)
         {
-            UIWindowManager.Singleton.GetUIWindow("UIMainMenuExtend").HideWindow();
-            UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();       //显示主菜单按钮
+            UIWindowManager.Singleton.GetUIWindow<UIDialog>().EndDialog();
             return;
         }
 
@@ -91,9 +93,28 @@ public class GameState : State
             return;
         }
 
+        if (UIWindowManager.Singleton.GetUIWindow<UIPurchase>().Visible)
+        {
+            UIWindowManager.Singleton.GetUIWindow<UIPurchase>().OnCancelClicked();
+            return;
+        }
+
         if (UIWindowManager.Singleton.GetUIWindow<UIStageInfo>().Visible)
         {
             UIWindowManager.Singleton.GetUIWindow<UIStageInfo>().OnCloseClicked();
+            return;
+        }
+
+        if (UIWindowManager.Singleton.GetUIWindow<UIFTUE>().Visible)
+        {
+            UIWindowManager.Singleton.GetUIWindow<UIFTUE>().EndFTUE();
+            return;
+        }
+
+        if (UIWindowManager.Singleton.GetUIWindow("UIMainMenuExtend").Visible)      //若主菜单开启状态
+        {
+            UIWindowManager.Singleton.GetUIWindow("UIMainMenuExtend").HideWindow();
+            UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();       //显示主菜单按钮
             return;
         }
 

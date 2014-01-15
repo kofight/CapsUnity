@@ -73,9 +73,6 @@ public class UIRetry : UIWindow
             m_winBoard.gameObject.SetActive(false);
             m_failedBoard.gameObject.SetActive(true);
         }
-		
-		UIWindowManager.Singleton.GetUIWindow<UIGameHead>().HideWindow();
-		UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().HideWindow();
 	}
 	
 	public void RefreshData()

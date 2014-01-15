@@ -36,7 +36,7 @@ public class UIPurchase : UIWindow
 		OnPurchase();
     }
 
-    private void OnCancelClicked()
+    public void OnCancelClicked()
     {
         HideWindow(delegate()
         {

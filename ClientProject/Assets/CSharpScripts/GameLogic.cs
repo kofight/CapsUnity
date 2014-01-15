@@ -1287,6 +1287,7 @@ public class GameLogic
                 m_gameFlow = TGameFlow.EGameState_End;
 
                 GameLogic.Singleton.PlayEndGameAnim();		//play the end anim(move the game area out of screen)
+                HideUI();
 
                 //触发关卡结束对话，并在对话结束后切回大地图
                 UIWindowManager.Singleton.GetUIWindow<UIDialog>().TriggerDialog(GlobalVars.CurStageNum, DialogTriggerPos.StageEnd, delegate()
@@ -1323,6 +1324,50 @@ public class GameLogic
                 m_lastStepRewardTime = Timer.millisecondNow();
             }
         }
+    }
+
+    public void HideUI()
+    {
+        UIWindowManager.Singleton.GetUIWindow<UIGameHead>().HideWindow();
+        UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().HideWindow();
+        UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().HideWindow();
+
+        if (UIWindowManager.Singleton.GetUIWindow<UIHowToPlay>().Visible)
+        {
+            UIWindowManager.Singleton.GetUIWindow<UIHowToPlay>().OnClose();
+            return;
+        }
+
+        if (UIWindowManager.Singleton.GetUIWindow<UINoMoreHearts>().Visible)
+        {
+            UIWindowManager.Singleton.GetUIWindow<UINoMoreHearts>().Close();
+            return;
+        }
+
+        if (UIWindowManager.Singleton.GetUIWindow<UIPurchase>().Visible)
+        {
+            UIWindowManager.Singleton.GetUIWindow<UIPurchase>().OnCancelClicked();
+            return;
+        }
+
+        if (UIWindowManager.Singleton.GetUIWindow<UIStageInfo>().Visible)
+        {
+            UIWindowManager.Singleton.GetUIWindow<UIStageInfo>().OnCloseClicked();
+            return;
+        }
+
+        if (UIWindowManager.Singleton.GetUIWindow("UIMainMenuExtend").Visible)      //若主菜单开启状态
+        {
+            UIWindowManager.Singleton.GetUIWindow("UIMainMenuExtend").HideWindow();
+            return;
+        }
+    }
+
+    public void ShowUI()
+    {
+        UIWindowManager.Singleton.GetUIWindow<UIGameHead>().ShowWindow();
+        UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().ShowWindow();
+        UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
     }
 
     void EatFruit(int x, int y)
@@ -2780,6 +2825,7 @@ public class GameLogic
                 m_gameStartTime = 0;
 
                 GameLogic.Singleton.PlayEndGameAnim();		//play the end anim(move the game area out of screen)
+                HideUI();
 
                 //触发关卡结束对话，并在对话结束后切回大地图
                 UIWindowManager.Singleton.GetUIWindow<UIDialog>().TriggerDialog(GlobalVars.CurStageNum, DialogTriggerPos.StageEnd, delegate()

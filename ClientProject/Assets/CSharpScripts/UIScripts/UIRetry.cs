@@ -110,7 +110,7 @@ public class UIRetry : UIWindow
             {
                 ++GlobalVars.AvailabeStageCount;        //开启下一关
 				m_bStartNewStage = true;
-                UIWindowManager.Singleton.GetUIWindow<UIMap>().RefreshButton(GlobalVars.AvailabeStageCount);
+                UIWindowManager.Singleton.GetUIWindow<UIMap>().OpenNewButton(GlobalVars.AvailabeStageCount);
             }
 
             for (int i = 2; i >= 0;--i )
@@ -228,7 +228,7 @@ public class UIRetry : UIWindow
                 PlayerPrefsExtend.SetIntArray("StageScores", GlobalVars.StageScoreArray);
             }
 
-            UIWindowManager.Singleton.GetUIWindow<UIMap>().RefreshButton(GlobalVars.CurStageNum);
+            UIWindowManager.Singleton.GetUIWindow<UIMap>().RefreshButton(GlobalVars.CurStageNum);       //刷新当前关卡的星星
         }
         else
         {

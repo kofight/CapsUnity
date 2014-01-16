@@ -56,6 +56,10 @@ public class CapsConfig
     public static readonly int EffectBigBombTime = 2000;
     public static readonly int EffectEatAColorNDBombTime = 2000;
 
+    public static readonly string EatEffect = "EatEffect";                      //吃块的目标特效
+    public static readonly string BombEatEffect = "BombEatEffect";              //炸弹吃块的目标特效
+    public static readonly string LineEatEffect = "LineEatEffect";              //条状吃块的目标特效
+
     public static AudioList CurAudioList;
 	
 	public static bool EnableGA = false;

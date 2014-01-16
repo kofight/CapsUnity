@@ -71,6 +71,10 @@ public class CapsConfig
     public static float BombEffectInterval = 0.1f;                  //炸弹特效吃块的间隔
     public static float EatBombEffectStartInterval = 0.17f;           //消行特效吃块的开始时间
 
+    public static float EatColorEffectInterval = 0.2f;                  //炸弹特效吃块的间隔
+    public static float EatColorEffectStartInterval = 0.3f;           //消行特效吃块的开始时间
+    public static float EatColorEffectStartDuration = 0.3f;           //每个子特效的时间
+
     public static int[] StageTypeArray;                             //存每关的类型
 
     private ConfigOperator _config;

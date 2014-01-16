@@ -19,6 +19,7 @@ public enum TGameFlow
 //特殊效果(一般是两个特殊块交换得到的，需要根据不同特效单独写代码)
 public enum TSpecialEffect
 {
+    ENone,
     EAllDir,
     EAllDirBig,
     EEatAColor,
@@ -178,6 +179,17 @@ class DelayParticle
     public AudioEnum audio;             //声音
 }
 
+class FlyParticle
+{
+    public ParticleSystem par;          //粒子系统
+    public Vector3 start;              //开始位置
+    public Vector3 end;                //结束位置
+    public float duration;              //飞行时间
+    public float startTime;             //起飞时间
+    public AudioEnum audio;             //声音
+    public string name;
+}
+
 public enum AudioEnum
 {
     Audio_None,
@@ -269,7 +281,7 @@ public class GameLogic
     TSpecialEffect m_curSpecialEffect;                  //当前的特殊效果
     Position m_curSpecialEffectPos;                     //当前特殊效果的开始位置
     int m_effectStep;                                   //当前特殊效果进行到第几步了
-    int m_effectStateDuration;                              //特效演出时长
+    int m_effectStateDuration;                          //特效演出时长
 
 
 
@@ -302,6 +314,7 @@ public class GameLogic
     Dictionary<string, LinkedList<ParticleSystem>> m_freeParticleMap = new Dictionary<string, LinkedList<ParticleSystem>>();
     LinkedList<ShowingNumberEffect> m_freeNumberList = new LinkedList<ShowingNumberEffect>();                 //用来存放数字图片的池
     LinkedList<ShowingNumberEffect> m_showingNumberEffectList = new LinkedList<ShowingNumberEffect>();      //用来管理正在播放的数字
+    LinkedList<FlyParticle> m_flyParticleList = new LinkedList<FlyParticle>();                                  //飞行粒子特效
 
     GameObject m_gameArea;                  //游戏区域
     GameObject m_capsPool;                  //瓶盖池
@@ -1616,6 +1629,35 @@ public class GameLogic
                 break;
             }
         }
+
+        //处理飞行特效
+        foreach (FlyParticle flyParticle in m_flyParticleList)
+        {
+            float passTime = Timer.GetRealTimeSinceStartUp() - flyParticle.startTime;
+            if (passTime > flyParticle.duration)        //到了结束时间
+            {
+                m_freeParticleMap[flyParticle.name].AddLast(flyParticle.par);           //添加空闲的
+                flyParticle.par.Stop();                 //停止
+                flyParticle.par.gameObject.SetActive(false);        //隐藏
+
+                m_flyParticleList.Remove(flyParticle);      //移除
+                break;      //每次循环只结束一个
+            }
+            else if (passTime > 0)      //若已开始未结束
+            {
+                if (!flyParticle.par.gameObject.activeSelf)
+                {
+                    flyParticle.par.gameObject.SetActive(true);
+                    flyParticle.par.Play();
+                    if (flyParticle.audio != AudioEnum.Audio_None)
+                    {
+                        PlaySoundNextFrame(flyParticle.audio);
+                    }
+                }
+
+                flyParticle.par.transform.localPosition = Vector3.Lerp(flyParticle.start, flyParticle.end, (Timer.GetRealTimeSinceStartUp() - flyParticle.startTime) / flyParticle.duration);        //指定位置
+            }
+        }
     }
 
     public void ShowHelpAnim()
@@ -2650,8 +2692,7 @@ public class GameLogic
                 break;
             case TSpecialBlock.ESpecial_EatAColor:
                 {
-                    EatAColor(GetRandomColor(false));
-                    AddPartile("EatColorEffect", AudioEnum.Audio_EatColor, position.x, position.y);
+                    EatAColor(GetRandomColor(false), position, false, delay);
                 }
                 break;
         }
@@ -2664,6 +2705,52 @@ public class GameLogic
             m_blocks[position.x, position.y].m_dropDownStartTime = 0;
             AddPartile(m_blocks[position.x, position.y].EatEffectName, AudioEnum.Audio_Eat, position.x, position.y);
         }
+    }
+
+    public void AddFlyParticle(string name, AudioEnum audio, Position from, Position to, float duration, float delay)
+    {
+        //先看freeParticleList里面有没有可用的
+        LinkedList<ParticleSystem> freeParticleList;
+        if (!m_freeParticleMap.TryGetValue(name, out freeParticleList))
+        {
+            freeParticleList = new LinkedList<ParticleSystem>();
+            m_freeParticleMap.Add(name, freeParticleList);
+        }
+
+        GameObject gameObj = null;
+        ParticleSystem par = null;
+
+        if (freeParticleList.Count > 0)     //若有,从列表里取用
+        {
+            par = freeParticleList.First.Value;
+            gameObj = freeParticleList.First.Value.gameObject;
+            freeParticleList.RemoveFirst();
+        }
+        else
+        {
+            //Todo 临时加的粒子代码
+            Object obj = Resources.Load(name);
+            gameObj = GameObject.Instantiate(obj) as GameObject;
+
+            gameObj.transform.parent = m_capsPool.transform;
+
+            par = gameObj.GetComponent<ParticleSystem>();
+            par.Stop();     //这里先不播放
+            gameObj.SetActive(false);           //先隐藏起来
+        }
+
+        gameObj.transform.localPosition = new Vector3(GetXPos(from.x), -GetYPos(from.x, from.y), -200);        //指定位置
+
+        FlyParticle flyParticle = new FlyParticle();
+        flyParticle.par = par;
+        flyParticle.start = gameObj.transform.localPosition;
+        flyParticle.end = new Vector3(GetXPos(to.x), -GetYPos(to.x, to.y), -200);
+        flyParticle.duration = duration;
+        flyParticle.startTime = Timer.GetRealTimeSinceStartUp() + delay;
+        flyParticle.audio = audio;
+        flyParticle.name = name;
+
+        m_flyParticleList.AddLast(flyParticle);
     }
 
     public void AddPartile(string name, AudioEnum audio, int x, int y, bool addToGameArea = true, float delay = 0.0f)
@@ -3444,18 +3531,17 @@ public class GameLogic
             //处理五彩块
             if (special0 == TSpecialBlock.ESpecial_EatAColor && special1 == TSpecialBlock.ESpecial_EatAColor)       //两个五彩块
             {
-                EatAColor(TBlockColor.EColor_None);         //消全部
+                EatAColor(TBlockColor.EColor_None, m_selectedPos[1], true);         //消全部
             }
             else if (special0 == TSpecialBlock.ESpecial_EatAColor && special1 == TSpecialBlock.ESpecial_Normal)
             {
                 EatBlockWithoutTrigger(m_selectedPos[0].x, m_selectedPos[0].y, 0);      //自己消失
-                EatAColor(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color);      //吃同颜色
+                EatAColor(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color, m_selectedPos[0], true);      //吃同颜色
             }
             else if(special1 == TSpecialBlock.ESpecial_EatAColor && special0 == TSpecialBlock.ESpecial_Normal)
             {
                 EatBlockWithoutTrigger(m_selectedPos[1].x, m_selectedPos[1].y, 0);      //自己消失
-                EatAColor(m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color);      //吃同颜色
-                AddPartile("EatColorEffect", AudioEnum.Audio_EatColor, m_selectedPos[0].x, m_selectedPos[0].y);
+                EatAColor(m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color, m_selectedPos[1]);      //吃同颜色
             }
             else if (special0 == TSpecialBlock.ESpecial_EatAColor &&
                 (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
@@ -3673,8 +3759,9 @@ public class GameLogic
         }
     }
 
-    void EatAColor(TBlockColor color)
+    void EatAColor(TBlockColor color, Position startPos, bool bExchange = false, float delay = 0)
     {
+        int eatCount = 0;
         for (int i = 0; i < BlockCountX; ++i)
         {
             for (int j = 0; j < BlockCountY; ++j)
@@ -3689,15 +3776,35 @@ public class GameLogic
                 }
                 if (color == TBlockColor.EColor_None)
                 {
-                    EatBlock(new Position(i, j), "EatEffect", 0.3f, 50);
+                    EatBlock(new Position(i, j), "EatEffect", CapsConfig.EatColorEffectStartDuration + CapsConfig.EatColorEffectStartInterval + CapsConfig.EatColorEffectInterval * eatCount, 50);
+                    AddFlyParticle("EatColorFlyEffect", AudioEnum.Audio_None, startPos, new Position(i, j), CapsConfig.EatColorEffectStartDuration, CapsConfig.EatColorEffectStartInterval + CapsConfig.EatColorEffectInterval * eatCount);
+                    ++eatCount;
                 }
                 else if (m_blocks[i, j].color == color)
                 {
-                    EatBlock(new Position(i, j), "EatEffect", 0.3f, 50);
+                    if (bExchange)          //手动交换,播放有时序的动画
+                    {
+                        EatBlock(new Position(i, j), "EatEffect", CapsConfig.EatColorEffectStartDuration + CapsConfig.EatColorEffectStartInterval + CapsConfig.EatColorEffectInterval * eatCount, 50);
+                        AddFlyParticle("EatColorFlyEffect", AudioEnum.Audio_None, startPos, new Position(i, j), CapsConfig.EatColorEffectStartDuration, CapsConfig.EatColorEffectStartInterval + CapsConfig.EatColorEffectInterval * eatCount);
+                    }
+                    else                   //被动交换
+                    {
+                        EatBlock(new Position(i, j), "EatEffect", CapsConfig.EatColorEffectStartDuration + delay, 50);
+                        AddFlyParticle("EatColorFlyEffect", AudioEnum.Audio_None, startPos, new Position(i, j), CapsConfig.EatColorEffectStartDuration, delay);
+                    }
+
+                    ++eatCount;
                 }
             }
         }
-        AddPartile("EatColorEffect", AudioEnum.Audio_EatColor, m_selectedPos[1].x, m_selectedPos[1].y);
+        AddPartile("EatColorEffect", AudioEnum.Audio_EatColor, startPos.x, startPos.y, true, delay);
+
+        if (bExchange)
+        {
+            m_gameFlow = TGameFlow.EGameState_EffectTime;
+            m_effectStateDuration = (int)((CapsConfig.EatColorEffectStartDuration + CapsConfig.EatColorEffectStartInterval + CapsConfig.EatColorEffectInterval * eatCount) * 1000);
+            m_curStateStartTime = Timer.millisecondNow();
+        }
     }
 
     void ChangeColorToBomb(TBlockColor color)

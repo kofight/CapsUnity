@@ -1,6 +1,6 @@
-﻿TotalStageCount			50				
+﻿TotalStageCount			80				
 DropAccelarate			5				
-SlideSpeed			3				
+SlideSpeed			3.5				
 DropSpeed			3.5				
 GameSpeed			1				
 EatTime			0.33				
@@ -10,5 +10,5 @@ GetHeartInterval			1800
 BLOCKWIDTH			67.55				
 BLOCKHEIGHT			78				
 BLOCKSCALE			65.0				
-StageTypeArray			1|1|1|2|2|2|2|2|3|3|2|2|3|2|3|2|2|0|2|3|2|3|2|3|0|2|2|3|2|0|2|3|2|1|2|2|3|2|2|3|0|3|2|2|1|2|3|2|1|1				
+StageTypeArray			1|1|1|2|2|2|2|2|3|3|2|2|3|2|3|2|2|0|2|3|2|3|2|3|0|2|2|3|2|0|2|3|2|1|2|2|3|2|2|3|0|3|2|2|1|2|3|2|1|1|2|1|2|3|3|2|2|2|3|3|1|1|1|2|2|2|2|2|3|3|1|1|1|2|2|2|2|2|3|3				
 version							

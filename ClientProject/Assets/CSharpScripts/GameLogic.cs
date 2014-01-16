@@ -1679,6 +1679,12 @@ public class GameLogic
             {
                 timerMoveBlock.Stop();				//停止计时器
 
+                //清空方块的偏移值
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].x_move = 0;
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].y_move = 0;
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].x_move = 0;
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].y_move = 0;
+
                 if (m_changeBack)//如果处于换回状态
                 {
                     m_changeBack = false;	//清除换回标志
@@ -1686,12 +1692,6 @@ public class GameLogic
                     ClearSelected();
                     return;
                 }
-                
-                //清空方块的偏移值
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].x_move = 0;
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].y_move = 0;
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].x_move = 0;
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].y_move = 0; ;
 
                 TSpecialBlock special0 = m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special;
                 TSpecialBlock special1 = m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special;
@@ -1714,6 +1714,7 @@ public class GameLogic
                         PlaySound(AudioEnum.Audio_MoveFailed);
                         ExchangeBlock(m_selectedPos[0], m_selectedPos[1]);
                         timerMoveBlock.Play();
+                        ProcessMovePic(m_selectedPos[0], m_selectedPos[1], MOVE_TIME);
                         m_changeBack = true;
                     }
                     else

@@ -105,7 +105,7 @@ public class GameState : State
             return;
         }
 
-        if (UIWindowManager.Singleton.GetUIWindow<UIFTUE>().Visible)
+        if (UIWindowManager.Singleton.GetUIWindow<UIFTUE>() != null && UIWindowManager.Singleton.GetUIWindow<UIFTUE>().Visible)
         {
             UIWindowManager.Singleton.GetUIWindow<UIFTUE>().EndFTUE();
             return;

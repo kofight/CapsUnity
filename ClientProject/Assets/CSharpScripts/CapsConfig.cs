@@ -56,6 +56,10 @@ public class CapsConfig
     public static readonly int EffectBigBombTime = 2000;
     public static readonly int EffectEatAColorNDBombTime = 2000;
 
+    public static readonly string EatEffect = "EatEffect";                      //吃块的目标特效
+    public static readonly string BombEatEffect = "BombEatEffect";              //炸弹吃块的目标特效
+    public static readonly string LineEatEffect = "LineEatEffect";              //条状吃块的目标特效
+
     public static AudioList CurAudioList;
 	
 	public static bool EnableGA = false;
@@ -65,6 +69,11 @@ public class CapsConfig
     public static float EatLineEffectStartInterval = 0.17f;           //消行特效吃块的开始时间
 
     public static float BombEffectInterval = 0.1f;                  //炸弹特效吃块的间隔
+    public static float EatBombEffectStartInterval = 0.17f;           //消行特效吃块的开始时间
+
+    public static float EatColorEffectInterval = 0.2f;                  //炸弹特效吃块的间隔
+    public static float EatColorEffectStartInterval = 0.3f;           //消行特效吃块的开始时间
+    public static float EatColorEffectStartDuration = 0.3f;           //每个子特效的时间
 
     public static int[] StageTypeArray;                             //存每关的类型
 

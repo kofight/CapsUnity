@@ -62,6 +62,12 @@ public class LoginState : State
         base.OnBackKey();
         if (CurFlow == TLoginFlow.LoginFlow_Map)
         {
+			if (UIWindowManager.Singleton.GetUIWindow<UINoMoreHearts>().Visible)
+	        {
+	            UIWindowManager.Singleton.GetUIWindow<UINoMoreHearts>().Close();
+	            return;
+	        }
+			
 			if(UIWindowManager.Singleton.GetUIWindow<UIStageInfo>().Visible)
 			{
 				UIWindowManager.Singleton.GetUIWindow<UIStageInfo>().HideWindow();

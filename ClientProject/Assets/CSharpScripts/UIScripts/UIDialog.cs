@@ -174,6 +174,12 @@ public class UIDialog : UIWindow
 			HideWindow(m_afterDialogFunc);
 		}
 	}
+
+    public void EndDialog()
+    {
+        m_curDialogGroupNum = -1;
+        HideWindow(m_afterDialogFunc);
+    }
 	
     public override void OnCreate()
     {

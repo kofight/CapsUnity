@@ -34,6 +34,8 @@ public class UIFTUE : UIWindow
 	            GameLogic.Singleton.SetHighLight(false, highLightPos);
 	        }
 		}
+
+        GameLogic.Singleton.ShowUI();
     }
 
     public void ShowFTUE(int step)
@@ -57,6 +59,8 @@ public class UIFTUE : UIWindow
                 });
             }
         }
+
+        GameLogic.Singleton.HideUI();
     }
 
     public bool CheckMoveTo(Position to)
@@ -135,6 +139,12 @@ public class UIFTUE : UIWindow
         m_pic = GetChildComponent<UISprite>("Picture");
 		AddChildComponentMouseClick("DialogBoard", OnClick);
     }
+
+    public void EndFTUE()
+    {
+        HideWindow();                               //隐藏窗体
+        GameLogic.Singleton.SetGameFlow(TGameFlow.EGameState_Playing);
+    }
 	
 	public void OnClick()
 	{
@@ -163,8 +173,7 @@ public class UIFTUE : UIWindow
                         }
                         else                                            //若没有
                         {
-                            HideWindow();                               //隐藏窗体
-                            GameLogic.Singleton.SetGameFlow(TGameFlow.EGameState_Playing);
+                            EndFTUE();
                         }
                     }
                 }

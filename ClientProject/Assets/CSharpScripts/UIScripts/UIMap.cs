@@ -22,6 +22,8 @@ public class UIMap : UIWindow
 	
 	SpringPanel springPanel;
 
+    UISprite m_headSprite;                      //头像位置
+
     Transform[] m_stageBtns;
 
     UIWindow m_heartUI;
@@ -31,9 +33,16 @@ public class UIMap : UIWindow
     NumberDrawer m_secNumber;
     GameObject m_fullText;
 
+    int m_newStageNumber;                       //开启的新关卡的编号
+    float m_newStageStartTime;                  //开启新关卡的时间
+    readonly static float HeadMoveTime = 3.0f;  //开启新关卡时头像的移动时间
+    readonly static float HeadYOffset = 110.0f; //头像相对于按钮位置的位移
+
     public override void OnCreate()
     {
         base.OnCreate();
+
+        m_newStageNumber = -1;
 
         m_heartUI = UIWindowManager.Singleton.CreateWindow<UIWindow>("UIMapHeart", UIWindowManager.Anchor.TopLeft);
 
@@ -71,6 +80,14 @@ public class UIMap : UIWindow
         m_fullText = UIToolkits.FindChild(m_heartUI.mUIObject.transform, "HeartFull").gameObject;
         m_minNumber = m_heartUI.GetChildComponent<NumberDrawer>("MinNumber");
         m_secNumber = m_heartUI.GetChildComponent<NumberDrawer>("SecNumber");
+
+        m_headSprite = GetChildComponent<UISprite>("Head");
+    }
+
+    public void OpenNewButton(int stageNum)
+    {
+        m_newStageNumber = stageNum;
+        m_newStageStartTime = Time.realtimeSinceStartup;
     }
 
     public void RefreshButton(int stageNum)
@@ -147,6 +164,8 @@ public class UIMap : UIWindow
             UIButton button = m_stageBtns[i].GetComponent<UIButton>();
             EventDelegate.Set(button.onClick, OnStageClicked);
         }
+
+        m_headSprite.gameObject.transform.localPosition = new Vector3(m_stageBtns[GlobalVars.AvailabeStageCount - 1].localPosition.x, m_stageBtns[GlobalVars.AvailabeStageCount - 1].localPosition.y + HeadYOffset, m_stageBtns[GlobalVars.AvailabeStageCount - 1].localPosition.z);            //移到目标点
     }
 
     public override void OnShow()
@@ -206,6 +225,23 @@ public class UIMap : UIWindow
             if (!m_fullText.activeSelf)
             {
                 m_fullText.SetActive(true);
+            }
+        }
+
+        //处理头像在地图上移动
+        if (m_newStageNumber > -1)          //若正在移动
+        {
+            float passTime = Time.realtimeSinceStartup - m_newStageStartTime;
+            if (passTime >= HeadMoveTime)     //若移动到了
+            {
+                RefreshButton(m_newStageNumber);
+                m_headSprite.gameObject.transform.localPosition = new Vector3(m_stageBtns[m_newStageNumber - 1].localPosition.x, m_stageBtns[m_newStageNumber - 1].localPosition.y + HeadYOffset, m_stageBtns[m_newStageNumber - 1].localPosition.z);            ////移到目标点     
+                m_newStageNumber = -1;
+            }
+            else
+            {
+                Vector3 target = new Vector3(m_stageBtns[m_newStageNumber - 1].localPosition.x, m_stageBtns[m_newStageNumber - 1].localPosition.y + HeadYOffset, m_stageBtns[m_newStageNumber - 1].localPosition.z);
+                m_headSprite.gameObject.transform.localPosition = Vector3.Lerp(m_stageBtns[m_newStageNumber - 2].localPosition, target, passTime / HeadMoveTime);
             }
         }
     }

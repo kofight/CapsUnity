@@ -2544,7 +2544,7 @@ public class GameLogic
         m_blocks[x, y].Eat(delay);
     }
 
-    void EatBlock(Position position, float delay = 0, int addScore = 0)                   //吃掉块，通过EatLine或特殊道具功能被调用，会触发被吃的块的功能
+    void EatBlock(Position position, string eatEffectName, float delay = 0, int addScore = 0)                   //吃掉块，通过EatLine或特殊道具功能被调用，会触发被吃的块的功能
     {
         if (position.x >= BlockCountX || position.y >= BlockCountY || position.x < 0 || position.y < 0)
             return;
@@ -2579,7 +2579,7 @@ public class GameLogic
         EatBlockWithoutTrigger(position.x, position.y, delay);                                              //吃掉当前块
 
         m_blocks[position.x, position.y].EatAnimationName= "Eat";
-        m_blocks[position.x, position.y].EatEffectName = "EatEffect";
+        m_blocks[position.x, position.y].EatEffectName = eatEffectName;
 
         switch (m_blocks[position.x, position.y].special)
         {
@@ -2587,9 +2587,9 @@ public class GameLogic
                 {
                     for (TDirection dir = TDirection.EDir_Up; dir <= TDirection.EDir_LeftUp; ++dir)
                     {
-                        EatBlock(GoTo(position, dir, 1), CapsConfig.BombEffectInterval + CapsConfig.EatBombEffectStartInterval + delay, 50);
+                        EatBlock(GoTo(position, dir, 1), "BombEatEffect", CapsConfig.BombEffectInterval + CapsConfig.EatBombEffectStartInterval + delay, 50);
 
-                        EatBlock(GoTo(position, dir, 2), CapsConfig.BombEffectInterval * 2 + CapsConfig.EatBombEffectStartInterval + delay, 50);
+                        EatBlock(GoTo(position, dir, 2), "BombEatEffect", CapsConfig.BombEffectInterval * 2 + CapsConfig.EatBombEffectStartInterval + delay, 50);
                     }
                     AddPartile("BombEffect", AudioEnum.Audio_Bomb, position.x, position.y, true, CapsConfig.EatBombEffectStartInterval + delay);
                 }
@@ -2602,10 +2602,10 @@ public class GameLogic
                         for (TDirection dir = TDirection.EDir_Up; dir <= TDirection.EDir_LeftUp; ++dir)
                         {
                             Position newPos = GoTo(position, dir, 1);                            //第一层
-                            EatBlock(newPos, CapsConfig.BombEffectInterval + CapsConfig.EatBombEffectStartInterval + delay, 50);
+                            EatBlock(newPos, "BombEatEffect", CapsConfig.BombEffectInterval + CapsConfig.EatBombEffectStartInterval + delay, 50);
 
                             newPos = GoTo(newPos, dir, 1);                                     //第二层
-                            EatBlock(newPos, CapsConfig.BombEffectInterval * 2 + CapsConfig.EatBombEffectStartInterval + delay, 50);
+                            EatBlock(newPos, "BombEatEffect", CapsConfig.BombEffectInterval * 2 + CapsConfig.EatBombEffectStartInterval + delay, 50);
                         }
                         AddPartile("BombEffect", AudioEnum.Audio_Bomb, position.x, position.y, true, CapsConfig.EatBombEffectStartInterval + delay);
                     }
@@ -2619,36 +2619,33 @@ public class GameLogic
                 {
                     for (int i = 0; i < BlockCountX; ++i)
                     {
-                        EatBlock(GoTo(position, TDirection.EDir_Down, i), i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay, 50);
-                        EatBlock(GoTo(position, TDirection.EDir_Up, i), i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay, 50);
+                        EatBlock(GoTo(position, TDirection.EDir_Down, i), "LineEatEffect", i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay, 50);
+                        EatBlock(GoTo(position, TDirection.EDir_Up, i), "LineEatEffect", i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay, 50);
                     }
                     AddPartile("Dir0Effect", AudioEnum.Audio_Line1, position.x, position.y, true, delay);
                     m_blocks[position.x, position.y].EatAnimationName = "EatLine0";
-                    m_blocks[position.x, position.y].EatEffectName = "EatLineEffect";
                 }
                 break;
             case TSpecialBlock.ESpecial_EatLineDir1:
                 {
                     for (int i = 1; i < BlockCountX - 1; ++i)
                     {
-                        EatBlock(GoTo(position, TDirection.EDir_UpRight, i), i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay, 50);
-                        EatBlock(GoTo(position, TDirection.EDir_LeftDown, i), i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay, 50);
+                        EatBlock(GoTo(position, TDirection.EDir_UpRight, i), "LineEatEffect", i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay, 50);
+                        EatBlock(GoTo(position, TDirection.EDir_LeftDown, i), "LineEatEffect", i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay, 50);
                     }
                     AddPartile("Dir1Effect", AudioEnum.Audio_Line1, position.x, position.y, true, delay);
                     m_blocks[position.x, position.y].EatAnimationName = "EatLine1";
-                    m_blocks[position.x, position.y].EatEffectName = "EatLineEffect";
                 }
                 break;
             case TSpecialBlock.ESpecial_EatLineDir2:
                 {
                     for (int i = 0; i < BlockCountX; ++i)
                     {
-                        EatBlock(GoTo(position, TDirection.EDir_LeftUp, i), i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay, 50);
-                        EatBlock(GoTo(position, TDirection.EDir_DownRight, i), i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay, 50);
+                        EatBlock(GoTo(position, TDirection.EDir_LeftUp, i), "LineEatEffect", i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay, 50);
+                        EatBlock(GoTo(position, TDirection.EDir_DownRight, i), "LineEatEffect", i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay, 50);
                     }
                     AddPartile("Dir2Effect", AudioEnum.Audio_Line1, position.x, position.y, true, delay);
                     m_blocks[position.x, position.y].EatAnimationName = "EatLine2";
-                    m_blocks[position.x, position.y].EatEffectName = "EatLineEffect";
                 }
                 break;
             case TSpecialBlock.ESpecial_EatAColor:

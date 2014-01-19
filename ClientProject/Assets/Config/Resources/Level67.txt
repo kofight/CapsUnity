@@ -1,4 +1,4 @@
-﻿Target			2				
+﻿Target			0				
 StepLimit			25				
 TimeLimit			0				
 ColorCount			6				

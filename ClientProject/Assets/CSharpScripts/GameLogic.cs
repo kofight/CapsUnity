@@ -165,11 +165,22 @@ struct ShowingNumberEffect
     }
 }
 
-class DelayProcessGrid
+public enum ProcessGridType
+{
+    NormalEat,          //普通消除，需要触发周围块的消除
+    Cage,               //消笼子
+    Stone,
+    Chocolate,          
+}
+
+class DelayProceedGrid
 {
     public int x;
     public int y;
     public float startTime;                   //什么时间处理
+    public bool bProceeStoneAround;           //是否处理周围的石头
+    public bool bProceeChocolateAround;           //是否处理周围的巧克力
+    public CapBlock block;                    //block的引用
 }
 
 class DelayParticle
@@ -263,7 +274,7 @@ public class GameLogic
 
     List<Position> m_cageCheckList = new List<Position>();              //笼子消除时，消除结束后还有再额外检查一次是否有消除的可能，中间要检查的位置就放在这个里面
 
-    LinkedList<DelayProcessGrid> m_delayProcessGrid = new LinkedList<DelayProcessGrid>();           //延迟处理消除对场景的影响
+    LinkedList<DelayProceedGrid> m_delayProcessGrid = new LinkedList<DelayProceedGrid>();           //延迟处理消除对场景的影响
 
     Position [] m_saveHelpBlocks = new Position[3];        //用来保存帮助找到的可消块
 
@@ -416,6 +427,7 @@ public class GameLogic
     public int GetProgress() { return m_progress; }
     public void AddProgress(int progress, int x, int y)     //增加分数，同时在某位置显示一个得分的数字特效
     {
+        //Debug.Log("AddProgress at x = " + x + " y = " + y);
         m_progress += progress;
         UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().OnChangeProgress(m_progress);
         AddNumber(progress, GetXPos(x), GetYPos(x, y));
@@ -447,6 +459,10 @@ public class GameLogic
 
     void AddNumber(int number, int x, int y)                //添加一个数字特效
     {
+        if (m_freeNumberList.Count == 0)
+        {
+            return;
+        }
         ShowingNumberEffect numEffect = m_freeNumberList.Last.Value;
         m_freeNumberList.RemoveLast();
         numEffect.SetNumber(number, x, y);
@@ -1016,10 +1032,6 @@ public class GameLogic
         for (int i = 0; i < BlockCountX; ++i)
         {
 			m_slopeDropLock[i] = 9;         //初始化成不加锁
-            for (int j = 0; j < BlockCountY; ++j)
-            {
-                m_tempBlocks[i, j] = 0;
-            }
         }
 
         EasyTouch.On_SimpleTap -= OnTap;
@@ -1146,31 +1158,6 @@ public class GameLogic
 
                     //处理位置变化
                     m_blocks[i, j].m_blockTransform.localPosition = new Vector3(GetXPos(i) + m_blocks[i, j].x_move, -(m_blocks[i, j].y_move + GetYPos(i, j)), 0);
-
-                    if (m_blocks[i, j].IsEating())
-                    {
-                        if (m_blocks[i, j].EatDelay > 0)
-                        {
-                            if (Timer.GetRealTimeSinceStartUp() > m_blocks[i, j].m_eatStartTime)        //到达了开始时间
-                            {
-                                if (PlayingStageData.CheckFlag(i, j, GridFlag.Cage))                    //有笼子的块不消(先消笼子)
-                                {
-									ProcessEatChanges(i, j, 1, true);
-                                    m_blocks[i, j].CurState = BlockState.Normal;
-                                    --CapBlock.EatingBlockCount;
-                                    continue;
-                                }
-								
-								m_scoreToShow[i, j] += 50;
-								ProcessEatChanges(i, j, 1, true);
-                                m_blocks[i, j].EatDelay = 0;
-                                m_blocks[i, j].m_animation.enabled = true;
-                                m_blocks[i, j].m_animation.Play(m_blocks[i, j].EatAnimationName);
-                                AddPartile(m_blocks[i, j].EatEffectName, AudioEnum.Audio_Eat, i, j);
-                                m_blocks[i, j].m_dropDownStartTime = 0;
-                            }
-                        }
-                    }
                 }
 
                 
@@ -1399,7 +1386,7 @@ public class GameLogic
         }
 
         m_scoreToShow[x, y] += CapsConfig.FruitDropDown;
-        EatBlockWithoutTrigger(x, y, 0);
+        m_blocks[x, y].Eat();
 
         UIWindowManager.Singleton.GetUIWindow<UIGameHead>().RefreshTarget();
     }
@@ -1620,13 +1607,31 @@ public class GameLogic
         }
 
         //处理延迟消除
-        foreach (DelayProcessGrid grid in m_delayProcessGrid)
+        LinkedListNode<DelayProceedGrid> node = m_delayProcessGrid.First;
+        LinkedListNode<DelayProceedGrid> nodeLast = m_delayProcessGrid.Last;
+        LinkedListNode<DelayProceedGrid> nodeTmp;//临时结点
+        if (m_delayProcessGrid.Count > 0)
         {
-            if (Timer.GetRealTimeSinceStartUp() > grid.startTime)       //若到了处理时间
+            while (node != nodeLast)
             {
-                ProcessEatChanges(grid.x, grid.y, 1, true);
-                m_delayProcessGrid.Remove(grid);                        //这样写是没帧只处理一个数据
-                break;
+                if (Timer.GetRealTimeSinceStartUp() > node.Value.startTime)       //若到了处理时间
+                {
+                    ProcessEatChanges(node.Value, true, true);                          //处理延迟处理的消块
+
+                    nodeTmp = node.Next;
+                    m_delayProcessGrid.Remove(node.Value);                              //移除中间一个元素
+                    node = nodeTmp;
+                }
+                else
+                {
+                    node = node.Next;
+                }
+            }
+
+            if (Timer.GetRealTimeSinceStartUp() > nodeLast.Value.startTime)       //若到了处理时间
+            {
+                ProcessEatChanges(nodeLast.Value, true, true);                          //处理延迟处理的消块
+                m_delayProcessGrid.Remove(nodeLast.Value);                              //移除中间一个元素
             }
         }
 
@@ -1692,17 +1697,12 @@ public class GameLogic
                     {
                         continue;
                     }
-                    if (m_blocks[i, j].IsEating())       //若消块时间到了
+                    if (m_blocks[i, j].IsEating() && Timer.GetRealTimeSinceStartUp() - m_blocks[i, j].m_eatStartTime > EATBLOCK_TIME)       //若消块时间到了
                     {
-                        if (Timer.GetRealTimeSinceStartUp() - m_blocks[i, j].m_eatStartTime > EATBLOCK_TIME)
-                        {
-                            --CapBlock.EatingBlockCount;
-
-                            //清空block信息
-                            MakeSpriteFree(i, j);
-
-                            bEat = true;
-                        }
+                        --CapBlock.EatingBlockCount;
+                        //清空block信息
+                        MakeSpriteFree(i, j);
+                        bEat = true;
                     }
                 }
             }
@@ -1742,8 +1742,8 @@ public class GameLogic
                     (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir1 || special1 == TSpecialBlock.ESpecial_EatLineDir2))
                 {
                     EatALLDirLine(m_selectedPos[1], false);
-                    EatBlockWithoutTrigger(m_selectedPos[1].x, m_selectedPos[1].y, 0);      //自己消失
-                    EatBlockWithoutTrigger(m_selectedPos[0].x, m_selectedPos[0].y, 0);      //自己消失
+                    m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                //自己消失
+                    m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
                     --PlayingStageData.StepLimit;           //扣步数
                 }
                 else        //正常消块
@@ -1792,71 +1792,80 @@ public class GameLogic
         }
     }
 
-    void ProcessEatChanges(int i, int j, int eatType, bool showProgress)                //处理吃了某位置后对场景的影响
+    void ProcessEatChanges(DelayProceedGrid processGrid, bool showProgress, bool addBlockProgress = false)                //处理吃了某位置后对场景的影响
     {
         bool jellyChanged = false;
-        if (eatType > 0)         //若有消除（正常或功能消除）
+        bool needEatBlock = false;          //是否还需要吃块本身?因为若要处理的位置是笼子等，就不需要吃块本身了
+
+        int flag = PlayingStageData.GridData[processGrid.x, processGrid.y];
+
+        ///处理Grid///////////////////////////////////////////////////////////////////////
+        if ((flag & (int)GridFlag.Cage) > 0)           //笼子
         {
-            if (PlayingStageData.CheckFlag(i, j, GridFlag.Stone))
-            {
-                PlayingStageData.ClearFlag(i, j, GridFlag.Stone);
-                PlayingStageData.ClearFlag(i, j, GridFlag.NotGenerateCap);
-                PlayingStageData.AddFlag(i, j, GridFlag.GenerateCap);
+            PlayingStageData.ClearFlag(processGrid.x, processGrid.y, GridFlag.Cage);
+            AddPartile("CageEffect", AudioEnum.Audio_Cage, processGrid.x, processGrid.y);
+            m_blocks[processGrid.x, processGrid.y].CurState = BlockState.Normal;
+            m_scoreToShow[processGrid.x, processGrid.y] += CapsConfig.EatCagePoint;
+            m_gridBackImage[processGrid.x, processGrid.y].layer1.gameObject.SetActive(false);
+            m_cageCheckList.Add(new Position(processGrid.x, processGrid.y));                //记录一个位置，之后需要再检查一次消除
+        }
+        else if ((flag & (int)GridFlag.Chocolate) > 0)         //巧克力
+        {
+            PlayingStageData.ClearFlag(processGrid.x, processGrid.y, GridFlag.Chocolate);
+            PlayingStageData.ClearFlag(processGrid.x, processGrid.y, GridFlag.NotGenerateCap);
+            PlayingStageData.AddFlag(processGrid.x, processGrid.y, GridFlag.GenerateCap);
+            AddPartile("ChocolateEffect", AudioEnum.Audio_Chocolate, processGrid.x, processGrid.y);
+            m_scoreToShow[processGrid.x, processGrid.y] += CapsConfig.EatChocolate;
+            m_gridBackImage[processGrid.x, processGrid.y].layer1.gameObject.SetActive(false);
+            m_chocolateNeedGrow = false;
+        }
+        else if ((flag & (int)GridFlag.Stone) > 0)            //石头
+        {
+            PlayingStageData.ClearFlag(processGrid.x, processGrid.y, GridFlag.Stone);
+            PlayingStageData.ClearFlag(processGrid.x, processGrid.y, GridFlag.NotGenerateCap);
+            PlayingStageData.AddFlag(processGrid.x, processGrid.y, GridFlag.GenerateCap);
 
-                AddPartile("StoneEffect", AudioEnum.Audio_Stone, i, j);
-                m_scoreToShow[i, j] += CapsConfig.EatStonePoint;
-                m_gridBackImage[i, j].layer1.gameObject.SetActive(false);
-            }
-            else if (PlayingStageData.CheckFlag(i, j, GridFlag.Chocolate))
+            AddPartile("StoneEffect", AudioEnum.Audio_Stone, processGrid.x, processGrid.y);
+            m_scoreToShow[processGrid.x, processGrid.y] += CapsConfig.EatStonePoint;
+            m_gridBackImage[processGrid.x, processGrid.y].layer1.gameObject.SetActive(false);
+        }
+        else                                                 //检查消冰块
+        {
+            needEatBlock = true;
+            if ((flag & (int)GridFlag.JellyDouble) > 0)
             {
-                PlayingStageData.ClearFlag(i, j, GridFlag.Chocolate);
-                PlayingStageData.ClearFlag(i, j, GridFlag.NotGenerateCap);
-                PlayingStageData.AddFlag(i, j, GridFlag.GenerateCap);
-                AddPartile("ChocolateEffect", AudioEnum.Audio_Chocolate, i, j);
-                m_scoreToShow[i, j] += CapsConfig.EatChocolate;
-                m_gridBackImage[i, j].layer1.gameObject.SetActive(false);
-                m_chocolateNeedGrow = false;
-            }
-            else if (PlayingStageData.CheckFlag(i, j, GridFlag.Cage))
-            {
-                PlayingStageData.ClearFlag(i, j, GridFlag.Cage);
-                AddPartile("CageEffect", AudioEnum.Audio_Cage, i, j);
-                m_blocks[i, j].CurState = BlockState.Normal;
-                m_scoreToShow[i, j] += CapsConfig.EatCagePoint;
-                m_gridBackImage[i, j].layer1.gameObject.SetActive(false);
-
-                m_cageCheckList.Add(new Position(i, j));                //记录一个位置，之后需要再检查一次消除
-            }
-            else if (PlayingStageData.CheckFlag(i, j, GridFlag.JellyDouble))
-            {
-                PlayingStageData.ClearFlag(i, j, GridFlag.JellyDouble);
-                PlayingStageData.AddFlag(i, j, GridFlag.Jelly);
-                AddPartile("JellyEffect", AudioEnum.Audio_Jelly, i, j);
-                m_scoreToShow[i, j] += CapsConfig.EatJellyDouble;
-                m_gridBackImage[i, j].layer0.spriteName = "Jelly" + ((j + (i % 2)) % 3);
+                PlayingStageData.ClearFlag(processGrid.x, processGrid.y, GridFlag.JellyDouble);
+                PlayingStageData.AddFlag(processGrid.x, processGrid.y, GridFlag.Jelly);
+                AddPartile("JellyEffect", AudioEnum.Audio_Jelly, processGrid.x, processGrid.y);
+                m_scoreToShow[processGrid.x, processGrid.y] += CapsConfig.EatJellyDouble;
+                m_gridBackImage[processGrid.x, processGrid.y].layer0.spriteName = "Jelly" + ((processGrid.y + (processGrid.x % 2)) % 3);
                 jellyChanged = true;
             }
-            else if (PlayingStageData.CheckFlag(i, j, GridFlag.Jelly))
+            else if ((flag & (int)GridFlag.Jelly) > 0)
             {
-                PlayingStageData.ClearFlag(i, j, GridFlag.Jelly);
-                AddPartile("JellyEffect", AudioEnum.Audio_Jelly, i, j);
-                m_scoreToShow[i, j] += CapsConfig.EatJelly;
-                if (i % 2 == 0)
+                PlayingStageData.ClearFlag(processGrid.x, processGrid.y, GridFlag.Jelly);
+                AddPartile("JellyEffect", AudioEnum.Audio_Jelly, processGrid.x, processGrid.y);
+                m_scoreToShow[processGrid.x, processGrid.y] += CapsConfig.EatJelly;
+                if (processGrid.x % 2 == 0)
                 {
-                    m_gridBackImage[i, j].layer0.spriteName = "Grid" + (j % 3);
+                    m_gridBackImage[processGrid.x, processGrid.y].layer0.spriteName = "Grid" + (processGrid.y % 3);
                 }
                 else
                 {
-                    m_gridBackImage[i, j].layer0.spriteName = "Grid" + ((j + 1) % 3);
+                    m_gridBackImage[processGrid.x, processGrid.y].layer0.spriteName = "Grid" + ((processGrid.y + 1) % 3);
                 }
                 jellyChanged = true;
             }
         }
 
-        if (eatType >= 2)        //若有正常消除
+        if (processGrid.bProceeChocolateAround)        //若有正常消除
         {
-            ClearChocolateAround(i, j);
-            ClearStoneAround(i, j);         //清周围的石块
+            ClearChocolateAround(processGrid.x, processGrid.y);   
+        }
+
+        if (processGrid.bProceeStoneAround)
+        {
+            ClearStoneAround(processGrid.x, processGrid.y);         //清周围的石块
         }
 
         if (jellyChanged)
@@ -1864,10 +1873,30 @@ public class GameLogic
             UIWindowManager.Singleton.GetUIWindow<UIGameHead>().RefreshTarget();
         }
 
+        //若块不为空
+        if (processGrid.block != null)
+        {
+            if (needEatBlock)       //处理吃块
+            {
+				if(addBlockProgress)
+                	m_scoreToShow[processGrid.x, processGrid.y] += 50;                                                  //加分
+                processGrid.block.m_dropDownStartTime = 0;
+                processGrid.block.m_animation.enabled = true;
+                processGrid.block.m_animation.Play(processGrid.block.EatAnimationName);                             //播放吃块动画
+                AddPartile(processGrid.block.EatEffectName, AudioEnum.Audio_Eat, processGrid.x, processGrid.y);     //添加吃块特效
+            }
+            else
+            {
+                --CapBlock.EatingBlockCount;                                                                        //减少计数
+                processGrid.block.CurState = BlockState.Normal;                                                     // 延迟结束发现不需要消，恢复正常状态
+                processGrid.block.m_eatStartTime = 0;
+            }
+        }
+
         if (showProgress)
         {
-            AddProgress(m_scoreToShow[i, j], i, j);
-            m_scoreToShow[i, j] = 0;
+            AddProgress(m_scoreToShow[processGrid.x, processGrid.y], processGrid.x, processGrid.y);
+            m_scoreToShow[processGrid.x, processGrid.y] = 0;
         }
     }
 
@@ -1877,14 +1906,6 @@ public class GameLogic
         {
             for (int j = 0; j < BlockCountY; ++j)
             {
-                ProcessEatChanges(i, j, m_tempBlocks[i, j], false);
-            }
-        }
-        for (int i = 0; i < BlockCountX; ++i)
-        {
-            for (int j = 0; j < BlockCountY; ++j)
-            {
-                m_tempBlocks[i, j] = 0;         //清理临时数组
 				if (m_scoreToShow[i, j] > 0)
 				{
 					AddProgress(m_scoreToShow[i, j], i, j);
@@ -2203,8 +2224,6 @@ public class GameLogic
         return false;			//返回是否发生了掉落
     }
 
-    int[,] m_tempBlocks = new int[BlockCountX, BlockCountY];		//一个临时数组，用来记录哪些块要消除, 0 代表不消除 1 代表功能块消除  2代表正常消除 3代表消除且生成了特殊块
-
     bool EatLine(Position position)
     {
         int countInSameLine = 1;					//在同一条线上相同的颜色的数量
@@ -2212,6 +2231,11 @@ public class GameLogic
         int maxCountInSameDir = 1;					//最大的在同一个方向上相同颜色的数量
         Position[] eatBlockPos = new Position[10];
         eatBlockPos[0] = position;
+		
+		
+		Position[] allEatBlockPos = new Position[20];		//
+		allEatBlockPos[0] = position;
+		
         Position availablePos = new Position(0, 0);
         availablePos.MakeItUnAvailable();
 
@@ -2282,10 +2306,11 @@ public class GameLogic
             //一条线处理一次消除
             if (countInSameLine >= 3)
             {
-                for (int i = 0; i < countInSameLine; ++i)
-                {
-                    m_tempBlocks[eatBlockPos[i].x, eatBlockPos[i].y] = 2;           //记录正常消除
-                }
+				for(int i=1; i<countInSameLine; ++i)
+				{
+					allEatBlockPos[i + totalSameCount - 1] = eatBlockPos[i];			//
+				}
+				
                 totalSameCount += (countInSameLine - 1);							//记录总的消除数量，减1是因为起始块是各条线公用的
             }
         }
@@ -2299,12 +2324,8 @@ public class GameLogic
 
         TSpecialBlock generateSpecial = TSpecialBlock.ESpecial_Normal;      //用来记录生成的特殊块
 
-        if (totalSameCount == 3)		//总共就消了3个
-        {
-            m_tempBlocks[position.x, position.y] = 2;           //记录正常消除
-        }
         //根据结果来生成道具////////////////////////////////////////////////////////////////////////
-        else if (maxCountInSameDir >= 5)		//若最大每行消了5个
+        if (maxCountInSameDir >= 5)		//若最大每行消了5个
         {
             if (m_blocks[position.x, position.y].special == TSpecialBlock.ESpecial_NormalPlus5)
             {
@@ -2366,20 +2387,25 @@ public class GameLogic
             if (availablePos.IsAvailable())
             {
                 m_blocks[availablePos.x, availablePos.y].special = generateSpecial;                                                 //生成特殊块
-                m_blocks[availablePos.x, availablePos.y].RefreshBlockSprite(PlayingStageData.GridData[position.x, position.y]);     //刷新图标
-                m_tempBlocks[availablePos.x, availablePos.y] = 3;                                                                   //记录正常消除
+                m_blocks[availablePos.x, availablePos.y].RefreshBlockSprite(PlayingStageData.GridData[position.x, position.y]);     //刷新图标                                                                  //记录正常消除
                 PlaySoundNextFrame(AudioEnum.Audio_itemBirth);
+				
+				DelayProceedGrid grid = new DelayProceedGrid();
+                grid.x = availablePos.x;
+                grid.y = availablePos.y;
+				grid.bProceeChocolateAround = true;
+				grid.bProceeStoneAround = true;
+                grid.startTime = Timer.GetRealTimeSinceStartUp();
+                ProcessEatChanges(grid, false);     //立刻处理一次Grid
             }
         }
 
-        for (int i = 0; i < BlockCountX; ++i)
+        for (int i = 0; i < totalSameCount; ++i )
         {
-            for (int j = 0; j < BlockCountY; ++j)
+            Position p = allEatBlockPos[i];
+            if (p.x != availablePos.x || p.y != availablePos.y)
             {
-                if (m_tempBlocks[i, j] == 2 && (!availablePos.IsAvailable() || i != availablePos.x || j != availablePos.y))      //正常消除且不为新生成块部位
-                {
-                    EatBlock(new Position(i, j), CapsConfig.EatEffect);       //吃掉
-                }
+                EatBlock(p, "EatEffect");
             }
         }
 
@@ -2581,130 +2607,131 @@ public class GameLogic
         }
     }
 
-    void EatBlockWithoutTrigger(int x, int y, float delay)
+    void AddDelayProceedGrid(int x, int y, float delay, CapBlock block = null)     //添加一个延迟处理
     {
-        m_blocks[x, y].Eat(delay);
+        DelayProceedGrid grid = new DelayProceedGrid();
+        grid.x = x;
+        grid.y = y;
+        grid.startTime = Timer.GetRealTimeSinceStartUp() + delay;
+        grid.block = block;
+
+        if (block != null)
+        {
+            block.Eat(delay);             //切到吃块状态
+        }
+
+        if (delay == 0.0f)
+        {
+			grid.bProceeStoneAround = true;
+			grid.bProceeChocolateAround = true;
+            ProcessEatChanges(grid, false);     //立刻处理一次Grid
+        }
+        else
+        {
+			grid.bProceeChocolateAround = true;
+            m_delayProcessGrid.AddLast(grid); //增加延迟处理的计划
+        }
     }
 
-    void EatBlock(Position position, string eatEffectName, float delay = 0, int addScore = 0)                   //吃掉块，通过EatLine或特殊道具功能被调用，会触发被吃的块的功能
+    void EatBlock(Position position, string eatEffectName, float delay = 0)                   //吃掉块，通过EatLine或特殊道具功能被调用，会触发被吃的块的功能
     {
         if (position.x >= BlockCountX || position.y >= BlockCountY || position.x < 0 || position.y < 0)
             return;
+		
+        CapBlock block = m_blocks[position.x, position.y];
 
-        //若有延迟，且是巧克力或石头,无法正常延迟消除，要通过额外的延迟处理来消
-        if (delay > 0 && (PlayingStageData.CheckFlag(position.x, position.y, GridFlag.Stone) || PlayingStageData.CheckFlag(position.x, position.y, GridFlag.Chocolate)))
+        if (block != null &&
+            block.CurState != BlockState.Moving &&
+            block.CurState != BlockState.Eating &&
+            block.color <= TBlockColor.EColor_Grey)       //移动和Eating的块不处理特殊块
         {
-            DelayProcessGrid grid = new DelayProcessGrid();
-            grid.x = position.x;
-            grid.y = position.y;
-            grid.startTime = Timer.GetRealTimeSinceStartUp() + delay;
-            m_delayProcessGrid.AddLast(grid); //增加延迟处理的计划
-        }
-
-        if (m_blocks[position.x, position.y] == null) return;
-
-        if (delay == 0 && PlayingStageData.CheckFlag(position.x, position.y, GridFlag.Cage))                 //有笼子的块不消(先消笼子)
-        {
-            m_tempBlocks[position.x, position.y] = 1;
-            return;
-        }
-
-        if (m_blocks[position.x, position.y].CurState == BlockState.Eating 
-			|| m_blocks[position.x, position.y].CurState == BlockState.Moving)
-        {
-            return;
-        }
-
-        if (m_blocks[position.x, position.y].color > TBlockColor.EColor_Grey) return;                        //水果不能消
-
-
-        EatBlockWithoutTrigger(position.x, position.y, delay);                                              //吃掉当前块
-
-        m_blocks[position.x, position.y].EatAnimationName= "Eat";
-        m_blocks[position.x, position.y].EatEffectName = eatEffectName;
-
-        switch (m_blocks[position.x, position.y].special)
-        {
-            case TSpecialBlock.ESpecial_Bomb:
-                {
-                    for (TDirection dir = TDirection.EDir_Up; dir <= TDirection.EDir_LeftUp; ++dir)
+			if(block.CurState == BlockState.MovingEnd)
+				--CapBlock.DropingBlockCount;
+            block.CurState = BlockState.Eating;      //在这里提前给Block的状态赋值，是为了防止重复EatBlock
+            block.EatAnimationName = "Eat";           //消除动画名字，先用默认的
+            block.EatEffectName = eatEffectName;     //消除特效名字，用传进来的			
+			
+            //处理特殊块
+            switch (block.special)
+            {
+                case TSpecialBlock.ESpecial_Bomb:
                     {
-                        EatBlock(GoTo(position, dir, 1), CapsConfig.BombEatEffect, CapsConfig.BombEffectInterval + CapsConfig.EatBombEffectStartInterval + delay, 50);
-
-                        EatBlock(GoTo(position, dir, 2), CapsConfig.BombEatEffect, CapsConfig.BombEffectInterval * 2 + CapsConfig.EatBombEffectStartInterval + delay, 50);
-                    }
-                    AddPartile("BombEffect", AudioEnum.Audio_Bomb, position.x, position.y, true, CapsConfig.EatBombEffectStartInterval + delay);
-                }
-                break;
-            case TSpecialBlock.ESpecial_NormalPlus5:
-                {
-                    if (m_gameFlow == TGameFlow.EGameState_EndEatingSpecial)
-                    {
-                        //最后阶段
                         for (TDirection dir = TDirection.EDir_Up; dir <= TDirection.EDir_LeftUp; ++dir)
                         {
-                            Position newPos = GoTo(position, dir, 1);                            //第一层
-                            EatBlock(newPos, CapsConfig.BombEatEffect, CapsConfig.BombEffectInterval + CapsConfig.EatBombEffectStartInterval + delay, 50);
+                            EatBlock(GoTo(position, dir, 1), CapsConfig.BombEatEffect, CapsConfig.BombEffectInterval + CapsConfig.EatBombEffectStartInterval + delay);
 
-                            newPos = GoTo(newPos, dir, 1);                                     //第二层
-                            EatBlock(newPos, CapsConfig.BombEatEffect, CapsConfig.BombEffectInterval * 2 + CapsConfig.EatBombEffectStartInterval + delay, 50);
+                            EatBlock(GoTo(position, dir, 2), CapsConfig.BombEatEffect, CapsConfig.BombEffectInterval * 2 + CapsConfig.EatBombEffectStartInterval + delay);
                         }
                         AddPartile("BombEffect", AudioEnum.Audio_Bomb, position.x, position.y, true, CapsConfig.EatBombEffectStartInterval + delay);
                     }
-                    else
+                    break;
+                case TSpecialBlock.ESpecial_NormalPlus5:
                     {
-                        AddGameTime(5);               //增加5秒时间
-                    }
-                }
-                break;
-            case TSpecialBlock.ESpecial_EatLineDir0:
-                {
-                    for (int i = 0; i < BlockCountX; ++i)
-                    {
-                        EatBlock(GoTo(position, TDirection.EDir_Down, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay, 50);
-                        EatBlock(GoTo(position, TDirection.EDir_Up, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay, 50);
-                    }
-                    AddPartile("Dir0Effect", AudioEnum.Audio_Line1, position.x, position.y, true, delay);
-                    m_blocks[position.x, position.y].EatAnimationName = "EatLine0";
-                }
-                break;
-            case TSpecialBlock.ESpecial_EatLineDir1:
-                {
-                    for (int i = 1; i < BlockCountX - 1; ++i)
-                    {
-                        EatBlock(GoTo(position, TDirection.EDir_UpRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay, 50);
-                        EatBlock(GoTo(position, TDirection.EDir_LeftDown, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay, 50);
-                    }
-                    AddPartile("Dir1Effect", AudioEnum.Audio_Line1, position.x, position.y, true, delay);
-                    m_blocks[position.x, position.y].EatAnimationName = "EatLine1";
-                }
-                break;
-            case TSpecialBlock.ESpecial_EatLineDir2:
-                {
-                    for (int i = 0; i < BlockCountX; ++i)
-                    {
-                        EatBlock(GoTo(position, TDirection.EDir_LeftUp, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay, 50);
-                        EatBlock(GoTo(position, TDirection.EDir_DownRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay, 50);
-                    }
-                    AddPartile("Dir2Effect", AudioEnum.Audio_Line1, position.x, position.y, true, delay);
-                    m_blocks[position.x, position.y].EatAnimationName = "EatLine2";
-                }
-                break;
-            case TSpecialBlock.ESpecial_EatAColor:
-                {
-                    EatAColor(GetRandomColor(false), position, false, delay);
-                }
-                break;
-        }
+                        if (m_gameFlow == TGameFlow.EGameState_EndEatingSpecial)
+                        {
+                            //最后阶段
+                            for (TDirection dir = TDirection.EDir_Up; dir <= TDirection.EDir_LeftUp; ++dir)
+                            {
+                                Position newPos = GoTo(position, dir, 1);                            //第一层
+                                EatBlock(newPos, CapsConfig.BombEatEffect, CapsConfig.BombEffectInterval + CapsConfig.EatBombEffectStartInterval + delay);
 
-        if (delay == 0)
-        {
-            m_scoreToShow[position.x, position.y] += addScore;                                                  //增加当前位置的计分（用来显示）
-            m_blocks[position.x, position.y].m_animation.enabled = true;
-            m_blocks[position.x, position.y].m_animation.Play(m_blocks[position.x, position.y].EatAnimationName);
-            m_blocks[position.x, position.y].m_dropDownStartTime = 0;
-            AddPartile(m_blocks[position.x, position.y].EatEffectName, AudioEnum.Audio_Eat, position.x, position.y);
+                                newPos = GoTo(newPos, dir, 1);                                     //第二层
+                                EatBlock(newPos, CapsConfig.BombEatEffect, CapsConfig.BombEffectInterval * 2 + CapsConfig.EatBombEffectStartInterval + delay);
+                            }
+                            AddPartile("BombEffect", AudioEnum.Audio_Bomb, position.x, position.y, true, CapsConfig.EatBombEffectStartInterval + delay);
+                        }
+                        else
+                        {
+                            AddGameTime(5);               //增加5秒时间
+                        }
+                    }
+                    break;
+                case TSpecialBlock.ESpecial_EatLineDir0:
+                    {
+                        for (int i = 1; i < BlockCountX; ++i)
+                        {
+                            EatBlock(GoTo(position, TDirection.EDir_Down, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay);
+                            EatBlock(GoTo(position, TDirection.EDir_Up, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay);
+                        }
+                        AddPartile("Dir0Effect", AudioEnum.Audio_Line1, position.x, position.y, true, delay);
+                        m_blocks[position.x, position.y].EatAnimationName = "EatLine0";
+                    }
+                    break;
+                case TSpecialBlock.ESpecial_EatLineDir1:
+                    {
+                        for (int i = 1; i < BlockCountX - 1; ++i)
+                        {
+                            EatBlock(GoTo(position, TDirection.EDir_UpRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay);
+                            EatBlock(GoTo(position, TDirection.EDir_LeftDown, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay);
+                        }
+                        AddPartile("Dir1Effect", AudioEnum.Audio_Line1, position.x, position.y, true, delay);
+                        m_blocks[position.x, position.y].EatAnimationName = "EatLine1";
+                    }
+                    break;
+                case TSpecialBlock.ESpecial_EatLineDir2:
+                    {
+                        for (int i = 1; i < BlockCountX; ++i)
+                        {
+                            EatBlock(GoTo(position, TDirection.EDir_LeftUp, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay);
+                            EatBlock(GoTo(position, TDirection.EDir_DownRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay);
+                        }
+                        AddPartile("Dir2Effect", AudioEnum.Audio_Line1, position.x, position.y, true, delay);
+                        m_blocks[position.x, position.y].EatAnimationName = "EatLine2";
+                    }
+                    break;
+                case TSpecialBlock.ESpecial_EatAColor:
+                    {
+                        EatAColor(GetRandomColor(false), position, false, delay);
+                    }
+                    break;
+            }
+            AddDelayProceedGrid(position.x, position.y, delay, block);     //添加延迟处理，处理Block和Grid
         }
+        else
+        {
+            AddDelayProceedGrid(position.x, position.y, delay);                                       //添加延迟处理，只处理Grid
+        }
+        
     }
 
     public void AddFlyParticle(string name, AudioEnum audio, Position from, Position to, float duration, float delay)
@@ -3185,9 +3212,7 @@ public class GameLogic
             
             UsingItem = PurchasedItem.None;
 
-            EatBlock(p, CapsConfig.EatEffect);
-
-            ProcessEatChanges(p.x, p.y, 1, true);
+            EatBlock(p, CapsConfig.EatEffect);                  //使用锤子
         }
 
         if (GlobalVars.EditState == TEditState.ChangeColor)
@@ -3268,9 +3293,7 @@ public class GameLogic
 
         if (GlobalVars.EditState == TEditState.Eat)
         {
-            EatBlock(p, CapsConfig.EatEffect);
-
-            ProcessEatChanges(p.x, p.y, 1, true);
+            EatBlock(p, CapsConfig.EatEffect);          //编辑功能
         }
 
         if (GlobalVars.EditState == TEditState.EditPortal)
@@ -3535,20 +3558,20 @@ public class GameLogic
             }
             else if (special0 == TSpecialBlock.ESpecial_EatAColor && special1 == TSpecialBlock.ESpecial_Normal)
             {
-                EatBlockWithoutTrigger(m_selectedPos[0].x, m_selectedPos[0].y, 0);      //自己消失
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
                 EatAColor(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color, m_selectedPos[0], true);      //吃同颜色
             }
             else if(special1 == TSpecialBlock.ESpecial_EatAColor && special0 == TSpecialBlock.ESpecial_Normal)
             {
-                EatBlockWithoutTrigger(m_selectedPos[1].x, m_selectedPos[1].y, 0);      //自己消失
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
                 EatAColor(m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color, m_selectedPos[1]);      //吃同颜色
             }
             else if (special0 == TSpecialBlock.ESpecial_EatAColor &&
                 (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
                     special1 == TSpecialBlock.ESpecial_EatLineDir1))
             {
-                EatBlockWithoutTrigger(m_selectedPos[1].x, m_selectedPos[1].y, 0);      //自己消失
-                EatBlockWithoutTrigger(m_selectedPos[0].x, m_selectedPos[0].y, 0);      //自己消失
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
                 EatALLDirLine(m_selectedPos[1], true);
 
             }
@@ -3556,8 +3579,8 @@ public class GameLogic
                     (special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
                     special0 == TSpecialBlock.ESpecial_EatLineDir1))
             {
-                EatBlockWithoutTrigger(m_selectedPos[1].x, m_selectedPos[1].y, 0);      //自己消失
-                EatBlockWithoutTrigger(m_selectedPos[0].x, m_selectedPos[0].y, 0);      //自己消失
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
                 EatALLDirLine(m_selectedPos[1], true);
             }
             else if ((special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
@@ -3565,8 +3588,8 @@ public class GameLogic
                 (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
                     special1 == TSpecialBlock.ESpecial_EatLineDir1))
             {
-                EatBlockWithoutTrigger(m_selectedPos[1].x, m_selectedPos[1].y, 0);      //自己消失
-                EatBlockWithoutTrigger(m_selectedPos[0].x, m_selectedPos[0].y, 0);      //自己消失
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
                 //EatALLDirLine(m_selectedPos[1], false);
 
                 m_gameFlow = TGameFlow.EGameState_EffectTime;                           //切换游戏状态到特效演出时间，等待特效演出
@@ -3579,15 +3602,16 @@ public class GameLogic
             else if (special0 == TSpecialBlock.ESpecial_Bomb && (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||     //炸弹跟条状交换，单方向加粗
                     special1 == TSpecialBlock.ESpecial_EatLineDir1))
             {
-                EatBlockWithoutTrigger(m_selectedPos[1].x, m_selectedPos[1].y, 0);      //自己消失
-                EatBlockWithoutTrigger(m_selectedPos[0].x, m_selectedPos[0].y, 0);      //自己消失
+
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
                 EatALLDirLine(m_selectedPos[1], true, (int)special1);
             }
             else if (special1 == TSpecialBlock.ESpecial_Bomb && (special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir2 ||
                     special0 == TSpecialBlock.ESpecial_EatLineDir1))
             {
-                EatBlockWithoutTrigger(m_selectedPos[1].x, m_selectedPos[1].y, 0);      //自己消失
-                EatBlockWithoutTrigger(m_selectedPos[0].x, m_selectedPos[0].y, 0);      //自己消失
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
                 EatALLDirLine(m_selectedPos[1], true, (int)special0);
             }
             else if (special0 == TSpecialBlock.ESpecial_Bomb && special1 == TSpecialBlock.ESpecial_EatAColor)              //炸弹和彩虹交换，相同颜色变炸弹
@@ -3599,17 +3623,21 @@ public class GameLogic
             else if (special1 == TSpecialBlock.ESpecial_Bomb && special0 == TSpecialBlock.ESpecial_EatAColor)                //炸弹和彩虹交换，相同颜色变炸弹
             {
                 m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
-                EatBlockWithoutTrigger(m_selectedPos[0].x, m_selectedPos[0].y, 0);
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
-                EatBlockWithoutTrigger(m_selectedPos[1].x, m_selectedPos[1].y, 0);
+
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
+
                 ChangeColorToBomb(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color);
             }
             else if (special0 == TSpecialBlock.ESpecial_Bomb && special1 == TSpecialBlock.ESpecial_Bomb)
             {
                 m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
-                EatBlockWithoutTrigger(m_selectedPos[0].x, m_selectedPos[0].y, 0);
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
-                EatBlockWithoutTrigger(m_selectedPos[1].x, m_selectedPos[1].y, 0);
+
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
+
                 BigBomb(m_selectedPos[1]);
             }
 
@@ -3624,22 +3652,22 @@ public class GameLogic
         for (TDirection dir = TDirection.EDir_Up; dir <= TDirection.EDir_LeftUp; ++dir)
         {
             Position newPos = GoTo(pos, dir, 1);                            //第一层
-            EatBlock(newPos, CapsConfig.BombEatEffect, CapsConfig.BombEffectInterval, 50);
+            EatBlock(newPos, CapsConfig.BombEatEffect, CapsConfig.BombEffectInterval);
 
             newPos = GoTo(pos, dir, 2);                                     //第二层
-            EatBlock(newPos, CapsConfig.BombEatEffect, CapsConfig.BombEffectInterval * 2, 50);
+            EatBlock(newPos, CapsConfig.BombEatEffect, CapsConfig.BombEffectInterval * 2);
 
             newPos = GoTo(newPos, (TDirection)(((int)dir + 2) % 6), 1);     //第二层向下一个方向走一步
-            EatBlock(newPos, CapsConfig.BombEatEffect, CapsConfig.BombEffectInterval * 2, 50);
+            EatBlock(newPos, CapsConfig.BombEatEffect, CapsConfig.BombEffectInterval * 2);
 
             Position newPos3 = GoTo(pos, dir, 3);                                     //第三层
-            EatBlock(newPos3, CapsConfig.BombEatEffect, CapsConfig.BombEffectInterval * 3, 50);
+            EatBlock(newPos3, CapsConfig.BombEatEffect, CapsConfig.BombEffectInterval * 3);
 
             newPos = GoTo(newPos3, (TDirection)(((int)dir + 2) % 6), 1);     //第三层向下一个方向走一步
-            EatBlock(newPos, CapsConfig.BombEatEffect, CapsConfig.BombEffectInterval * 3, 50);
+            EatBlock(newPos, CapsConfig.BombEatEffect, CapsConfig.BombEffectInterval * 3);
 
             newPos = GoTo(newPos3, (TDirection)(((int)dir - 2 + 6) % 6), 1); //第三层向上一个方向走一步
-            EatBlock(newPos, CapsConfig.BombEatEffect, CapsConfig.BombEffectInterval * 3, 50);
+            EatBlock(newPos, CapsConfig.BombEatEffect, CapsConfig.BombEffectInterval * 3);
         }
 
         AddPartile("BigBombEffect", AudioEnum.Audio_Bomb, pos.x, pos.y);
@@ -3654,8 +3682,8 @@ public class GameLogic
             for (int i = 1; i < BlockCountX - 1; ++i)
             {
                 Position pos = startPos;
-                EatBlock(GoTo(pos, TDirection.EDir_UpRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval, 50);
-                EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval, 50);
+                EatBlock(GoTo(pos, TDirection.EDir_UpRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
+                EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
 
 
                 if (extraEat)
@@ -3663,18 +3691,18 @@ public class GameLogic
                     pos.Set(startPos.x, startPos.y + 1);
                     if (i == 1)
                     {
-                        EatBlock(pos, CapsConfig.LineEatEffect, 0.0f, 50);
+                        EatBlock(pos, CapsConfig.LineEatEffect, 0.0f);
                     }
-                    EatBlock(GoTo(pos, TDirection.EDir_UpRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval, 50);
-                    EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval, 50);
+                    EatBlock(GoTo(pos, TDirection.EDir_UpRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
+                    EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
 
                     pos.Set(startPos.x, startPos.y - 1);
                     if (i == 1)
                     {
-                        EatBlock(pos, CapsConfig.LineEatEffect, 0.0f, 50);
+                        EatBlock(pos, CapsConfig.LineEatEffect, 0.0f);
                     }
-                    EatBlock(GoTo(pos, TDirection.EDir_UpRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval, 50);
-                    EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval, 50);
+                    EatBlock(GoTo(pos, TDirection.EDir_UpRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
+                    EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
                 }
             }
 			if (extraEat)
@@ -3691,25 +3719,25 @@ public class GameLogic
             for (int i = 1; i < BlockCountX - 1; ++i)
             {
                 Position pos = startPos;
-                EatBlock(GoTo(pos, TDirection.EDir_Up, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval, 50);
-                EatBlock(GoTo(pos, TDirection.EDir_Down, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval, 50);
+                EatBlock(GoTo(pos, TDirection.EDir_Up, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
+                EatBlock(GoTo(pos, TDirection.EDir_Down, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
                 if (extraEat)
                 {
                     pos.Set(startPos.x + 1, startPos.y);
                     if (i == 1)
                     {
-                        EatBlock(pos, CapsConfig.LineEatEffect, 0.0f, 50);
+                        EatBlock(pos, CapsConfig.LineEatEffect, 0.0f);
                     }
-                    EatBlock(GoTo(pos, TDirection.EDir_Up, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval, 50);
-                    EatBlock(GoTo(pos, TDirection.EDir_Down, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval, 50);
+                    EatBlock(GoTo(pos, TDirection.EDir_Up, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
+                    EatBlock(GoTo(pos, TDirection.EDir_Down, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
 
                     pos.Set(startPos.x - 1, startPos.y);
                     if (i == 1)
                     {
-                        EatBlock(pos, CapsConfig.LineEatEffect, 0.0f, 50);
+                        EatBlock(pos, CapsConfig.LineEatEffect, 0.0f);
                     }
-                    EatBlock(GoTo(pos, TDirection.EDir_Up, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval, 50);
-                    EatBlock(GoTo(pos, TDirection.EDir_Down, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval, 50);
+                    EatBlock(GoTo(pos, TDirection.EDir_Up, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
+                    EatBlock(GoTo(pos, TDirection.EDir_Down, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
                 }
             }
             if (extraEat)
@@ -3726,26 +3754,26 @@ public class GameLogic
             for (int i = 1; i < BlockCountX - 1; ++i)
             {
                 Position pos = startPos;
-                EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval, 50);
-                EatBlock(GoTo(pos, TDirection.EDir_DownRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval, 50);
+                EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
+                EatBlock(GoTo(pos, TDirection.EDir_DownRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
 
                 if (extraEat)
                 {
                     pos.Set(startPos.x, startPos.y + 1);
                     if (i == 1)
                     {
-                        EatBlock(pos, CapsConfig.LineEatEffect, 0.0f, 50);
+                        EatBlock(pos, CapsConfig.LineEatEffect, 0.0f);
                     }
-                    EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval, 50);
-                    EatBlock(GoTo(pos, TDirection.EDir_DownRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval, 50);
+                    EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
+                    EatBlock(GoTo(pos, TDirection.EDir_DownRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
 
                     pos.Set(startPos.x, startPos.y - 1);
                     if (i == 1)
                     {
-                        EatBlock(pos, CapsConfig.LineEatEffect, 0.0f, 50);
+                        EatBlock(pos, CapsConfig.LineEatEffect, 0.0f);
                     }
-                    EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval, 50);
-                    EatBlock(GoTo(pos, TDirection.EDir_DownRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval, 50);
+                    EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
+                    EatBlock(GoTo(pos, TDirection.EDir_DownRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
                 }
             }
             if (extraEat)
@@ -3776,7 +3804,7 @@ public class GameLogic
                 }
                 if (color == TBlockColor.EColor_None)
                 {
-                    EatBlock(new Position(i, j), "EatEffect", CapsConfig.EatColorEffectStartDuration + CapsConfig.EatColorEffectStartInterval + CapsConfig.EatColorEffectInterval * eatCount, 50);
+                    EatBlock(new Position(i, j), "EatEffect", CapsConfig.EatColorEffectStartDuration + CapsConfig.EatColorEffectStartInterval + CapsConfig.EatColorEffectInterval * eatCount);
                     AddFlyParticle("EatColorFlyEffect", AudioEnum.Audio_None, startPos, new Position(i, j), CapsConfig.EatColorEffectStartDuration, CapsConfig.EatColorEffectStartInterval + CapsConfig.EatColorEffectInterval * eatCount);
                     ++eatCount;
                 }
@@ -3784,12 +3812,12 @@ public class GameLogic
                 {
                     if (bExchange)          //手动交换,播放有时序的动画
                     {
-                        EatBlock(new Position(i, j), "EatEffect", CapsConfig.EatColorEffectStartDuration + CapsConfig.EatColorEffectStartInterval + CapsConfig.EatColorEffectInterval * eatCount, 50);
+                        EatBlock(new Position(i, j), "EatEffect", CapsConfig.EatColorEffectStartDuration + CapsConfig.EatColorEffectStartInterval + CapsConfig.EatColorEffectInterval * eatCount);
                         AddFlyParticle("EatColorFlyEffect", AudioEnum.Audio_None, startPos, new Position(i, j), CapsConfig.EatColorEffectStartDuration, CapsConfig.EatColorEffectStartInterval + CapsConfig.EatColorEffectInterval * eatCount);
                     }
                     else                   //被动交换
                     {
-                        EatBlock(new Position(i, j), "EatEffect", CapsConfig.EatColorEffectStartDuration + delay, 50);
+                        EatBlock(new Position(i, j), "EatEffect", CapsConfig.EatColorEffectStartDuration + delay);
                         AddFlyParticle("EatColorFlyEffect", AudioEnum.Audio_None, startPos, new Position(i, j), CapsConfig.EatColorEffectStartDuration, delay);
                     }
 

@@ -115,7 +115,7 @@ public class CapBlock
     public static int EatingBlockCount = 0;     //正在消除的块的数量
     public static int DropingBlockCount = 0;    //下落中的块的数量
 
-    public void Eat(float delay)							//吃掉这个块
+    public void Eat(float delay = 0)							//吃掉这个块
 	{
 		if (CurState == BlockState.MovingEnd)
         {
@@ -124,7 +124,6 @@ public class CapBlock
         CurState = BlockState.Eating;
         m_eatStartTime = Timer.GetRealTimeSinceStartUp() + delay;
         ++EatingBlockCount;
-        EatDelay = delay;
 	}
 
     public bool IsEating()

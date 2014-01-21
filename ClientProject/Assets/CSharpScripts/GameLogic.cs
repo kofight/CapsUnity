@@ -3964,7 +3964,7 @@ public class GameLogic
 
     bool CreateBlock(int x, int y, bool avoidLine)
     {
-        TBlockColor color = GetRandomColor(PlayingStageData.CheckFlag(x, y, GridFlag.Birth));		//最上方获取新的方块
+        TBlockColor color = GetRandomColor(PlayingStageData.CheckFlag(x, y, GridFlag.Birth) && !PlayingStageData.CheckFlag(x, y, GridFlag.Cage));		//最上方获取新的方块，笼子里不能生成坚果
         m_blocks[x, y] = GetFreeCapBlock(color);            //创建新的块 Todo 变成用缓存
         m_blocks[x, y].color = color;               //设置颜色
         m_blocks[x, y].m_animation.enabled = false;
@@ -4020,9 +4020,9 @@ public class GameLogic
         m_selectedPos[1].x = -1;
     }
 
-    TBlockColor GetRandomColor(bool bBirth)
+    TBlockColor GetRandomColor(bool bGenerateNut)
     {
-        if (bBirth && PlayingStageData.Target == GameTarget.BringFruitDown          //若为出生点，且水果下落模式，且还没掉够坚果
+        if (bGenerateNut && PlayingStageData.Target == GameTarget.BringFruitDown          //若为出生点，且水果下落模式，且还没掉够坚果
             && m_nut1Count + PlayingStageData.Nut1Count + m_nut2Count + PlayingStageData.Nut2Count < GlobalVars.CurStageData.Nut1Count + GlobalVars.CurStageData.Nut2Count)
         {
 

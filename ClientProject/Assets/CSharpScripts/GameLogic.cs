@@ -4033,7 +4033,12 @@ public class GameLogic
                 AddNut = true;          //生成
             }
 
-            if (PlayingStageData.NutMaxCount == 0 || m_nut1Count + m_nut2Count < PlayingStageData.NutMaxCount)       //画面上坚果数量已经小于最大数量，不生成
+            else if (PlayingStageData.NutMinCount > 0 && m_nut1Count + m_nut2Count < PlayingStageData.NutMinCount)
+            {
+                AddNut = true;
+            }
+
+            else if (PlayingStageData.NutMaxCount == 0 || m_nut1Count + m_nut2Count < PlayingStageData.NutMaxCount)       //画面上坚果数量已经小于最大数量，不生成
             {
                 if (GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit >
                     (m_nut1Count + m_nut2Count + PlayingStageData.Nut1Count + PlayingStageData.Nut2Count - PlayingStageData.NutInitCount + 1) * PlayingStageData.NutStep)      //若已经到步数了

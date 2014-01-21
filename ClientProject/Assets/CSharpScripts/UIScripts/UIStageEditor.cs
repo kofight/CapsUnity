@@ -238,6 +238,9 @@ public class UIStageEditor : UIWindow
         input = GetChildComponent<UIInput>("NutMaxCount");
         input.value = GlobalVars.CurStageData.NutMaxCount.ToString();
 
+        input = GetChildComponent<UIInput>("NutMinCount");
+        input.value = GlobalVars.CurStageData.NutMinCount.ToString();
+
         input = GetChildComponent<UIInput>("NutStep");
         input.value = GlobalVars.CurStageData.NutStep.ToString();
 
@@ -329,6 +332,10 @@ public class UIStageEditor : UIWindow
         input = GetChildComponent<UIInput>("NutMaxCount");
         int nutMaxCount = (int)System.Convert.ChangeType(input.value, typeof(int));
         GameLogic.Singleton.PlayingStageData.NutMaxCount = nutMaxCount;
+
+        input = GetChildComponent<UIInput>("NutMinCount");
+        int nutMinCount = (int)System.Convert.ChangeType(input.value, typeof(int));
+        GameLogic.Singleton.PlayingStageData.NutMinCount = nutMinCount;
 
         input = GetChildComponent<UIInput>("NutStep");
         int nutStep = (int)System.Convert.ChangeType(input.value, typeof(int));

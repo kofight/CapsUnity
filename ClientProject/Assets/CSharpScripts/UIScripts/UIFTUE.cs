@@ -153,33 +153,15 @@ public class UIFTUE : UIWindow
 
         if (m_curDialogIndex < m_dialogContents.Length)      //若不是最后一段文字
         {
+			m_bLock = true;
             //播放下一段
             m_dialogText.Play(m_dialogContents[m_curDialogIndex], delegate()
             {
+				m_bLock = false;
                 ++m_curDialogIndex;
-                if (m_curDialogIndex == m_dialogContents.Length)        //下一段若是最后一段文字, 结束播放
+				if (m_afterDialogFunc != null)          //若有结束函数
                 {
-                    if (m_afterDialogFunc != null)          //若有结束函数
-                    {
-                        m_afterDialogFunc();
-                        m_bLock = true;
-                    }
-                    else                                    //若无结束函数，直接进下一步或关闭
-                    {
-                        if (m_FTUEIndex < m_ftueData.Count - 1)
-                        {
-                            ++m_FTUEIndex;
-                            ShowFTUE(m_curStep);                         //若有步数，循环调用
-                        }
-                        else                                            //若没有
-                        {
-                            EndFTUE();
-                        }
-                    }
-                }
-                else
-                {
-                    m_bLock = false;
+                        m_afterDialogFunc(); 
                 }
             });
         }
@@ -192,8 +174,7 @@ public class UIFTUE : UIWindow
             }
             else                                            //若没有
             {
-                HideWindow();                               //隐藏窗体
-                GameLogic.Singleton.SetGameFlow(TGameFlow.EGameState_Playing);
+				EndFTUE();
             }
         }
 	}

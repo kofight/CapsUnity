@@ -91,6 +91,7 @@ public class StageData
     public int Nut1Count = 3;
     public int Nut2Count = 3;
     public int NutMaxCount = 3;            //最多同屏数量
+    public int NutMinCount = 0;             //同屏最少水果限制，0代表没限制
     public int NutInitCount = 1;            //初始化数量
     public int NutStep = 10;            //步数间隔
 
@@ -204,6 +205,7 @@ public class StageData
         _config.GetValue<int>("Nut2Count", out Nut2Count);
         _config.GetValue<int>("NutInitCount", out NutInitCount);
         _config.GetValue<int>("NutMaxCount", out NutMaxCount);
+        _config.GetValue<int>("NutMinCount", out NutMinCount);
         _config.GetValue<int>("NutStep", out NutStep);
         _config.GetValue<int>("PlusInitCount", out PlusInitCount);
         _config.GetValue<int>("PlusMaxCount", out PlusMaxCount);
@@ -365,6 +367,7 @@ public class StageData
         _config.Write("Nut2Count", Nut2Count);
 		_config.Write("NutInitCount", NutInitCount);
         _config.Write("NutMaxCount", NutMaxCount);
+        _config.Write("NutMinCount", NutMinCount);
 		_config.Write("NutStep", NutStep);
 
         _config.Write("PlusInitCount", PlusInitCount);

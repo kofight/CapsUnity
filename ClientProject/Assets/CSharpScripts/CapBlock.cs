@@ -117,6 +117,10 @@ public class CapBlock
 
     public void Eat(float delay = 0)							//吃掉这个块
 	{
+        if (CurState == BlockState.Eating)
+        {
+            return;
+        }
 		if (CurState == BlockState.MovingEnd)
         {
             --DropingBlockCount;

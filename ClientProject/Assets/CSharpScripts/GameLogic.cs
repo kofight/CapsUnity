@@ -1446,14 +1446,7 @@ public class GameLogic
             {
                 if (m_cageCheckList.Count > 0)          //若有笼子消除完了需要多检查一次消除的可能
                 {
-                    while (m_cageCheckList.Count > 0)
-                    {
-                        Position item = m_cageCheckList[m_cageCheckList.Count-1];
-                        EatLine(item);
-                        bEat = true;
-                        m_cageCheckList.Remove(item);
-                    }
-                    m_cageCheckList.Clear();
+                    bEat = CheckCageAgain();
                 }
 				else                    //到这儿就是什么未处理的消除都没了
 				{
@@ -1467,6 +1460,26 @@ public class GameLogic
             ProcessTempBlocks();            //处理正常下落后消块对场景的影响
         }
     }
+	
+	bool CheckCageAgain()
+	{
+		bool bEat = false;
+		while (m_cageCheckList.Count > 0)
+        {
+            Position item = m_cageCheckList[m_cageCheckList.Count-1];
+			if(m_blocks[item.x, item.y].CurState != BlockState.Eating)
+			{
+				if(EatLine(item))
+				{
+					bEat = true;
+				}
+			}
+            m_cageCheckList.Remove(item);
+        }
+        m_cageCheckList.Clear();
+		return bEat;
+	}
+	
 
     public void Update()
     {
@@ -1781,8 +1794,17 @@ public class GameLogic
                         if (m_selectedPos[0].x == -1 || m_selectedPos[1].x == -1) return;
 
                         ClearSelected();
+						
+						if(CapBlock.EatingBlockCount == 0)			//特殊情况，移动消除后没有产生吃块，可能的情况是在笼子边上生成了块，这是需要额外去判断一次笼子附近的消除
+						{
+							if(m_cageCheckList.Count > 0)
+							{
+								CheckCageAgain();
+							}
+						}
+						
+						ProcessTempBlocks();                                                            //处理正常移动后消块对场景的影响
                     }
-                    ProcessTempBlocks();                                                            //处理正常移动后消块对场景的影响
                 }
             }
             else
@@ -1804,7 +1826,6 @@ public class GameLogic
         {
             PlayingStageData.ClearFlag(processGrid.x, processGrid.y, GridFlag.Cage);
             AddPartile("CageEffect", AudioEnum.Audio_Cage, processGrid.x, processGrid.y);
-            m_blocks[processGrid.x, processGrid.y].CurState = BlockState.Normal;
             m_scoreToShow[processGrid.x, processGrid.y] += CapsConfig.EatCagePoint;
             m_gridBackImage[processGrid.x, processGrid.y].layer1.gameObject.SetActive(false);
             m_cageCheckList.Add(new Position(processGrid.x, processGrid.y));                //记录一个位置，之后需要再检查一次消除
@@ -2615,11 +2636,6 @@ public class GameLogic
         grid.startTime = Timer.GetRealTimeSinceStartUp() + delay;
         grid.block = block;
 
-        if (block != null)
-        {
-            block.Eat(delay);             //切到吃块状态
-        }
-
         if (delay == 0.0f)
         {
 			grid.bProceeStoneAround = true;
@@ -2645,11 +2661,10 @@ public class GameLogic
             block.CurState != BlockState.Eating &&
             block.color <= TBlockColor.EColor_Grey)       //移动和Eating的块不处理特殊块
         {
-			if(block.CurState == BlockState.MovingEnd)
-				--CapBlock.DropingBlockCount;
-            block.CurState = BlockState.Eating;      //在这里提前给Block的状态赋值，是为了防止重复EatBlock
             block.EatAnimationName = "Eat";           //消除动画名字，先用默认的
-            block.EatEffectName = eatEffectName;     //消除特效名字，用传进来的			
+            block.EatEffectName = eatEffectName;     //消除特效名字，用传进来的
+
+            block.Eat(delay);                             //在这里提前给Block的状态赋值，是为了防止重复EatBlock
 			
             //处理特殊块
             switch (block.special)

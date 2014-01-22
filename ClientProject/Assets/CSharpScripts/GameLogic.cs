@@ -1050,12 +1050,12 @@ public class GameLogic
         System.GC.Collect();
     }
 
-    int GetXPos(int x)
+    public int GetXPos(int x)
     {
         return (int)(gameAreaX + x * BLOCKWIDTH + BLOCKWIDTH / 2);
     }
 
-    int GetYPos(int x, int y)
+    public int GetYPos(int x, int y)
     {
         return (int)(gameAreaY + y * BLOCKHEIGHT + (x + 1) % 2 * BLOCKHEIGHT / 2 + BLOCKHEIGHT / 2);
     }
@@ -3554,9 +3554,8 @@ public class GameLogic
 
         if (m_gameFlow == TGameFlow.EGameState_FTUE)        //在FTUE状态下，产生移动后FTUE就消失了
         {
-            m_gameFlow = TGameFlow.EGameState_Playing;
             UIFTUE ftue = UIWindowManager.Singleton.GetUIWindow<UIFTUE>();
-            ftue.HideWindow();
+            ftue.EndFTUE();
         }
     }
 

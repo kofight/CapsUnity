@@ -1039,7 +1039,7 @@ public class GameLogic
 
         for (int i = 0; i < BlockCountX; ++i)
         {
-			m_slopeDropLock[i] = 9;         //初始化成不加锁
+			m_slopeDropLock[i] = 10;         //初始化成不加锁
         }
 
         EasyTouch.On_SimpleTap -= OnTap;
@@ -1140,7 +1140,7 @@ public class GameLogic
 							{
                                 m_blocks[i, j].m_blockSprite.fillAmount = 1.0f - (yLenth - Mathf.Floor(yLenth));  //算个裁切
 
-                                if (PlayingStageData.CheckFlag(i, j, GridFlag.PortalEnd))       //若为传送门的终点,需要处理传来位置的图片
+                                if (PlayingStageData.CheckFlag(i, j, GridFlag.PortalEnd) && m_blocks[i, j].m_shadowSprite!=null)       //若为传送门的终点,需要处理传来位置的图片
                                 {
                                     m_blocks[i, j].m_shadowSprite.fillAmount = 1.0f - m_blocks[i, j].m_blockSprite.fillAmount;
                                     Position from = PlayingStageData.PortalToMap[j * 10 + i].from;
@@ -1828,6 +1828,7 @@ public class GameLogic
         bool needEatBlock = false;          //是否还需要吃块本身?因为若要处理的位置是笼子等，就不需要吃块本身了
 
         int flag = PlayingStageData.GridData[processGrid.x, processGrid.y];
+		if(flag == 0) return;
 
         ///处理Grid///////////////////////////////////////////////////////////////////////
         if ((flag & (int)GridFlag.Cage) > 0)           //笼子
@@ -2043,7 +2044,7 @@ public class GameLogic
 
                 if (j == BlockCountY - 1)       //已经到了最下面还没有在下落的块
                 {
-                    m_slopeDropLock[i] = 9;
+                    m_slopeDropLock[i] = 10;
                 }
             }
         }

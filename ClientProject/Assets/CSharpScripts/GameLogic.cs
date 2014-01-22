@@ -345,6 +345,12 @@ public class GameLogic
     int m_nut2Count;                        //当前屏幕上的坚果数量
 
     bool m_chocolateNeedGrow;               //是否需要巧克力生长
+    bool m_bStopFTUE = false;               //若在关卡中跳过了FTUE,这个就为true了，进关卡时清回false
+
+    public void StopFTUE()
+    {
+        m_bStopFTUE = true;
+    }
 
     HashSet<AudioEnum> m_playSoundNextFrame = new HashSet<AudioEnum>();     //有声音要播放时，放在这个容器里，下一帧播放,这样做是为了避免重复播放
 
@@ -906,7 +912,7 @@ public class GameLogic
 
     public void CheckFTUE()
     {
-        if (PlayingStageData.FTUEMap.Count == 0)
+        if (PlayingStageData.FTUEMap.Count == 0 || m_bStopFTUE)
         {
             return;
         }
@@ -1025,6 +1031,8 @@ public class GameLogic
         m_curStateStartTime = 0;
         m_lastStepRewardTime = 0;
         m_lastHelpTime = 0;
+
+        m_bStopFTUE = false;
 
         CapBlock.DropingBlockCount = 0;
         CapBlock.EatingBlockCount = 0;
@@ -1406,8 +1414,8 @@ public class GameLogic
                     Position rightDown = GoTo(new Position(i, j), TDirection.EDir_LeftDown, 1);
                     //这里判断一下是否落到底了（即不能下方向或斜方向下落）
                     if (!CheckPosCanDropDown(i, j + 1)          //
-                        && !CheckPosCanDropDown(leftDown.x, leftDown.y)
-                        && !CheckPosCanDropDown(rightDown.x, rightDown.y))
+                        && (!CheckPosCanDropDown(leftDown.x, leftDown.y) || m_slopeDropLock[leftDown.x] <= leftDown.y + 1)
+                        && (!CheckPosCanDropDown(rightDown.x, rightDown.y) || m_slopeDropLock[rightDown.x] <= rightDown.y + 1))
                     {
                         m_blocks[i, j].CurState = BlockState.Normal;        //先去掉下落状态
 						--CapBlock.DropingBlockCount;                       //清理下落计数
@@ -1448,7 +1456,7 @@ public class GameLogic
                 {
                     bEat = CheckCageAgain();
                 }
-				else                    //到这儿就是什么未处理的消除都没了
+				if(!bEat)                    			//到这儿就是什么未处理的消除都没了
 				{
                     OnDropEnd();
 				}
@@ -2194,7 +2202,7 @@ public class GameLogic
                     }
                 }
 
-                if (m_slopeDropLock[x] <= j)        //若锁在当前位置的上方
+                if (m_slopeDropLock[x] <= j + 1)        //若锁在当前位置的上方
                 {
                     continue;
                 }
@@ -3309,6 +3317,10 @@ public class GameLogic
         if (GlobalVars.EditState == TEditState.Eat)
         {
             EatBlock(p, CapsConfig.EatEffect);          //编辑功能
+            if (CapBlock.EatingBlockCount == 0)         //若没有形成掉落
+            {
+                DropDown();                             //掉一次DropDown, 处理敲特殊块的情况
+            }
         }
 
         if (GlobalVars.EditState == TEditState.EditPortal)

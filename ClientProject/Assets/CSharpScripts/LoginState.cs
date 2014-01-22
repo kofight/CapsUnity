@@ -67,6 +67,12 @@ public class LoginState : State
 	            UIWindowManager.Singleton.GetUIWindow<UINoMoreHearts>().Close();
 	            return;
 	        }
+
+            if (UIWindowManager.Singleton.GetUIWindow<UIHowToPlay>().Visible)
+            {
+                UIWindowManager.Singleton.GetUIWindow<UIHowToPlay>().OnClose();
+                return;
+            }
 			
 			if(UIWindowManager.Singleton.GetUIWindow<UIStageInfo>().Visible)
 			{

@@ -25,7 +25,8 @@ public class UIHowToPlay : UIWindow
         if (tex != null)
         {
             m_helpTex.mainTexture = tex;
-            GameLogic.Singleton.PauseGame();
+			if(GameLogic.Singleton != null)
+            	GameLogic.Singleton.PauseGame();
         }
     }
 
@@ -33,7 +34,8 @@ public class UIHowToPlay : UIWindow
     {
         HideWindow(delegate()
         {
-            GameLogic.Singleton.ResumeGame();
+			if(GameLogic.Singleton != null)
+            	GameLogic.Singleton.ResumeGame();
         });
         UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
     }

@@ -157,12 +157,16 @@ public class UIFTUE : UIWindow
             //播放下一段
             m_dialogText.Play(m_dialogContents[m_curDialogIndex], delegate()
             {
-				m_bLock = false;
+				
                 ++m_curDialogIndex;
 				if (m_afterDialogFunc != null)          //若有结束函数
                 {
-                        m_afterDialogFunc(); 
+                    m_afterDialogFunc(); 
                 }
+				else
+				{
+					m_bLock = false;
+				}
             });
         }
         else        //若是最后一段文字

@@ -9,6 +9,7 @@ public class UIFTUE : UIWindow
 	UISprite m_headSprite;
     UISprite m_backPic;
     UISprite m_pic;             //配的图片
+    GameObject m_pointer;
 
     WindowEffectFinished m_afterDialogFunc;
 	
@@ -83,6 +84,18 @@ public class UIFTUE : UIWindow
         return false;
     }
 
+    public override void OnUpdate()
+    {
+        base.OnUpdate();
+        if (m_pointer.activeSelf)        //若箭头可见
+        {
+            Vector2 fromXY = new Vector2(GameLogic.Singleton.GetXPos(m_ftueData[m_FTUEIndex].from.x), GameLogic.Singleton.GetYPos(m_ftueData[m_FTUEIndex].from.x, m_ftueData[m_FTUEIndex].from.y));
+            Vector2 toXY = new Vector2(GameLogic.Singleton.GetXPos(m_ftueData[m_FTUEIndex].to.x), GameLogic.Singleton.GetYPos(m_ftueData[m_FTUEIndex].to.x, m_ftueData[m_FTUEIndex].to.y));
+            Vector2 pos = Vector2.Lerp(fromXY, toXY, (Timer.millisecondNow() % 1000) / 1000.0f);
+            m_pointer.transform.localPosition = new Vector3(pos.x, -pos.y);
+        }
+    }
+
     public void ShowText(string head, string pic, string content, WindowEffectFinished func)
 	{
 		ShowWindow();
@@ -121,6 +134,7 @@ public class UIFTUE : UIWindow
 				if(func != null)
 				{
                 	func();
+					m_pointer.SetActive(true);
 					m_bLock = true;
 				}
             }
@@ -137,6 +151,8 @@ public class UIFTUE : UIWindow
 		m_headSprite = GetChildComponent<UISprite>("Head");
         m_dialogBoardSprite = GetChildComponent<UISprite>("DialogBoard");
         m_pic = GetChildComponent<UISprite>("Picture");
+        m_pointer = GameObject.Find("FTUEPointer");
+        m_pointer.SetActive(false);
 		AddChildComponentMouseClick("DialogBoard", OnClick);
     }
 
@@ -144,6 +160,7 @@ public class UIFTUE : UIWindow
     {
         HideWindow();                               //隐藏窗体
         GameLogic.Singleton.SetGameFlow(TGameFlow.EGameState_Playing);
+        m_pointer.SetActive(false);
     }
 	
 	public void OnClick()
@@ -161,11 +178,13 @@ public class UIFTUE : UIWindow
                 ++m_curDialogIndex;
 				if (m_afterDialogFunc != null)          //若有结束函数
                 {
-                    m_afterDialogFunc(); 
+                    m_afterDialogFunc();
+                    m_pointer.SetActive(true);
                 }
 				else
 				{
 					m_bLock = false;
+                    m_pointer.SetActive(false);
 				}
             });
         }

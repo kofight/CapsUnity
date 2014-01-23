@@ -107,8 +107,8 @@ public class GameState : State
 
         if (UIWindowManager.Singleton.GetUIWindow<UIFTUE>() != null && UIWindowManager.Singleton.GetUIWindow<UIFTUE>().Visible)
         {
-            GameLogic.Singleton.StopFTUE();
-            UIWindowManager.Singleton.GetUIWindow<UIFTUE>().EndFTUE();
+            //GameLogic.Singleton.StopFTUE();
+            //UIWindowManager.Singleton.GetUIWindow<UIFTUE>().EndFTUE();
             return;
         }
 

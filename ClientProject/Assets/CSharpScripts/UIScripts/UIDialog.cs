@@ -192,6 +192,11 @@ public class UIDialog : UIWindow
         m_backPic = GetChildComponent<UISprite>("Background");
 		m_itemBoard = GetChildComponent<UISprite>("ItemBoard");
 
+        AddChildComponentMouseClick("SkipBtn", delegate()
+        {
+            EndDialog();
+        });
+
         //解析DialogEvent配置文件
         string eventContent = ResourceManager.Singleton.LoadTextFile("DialogEvent");
         //解析Dialog配置文件////////////////////////////////////////////////////////////////////////

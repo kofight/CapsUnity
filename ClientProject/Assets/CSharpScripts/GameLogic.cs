@@ -1475,7 +1475,7 @@ public class GameLogic
 		while (m_cageCheckList.Count > 0)
         {
             Position item = m_cageCheckList[m_cageCheckList.Count-1];
-			if(m_blocks[item.x, item.y].CurState != BlockState.Eating)
+			if(m_blocks[item.x, item.y] != null && m_blocks[item.x, item.y].CurState != BlockState.Eating)
 			{
 				if(EatLine(item))
 				{
@@ -2670,9 +2670,7 @@ public class GameLogic
             block.CurState != BlockState.Eating &&
             block.color <= TBlockColor.EColor_Grey)       //移动和Eating的块不处理特殊块
         {
-            block.EatAnimationName = "Eat";           //消除动画名字，先用默认的
             block.EatEffectName = eatEffectName;     //消除特效名字，用传进来的
-
             block.Eat(delay);                             //在这里提前给Block的状态赋值，是为了防止重复EatBlock
 			
             //处理特殊块
@@ -3407,7 +3405,10 @@ public class GameLogic
 
         touchBeginPos.Set(x, y);
 		touchBeginGrid.Set(p.x, p.y);
-        SetHighLight(true, touchBeginGrid.x, touchBeginGrid.y);
+        if (m_gameFlow != TGameFlow.EGameState_FTUE)
+        {
+            SetHighLight(true, touchBeginGrid.x, touchBeginGrid.y);
+        }
         m_selectedPos[0] = p;
         if (m_selectedPos[0].x == -1) return;
         m_selectedPos[1].x = -1;
@@ -3418,7 +3419,10 @@ public class GameLogic
     {
         if (touchBeginGrid.IsAvailable())
         {
-            SetHighLight(false, touchBeginGrid.x, touchBeginGrid.y);
+            if (m_gameFlow != TGameFlow.EGameState_FTUE)
+            {
+                SetHighLight(false, touchBeginGrid.x, touchBeginGrid.y);
+            }
             touchBeginGrid.MakeItUnAvailable();
         }
     }
@@ -3581,16 +3585,20 @@ public class GameLogic
             //处理五彩块
             if (special0 == TSpecialBlock.ESpecial_EatAColor && special1 == TSpecialBlock.ESpecial_EatAColor)       //两个五彩块
             {
+				m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();
+                AddDelayProceedGrid(m_selectedPos[0].x, m_selectedPos[0].y, 0, m_blocks[m_selectedPos[0].x, m_selectedPos[0].y]);       ////自己消失
                 EatAColor(TBlockColor.EColor_None, m_selectedPos[1], true);         //消全部
             }
             else if (special0 == TSpecialBlock.ESpecial_EatAColor && special1 == TSpecialBlock.ESpecial_Normal)
             {
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
+				m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();
+                AddDelayProceedGrid(m_selectedPos[0].x, m_selectedPos[0].y, 0, m_blocks[m_selectedPos[0].x, m_selectedPos[0].y]);       ////自己消失
                 EatAColor(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color, m_selectedPos[0], true);      //吃同颜色
             }
             else if(special1 == TSpecialBlock.ESpecial_EatAColor && special0 == TSpecialBlock.ESpecial_Normal)
             {
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
+				m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();
+                AddDelayProceedGrid(m_selectedPos[1].x, m_selectedPos[1].y, 0, m_blocks[m_selectedPos[1].x, m_selectedPos[1].y]);       ////自己消失
                 EatAColor(m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color, m_selectedPos[1]);      //吃同颜色
             }
             else if (special0 == TSpecialBlock.ESpecial_EatAColor &&
@@ -3825,13 +3833,19 @@ public class GameLogic
                 {
                     continue;
                 }
+
+                if (m_blocks[i, j].CurState != BlockState.Normal)
+                {
+                    continue;
+                }
                 if (color != TBlockColor.EColor_None && m_blocks[i, j].special == TSpecialBlock.ESpecial_EatAColor)
                 {
                     continue;
                 }
                 if (color == TBlockColor.EColor_None)
                 {
-                    EatBlock(new Position(i, j), "EatEffect", CapsConfig.EatColorEffectStartDuration + CapsConfig.EatColorEffectStartInterval + CapsConfig.EatColorEffectInterval * eatCount);
+					m_blocks[i, j].Eat(CapsConfig.EatColorEffectStartDuration + CapsConfig.EatColorEffectStartInterval + CapsConfig.EatColorEffectInterval * eatCount);
+					AddDelayProceedGrid(i, j, CapsConfig.EatColorEffectStartDuration + CapsConfig.EatColorEffectStartInterval + CapsConfig.EatColorEffectInterval * eatCount, m_blocks[i, j]);
                     AddFlyParticle("EatColorFlyEffect", AudioEnum.Audio_None, startPos, new Position(i, j), CapsConfig.EatColorEffectStartDuration, CapsConfig.EatColorEffectStartInterval + CapsConfig.EatColorEffectInterval * eatCount);
                     ++eatCount;
                 }
@@ -3966,6 +3980,8 @@ public class GameLogic
     {
         CapBlock block = m_capBlockFreeList.Last.Value;
         block.m_blockTransform.gameObject.SetActive(true);
+		block.EatAnimationName = CapsConfig.EatAnim;           //消除动画名字，先用默认的
+		block.EatEffectName = CapsConfig.EatEffect;
         m_capBlockFreeList.RemoveLast();
         return block;
     }
@@ -4119,6 +4135,8 @@ public class GameLogic
     {
         int countInSameLine = 1;					//在同一条线上相同的颜色的数量
         TBlockColor color = GetBlockColor(position);
+		if(color == TBlockColor.EColor_None)
+			return false;
         Position curPos;
         for (TDirection dir = TDirection.EDir_Up; dir <= TDirection.EDir_DownRight; dir = (TDirection)(dir + 1))		//遍历3个方向
         {

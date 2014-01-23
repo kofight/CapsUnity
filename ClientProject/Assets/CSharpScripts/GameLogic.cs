@@ -3625,14 +3625,14 @@ public class GameLogic
             {
                 m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
-                //EatALLDirLine(m_selectedPos[1], false);
+                EatALLDirLine(m_selectedPos[1], false);
 
-                m_gameFlow = TGameFlow.EGameState_EffectTime;                           //切换游戏状态到特效演出时间，等待特效演出
-                m_curStateStartTime = Timer.millisecondNow();                           //保存下切状态的时间
-                m_effectStateDuration = CapsConfig.EffectAllDirTime;                                           //2秒的演出时间
-                m_curSpecialEffect = TSpecialEffect.EAllDir;                            //全方向消除特效
-                m_curSpecialEffectPos = m_selectedPos[1];                               //把特效位置保存起来
-                m_effectStep = 0;                                                       //从第0步开始
+                //m_gameFlow = TGameFlow.EGameState_EffectTime;                           //切换游戏状态到特效演出时间，等待特效演出
+                //m_curStateStartTime = Timer.millisecondNow();                           //保存下切状态的时间
+                //m_effectStateDuration = CapsConfig.EffectAllDirTime;                                           //2秒的演出时间
+                //m_curSpecialEffect = TSpecialEffect.EAllDir;                            //全方向消除特效
+                //m_curSpecialEffectPos = m_selectedPos[1];                               //把特效位置保存起来
+                //m_effectStep = 0;                                                       //从第0步开始
             }
             else if (special0 == TSpecialBlock.ESpecial_Bomb && (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||     //炸弹跟条状交换，单方向加粗
                     special1 == TSpecialBlock.ESpecial_EatLineDir1))
@@ -3717,8 +3717,8 @@ public class GameLogic
             for (int i = 1; i < BlockCountX - 1; ++i)
             {
                 Position pos = startPos;
-                EatBlock(GoTo(pos, TDirection.EDir_UpRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
-                EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
+                EatBlock(GoTo(pos, TDirection.EDir_UpRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
+                EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
 
 
                 if (extraEat)
@@ -3728,25 +3728,25 @@ public class GameLogic
                     {
                         EatBlock(pos, CapsConfig.LineEatEffect, 0.0f);
                     }
-                    EatBlock(GoTo(pos, TDirection.EDir_UpRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
-                    EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
+                    EatBlock(GoTo(pos, TDirection.EDir_UpRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
+                    EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
 
                     pos.Set(startPos.x, startPos.y - 1);
                     if (i == 1)
                     {
                         EatBlock(pos, CapsConfig.LineEatEffect, 0.0f);
                     }
-                    EatBlock(GoTo(pos, TDirection.EDir_UpRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
-                    EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
+                    EatBlock(GoTo(pos, TDirection.EDir_UpRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
+                    EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
                 }
             }
 			if (extraEat)
 			{
-                AddPartile("Dir1BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y);
+                AddPartile("Dir1BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true, CapsConfig.EatAllLineEffectStartInterval);
 			}
 			else
 			{
-                AddPartile("Dir1Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y);
+                AddPartile("Dir1Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true, CapsConfig.EatAllLineEffectStartInterval);
 			}
         }
         if (dir == -1 || dir == (int)TSpecialBlock.ESpecial_EatLineDir0)
@@ -3754,8 +3754,8 @@ public class GameLogic
             for (int i = 1; i < BlockCountX - 1; ++i)
             {
                 Position pos = startPos;
-                EatBlock(GoTo(pos, TDirection.EDir_Up, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
-                EatBlock(GoTo(pos, TDirection.EDir_Down, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
+                EatBlock(GoTo(pos, TDirection.EDir_Up, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
+                EatBlock(GoTo(pos, TDirection.EDir_Down, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
                 if (extraEat)
                 {
                     pos.Set(startPos.x + 1, startPos.y);
@@ -3763,25 +3763,25 @@ public class GameLogic
                     {
                         EatBlock(pos, CapsConfig.LineEatEffect, 0.0f);
                     }
-                    EatBlock(GoTo(pos, TDirection.EDir_Up, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
-                    EatBlock(GoTo(pos, TDirection.EDir_Down, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
+                    EatBlock(GoTo(pos, TDirection.EDir_Up, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
+                    EatBlock(GoTo(pos, TDirection.EDir_Down, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
 
                     pos.Set(startPos.x - 1, startPos.y);
                     if (i == 1)
                     {
                         EatBlock(pos, CapsConfig.LineEatEffect, 0.0f);
                     }
-                    EatBlock(GoTo(pos, TDirection.EDir_Up, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
-                    EatBlock(GoTo(pos, TDirection.EDir_Down, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
+                    EatBlock(GoTo(pos, TDirection.EDir_Up, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
+                    EatBlock(GoTo(pos, TDirection.EDir_Down, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
                 }
             }
             if (extraEat)
             {
-                AddPartile("Dir0BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y);
+                AddPartile("Dir0BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true, CapsConfig.EatAllLineEffectStartInterval);
             }
             else
             {
-                AddPartile("Dir0Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y);
+                AddPartile("Dir0Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true, CapsConfig.EatAllLineEffectStartInterval);
             }
         }
         if (dir == -1 || dir == (int)TSpecialBlock.ESpecial_EatLineDir2)
@@ -3789,8 +3789,8 @@ public class GameLogic
             for (int i = 1; i < BlockCountX - 1; ++i)
             {
                 Position pos = startPos;
-                EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
-                EatBlock(GoTo(pos, TDirection.EDir_DownRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
+                EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
+                EatBlock(GoTo(pos, TDirection.EDir_DownRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
 
                 if (extraEat)
                 {
@@ -3799,25 +3799,25 @@ public class GameLogic
                     {
                         EatBlock(pos, CapsConfig.LineEatEffect, 0.0f);
                     }
-                    EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
-                    EatBlock(GoTo(pos, TDirection.EDir_DownRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
+                    EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
+                    EatBlock(GoTo(pos, TDirection.EDir_DownRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
 
                     pos.Set(startPos.x, startPos.y - 1);
                     if (i == 1)
                     {
                         EatBlock(pos, CapsConfig.LineEatEffect, 0.0f);
                     }
-                    EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
-                    EatBlock(GoTo(pos, TDirection.EDir_DownRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval);
+                    EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
+                    EatBlock(GoTo(pos, TDirection.EDir_DownRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
                 }
             }
             if (extraEat)
             {
-                AddPartile("Dir2BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y);
+                AddPartile("Dir2BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true, CapsConfig.EatAllLineEffectStartInterval);
             }
             else
             {
-                AddPartile("Dir2Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y);
+                AddPartile("Dir2Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true, CapsConfig.EatAllLineEffectStartInterval);
             }
         }
     }

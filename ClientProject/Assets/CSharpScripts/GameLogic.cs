@@ -3841,7 +3841,7 @@ public class GameLogic
                     continue;
                 }
 
-                if (m_blocks[i, j].CurState != BlockState.Normal)
+                if (m_blocks[i, j].CurState != BlockState.Normal || m_blocks[i, j].color >= TBlockColor.EColor_Nut1)
                 {
                     continue;
                 }

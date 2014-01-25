@@ -2684,7 +2684,7 @@ public class GameLogic
 
                             EatBlock(GoTo(position, dir, 2), CapsConfig.BombEatEffect, CapsConfig.BombEffectInterval * 2 + CapsConfig.EatBombEffectStartInterval + delay);
                         }
-                        AddPartile("BombEffect", AudioEnum.Audio_Bomb, position.x, position.y, true, CapsConfig.EatBombEffectStartInterval + delay);
+                        AddPartile("BombEffect", AudioEnum.Audio_Bomb, position.x, position.y, true, delay);
                         m_blocks[position.x, position.y].EatAnimationName = CapsConfig.BombEatAnim;
                     }
                     break;
@@ -2701,7 +2701,7 @@ public class GameLogic
                                 newPos = GoTo(newPos, dir, 1);                                     //第二层
                                 EatBlock(newPos, CapsConfig.BombEatEffect, CapsConfig.BombEffectInterval * 2 + CapsConfig.EatBombEffectStartInterval + delay);
                             }
-                            AddPartile("BombEffect", AudioEnum.Audio_Bomb, position.x, position.y, true, CapsConfig.EatBombEffectStartInterval + delay);
+                            AddPartile("BombEffect", AudioEnum.Audio_Bomb, position.x, position.y, true, delay);
                         }
                         else
                         {

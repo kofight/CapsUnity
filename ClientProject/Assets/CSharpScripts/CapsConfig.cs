@@ -64,11 +64,16 @@ public class CapsConfig
     public static readonly string AddSpecialEffect = "AddSpecialEffect";       //添加
 	
 	public static readonly string EatAnim = "EatAnim";                          //条状炸弹的动画
-    public static readonly string LineDir0EatAnim = "Line0EatAnim";             //条状炸弹的动画
-    public static readonly string LineDir1EatAnim = "Line1EatAnim";             //条状炸弹的动画
-    public static readonly string LineDir2EatAnim = "Line2EatAnim";             //条状炸弹的动画
+    public static readonly string LineEatAnim = "LineEatAnim";             //条状炸弹的动画
     public static readonly string BombEatAnim = "BombEatAnim";                  //炸弹的动画
     public static readonly string RainbowEatAnim = "RainbowEatAnim";            //彩虹炸弹的动画
+
+    public static readonly string Bomb_Bomb_EatAnim = "Bomb_Bomb_EatAnim";      //两条状交换的动画
+    public static readonly string Line_Line_EatAnim = "Line_Line_EatAnim";      //两条状交换的动画
+    public static readonly string Line_Bomb_EatAnim = "Line_Bomb_EatAnim";      //条状炸弹交换的动画
+    public static readonly string Line_Rainbow_EatAnim = "Line_Rainbow_EatAnim";   //条状和彩虹交换的动画
+    public static readonly string Rainbow_Bomb_EatAnim = "Rainbow_Bomb_EatAnim";   //彩虹和炸弹交换的动画
+    public static readonly string Rainbow_Rainbow_EatAnim = "Rainbow_Rainbow_EatAnim";   //彩虹和彩虹交换的动画
 
     public static float EatLineEffectInterval = 0.04f;               //消行特效 吃块的间隔
     public static float EatLineEffectStartInterval = 0.17f;          //消行特效 吃块的开始时间

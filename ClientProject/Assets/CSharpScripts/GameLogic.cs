@@ -1842,6 +1842,10 @@ public class GameLogic
             {
                 m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
+
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
+
                 ChangeColorToBomb(m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color);
             }
             //炸弹跟彩虹
@@ -3879,9 +3883,7 @@ public class GameLogic
                 }
                 if (color == TBlockColor.EColor_None)
                 {
-                    m_blocks[i, j].EatEffectName = CapsConfig.RainbowEatEffect;
-                    m_blocks[i, j].Eat(CapsConfig.Rainbow_EffectFlyDuration + startDelay + intervalTime * eatCount);
-                    AddDelayProceedGrid(i, j, CapsConfig.Rainbow_EffectFlyDuration + startDelay + intervalTime * eatCount, m_blocks[i, j]);
+                    EatBlock(new Position(i, j), CapsConfig.RainbowEatEffect, flyDuration + startDelay + intervalTime * eatCount);
                     AddFlyParticle("EatColorFlyEffect", AudioEnum.Audio_None, startPos, new Position(i, j), flyDuration, startDelay + intervalTime * eatCount);
                     ++eatCount;
                 }
@@ -3889,12 +3891,12 @@ public class GameLogic
                 {
                     if (bExchange)          //手动交换,播放有时序的动画
                     {
-                        EatBlock(new Position(i, j), CapsConfig.RainbowEatEffect, CapsConfig.Rainbow_EffectFlyDuration + startDelay + intervalTime * eatCount);
+                        EatBlock(new Position(i, j), CapsConfig.RainbowEatEffect, flyDuration + startDelay + intervalTime * eatCount);
                         AddFlyParticle("EatColorFlyEffect", AudioEnum.Audio_None, startPos, new Position(i, j), flyDuration, startDelay + intervalTime * eatCount);
                     }
                     else                   //被动交换
                     {
-                        EatBlock(new Position(i, j), CapsConfig.RainbowEatEffect, CapsConfig.Rainbow_EffectFlyDuration + delay);
+                        EatBlock(new Position(i, j), CapsConfig.RainbowEatEffect, flyDuration + delay);
                         AddFlyParticle("EatColorFlyEffect", AudioEnum.Audio_None, startPos, new Position(i, j), flyDuration, delay);
                     }
 

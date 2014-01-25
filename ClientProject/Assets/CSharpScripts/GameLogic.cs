@@ -1703,6 +1703,168 @@ public class GameLogic
         }
     }
 
+    void ChangeBackSelected()
+    {
+        PlaySound(AudioEnum.Audio_MoveFailed);
+        ExchangeBlock(m_selectedPos[0], m_selectedPos[1]);
+        timerMoveBlock.Play();
+        ProcessMoveBlock(m_selectedPos[0], m_selectedPos[1], MOVE_TIME);
+        m_changeBack = true;
+    }
+
+    //处理两块交换
+    void ProcessExchange()
+    {
+        if (m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color >= TBlockColor.EColor_Nut1 || m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color >= TBlockColor.EColor_Nut1)     //若有坚果块
+        {
+            ChangeBackSelected();
+            return;
+        }
+
+        TSpecialBlock special0 = m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special;
+        TSpecialBlock special1 = m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special;
+
+        //普通交换的情况
+        if ((special0 == TSpecialBlock.ESpecial_Normal && special1 == TSpecialBlock.ESpecial_Normal)                //两个都是普通块
+            || (special0 == TSpecialBlock.ESpecial_Normal && special1 != TSpecialBlock.ESpecial_EatAColor)          //一个普通块，另一个不是彩虹
+            || (special1 == TSpecialBlock.ESpecial_Normal && special0 != TSpecialBlock.ESpecial_EatAColor))          //一个普通块，另一个不是彩虹
+        {
+            bool hasEatLine1 = EatLine(m_selectedPos[0]);
+            bool hasEatLine2 = EatLine(m_selectedPos[1]);
+
+
+            if (!hasEatLine1 && !hasEatLine2)//如果交换不成功,播放交换回来的动画
+            {
+                ChangeBackSelected();
+                return;                     //交换不成功这里就返回了
+            }
+
+            //若有水果可以吃掉，处理下吃水果
+            if (PlayingStageData.Target == GameTarget.BringFruitDown)
+            {
+                if (m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color > TBlockColor.EColor_Grey &&
+                PlayingStageData.CheckFlag(m_selectedPos[0].x, m_selectedPos[0].y, GridFlag.FruitExit))
+                {
+                    EatFruit(m_selectedPos[0].x, m_selectedPos[0].y);
+                }
+                if (m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color > TBlockColor.EColor_Grey &&
+                    PlayingStageData.CheckFlag(m_selectedPos[1].x, m_selectedPos[1].y, GridFlag.FruitExit))
+                {
+                    EatFruit(m_selectedPos[1].x, m_selectedPos[1].y);
+                }
+            }
+
+            if (CapBlock.EatingBlockCount == 0)			//特殊情况，移动消除后没有产生吃块，可能的情况是在笼子边上生成了块，这是需要额外去判断一次笼子附近的消除
+            {
+                if (m_cageCheckList.Count > 0)
+                {
+                    CheckCageAgain();
+                }
+            }
+        }
+        else
+        {
+            //处理五彩块
+            if (special0 == TSpecialBlock.ESpecial_EatAColor && special1 == TSpecialBlock.ESpecial_EatAColor)       //两个五彩块
+            {
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();
+                AddDelayProceedGrid(m_selectedPos[0].x, m_selectedPos[0].y, 0, m_blocks[m_selectedPos[0].x, m_selectedPos[0].y]);       ////自己消失
+                EatAColor(TBlockColor.EColor_None, m_selectedPos[1], true);         //消全部
+            }
+            else if (special0 == TSpecialBlock.ESpecial_EatAColor && special1 == TSpecialBlock.ESpecial_Normal)
+            {
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();
+                AddDelayProceedGrid(m_selectedPos[0].x, m_selectedPos[0].y, 0, m_blocks[m_selectedPos[0].x, m_selectedPos[0].y]);       ////自己消失
+                EatAColor(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color, m_selectedPos[0], true);      //吃同颜色
+            }
+            else if (special1 == TSpecialBlock.ESpecial_EatAColor && special0 == TSpecialBlock.ESpecial_Normal)
+            {
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();
+                AddDelayProceedGrid(m_selectedPos[1].x, m_selectedPos[1].y, 0, m_blocks[m_selectedPos[1].x, m_selectedPos[1].y]);       ////自己消失
+                EatAColor(m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color, m_selectedPos[1]);      //吃同颜色
+            }
+            else if (special0 == TSpecialBlock.ESpecial_EatAColor &&
+                (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
+                    special1 == TSpecialBlock.ESpecial_EatLineDir1))
+            {
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
+                EatALLDirLine(m_selectedPos[1], true);
+
+            }
+            else if (special1 == TSpecialBlock.ESpecial_EatAColor &&
+                    (special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
+                    special0 == TSpecialBlock.ESpecial_EatLineDir1))
+            {
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
+                EatALLDirLine(m_selectedPos[1], true);
+            }
+            else if ((special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
+                    special0 == TSpecialBlock.ESpecial_EatLineDir1) &&
+                (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
+                    special1 == TSpecialBlock.ESpecial_EatLineDir1))
+            {
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
+                EatALLDirLine(m_selectedPos[1], false);
+
+                //m_gameFlow = TGameFlow.EGameState_EffectTime;                           //切换游戏状态到特效演出时间，等待特效演出
+                //m_curStateStartTime = Timer.millisecondNow();                           //保存下切状态的时间
+                //m_effectStateDuration = CapsConfig.EffectAllDirTime;                                           //2秒的演出时间
+                //m_curSpecialEffect = TSpecialEffect.EAllDir;                            //全方向消除特效
+                //m_curSpecialEffectPos = m_selectedPos[1];                               //把特效位置保存起来
+                //m_effectStep = 0;                                                       //从第0步开始
+            }
+            else if (special0 == TSpecialBlock.ESpecial_Bomb && (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||     //炸弹跟条状交换，单方向加粗
+                    special1 == TSpecialBlock.ESpecial_EatLineDir1))
+            {
+
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
+                EatALLDirLine(m_selectedPos[1], true, (int)special1);
+            }
+            else if (special1 == TSpecialBlock.ESpecial_Bomb && (special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir2 ||
+                    special0 == TSpecialBlock.ESpecial_EatLineDir1))
+            {
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
+                EatALLDirLine(m_selectedPos[1], true, (int)special0);
+            }
+            else if (special0 == TSpecialBlock.ESpecial_Bomb && special1 == TSpecialBlock.ESpecial_EatAColor)              //炸弹和彩虹交换，相同颜色变炸弹
+            {
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
+                ChangeColorToBomb(m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color);
+            }
+            else if (special1 == TSpecialBlock.ESpecial_Bomb && special0 == TSpecialBlock.ESpecial_EatAColor)                //炸弹和彩虹交换，相同颜色变炸弹
+            {
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
+
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
+
+                ChangeColorToBomb(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color);
+            }
+            else if (special0 == TSpecialBlock.ESpecial_Bomb && special1 == TSpecialBlock.ESpecial_Bomb)
+            {
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
+
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
+
+                BigBomb(m_selectedPos[1]);
+            }
+        }
+
+        //如果交换成功////////////////////////////////////////////////////////////////////////
+        --PlayingStageData.StepLimit;                                                   //步数扣步数
+        ClearSelected();                                                                //清空所选
+        ProcessTempBlocks();                                                            //处理正常移动后消块对场景的影响
+    }
+
     void TimerWork()
     {
         /*------------------处理timerEatBlock------------------*/
@@ -1756,68 +1918,11 @@ public class GameLogic
                     return;
                 }
 
-                TSpecialBlock special0 = m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special;
-                TSpecialBlock special1 = m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special;
-                //处理两个条状交换
-                if ((special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir1 || special0 == TSpecialBlock.ESpecial_EatLineDir2) &&
-                    (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir1 || special1 == TSpecialBlock.ESpecial_EatLineDir2))
-                {
-                    EatALLDirLine(m_selectedPos[1], false);
-                    m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                //自己消失
-                    m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
-                    --PlayingStageData.StepLimit;           //扣步数
-                }
-                else        //正常消块
-                {
-
-                    bool hasEatLine1 = EatLine(m_selectedPos[0]);
-                    bool hasEatLine2 = EatLine(m_selectedPos[1]);
-                    if (!hasEatLine1 && !hasEatLine2)//如果交换不成功,播放交换回来的动画
-                    {
-                        PlaySound(AudioEnum.Audio_MoveFailed);
-                        ExchangeBlock(m_selectedPos[0], m_selectedPos[1]);
-                        timerMoveBlock.Play();
-                        ProcessMovePic(m_selectedPos[0], m_selectedPos[1], MOVE_TIME);
-                        m_changeBack = true;
-                    }
-                    else
-                    {					//如果交换成功
-                        //PlaySound(eat);
-                        --PlayingStageData.StepLimit;           //步数恢复
-                        //若有水果可以吃掉
-                        if (PlayingStageData.Target == GameTarget.BringFruitDown)
-                        {
-                            if (m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color > TBlockColor.EColor_Grey &&
-                            PlayingStageData.CheckFlag(m_selectedPos[0].x, m_selectedPos[0].y, GridFlag.FruitExit))
-                            {
-                                EatFruit(m_selectedPos[0].x, m_selectedPos[0].y);
-                            }
-                            if (m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color > TBlockColor.EColor_Grey &&
-                                PlayingStageData.CheckFlag(m_selectedPos[1].x, m_selectedPos[1].y, GridFlag.FruitExit))
-                            {
-                                EatFruit(m_selectedPos[1].x, m_selectedPos[1].y);
-                            }
-                        }
-
-                        if (m_selectedPos[0].x == -1 || m_selectedPos[1].x == -1) return;
-
-                        ClearSelected();
-						
-						if(CapBlock.EatingBlockCount == 0)			//特殊情况，移动消除后没有产生吃块，可能的情况是在笼子边上生成了块，这是需要额外去判断一次笼子附近的消除
-						{
-							if(m_cageCheckList.Count > 0)
-							{
-								CheckCageAgain();
-							}
-						}
-						
-						ProcessTempBlocks();                                                            //处理正常移动后消块对场景的影响
-                    }
-                }
+                ProcessExchange();      //处理两块交换
             }
             else
             {
-                ProcessMovePic(m_selectedPos[0], m_selectedPos[1], MOVE_TIME - passTime);           //处理交换块的位移
+                ProcessMoveBlock(m_selectedPos[0], m_selectedPos[1], MOVE_TIME - passTime);           //处理交换块的位移
             }
         }
     }
@@ -1945,7 +2050,7 @@ public class GameLogic
         }
     }
 
-    void ProcessMovePic(Position from, Position to, int moveTime)
+    void ProcessMoveBlock(Position from, Position to, int moveTime)
     {
         if (from.x == -1 || to.x == -1) return;
         if (from.x != to.x)		//若x方向上的值不一样，就有x方向上的移动
@@ -3555,7 +3660,7 @@ public class GameLogic
         }
 
         //处理移动
-        ProcessMove();
+        MoveSelected();
 
         if (m_gameFlow == TGameFlow.EGameState_FTUE)        //在FTUE状态下，产生移动后FTUE就消失了
         {
@@ -3564,122 +3669,12 @@ public class GameLogic
         }
     }
 
-    void ProcessMove()
+    void MoveSelected()
     {
         m_lastGCTime = 0;
-
         m_chocolateNeedGrow = true;
-
         ClearHelpPoint();
-
-        TSpecialBlock special0 = m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special;
-        TSpecialBlock special1 = m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special;
-        if ((special0 == TSpecialBlock.ESpecial_Normal && special1 == TSpecialBlock.ESpecial_Normal)                //两个都是普通块
-            || (special0 == TSpecialBlock.ESpecial_Normal && special1 != TSpecialBlock.ESpecial_EatAColor)          //一个普通块，另一个不是彩虹
-            || (special1 == TSpecialBlock.ESpecial_Normal && special0 != TSpecialBlock.ESpecial_EatAColor)          //一个普通块，另一个不是彩虹
-            || (m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color >= TBlockColor.EColor_Nut1 || m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color >= TBlockColor.EColor_Nut1))    //其中一个是坚果
-        {
-            MoveBlockPair(m_selectedPos[0], m_selectedPos[1]);
-        }
-        else
-        {
-            //处理五彩块
-            if (special0 == TSpecialBlock.ESpecial_EatAColor && special1 == TSpecialBlock.ESpecial_EatAColor)       //两个五彩块
-            {
-				m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();
-                AddDelayProceedGrid(m_selectedPos[0].x, m_selectedPos[0].y, 0, m_blocks[m_selectedPos[0].x, m_selectedPos[0].y]);       ////自己消失
-                EatAColor(TBlockColor.EColor_None, m_selectedPos[1], true);         //消全部
-            }
-            else if (special0 == TSpecialBlock.ESpecial_EatAColor && special1 == TSpecialBlock.ESpecial_Normal)
-            {
-				m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();
-                AddDelayProceedGrid(m_selectedPos[0].x, m_selectedPos[0].y, 0, m_blocks[m_selectedPos[0].x, m_selectedPos[0].y]);       ////自己消失
-                EatAColor(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color, m_selectedPos[0], true);      //吃同颜色
-            }
-            else if(special1 == TSpecialBlock.ESpecial_EatAColor && special0 == TSpecialBlock.ESpecial_Normal)
-            {
-				m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();
-                AddDelayProceedGrid(m_selectedPos[1].x, m_selectedPos[1].y, 0, m_blocks[m_selectedPos[1].x, m_selectedPos[1].y]);       ////自己消失
-                EatAColor(m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color, m_selectedPos[1]);      //吃同颜色
-            }
-            else if (special0 == TSpecialBlock.ESpecial_EatAColor &&
-                (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
-                    special1 == TSpecialBlock.ESpecial_EatLineDir1))
-            {
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
-                EatALLDirLine(m_selectedPos[1], true);
-
-            }
-            else if (special1 == TSpecialBlock.ESpecial_EatAColor &&
-                    (special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
-                    special0 == TSpecialBlock.ESpecial_EatLineDir1))
-            {
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
-                EatALLDirLine(m_selectedPos[1], true);
-            }
-            else if ((special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
-                    special0 == TSpecialBlock.ESpecial_EatLineDir1) &&
-                (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
-                    special1 == TSpecialBlock.ESpecial_EatLineDir1))
-            {
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
-                EatALLDirLine(m_selectedPos[1], false);
-
-                //m_gameFlow = TGameFlow.EGameState_EffectTime;                           //切换游戏状态到特效演出时间，等待特效演出
-                //m_curStateStartTime = Timer.millisecondNow();                           //保存下切状态的时间
-                //m_effectStateDuration = CapsConfig.EffectAllDirTime;                                           //2秒的演出时间
-                //m_curSpecialEffect = TSpecialEffect.EAllDir;                            //全方向消除特效
-                //m_curSpecialEffectPos = m_selectedPos[1];                               //把特效位置保存起来
-                //m_effectStep = 0;                                                       //从第0步开始
-            }
-            else if (special0 == TSpecialBlock.ESpecial_Bomb && (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||     //炸弹跟条状交换，单方向加粗
-                    special1 == TSpecialBlock.ESpecial_EatLineDir1))
-            {
-
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
-                EatALLDirLine(m_selectedPos[1], true, (int)special1);
-            }
-            else if (special1 == TSpecialBlock.ESpecial_Bomb && (special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir2 ||
-                    special0 == TSpecialBlock.ESpecial_EatLineDir1))
-            {
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
-                EatALLDirLine(m_selectedPos[1], true, (int)special0);
-            }
-            else if (special0 == TSpecialBlock.ESpecial_Bomb && special1 == TSpecialBlock.ESpecial_EatAColor)              //炸弹和彩虹交换，相同颜色变炸弹
-            {
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
-                ChangeColorToBomb(m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color);
-            }
-            else if (special1 == TSpecialBlock.ESpecial_Bomb && special0 == TSpecialBlock.ESpecial_EatAColor)                //炸弹和彩虹交换，相同颜色变炸弹
-            {
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
-
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
-
-                ChangeColorToBomb(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color);
-            }
-            else if (special0 == TSpecialBlock.ESpecial_Bomb && special1 == TSpecialBlock.ESpecial_Bomb)
-            {
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
-
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
-
-                BigBomb(m_selectedPos[1]);
-            }
-
-            --PlayingStageData.StepLimit;       //扣掉步数
-			ProcessTempBlocks();                //处理特殊块交换对场景的影响
-        }
+        MoveBlockPair(m_selectedPos[0], m_selectedPos[1]);
     }
 
     void BigBomb(Position pos)

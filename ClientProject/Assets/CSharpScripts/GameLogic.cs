@@ -293,6 +293,8 @@ public class GameLogic
     Position m_curSpecialEffectPos;                     //当前特殊效果的开始位置
     int m_effectStep;                                   //当前特殊效果进行到第几步了
     int m_effectStateDuration;                          //特效演出时长
+    TBlockColor m_colorToBomb;                          //要变成Bomb的颜色
+    float m_colorToBombLastTime;                        //同颜色变炸弹，上次发生时间
 
 
 
@@ -1208,7 +1210,7 @@ public class GameLogic
         if (m_gameFlow == TGameFlow.EGameState_EffectTime)
         {
             long timePast = Timer.millisecondNow() - m_curStateStartTime;
-            if (timePast > m_effectStateDuration)
+            if (m_effectStateDuration > 0 && timePast > m_effectStateDuration)
             {
                 m_gameFlow = TGameFlow.EGameState_Playing;                           //开始游戏
                 DropDown();                                                          //开始先尝试进行一次下落
@@ -1234,6 +1236,53 @@ public class GameLogic
                         m_effectStep = 3;
                         EatALLDirLine(m_curSpecialEffectPos, false, (int)TSpecialBlock.ESpecial_EatLineDir2);
                     }
+                }
+                else if (m_curSpecialEffect == TSpecialEffect.EEatAColorNDBomb)     //同颜色变炸弹
+                {
+                    if (m_colorToBombLastTime > 0)       
+                    {
+						if(Timer.GetRealTimeSinceStartUp() - m_colorToBombLastTime > CapsConfig.Rainbow_Bomb_EffectAddItemInterval)		//到达了生成块间隔
+						{
+							for (int i = 0; i < BlockCountX; ++i)
+	                        {
+	                            for (int j = 0; j < BlockCountY; ++j)
+	                            {
+	                                CapBlock block = m_blocks[i, j];
+	                                if (block != null && block.color == m_colorToBomb && block.special == TSpecialBlock.ESpecial_Normal)     //同颜色的普通块
+	                                {
+	                                    AddPartile(CapsConfig.AddSpecialEffect, AudioEnum.Audio_itemBirth, i, j);
+	                                    block.special = TSpecialBlock.ESpecial_Bomb;
+	                                    block.RefreshBlockSprite(PlayingStageData.GridData[i, j]);
+	                                    m_colorToBombLastTime = Timer.GetRealTimeSinceStartUp();
+	                                    return;
+	                                }
+	                            }
+	                        }
+						}
+						else 
+						{
+							return;
+						}
+						m_colorToBombLastTime = 0;              //时间置为零，不再进生成块的逻辑
+                    }
+
+                    if (CapBlock.EatingBlockCount == 0 && CapBlock.DropingBlockCount == 0)          //若没有在吃或在掉落中的块了
+                    {
+                        for (int i = 0; i < BlockCountX; ++i)
+                        {
+                            for (int j = 0; j < BlockCountY; ++j)
+                            {
+                                if (m_blocks[i, j] != null && m_blocks[i, j].special != TSpecialBlock.ESpecial_Normal)
+                                {
+                                    EatBlock(new Position(i, j), CapsConfig.EatEffect);
+                                    return;         //消一个特殊块就返回
+                                }
+                            }
+                        }
+						//到这里证明已经都处理完了
+                    	m_gameFlow = TGameFlow.EGameState_Playing;                           //恢复状态游戏
+						DropDown();                                               			 //尝试进行一次下落
+                    }                    
                 }
             }
         }
@@ -1319,7 +1368,7 @@ public class GameLogic
                         Position pos = FindRandomPos(TBlockColor.EColor_None, null, true);
                         m_blocks[pos.x, pos.y].special = TSpecialBlock.ESpecial_EatLineDir0 + (m_random.Next() % 3);
                         m_blocks[pos.x, pos.y].RefreshBlockSprite(PlayingStageData.GridData[pos.x, pos.y]);
-                        PlaySoundNextFrame(AudioEnum.Audio_itemBirth);
+                        AddPartile(CapsConfig.AddSpecialEffect, AudioEnum.Audio_itemBirth, pos.x, pos.y);
                         AddProgress(CapsConfig.SugarCrushStepReward, pos.x, pos.y);
                         --PlayingStageData.StepLimit;           //步数减一
                     }
@@ -1763,12 +1812,12 @@ public class GameLogic
             //两个彩虹块
             if (special0 == TSpecialBlock.ESpecial_EatAColor && special1 == TSpecialBlock.ESpecial_EatAColor)       
             {
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].EatAnimationName = CapsConfig.RainbowEatAnim;
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].EatAnimationName = CapsConfig.RainbowEatAnim;                 //
                 m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();
                 
                 AddDelayProceedGrid(m_selectedPos[0].x, m_selectedPos[0].y, 0, m_blocks[m_selectedPos[0].x, m_selectedPos[0].y]);       ////自己消失
 
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].EatAnimationName = CapsConfig.RainbowEatAnim;
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].EatAnimationName = CapsConfig.Rainbow_Rainbow_EatAnim;        //两彩虹合成动画
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();
 
                 AddDelayProceedGrid(m_selectedPos[1].x, m_selectedPos[1].y, 0, m_blocks[m_selectedPos[1].x, m_selectedPos[1].y]);       ////自己消失
@@ -1790,7 +1839,11 @@ public class GameLogic
                     special1 == TSpecialBlock.ESpecial_EatLineDir1))
             {
                 m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
+                AddDelayProceedGrid(m_selectedPos[0].x, m_selectedPos[0].y, 0, m_blocks[m_selectedPos[0].x, m_selectedPos[0].y]);       ////自己消失
+
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].EatAnimationName = CapsConfig.Line_Rainbow_EatAnim;                 //彩虹条状合成动画
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
+                AddDelayProceedGrid(m_selectedPos[1].x, m_selectedPos[1].y, 0, m_blocks[m_selectedPos[1].x, m_selectedPos[1].y]);       ////自己消失
                 EatALLDirLine(m_selectedPos[1], true);
 
             }
@@ -1800,7 +1853,11 @@ public class GameLogic
                     special0 == TSpecialBlock.ESpecial_EatLineDir1))
             {
                 m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
+                AddDelayProceedGrid(m_selectedPos[0].x, m_selectedPos[0].y, 0, m_blocks[m_selectedPos[0].x, m_selectedPos[0].y]);       ////自己消失
+
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].EatAnimationName = CapsConfig.Line_Rainbow_EatAnim;                 //彩虹条状合成动画
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
+                AddDelayProceedGrid(m_selectedPos[1].x, m_selectedPos[1].y, 0, m_blocks[m_selectedPos[1].x, m_selectedPos[1].y]);       ////自己消失
                 EatALLDirLine(m_selectedPos[1], true);
             }
             //两个条状交换
@@ -1810,7 +1867,12 @@ public class GameLogic
                     special1 == TSpecialBlock.ESpecial_EatLineDir1))
             {
                 m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
+                AddDelayProceedGrid(m_selectedPos[0].x, m_selectedPos[0].y, 0, m_blocks[m_selectedPos[0].x, m_selectedPos[0].y]);       ////自己消失
+
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].EatAnimationName = CapsConfig.Line_Rainbow_EatAnim;                 //条状合成动画
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
+                AddDelayProceedGrid(m_selectedPos[1].x, m_selectedPos[1].y, 0, m_blocks[m_selectedPos[1].x, m_selectedPos[1].y]);       ////自己消失
+
                 EatALLDirLine(m_selectedPos[1], false);
 
                 //m_gameFlow = TGameFlow.EGameState_EffectTime;                           //切换游戏状态到特效演出时间，等待特效演出
@@ -1826,7 +1888,11 @@ public class GameLogic
             {
 
                 m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
+                AddDelayProceedGrid(m_selectedPos[0].x, m_selectedPos[0].y, 0, m_blocks[m_selectedPos[0].x, m_selectedPos[0].y]);       ////自己消失
+
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].EatAnimationName = CapsConfig.Line_Bomb_EatAnim;                 //条状合成动画
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
+                AddDelayProceedGrid(m_selectedPos[1].x, m_selectedPos[1].y, 0, m_blocks[m_selectedPos[1].x, m_selectedPos[1].y]);       ////自己消失
                 EatALLDirLine(m_selectedPos[1], true, (int)special1);
             }
             //炸弹跟条状
@@ -1834,39 +1900,47 @@ public class GameLogic
                     special0 == TSpecialBlock.ESpecial_EatLineDir1))
             {
                 m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
+                AddDelayProceedGrid(m_selectedPos[0].x, m_selectedPos[0].y, 0, m_blocks[m_selectedPos[0].x, m_selectedPos[0].y]);       ////自己消失
+
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].EatAnimationName = CapsConfig.Line_Bomb_EatAnim;                 //条状合成动画
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
+                AddDelayProceedGrid(m_selectedPos[1].x, m_selectedPos[1].y, 0, m_blocks[m_selectedPos[1].x, m_selectedPos[1].y]);       ////自己消失
                 EatALLDirLine(m_selectedPos[1], true, (int)special0);
             }
             //炸弹跟彩虹
             else if (special0 == TSpecialBlock.ESpecial_Bomb && special1 == TSpecialBlock.ESpecial_EatAColor)              //炸弹和彩虹交换，相同颜色变炸弹
             {
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].EatAnimationName = CapsConfig.Rainbow_Bomb_EatAnim;
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();
+                AddDelayProceedGrid(m_selectedPos[1].x, m_selectedPos[1].y, 0, m_blocks[m_selectedPos[1].x, m_selectedPos[1].y]);       ////自己消失
 
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
-
-                ChangeColorToBomb(m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color);
+                m_gameFlow = TGameFlow.EGameState_EffectTime;
+                m_curSpecialEffect = TSpecialEffect.EEatAColorNDBomb;
+				m_colorToBombLastTime = Timer.GetRealTimeSinceStartUp();
+                m_curSpecialEffectPos = m_selectedPos[1];
+                m_colorToBomb = m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color;
             }
             //炸弹跟彩虹
             else if (special1 == TSpecialBlock.ESpecial_Bomb && special0 == TSpecialBlock.ESpecial_EatAColor)                //炸弹和彩虹交换，相同颜色变炸弹
             {
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();
+                AddDelayProceedGrid(m_selectedPos[0].x, m_selectedPos[0].y, 0, m_blocks[m_selectedPos[0].x, m_selectedPos[0].y]);       ////自己消失
 
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
-
-                ChangeColorToBomb(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color);
+                m_gameFlow = TGameFlow.EGameState_EffectTime;
+                m_curSpecialEffect = TSpecialEffect.EEatAColorNDBomb;
+				m_colorToBombLastTime = Timer.GetRealTimeSinceStartUp();
+                m_curSpecialEffectPos = m_selectedPos[0];
+                m_colorToBomb = m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color;
             }
             //炸弹跟炸弹
             else if (special0 == TSpecialBlock.ESpecial_Bomb && special1 == TSpecialBlock.ESpecial_Bomb)
             {
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].EatAnimationName = CapsConfig.Rainbow_Bomb_EatAnim;
 
                 m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
+                AddDelayProceedGrid(m_selectedPos[0].x, m_selectedPos[0].y, 0, m_blocks[m_selectedPos[0].x, m_selectedPos[0].y]);       ////自己消失
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
+                AddDelayProceedGrid(m_selectedPos[1].x, m_selectedPos[1].y, 0, m_blocks[m_selectedPos[1].x, m_selectedPos[1].y]);       ////自己消失
 
                 BigBomb(m_selectedPos[1]);
             }
@@ -2536,7 +2610,7 @@ public class GameLogic
             {
                 m_blocks[availablePos.x, availablePos.y].special = generateSpecial;                                                 //生成特殊块
                 m_blocks[availablePos.x, availablePos.y].RefreshBlockSprite(PlayingStageData.GridData[position.x, position.y]);     //刷新图标                                                                  //记录正常消除
-                PlaySoundNextFrame(AudioEnum.Audio_itemBirth);
+                AddPartile(CapsConfig.AddSpecialEffect, AudioEnum.Audio_itemBirth, availablePos.x, availablePos.y);
 				
 				DelayProceedGrid grid = new DelayProceedGrid();
                 grid.x = availablePos.x;
@@ -2820,6 +2894,7 @@ public class GameLogic
                                 EatBlock(newPos, CapsConfig.BombEatEffect, CapsConfig.BombEffectInterval * 2 + CapsConfig.EatBombEffectStartInterval + delay);
                             }
                             AddPartile("BombEffect", AudioEnum.Audio_Bomb, position.x, position.y, true, delay);
+                            m_blocks[position.x, position.y].EatAnimationName = CapsConfig.BombEatAnim;
                         }
                         else
                         {
@@ -2835,7 +2910,7 @@ public class GameLogic
                             EatBlock(GoTo(position, TDirection.EDir_Up, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay);
                         }
                         AddPartile("Dir0Effect", AudioEnum.Audio_Line1, position.x, position.y, true, delay);
-                        m_blocks[position.x, position.y].EatAnimationName = CapsConfig.LineDir0EatAnim;
+                        m_blocks[position.x, position.y].EatAnimationName = CapsConfig.LineEatAnim;
                     }
                     break;
                 case TSpecialBlock.ESpecial_EatLineDir1:
@@ -2846,7 +2921,7 @@ public class GameLogic
                             EatBlock(GoTo(position, TDirection.EDir_LeftDown, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay);
                         }
                         AddPartile("Dir1Effect", AudioEnum.Audio_Line1, position.x, position.y, true, delay);
-                        m_blocks[position.x, position.y].EatAnimationName = CapsConfig.LineDir1EatAnim;
+                        m_blocks[position.x, position.y].EatAnimationName = CapsConfig.LineEatAnim;
                     }
                     break;
                 case TSpecialBlock.ESpecial_EatLineDir2:
@@ -2857,7 +2932,7 @@ public class GameLogic
                             EatBlock(GoTo(position, TDirection.EDir_DownRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay);
                         }
                         AddPartile("Dir2Effect", AudioEnum.Audio_Line1, position.x, position.y, true, delay);
-                        m_blocks[position.x, position.y].EatAnimationName = CapsConfig.LineDir2EatAnim;
+                        m_blocks[position.x, position.y].EatAnimationName = CapsConfig.LineEatAnim;
                     }
                     break;
                 case TSpecialBlock.ESpecial_EatAColor:

@@ -60,25 +60,32 @@ public class CapsConfig
     public static readonly string BombEatEffect = "BombEatEffect";              //炸弹吃块的目标特效
     public static readonly string LineEatEffect = "LineEatEffect";              //条状吃块的目标特效
     public static readonly string RainbowEatEffect = "RainbowEatEffect";        //彩虹吃块的目标特效
+
+    public static readonly string AddSpecialEffect = "AddSpecialEffect";       //添加
 	
 	public static readonly string EatAnim = "EatAnim";                          //条状炸弹的动画
-    public static readonly string LineDir0EatAnim = "Line0EatAnim";             //条状炸弹的动画
-    public static readonly string LineDir1EatAnim = "Line1EatAnim";             //条状炸弹的动画
-    public static readonly string LineDir2EatAnim = "Line2EatAnim";             //条状炸弹的动画
+    public static readonly string LineEatAnim = "LineEatAnim";             //条状炸弹的动画
     public static readonly string BombEatAnim = "BombEatAnim";                  //炸弹的动画
     public static readonly string RainbowEatAnim = "RainbowEatAnim";            //彩虹炸弹的动画
 
-    public static float EatLineEffectInterval = 0.05f;               //消行特效 吃块的间隔
+    public static readonly string Bomb_Bomb_EatAnim = "Bomb_Bomb_EatAnim";      //两条状交换的动画
+    public static readonly string Line_Line_EatAnim = "Line_Line_EatAnim";      //两条状交换的动画
+    public static readonly string Line_Bomb_EatAnim = "Line_Bomb_EatAnim";      //条状炸弹交换的动画
+    public static readonly string Line_Rainbow_EatAnim = "Line_Rainbow_EatAnim";   //条状和彩虹交换的动画
+    public static readonly string Rainbow_Bomb_EatAnim = "Rainbow_Bomb_EatAnim";   //彩虹和炸弹交换的动画
+    public static readonly string Rainbow_Rainbow_EatAnim = "Rainbow_Rainbow_EatAnim";   //彩虹和彩虹交换的动画
+
+    public static float EatLineEffectInterval = 0.04f;               //消行特效 吃块的间隔
     public static float EatLineEffectStartInterval = 0.17f;          //消行特效 吃块的开始时间
 
     public static float Line_Line_EffectStartDelay = 0.17f;          //消行合消行 吃块的开始时间
-    public static float Line_Line_EffectInterval = 0.05f;            //消行合消行 吃块的间隔
+    public static float Line_Line_EffectInterval = 0.17f;            //消行合消行 吃块的间隔
 
-    public static float Line_Bomb_EffectStartDelay = 0.8f;          //消行合炸弹 吃块的开始时间
-    public static float Line_Bomb_EffectInterval = 0.05f;            //消行合炸弹 吃块的间隔
+    public static float Line_Bomb_EffectStartDelay = 0.17f;          //消行合炸弹 吃块的开始时间
+    public static float Line_Bomb_EffectInterval = 0.17f;            //消行合炸弹 吃块的间隔
 
-    public static float Line_Rainbow_EffectStartDelay = 0.8f;       //消行合彩虹 吃块的开始时间
-    public static float Line_Rainbow_EffectInterval = 0.05f;         //消行合彩虹 吃块的间隔
+    public static float Line_Rainbow_EffectStartDelay = 0.17f;       //消行合彩虹 吃块的开始时间
+    public static float Line_Rainbow_EffectInterval = 0.17f;         //消行合彩虹 吃块的间隔
 
     public static float BombEffectInterval = 0.0f;                   //炸弹特效 吃块的间隔
     public static float EatBombEffectStartInterval = 0.9f;           //炸弹特效 吃块的开始时间
@@ -90,9 +97,11 @@ public class CapsConfig
     public static float Rainbow_EffectStartDelay = 0.3f;              //彩虹特效 吃块的开始前等待时间
     public static float Rainbow_EffectFlyDuration = 0.3f;             //彩虹子弹特效 飞行的时间
 
-    public static float Rainbow_Rainbow_EffectInterval = 0.05f;        //彩虹合彩虹特效 吃块的间隔
+    public static float Rainbow_Rainbow_EffectInterval = 0.1f;        //彩虹合彩虹特效 吃块的间隔
     public static float Rainbow_Rainbow_StartDelay = 0.3f;            //彩虹合彩虹特效 吃块的开始前等待时间
     public static float Rainbow_Rainbow_EffectFlyDuration = 0.3f;     //彩虹合彩虹子弹特效 飞行的时间
+	
+	public static float Rainbow_Bomb_EffectAddItemInterval = 0.2f;    //
 
 
     public static AudioList CurAudioList;

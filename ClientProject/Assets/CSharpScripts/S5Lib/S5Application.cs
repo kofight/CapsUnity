@@ -41,6 +41,8 @@ public class S5Application
         }
         Height = root.manualHeight;
 
+        Debug.Log("Width = " + Width + "Height = " + Height);
+
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
     }
 

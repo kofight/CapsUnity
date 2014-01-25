@@ -3851,6 +3851,7 @@ public class GameLogic
                 }
                 if (color == TBlockColor.EColor_None)
                 {
+                    m_blocks[i, j].EatEffectName = CapsConfig.RainbowEatEffect;
 					m_blocks[i, j].Eat(CapsConfig.EatColorEffectStartDuration + CapsConfig.EatColorEffectStartInterval + CapsConfig.EatColorEffectInterval * eatCount);
 					AddDelayProceedGrid(i, j, CapsConfig.EatColorEffectStartDuration + CapsConfig.EatColorEffectStartInterval + CapsConfig.EatColorEffectInterval * eatCount, m_blocks[i, j]);
                     AddFlyParticle("EatColorFlyEffect", AudioEnum.Audio_None, startPos, new Position(i, j), CapsConfig.EatColorEffectStartDuration, CapsConfig.EatColorEffectStartInterval + CapsConfig.EatColorEffectInterval * eatCount);

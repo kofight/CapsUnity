@@ -1764,25 +1764,31 @@ public class GameLogic
         }
         else
         {
-            //处理五彩块
-            if (special0 == TSpecialBlock.ESpecial_EatAColor && special1 == TSpecialBlock.ESpecial_EatAColor)       //两个五彩块
+            //两个彩虹块
+            if (special0 == TSpecialBlock.ESpecial_EatAColor && special1 == TSpecialBlock.ESpecial_EatAColor)       
             {
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].EatAnimationName = CapsConfig.RainbowEatAnim;
                 m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();
+                
                 AddDelayProceedGrid(m_selectedPos[0].x, m_selectedPos[0].y, 0, m_blocks[m_selectedPos[0].x, m_selectedPos[0].y]);       ////自己消失
+
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].EatAnimationName = CapsConfig.RainbowEatAnim;
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();
+
+                AddDelayProceedGrid(m_selectedPos[1].x, m_selectedPos[1].y, 0, m_blocks[m_selectedPos[1].x, m_selectedPos[1].y]);       ////自己消失
                 EatAColor(TBlockColor.EColor_None, m_selectedPos[1], true);         //消全部
             }
-            else if (special0 == TSpecialBlock.ESpecial_EatAColor && special1 == TSpecialBlock.ESpecial_Normal)
+            //彩虹和普通块
+            else if (special0 == TSpecialBlock.ESpecial_EatAColor && special1 == TSpecialBlock.ESpecial_Normal)     
             {
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();
-                AddDelayProceedGrid(m_selectedPos[0].x, m_selectedPos[0].y, 0, m_blocks[m_selectedPos[0].x, m_selectedPos[0].y]);       ////自己消失
                 EatAColor(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color, m_selectedPos[0], true);      //吃同颜色
             }
-            else if (special1 == TSpecialBlock.ESpecial_EatAColor && special0 == TSpecialBlock.ESpecial_Normal)
+            //彩虹和普通块
+            else if (special1 == TSpecialBlock.ESpecial_EatAColor && special0 == TSpecialBlock.ESpecial_Normal)     
             {
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();
-                AddDelayProceedGrid(m_selectedPos[1].x, m_selectedPos[1].y, 0, m_blocks[m_selectedPos[1].x, m_selectedPos[1].y]);       ////自己消失
-                EatAColor(m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color, m_selectedPos[1]);      //吃同颜色
+                EatAColor(m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color, m_selectedPos[1], true);      //吃同颜色
             }
+            //彩虹和条状
             else if (special0 == TSpecialBlock.ESpecial_EatAColor &&
                 (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
                     special1 == TSpecialBlock.ESpecial_EatLineDir1))
@@ -1792,6 +1798,7 @@ public class GameLogic
                 EatALLDirLine(m_selectedPos[1], true);
 
             }
+            //彩虹和条状
             else if (special1 == TSpecialBlock.ESpecial_EatAColor &&
                     (special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
                     special0 == TSpecialBlock.ESpecial_EatLineDir1))
@@ -1800,6 +1807,7 @@ public class GameLogic
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
                 EatALLDirLine(m_selectedPos[1], true);
             }
+            //两个条状交换
             else if ((special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
                     special0 == TSpecialBlock.ESpecial_EatLineDir1) &&
                 (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||     //跟条状消除,六方向加粗
@@ -1816,6 +1824,7 @@ public class GameLogic
                 //m_curSpecialEffectPos = m_selectedPos[1];                               //把特效位置保存起来
                 //m_effectStep = 0;                                                       //从第0步开始
             }
+            //炸弹跟条状
             else if (special0 == TSpecialBlock.ESpecial_Bomb && (special1 == TSpecialBlock.ESpecial_EatLineDir0 || special1 == TSpecialBlock.ESpecial_EatLineDir2 ||     //炸弹跟条状交换，单方向加粗
                     special1 == TSpecialBlock.ESpecial_EatLineDir1))
             {
@@ -1824,6 +1833,7 @@ public class GameLogic
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
                 EatALLDirLine(m_selectedPos[1], true, (int)special1);
             }
+            //炸弹跟条状
             else if (special1 == TSpecialBlock.ESpecial_Bomb && (special0 == TSpecialBlock.ESpecial_EatLineDir0 || special0 == TSpecialBlock.ESpecial_EatLineDir2 ||
                     special0 == TSpecialBlock.ESpecial_EatLineDir1))
             {
@@ -1831,12 +1841,14 @@ public class GameLogic
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
                 EatALLDirLine(m_selectedPos[1], true, (int)special0);
             }
+            //炸弹跟彩虹
             else if (special0 == TSpecialBlock.ESpecial_Bomb && special1 == TSpecialBlock.ESpecial_EatAColor)              //炸弹和彩虹交换，相同颜色变炸弹
             {
                 m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special = TSpecialBlock.ESpecial_Normal;
                 ChangeColorToBomb(m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color);
             }
+            //炸弹跟彩虹
             else if (special1 == TSpecialBlock.ESpecial_Bomb && special0 == TSpecialBlock.ESpecial_EatAColor)                //炸弹和彩虹交换，相同颜色变炸弹
             {
                 m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
@@ -1847,6 +1859,7 @@ public class GameLogic
 
                 ChangeColorToBomb(m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color);
             }
+            //炸弹跟炸弹
             else if (special0 == TSpecialBlock.ESpecial_Bomb && special1 == TSpecialBlock.ESpecial_Bomb)
             {
                 m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special = TSpecialBlock.ESpecial_Normal;
@@ -2864,6 +2877,8 @@ public class GameLogic
 
     public void AddFlyParticle(string name, AudioEnum audio, Position from, Position to, float duration, float delay)
     {
+
+        Debug.Log("AddFlyParticle delay = " + delay);
         //先看freeParticleList里面有没有可用的
         LinkedList<ParticleSystem> freeParticleList;
         if (!m_freeParticleMap.TryGetValue(name, out freeParticleList))
@@ -2880,6 +2895,7 @@ public class GameLogic
             par = freeParticleList.First.Value;
             gameObj = freeParticleList.First.Value.gameObject;
             freeParticleList.RemoveFirst();
+            par.Clear();
         }
         else
         {
@@ -3864,6 +3880,8 @@ public class GameLogic
         }
         AddPartile("EatColorEffect", AudioEnum.Audio_EatColor, startPos.x, startPos.y, true, delay);
         m_blocks[startPos.x, startPos.y].EatAnimationName = CapsConfig.RainbowEatAnim;
+        m_blocks[startPos.x, startPos.y].Eat(delay);
+        AddDelayProceedGrid(startPos.x, startPos.y, delay, m_blocks[startPos.x, startPos.y]);       ////自己消失
 
         if (bExchange)
         {

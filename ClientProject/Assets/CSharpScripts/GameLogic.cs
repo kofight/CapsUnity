@@ -3752,11 +3752,11 @@ public class GameLogic
             }
 			if (extraEat)
 			{
-                AddPartile("Dir1BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true, CapsConfig.EatAllLineEffectStartInterval);
+                AddPartile("Dir1BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true);
 			}
 			else
 			{
-                AddPartile("Dir1Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true, CapsConfig.EatAllLineEffectStartInterval);
+                AddPartile("Dir1Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true);
 			}
         }
         if (dir == -1 || dir == (int)TSpecialBlock.ESpecial_EatLineDir0)
@@ -3787,11 +3787,11 @@ public class GameLogic
             }
             if (extraEat)
             {
-                AddPartile("Dir0BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true, CapsConfig.EatAllLineEffectStartInterval);
+                AddPartile("Dir0BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true);
             }
             else
             {
-                AddPartile("Dir0Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true, CapsConfig.EatAllLineEffectStartInterval);
+                AddPartile("Dir0Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true);
             }
         }
         if (dir == -1 || dir == (int)TSpecialBlock.ESpecial_EatLineDir2)
@@ -3823,11 +3823,11 @@ public class GameLogic
             }
             if (extraEat)
             {
-                AddPartile("Dir2BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true, CapsConfig.EatAllLineEffectStartInterval);
+                AddPartile("Dir2BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true);
             }
             else
             {
-                AddPartile("Dir2Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true, CapsConfig.EatAllLineEffectStartInterval);
+                AddPartile("Dir2Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true);
             }
         }
     }

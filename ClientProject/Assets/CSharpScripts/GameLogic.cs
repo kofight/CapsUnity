@@ -1559,6 +1559,7 @@ public class GameLogic
                     par.par.gameObject.SetActive(true);
                     par.par.Play();
                     par.startTime = 0.0f;
+                    PlaySoundNextFrame(par.audio);
                 }
             }
 

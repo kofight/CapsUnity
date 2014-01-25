@@ -74,11 +74,11 @@ public class CapsConfig
     public static float Line_Line_EffectStartDelay = 0.17f;          //消行合消行 吃块的开始时间
     public static float Line_Line_EffectInterval = 0.05f;            //消行合消行 吃块的间隔
 
-    public static float Line_Bomb_EffectStartDelay = 0.3f;          //消行合炸弹 吃块的开始时间
+    public static float Line_Bomb_EffectStartDelay = 0.8f;          //消行合炸弹 吃块的开始时间
     public static float Line_Bomb_EffectInterval = 0.05f;            //消行合炸弹 吃块的间隔
 
-    public static float Line_Rainbow_EffectStartDelay = 0.06f;       //消行合彩虹 吃块的开始时间
-    public static float Line_Rainbow_EffectInterval = 0.17f;         //消行合彩虹 吃块的间隔
+    public static float Line_Rainbow_EffectStartDelay = 0.8f;       //消行合彩虹 吃块的开始时间
+    public static float Line_Rainbow_EffectInterval = 0.05f;         //消行合彩虹 吃块的间隔
 
     public static float BombEffectInterval = 0.0f;                   //炸弹特效 吃块的间隔
     public static float EatBombEffectStartInterval = 0.9f;           //炸弹特效 吃块的开始时间

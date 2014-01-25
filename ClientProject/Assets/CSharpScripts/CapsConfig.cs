@@ -59,25 +59,31 @@ public class CapsConfig
     public static readonly string EatEffect = "EatEffect";                      //吃块的目标特效
     public static readonly string BombEatEffect = "BombEatEffect";              //炸弹吃块的目标特效
     public static readonly string LineEatEffect = "LineEatEffect";              //条状吃块的目标特效
+    public static readonly string RainbowEatEffect = "RainbowEatEffect";        //彩虹吃块的目标特效
 	
-	public static readonly string EatAnim = "Eat";
-
-    public static AudioList CurAudioList;
-	
-	public static bool EnableGA = false;
-	public static bool EnableTalkingData = false;
+	public static readonly string EatAnim = "EatAnim";                          //条状炸弹的动画
+    public static readonly string LineDir0EatAnim = "Line0EatAnim";             //条状炸弹的动画
+    public static readonly string LineDir1EatAnim = "Line1EatAnim";             //条状炸弹的动画
+    public static readonly string LineDir2EatAnim = "Line2EatAnim";             //条状炸弹的动画
+    public static readonly string BombEatAnim = "BombEatAnim";                  //炸弹的动画
+    public static readonly string RainbowEatAnim = "RainbowEatAnim";            //彩虹炸弹的动画
 
     public static float EatLineEffectInterval = 0.04f;               //消行特效吃块的间隔
-    public static float EatLineEffectStartInterval = 0.17f;           //消行特效吃块的开始时间
+    public static float EatLineEffectStartInterval = 0.17f;          //消行特效吃块的开始时间
 
-    public static float EatAllLineEffectStartInterval = 0.37f;           //消行特效吃块的开始时间
+    public static float EatAllLineEffectStartInterval = 0.37f;       //消行特效吃块的开始时间
 
-    public static float BombEffectInterval = 0.1f;                  //炸弹特效吃块的间隔
+    public static float BombEffectInterval = 0.1f;                   //炸弹特效吃块的间隔
     public static float EatBombEffectStartInterval = 0.5f;           //炸弹特效吃块的开始时间
 
     public static float EatColorEffectInterval = 0.1f;                //彩虹特效吃块的间隔
     public static float EatColorEffectStartInterval = 0.3f;           //彩虹特效吃块的开始前等待时间
     public static float EatColorEffectStartDuration = 0.3f;           //彩虹每个子特效飞行的时间
+
+
+    public static AudioList CurAudioList;
+	public static bool EnableGA = false;
+	public static bool EnableTalkingData = false;
 
     public static int[] StageTypeArray;                             //存每关的类型
 

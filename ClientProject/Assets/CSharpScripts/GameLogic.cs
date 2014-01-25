@@ -2670,7 +2670,7 @@ public class GameLogic
             block.CurState != BlockState.Eating &&
             block.color <= TBlockColor.EColor_Grey)       //移动和Eating的块不处理特殊块
         {
-            block.EatEffectName = eatEffectName;     //消除特效名字，用传进来的
+            block.EatEffectName = eatEffectName;         //消除特效名字，用传进来的
             block.Eat(delay);                             //在这里提前给Block的状态赋值，是为了防止重复EatBlock
 			
             //处理特殊块
@@ -2685,6 +2685,7 @@ public class GameLogic
                             EatBlock(GoTo(position, dir, 2), CapsConfig.BombEatEffect, CapsConfig.BombEffectInterval * 2 + CapsConfig.EatBombEffectStartInterval + delay);
                         }
                         AddPartile("BombEffect", AudioEnum.Audio_Bomb, position.x, position.y, true, CapsConfig.EatBombEffectStartInterval + delay);
+                        m_blocks[position.x, position.y].EatAnimationName = CapsConfig.BombEatAnim;
                     }
                     break;
                 case TSpecialBlock.ESpecial_NormalPlus5:
@@ -2716,7 +2717,7 @@ public class GameLogic
                             EatBlock(GoTo(position, TDirection.EDir_Up, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay);
                         }
                         AddPartile("Dir0Effect", AudioEnum.Audio_Line1, position.x, position.y, true, delay);
-                        m_blocks[position.x, position.y].EatAnimationName = "EatLine0";
+                        m_blocks[position.x, position.y].EatAnimationName = CapsConfig.LineDir0EatAnim;
                     }
                     break;
                 case TSpecialBlock.ESpecial_EatLineDir1:
@@ -2727,7 +2728,7 @@ public class GameLogic
                             EatBlock(GoTo(position, TDirection.EDir_LeftDown, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay);
                         }
                         AddPartile("Dir1Effect", AudioEnum.Audio_Line1, position.x, position.y, true, delay);
-                        m_blocks[position.x, position.y].EatAnimationName = "EatLine1";
+                        m_blocks[position.x, position.y].EatAnimationName = CapsConfig.LineDir1EatAnim;
                     }
                     break;
                 case TSpecialBlock.ESpecial_EatLineDir2:
@@ -2738,7 +2739,7 @@ public class GameLogic
                             EatBlock(GoTo(position, TDirection.EDir_DownRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatLineEffectStartInterval + delay);
                         }
                         AddPartile("Dir2Effect", AudioEnum.Audio_Line1, position.x, position.y, true, delay);
-                        m_blocks[position.x, position.y].EatAnimationName = "EatLine2";
+                        m_blocks[position.x, position.y].EatAnimationName = CapsConfig.LineDir2EatAnim;
                     }
                     break;
                 case TSpecialBlock.ESpecial_EatAColor:
@@ -3853,12 +3854,12 @@ public class GameLogic
                 {
                     if (bExchange)          //手动交换,播放有时序的动画
                     {
-                        EatBlock(new Position(i, j), "EatEffect", CapsConfig.EatColorEffectStartDuration + CapsConfig.EatColorEffectStartInterval + CapsConfig.EatColorEffectInterval * eatCount);
+                        EatBlock(new Position(i, j), CapsConfig.RainbowEatEffect, CapsConfig.EatColorEffectStartDuration + CapsConfig.EatColorEffectStartInterval + CapsConfig.EatColorEffectInterval * eatCount);
                         AddFlyParticle("EatColorFlyEffect", AudioEnum.Audio_None, startPos, new Position(i, j), CapsConfig.EatColorEffectStartDuration, CapsConfig.EatColorEffectStartInterval + CapsConfig.EatColorEffectInterval * eatCount);
                     }
                     else                   //被动交换
                     {
-                        EatBlock(new Position(i, j), "EatEffect", CapsConfig.EatColorEffectStartDuration + delay);
+                        EatBlock(new Position(i, j), CapsConfig.RainbowEatEffect, CapsConfig.EatColorEffectStartDuration + delay);
                         AddFlyParticle("EatColorFlyEffect", AudioEnum.Audio_None, startPos, new Position(i, j), CapsConfig.EatColorEffectStartDuration, delay);
                     }
 
@@ -3867,6 +3868,7 @@ public class GameLogic
             }
         }
         AddPartile("EatColorEffect", AudioEnum.Audio_EatColor, startPos.x, startPos.y, true, delay);
+        m_blocks[startPos.x, startPos.y].EatAnimationName = CapsConfig.RainbowEatAnim;
 
         if (bExchange)
         {

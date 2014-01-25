@@ -71,7 +71,7 @@ public class CapsConfig
     public static float EatLineEffectInterval = 0.04f;               //消行特效吃块的间隔
     public static float EatLineEffectStartInterval = 0.17f;          //消行特效吃块的开始时间
 
-    public static float EatAllLineEffectStartInterval = 0.37f;       //消行特效吃块的开始时间
+    public static float EatAllLineEffectStartInterval = 0.17f;       //消行特效吃块的开始时间
 
     public static float BombEffectInterval = 0.0f;                   //炸弹特效吃块的间隔
     public static float EatBombEffectStartInterval = 0.9f;           //炸弹特效吃块的开始时间

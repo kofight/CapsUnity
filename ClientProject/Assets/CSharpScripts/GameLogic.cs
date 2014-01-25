@@ -1715,19 +1715,14 @@ public class GameLogic
     //处理两块交换
     void ProcessExchange()
     {
-        if (m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color >= TBlockColor.EColor_Nut1 || m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color >= TBlockColor.EColor_Nut1)     //若有坚果块
-        {
-            ChangeBackSelected();
-            return;
-        }
-
         TSpecialBlock special0 = m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special;
         TSpecialBlock special1 = m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special;
 
         //普通交换的情况
         if ((special0 == TSpecialBlock.ESpecial_Normal && special1 == TSpecialBlock.ESpecial_Normal)                //两个都是普通块
             || (special0 == TSpecialBlock.ESpecial_Normal && special1 != TSpecialBlock.ESpecial_EatAColor)          //一个普通块，另一个不是彩虹
-            || (special1 == TSpecialBlock.ESpecial_Normal && special0 != TSpecialBlock.ESpecial_EatAColor))          //一个普通块，另一个不是彩虹
+            || (special1 == TSpecialBlock.ESpecial_Normal && special0 != TSpecialBlock.ESpecial_EatAColor)          //一个普通块，另一个不是彩虹
+            || (m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color >= TBlockColor.EColor_Nut1 || m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color >= TBlockColor.EColor_Nut1)) //若有坚果块
         {
             bool hasEatLine1 = EatLine(m_selectedPos[0]);
             bool hasEatLine2 = EatLine(m_selectedPos[1]);

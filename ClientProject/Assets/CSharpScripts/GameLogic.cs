@@ -3234,6 +3234,8 @@ public class GameLogic
                             m_gridBackImage[newPos.x, newPos.y].layer1.transform.localPosition = new Vector3(GetXPos(newPos.x), -GetYPos(newPos.x, newPos.y), -110);
                         }
                         m_gridBackImage[newPos.x, newPos.y].layer1.spriteName = "Chocolate";
+                        Animation anim = m_gridBackImage[newPos.x, newPos.y].layer1.gameObject.GetComponent<Animation>();
+                        anim.Play();
                         m_gridBackImage[newPos.x, newPos.y].layer1.gameObject.SetActive(true);
                         return;
                     }

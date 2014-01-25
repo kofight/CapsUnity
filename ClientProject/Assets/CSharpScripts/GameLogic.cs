@@ -3697,22 +3697,22 @@ public class GameLogic
         for (TDirection dir = TDirection.EDir_Up; dir <= TDirection.EDir_LeftUp; ++dir)
         {
             Position newPos = GoTo(pos, dir, 1);                            //第一层
-            EatBlock(newPos, CapsConfig.BombEatEffect, CapsConfig.BombEffectInterval);
+            EatBlock(newPos, CapsConfig.BombEatEffect, CapsConfig.EatBigBombEffectStartInterval + CapsConfig.BigBombEffectInterval);
 
             newPos = GoTo(pos, dir, 2);                                     //第二层
-            EatBlock(newPos, CapsConfig.BombEatEffect, CapsConfig.BombEffectInterval * 2);
+            EatBlock(newPos, CapsConfig.BombEatEffect, CapsConfig.EatBigBombEffectStartInterval + CapsConfig.BigBombEffectInterval * 2);
 
             newPos = GoTo(newPos, (TDirection)(((int)dir + 2) % 6), 1);     //第二层向下一个方向走一步
-            EatBlock(newPos, CapsConfig.BombEatEffect, CapsConfig.BombEffectInterval * 2);
+            EatBlock(newPos, CapsConfig.BombEatEffect, CapsConfig.EatBigBombEffectStartInterval + CapsConfig.BigBombEffectInterval * 2);
 
             Position newPos3 = GoTo(pos, dir, 3);                                     //第三层
-            EatBlock(newPos3, CapsConfig.BombEatEffect, CapsConfig.BombEffectInterval * 3);
+            EatBlock(newPos3, CapsConfig.BombEatEffect, CapsConfig.EatBigBombEffectStartInterval + CapsConfig.BigBombEffectInterval * 3);
 
             newPos = GoTo(newPos3, (TDirection)(((int)dir + 2) % 6), 1);     //第三层向下一个方向走一步
-            EatBlock(newPos, CapsConfig.BombEatEffect, CapsConfig.BombEffectInterval * 3);
+            EatBlock(newPos, CapsConfig.BombEatEffect, CapsConfig.EatBigBombEffectStartInterval + CapsConfig.BigBombEffectInterval * 3);
 
             newPos = GoTo(newPos3, (TDirection)(((int)dir - 2 + 6) % 6), 1); //第三层向上一个方向走一步
-            EatBlock(newPos, CapsConfig.BombEatEffect, CapsConfig.BombEffectInterval * 3);
+            EatBlock(newPos, CapsConfig.BombEatEffect, CapsConfig.EatBigBombEffectStartInterval + CapsConfig.BigBombEffectInterval * 3);
         }
 
         AddPartile("BigBombEffect", AudioEnum.Audio_Bomb, pos.x, pos.y);
@@ -3720,15 +3720,29 @@ public class GameLogic
 
     void EatALLDirLine(Position startPos, bool extraEat, int dir = -1)
     {
-        Debug.Log("EatAllLine");
+        float startDelay = CapsConfig.Line_Line_EffectStartDelay;
+        float intervalTime = CapsConfig.Line_Line_EffectInterval;
+
+        if (dir != -1)          //若为炸弹合条
+        {
+            startDelay = CapsConfig.Line_Bomb_EffectStartDelay;
+            intervalTime = CapsConfig.Line_Bomb_EffectInterval;
+        }
+        
+        if (dir == -1 && extraEat)      //彩虹合条
+        {
+            startDelay = CapsConfig.Line_Rainbow_EffectStartDelay;
+            intervalTime = CapsConfig.Line_Rainbow_EffectInterval;
+        }
+
         if (dir == -1 || dir == (int)TSpecialBlock.ESpecial_EatLineDir1)
         {
             //6方向加粗
             for (int i = 1; i < BlockCountX - 1; ++i)
             {
                 Position pos = startPos;
-                EatBlock(GoTo(pos, TDirection.EDir_UpRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
-                EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
+                EatBlock(GoTo(pos, TDirection.EDir_UpRight, i), CapsConfig.LineEatEffect, i * intervalTime + startDelay);
+                EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i), CapsConfig.LineEatEffect, i * intervalTime + startDelay);
 
 
                 if (extraEat)
@@ -3738,16 +3752,16 @@ public class GameLogic
                     {
                         EatBlock(pos, CapsConfig.LineEatEffect, 0.0f);
                     }
-                    EatBlock(GoTo(pos, TDirection.EDir_UpRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
-                    EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
+                    EatBlock(GoTo(pos, TDirection.EDir_UpRight, i), CapsConfig.LineEatEffect, i * intervalTime + startDelay);
+                    EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i), CapsConfig.LineEatEffect, i * intervalTime + startDelay);
 
                     pos.Set(startPos.x, startPos.y - 1);
                     if (i == 1)
                     {
                         EatBlock(pos, CapsConfig.LineEatEffect, 0.0f);
                     }
-                    EatBlock(GoTo(pos, TDirection.EDir_UpRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
-                    EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
+                    EatBlock(GoTo(pos, TDirection.EDir_UpRight, i), CapsConfig.LineEatEffect, i * intervalTime + startDelay);
+                    EatBlock(GoTo(pos, TDirection.EDir_LeftDown, i), CapsConfig.LineEatEffect, i * intervalTime + startDelay);
                 }
             }
 			if (extraEat)
@@ -3764,8 +3778,8 @@ public class GameLogic
             for (int i = 1; i < BlockCountX - 1; ++i)
             {
                 Position pos = startPos;
-                EatBlock(GoTo(pos, TDirection.EDir_Up, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
-                EatBlock(GoTo(pos, TDirection.EDir_Down, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
+                EatBlock(GoTo(pos, TDirection.EDir_Up, i), CapsConfig.LineEatEffect, i * intervalTime + startDelay);
+                EatBlock(GoTo(pos, TDirection.EDir_Down, i), CapsConfig.LineEatEffect, i * intervalTime + startDelay);
                 if (extraEat)
                 {
                     pos.Set(startPos.x + 1, startPos.y);
@@ -3773,16 +3787,16 @@ public class GameLogic
                     {
                         EatBlock(pos, CapsConfig.LineEatEffect, 0.0f);
                     }
-                    EatBlock(GoTo(pos, TDirection.EDir_Up, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
-                    EatBlock(GoTo(pos, TDirection.EDir_Down, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
+                    EatBlock(GoTo(pos, TDirection.EDir_Up, i), CapsConfig.LineEatEffect, i * intervalTime + startDelay);
+                    EatBlock(GoTo(pos, TDirection.EDir_Down, i), CapsConfig.LineEatEffect, i * intervalTime + startDelay);
 
                     pos.Set(startPos.x - 1, startPos.y);
                     if (i == 1)
                     {
                         EatBlock(pos, CapsConfig.LineEatEffect, 0.0f);
                     }
-                    EatBlock(GoTo(pos, TDirection.EDir_Up, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
-                    EatBlock(GoTo(pos, TDirection.EDir_Down, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
+                    EatBlock(GoTo(pos, TDirection.EDir_Up, i), CapsConfig.LineEatEffect, i * intervalTime + startDelay);
+                    EatBlock(GoTo(pos, TDirection.EDir_Down, i), CapsConfig.LineEatEffect, i * intervalTime + startDelay);
                 }
             }
             if (extraEat)
@@ -3799,8 +3813,8 @@ public class GameLogic
             for (int i = 1; i < BlockCountX - 1; ++i)
             {
                 Position pos = startPos;
-                EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
-                EatBlock(GoTo(pos, TDirection.EDir_DownRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
+                EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i), CapsConfig.LineEatEffect, i * intervalTime + startDelay);
+                EatBlock(GoTo(pos, TDirection.EDir_DownRight, i), CapsConfig.LineEatEffect, i * intervalTime + startDelay);
 
                 if (extraEat)
                 {
@@ -3809,16 +3823,16 @@ public class GameLogic
                     {
                         EatBlock(pos, CapsConfig.LineEatEffect, 0.0f);
                     }
-                    EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
-                    EatBlock(GoTo(pos, TDirection.EDir_DownRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
+                    EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i), CapsConfig.LineEatEffect, i * intervalTime + startDelay);
+                    EatBlock(GoTo(pos, TDirection.EDir_DownRight, i), CapsConfig.LineEatEffect, i * intervalTime + startDelay);
 
                     pos.Set(startPos.x, startPos.y - 1);
                     if (i == 1)
                     {
                         EatBlock(pos, CapsConfig.LineEatEffect, 0.0f);
                     }
-                    EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
-                    EatBlock(GoTo(pos, TDirection.EDir_DownRight, i), CapsConfig.LineEatEffect, i * CapsConfig.EatLineEffectInterval + CapsConfig.EatAllLineEffectStartInterval);
+                    EatBlock(GoTo(pos, TDirection.EDir_LeftUp, i), CapsConfig.LineEatEffect, i * intervalTime + startDelay);
+                    EatBlock(GoTo(pos, TDirection.EDir_DownRight, i), CapsConfig.LineEatEffect, i * intervalTime + startDelay);
                 }
             }
             if (extraEat)
@@ -3834,6 +3848,17 @@ public class GameLogic
 
     void EatAColor(TBlockColor color, Position startPos, bool bExchange = false, float delay = 0)
     {
+        float startDelay = CapsConfig.Rainbow_EffectStartDelay;
+        float intervalTime = CapsConfig.Rainbow_EffectInterval;
+        float flyDuration = CapsConfig.Rainbow_EffectFlyDuration;
+
+        if (color == TBlockColor.EColor_None)
+        {
+            startDelay = CapsConfig.Rainbow_Rainbow_StartDelay;
+            intervalTime = CapsConfig.Rainbow_Rainbow_EffectInterval;
+            flyDuration = CapsConfig.Rainbow_Rainbow_EffectFlyDuration;
+        }
+
         int eatCount = 0;
         for (int i = 0; i < BlockCountX; ++i)
         {
@@ -3855,22 +3880,22 @@ public class GameLogic
                 if (color == TBlockColor.EColor_None)
                 {
                     m_blocks[i, j].EatEffectName = CapsConfig.RainbowEatEffect;
-					m_blocks[i, j].Eat(CapsConfig.EatColorEffectStartDuration + CapsConfig.EatColorEffectStartInterval + CapsConfig.EatColorEffectInterval * eatCount);
-					AddDelayProceedGrid(i, j, CapsConfig.EatColorEffectStartDuration + CapsConfig.EatColorEffectStartInterval + CapsConfig.EatColorEffectInterval * eatCount, m_blocks[i, j]);
-                    AddFlyParticle("EatColorFlyEffect", AudioEnum.Audio_None, startPos, new Position(i, j), CapsConfig.EatColorEffectStartDuration, CapsConfig.EatColorEffectStartInterval + CapsConfig.EatColorEffectInterval * eatCount);
+                    m_blocks[i, j].Eat(CapsConfig.Rainbow_EffectFlyDuration + startDelay + intervalTime * eatCount);
+                    AddDelayProceedGrid(i, j, CapsConfig.Rainbow_EffectFlyDuration + startDelay + intervalTime * eatCount, m_blocks[i, j]);
+                    AddFlyParticle("EatColorFlyEffect", AudioEnum.Audio_None, startPos, new Position(i, j), flyDuration, startDelay + intervalTime * eatCount);
                     ++eatCount;
                 }
                 else if (m_blocks[i, j].color == color)
                 {
                     if (bExchange)          //手动交换,播放有时序的动画
                     {
-                        EatBlock(new Position(i, j), CapsConfig.RainbowEatEffect, CapsConfig.EatColorEffectStartDuration + CapsConfig.EatColorEffectStartInterval + CapsConfig.EatColorEffectInterval * eatCount);
-                        AddFlyParticle("EatColorFlyEffect", AudioEnum.Audio_None, startPos, new Position(i, j), CapsConfig.EatColorEffectStartDuration, CapsConfig.EatColorEffectStartInterval + CapsConfig.EatColorEffectInterval * eatCount);
+                        EatBlock(new Position(i, j), CapsConfig.RainbowEatEffect, CapsConfig.Rainbow_EffectFlyDuration + startDelay + intervalTime * eatCount);
+                        AddFlyParticle("EatColorFlyEffect", AudioEnum.Audio_None, startPos, new Position(i, j), flyDuration, startDelay + intervalTime * eatCount);
                     }
                     else                   //被动交换
                     {
-                        EatBlock(new Position(i, j), CapsConfig.RainbowEatEffect, CapsConfig.EatColorEffectStartDuration + delay);
-                        AddFlyParticle("EatColorFlyEffect", AudioEnum.Audio_None, startPos, new Position(i, j), CapsConfig.EatColorEffectStartDuration, delay);
+                        EatBlock(new Position(i, j), CapsConfig.RainbowEatEffect, CapsConfig.Rainbow_EffectFlyDuration + delay);
+                        AddFlyParticle("EatColorFlyEffect", AudioEnum.Audio_None, startPos, new Position(i, j), flyDuration, delay);
                     }
 
                     ++eatCount;
@@ -3885,7 +3910,7 @@ public class GameLogic
         if (bExchange)
         {
             m_gameFlow = TGameFlow.EGameState_EffectTime;
-            m_effectStateDuration = (int)((CapsConfig.EatColorEffectStartDuration + CapsConfig.EatColorEffectStartInterval + CapsConfig.EatColorEffectInterval * eatCount) * 1000);
+            m_effectStateDuration = (int)((flyDuration + startDelay + intervalTime * eatCount) * 1000);
             m_curStateStartTime = Timer.millisecondNow();
         }
     }

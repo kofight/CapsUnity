@@ -68,17 +68,31 @@ public class CapsConfig
     public static readonly string BombEatAnim = "BombEatAnim";                  //炸弹的动画
     public static readonly string RainbowEatAnim = "RainbowEatAnim";            //彩虹炸弹的动画
 
-    public static float EatLineEffectInterval = 0.04f;               //消行特效吃块的间隔
-    public static float EatLineEffectStartInterval = 0.17f;          //消行特效吃块的开始时间
+    public static float EatLineEffectInterval = 0.04f;               //消行特效 吃块的间隔
+    public static float EatLineEffectStartInterval = 0.17f;          //消行特效 吃块的开始时间
 
-    public static float EatAllLineEffectStartInterval = 0.17f;       //消行特效吃块的开始时间
+    public static float Line_Line_EffectStartDelay = 0.17f;          //消行合消行 吃块的开始时间
+    public static float Line_Line_EffectInterval = 0.17f;            //消行合消行 吃块的间隔
 
-    public static float BombEffectInterval = 0.0f;                   //炸弹特效吃块的间隔
-    public static float EatBombEffectStartInterval = 0.9f;           //炸弹特效吃块的开始时间
+    public static float Line_Bomb_EffectStartDelay = 0.17f;          //消行合炸弹 吃块的开始时间
+    public static float Line_Bomb_EffectInterval = 0.17f;            //消行合炸弹 吃块的间隔
 
-    public static float EatColorEffectInterval = 0.1f;                //彩虹特效吃块的间隔
-    public static float EatColorEffectStartInterval = 0.3f;           //彩虹特效吃块的开始前等待时间
-    public static float EatColorEffectStartDuration = 0.3f;           //彩虹每个子特效飞行的时间
+    public static float Line_Rainbow_EffectStartDelay = 0.17f;       //消行合彩虹 吃块的开始时间
+    public static float Line_Rainbow_EffectInterval = 0.17f;         //消行合彩虹 吃块的间隔
+
+    public static float BombEffectInterval = 0.0f;                   //炸弹特效 吃块的间隔
+    public static float EatBombEffectStartInterval = 0.9f;           //炸弹特效 吃块的开始时间
+
+    public static float BigBombEffectInterval = 0.0f;                //炸弹合炸弹 特效吃块的间隔
+    public static float EatBigBombEffectStartInterval = 0.9f;        //炸弹合炸弹 特效吃块的开始时间
+
+    public static float Rainbow_EffectInterval = 0.1f;                //彩虹特效 吃块的间隔
+    public static float Rainbow_EffectStartDelay = 0.3f;              //彩虹特效 吃块的开始前等待时间
+    public static float Rainbow_EffectFlyDuration = 0.3f;             //彩虹子弹特效 飞行的时间
+
+    public static float Rainbow_Rainbow_EffectInterval = 0.1f;        //彩虹合彩虹特效 吃块的间隔
+    public static float Rainbow_Rainbow_StartDelay = 0.3f;            //彩虹合彩虹特效 吃块的开始前等待时间
+    public static float Rainbow_Rainbow_EffectFlyDuration = 0.3f;     //彩虹合彩虹子弹特效 飞行的时间
 
 
     public static AudioList CurAudioList;

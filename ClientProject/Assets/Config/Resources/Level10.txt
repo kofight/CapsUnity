@@ -6,6 +6,7 @@ Nut1Count			2
 Nut2Count			1				
 NutInitCount			1				
 NutMaxCount			3				
+NutMinCount			1				
 NutStep			5				
 PlusInitCount			0				
 PlusMaxCount			0				

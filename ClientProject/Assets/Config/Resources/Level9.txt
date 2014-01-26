@@ -5,7 +5,8 @@ ColorCount			6
 Nut1Count			1				
 Nut2Count			0				
 NutInitCount			1				
-NutMaxCount			0				
+NutMaxCount			1				
+NutMinCount			1				
 NutStep			10				
 PlusInitCount			0				
 PlusMaxCount			0				

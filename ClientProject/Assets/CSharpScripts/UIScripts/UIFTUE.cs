@@ -42,16 +42,21 @@ public class UIFTUE : UIWindow
     public void ShowFTUE(int step)
     {
 		m_curStep = step;
+
         if (GameLogic.Singleton.PlayingStageData.FTUEMap.TryGetValue(step, out m_ftueData))
         {
+            BoxCollider collider = m_dialogBoardSprite.GetComponent<BoxCollider>();
             if (!m_ftueData[m_FTUEIndex].from.IsAvailable())
             {
+                collider.size = new Vector3(2048, 2048, 1);
                 ShowText(m_ftueData[m_FTUEIndex].headImage, m_ftueData[m_FTUEIndex].pic, m_ftueData[m_FTUEIndex].dialog, null);
             }
             else
             {
+				collider.size = new Vector3(2048, 2048, 1);
                 ShowText(m_ftueData[m_FTUEIndex].headImage, m_ftueData[m_FTUEIndex].pic, m_ftueData[m_FTUEIndex].dialog, delegate()
                 {
+					collider.size = new Vector3(300, 200, 1);
                     GameLogic.Singleton.SetHighLight(true, m_ftueData[m_FTUEIndex].from);
                     foreach (Position highLightPos in m_ftueData[m_FTUEIndex].highLightPosList)
                     {

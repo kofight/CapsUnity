@@ -62,12 +62,12 @@ public class UIDialog : UIWindow
 			{
                 if (func != null)
                     func();
-				return false;
-			}
-			else
-			{
-				PlayerPrefs.SetInt("StageStartDialogFinished", stageNum);
-			}
+                return false;
+            }
+            else
+            {
+                PlayerPrefs.SetInt("StageStartDialogFinished", stageNum);
+            }
 		}
 
         if (dialogEvent.backPic == "None")

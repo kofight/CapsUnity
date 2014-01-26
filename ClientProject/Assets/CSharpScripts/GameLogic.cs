@@ -918,6 +918,19 @@ public class GameLogic
         {
             return;
         }
+
+        if (!GlobalVars.DeveloperMode)
+        {
+            if (PlayerPrefs.GetInt("StageFTUEFinished") >= GlobalVars.CurStageNum)
+            {
+                return;
+            }
+            else
+            {
+                PlayerPrefs.SetInt("StageFTUEFinished", GlobalVars.CurStageNum);
+            }
+        }
+
         List<FTUEData> data;
         if(PlayingStageData.FTUEMap.TryGetValue(GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit, out data))      //查看是否有FTUE数据
         {
@@ -1250,6 +1263,16 @@ public class GameLogic
 	                                CapBlock block = m_blocks[i, j];
 	                                if (block != null && block.color == m_colorToBomb && block.special == TSpecialBlock.ESpecial_Normal)     //同颜色的普通块
 	                                {
+
+                                        if (PlayingStageData.CheckFlag(i, j, GridFlag.Cage))
+                                        {
+                                            PlayingStageData.ClearFlag(i, j, GridFlag.Cage);
+                                            AddPartile("CageEffect", AudioEnum.Audio_Cage, i, j);
+                                            m_scoreToShow[i, j] += CapsConfig.EatCagePoint;
+                                            m_gridBackImage[i, j].layer1.gameObject.SetActive(false);
+                                            m_cageCheckList.Add(new Position(i, j));                //记录一个位置，之后需要再检查一次消除
+                                        }
+
 	                                    AddPartile(CapsConfig.AddSpecialEffect, AudioEnum.Audio_itemBirth, i, j);
 	                                    block.special = TSpecialBlock.ESpecial_Bomb;
 	                                    block.RefreshBlockSprite(PlayingStageData.GridData[i, j]);
@@ -1363,9 +1386,18 @@ public class GameLogic
             {
                 if (PlayingStageData.StepLimit > 0)
                 {
+                    Position pos = FindRandomPos(TBlockColor.EColor_None, null, true);
+                    if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Cage))
+                    {
+                        PlayingStageData.ClearFlag(pos.x, pos.y, GridFlag.Cage);
+                        AddPartile("CageEffect", AudioEnum.Audio_Cage, pos.x, pos.y);
+                        m_scoreToShow[pos.x, pos.y] += CapsConfig.EatCagePoint;
+                        m_gridBackImage[pos.x, pos.y].layer1.gameObject.SetActive(false);
+                        m_cageCheckList.Add(new Position(pos.x, pos.y));                //记录一个位置，之后需要再检查一次消除
+                    }
                     //if (PlayingStageData.Target == GameTarget.BringFruitDown)
                     {
-                        Position pos = FindRandomPos(TBlockColor.EColor_None, null, true);
+                        
                         m_blocks[pos.x, pos.y].special = TSpecialBlock.ESpecial_EatLineDir0 + (m_random.Next() % 3);
                         m_blocks[pos.x, pos.y].RefreshBlockSprite(PlayingStageData.GridData[pos.x, pos.y]);
                         AddPartile(CapsConfig.AddSpecialEffect, AudioEnum.Audio_itemBirth, pos.x, pos.y);
@@ -1463,8 +1495,8 @@ public class GameLogic
                     Position rightDown = GoTo(new Position(i, j), TDirection.EDir_LeftDown, 1);
                     //这里判断一下是否落到底了（即不能下方向或斜方向下落）
                     if (!CheckPosCanDropDown(i, j + 1)          //
-                        && (!CheckPosCanDropDown(leftDown.x, leftDown.y) || m_slopeDropLock[leftDown.x] <= leftDown.y + 1)
-                        && (!CheckPosCanDropDown(rightDown.x, rightDown.y) || m_slopeDropLock[rightDown.x] <= rightDown.y + 1))
+                        && (!CheckPosCanDropDown(leftDown.x, leftDown.y) || m_slopeDropLock[leftDown.x] <= leftDown.y)
+                        && (!CheckPosCanDropDown(rightDown.x, rightDown.y) || m_slopeDropLock[rightDown.x] <= rightDown.y))
                     {
                         m_blocks[i, j].CurState = BlockState.Normal;        //先去掉下落状态
 						--CapBlock.DropingBlockCount;                       //清理下落计数
@@ -1915,6 +1947,8 @@ public class GameLogic
                 AddDelayProceedGrid(m_selectedPos[1].x, m_selectedPos[1].y, 0, m_blocks[m_selectedPos[1].x, m_selectedPos[1].y]);       ////自己消失
 
                 m_gameFlow = TGameFlow.EGameState_EffectTime;
+				m_effectStateDuration = 0;
+				m_curStateStartTime = Timer.millisecondNow();
                 m_curSpecialEffect = TSpecialEffect.EEatAColorNDBomb;
 				m_colorToBombLastTime = Timer.GetRealTimeSinceStartUp();
                 m_curSpecialEffectPos = m_selectedPos[1];
@@ -1927,6 +1961,8 @@ public class GameLogic
                 AddDelayProceedGrid(m_selectedPos[0].x, m_selectedPos[0].y, 0, m_blocks[m_selectedPos[0].x, m_selectedPos[0].y]);       ////自己消失
 
                 m_gameFlow = TGameFlow.EGameState_EffectTime;
+				m_effectStateDuration = 0;
+				m_curStateStartTime = Timer.millisecondNow();
                 m_curSpecialEffect = TSpecialEffect.EEatAColorNDBomb;
 				m_colorToBombLastTime = Timer.GetRealTimeSinceStartUp();
                 m_curSpecialEffectPos = m_selectedPos[0];
@@ -2395,7 +2431,7 @@ public class GameLogic
                     }
                 }
 
-                if (m_slopeDropLock[x] <= j + 1)        //若锁在当前位置的上方
+                if (m_slopeDropLock[x] <= j)        //若锁在当前位置的上方
                 {
                     continue;
                 }
@@ -3948,7 +3984,7 @@ public class GameLogic
                     continue;
                 }
 
-                if (m_blocks[i, j].CurState != BlockState.Normal || m_blocks[i, j].color >= TBlockColor.EColor_Nut1)
+                if ((m_blocks[i, j].CurState != BlockState.Normal && m_blocks[i, j].CurState != BlockState.Locked) || m_blocks[i, j].color >= TBlockColor.EColor_Nut1)
                 {
                     continue;
                 }

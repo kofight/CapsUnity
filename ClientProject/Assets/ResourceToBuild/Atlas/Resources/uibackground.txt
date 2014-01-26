@@ -2,27 +2,27 @@
 
 "MapPic0.png":
 {
-	"frame": {"x":1367,"y":1,"w":682,"h":2045},
+	"frame": {"x":721,"y":1,"w":719,"h":2045},
 	"rotated": false,
 	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":682,"h":2045},
-	"sourceSize": {"w":682,"h":2045}
+	"spriteSourceSize": {"x":0,"y":0,"w":719,"h":2045},
+	"sourceSize": {"w":719,"h":2045}
 },
 "MapPic1.png":
 {
-	"frame": {"x":684,"y":1,"w":682,"h":2045},
+	"frame": {"x":1,"y":1,"w":719,"h":2045},
 	"rotated": false,
 	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":682,"h":2045},
-	"sourceSize": {"w":682,"h":2045}
+	"spriteSourceSize": {"x":0,"y":0,"w":719,"h":2045},
+	"sourceSize": {"w":719,"h":2045}
 },
 "MapPic2.png":
 {
-	"frame": {"x":1,"y":1,"w":682,"h":2045},
+	"frame": {"x":1441,"y":1,"w":719,"h":1015},
 	"rotated": false,
 	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":682,"h":2045},
-	"sourceSize": {"w":682,"h":2045}
+	"spriteSourceSize": {"x":0,"y":0,"w":719,"h":1015},
+	"sourceSize": {"w":719,"h":1015}
 }},
 "meta": {
 	"app": "http://www.texturepacker.com",
@@ -31,6 +31,6 @@
 	"format": "RGBA8888",
 	"size": {"w":4096,"h":2048},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:937df29f471b78b45e65807d632eafe7$"
+	"smartupdate": "$TexturePacker:SmartUpdate:37320a4da1ae7f2029e9271502f54a0f$"
 }
 }

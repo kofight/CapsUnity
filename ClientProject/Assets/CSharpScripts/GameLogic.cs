@@ -918,6 +918,19 @@ public class GameLogic
         {
             return;
         }
+
+        if (!GlobalVars.DeveloperMode)
+        {
+            if (PlayerPrefs.GetInt("StageFTUEFinished") >= GlobalVars.CurStageNum)
+            {
+                return;
+            }
+            else
+            {
+                PlayerPrefs.SetInt("StageFTUEFinished", GlobalVars.CurStageNum);
+            }
+        }
+
         List<FTUEData> data;
         if(PlayingStageData.FTUEMap.TryGetValue(GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit, out data))      //查看是否有FTUE数据
         {

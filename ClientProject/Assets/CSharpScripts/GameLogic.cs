@@ -925,10 +925,6 @@ public class GameLogic
             {
                 return;
             }
-            else
-            {
-                PlayerPrefs.SetInt("StageFTUEFinished", GlobalVars.CurStageNum);
-            }
         }
 
         List<FTUEData> data;

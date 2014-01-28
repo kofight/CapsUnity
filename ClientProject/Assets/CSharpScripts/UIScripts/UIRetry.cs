@@ -43,6 +43,11 @@ public class UIRetry : UIWindow
 	{
 		base.OnShow ();
 		Transform nextBtn = UIToolkits.FindChild(mUIObject.transform, "NextLevelBtn");
+
+        if (PlayerPrefs.GetInt("StageFTUEFinished") < GlobalVars.CurStageNum)
+        {
+            PlayerPrefs.SetInt("StageFTUEFinished", GlobalVars.CurStageNum);
+        }
 		if (m_bWin)
         {
 			nextBtn.gameObject.SetActive(true);

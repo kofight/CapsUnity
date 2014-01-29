@@ -100,9 +100,12 @@ public class CapBlock
 
     public TSpecialBlock special;				//特殊功能块
 
+    public bool EatEffectPlayed;                //吃块特效是否已经播放了？
+
     public float EatDelay;
     public string EatAnimationName;             //消块的动画名称
     public string EatEffectName;             //消块的动画名称
+    public AudioEnum EatAudio;               //消块的声音
 
     public float m_dropDownStartTime;                  //下落开始时间，用来停止下落动画
 
@@ -119,6 +122,8 @@ public class CapBlock
 	{
         if (CurState == BlockState.Eating)
         {
+			if(m_eatStartTime > Timer.GetRealTimeSinceStartUp() + delay)
+				m_eatStartTime = Timer.GetRealTimeSinceStartUp() + delay;
             return;
         }
 		if (CurState == BlockState.MovingEnd)
@@ -128,6 +133,7 @@ public class CapBlock
         CurState = BlockState.Eating;
         m_eatStartTime = Timer.GetRealTimeSinceStartUp() + delay;
         ++EatingBlockCount;
+        EatEffectPlayed = false;
 	}
 
     public bool IsEating()

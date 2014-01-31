@@ -1,0 +1,22 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\CSharpScripts\CapsConfig.cs">
+    <Files>
+      <File FileName="Assets\CSharpScripts\CapsConfig.cs" Line="104" Column="70" />
+      <File FileName="Assets\Config\Resources\GameConfig.txt" Line="1" Column="1" />
+      <File FileName="Assets\CSharpScripts\S5Lib\S5Application.cs" Line="1" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore>
+      <Breakpoint hitAction="PrintExpression" traceExpression="{player}" file="D:\CapsUnity\ClientProject\Assets\CSharpScripts\S5Lib\UIWindow.cs" line="183" />
+    </BreakpointStore>
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches>
+    <Watch file="Assets\CSharpScripts\S5Lib\NGUIExtense\ShowAnimUIEffect.cs" line="31" offsetX="316" offsetY="480" expression="m_animation" liveUpdate="False" />
+    <Watch file="Assets\CSharpScripts\GameLogic.cs" line="2515" offsetX="772" offsetY="40224" expression="p" liveUpdate="False" />
+    <Watch file="Assets\CSharpScripts\GameLogic.cs" line="328" offsetX="116" offsetY="5232" expression="m_playSoundNextFrame" liveUpdate="False" />
+    <Watch file="Assets\CSharpScripts\GameLogic.cs" line="1693" offsetX="212" offsetY="27072" expression="m_slopeDropLock" liveUpdate="False" />
+    <Watch file="Assets\CSharpScripts\S5Lib\UIWindow.cs" line="275" offsetX="204" offsetY="4320" expression="player" liveUpdate="False" />
+  </MonoDevelop.Ide.DebuggingService.PinnedWatches>
+</Properties>

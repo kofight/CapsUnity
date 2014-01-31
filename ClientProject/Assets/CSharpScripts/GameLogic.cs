@@ -1593,6 +1593,35 @@ public class GameLogic
             }
         }
 
+        //处理延迟消除
+        LinkedListNode<DelayProceedGrid> node = m_delayProcessGrid.First;
+        LinkedListNode<DelayProceedGrid> nodeLast = m_delayProcessGrid.Last;
+        LinkedListNode<DelayProceedGrid> nodeTmp;//临时结点
+        if (m_delayProcessGrid.Count > 0)
+        {
+            while (node != nodeLast)
+            {
+                if (Timer.GetRealTimeSinceStartUp() > node.Value.startTime)       //若到了处理时间
+                {
+                    ProcessEatChanges(node.Value, true, true);                          //处理延迟处理的消块
+
+                    nodeTmp = node.Next;
+                    m_delayProcessGrid.Remove(node.Value);                              //移除中间一个元素
+                    node = nodeTmp;
+                }
+                else
+                {
+                    node = node.Next;
+                }
+            }
+
+            if (Timer.GetRealTimeSinceStartUp() > nodeLast.Value.startTime)       //若到了处理时间
+            {
+                ProcessEatChanges(nodeLast.Value, true, true);                          //处理延迟处理的消块
+                m_delayProcessGrid.Remove(nodeLast.Value);                              //移除中间一个元素
+            }
+        }
+
         TimerWork();
 
         DrawGraphics();     //绘制图形
@@ -1701,35 +1730,6 @@ public class GameLogic
                         break;
                     }
                 }
-            }
-        }
-
-        //处理延迟消除
-        LinkedListNode<DelayProceedGrid> node = m_delayProcessGrid.First;
-        LinkedListNode<DelayProceedGrid> nodeLast = m_delayProcessGrid.Last;
-        LinkedListNode<DelayProceedGrid> nodeTmp;//临时结点
-        if (m_delayProcessGrid.Count > 0)
-        {
-            while (node != nodeLast)
-            {
-                if (Timer.GetRealTimeSinceStartUp() > node.Value.startTime)       //若到了处理时间
-                {
-                    ProcessEatChanges(node.Value, true, true);                          //处理延迟处理的消块
-
-                    nodeTmp = node.Next;
-                    m_delayProcessGrid.Remove(node.Value);                              //移除中间一个元素
-                    node = nodeTmp;
-                }
-                else
-                {
-                    node = node.Next;
-                }
-            }
-
-            if (Timer.GetRealTimeSinceStartUp() > nodeLast.Value.startTime)       //若到了处理时间
-            {
-                ProcessEatChanges(nodeLast.Value, true, true);                          //处理延迟处理的消块
-                m_delayProcessGrid.Remove(nodeLast.Value);                              //移除中间一个元素
             }
         }
 

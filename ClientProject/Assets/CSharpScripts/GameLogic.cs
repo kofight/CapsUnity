@@ -1526,7 +1526,7 @@ public class GameLogic
 
         if (bDroped)        //落到底发生
         {
-            if (CapBlock.DropingBlockCount == 0 && CapBlock.EatingBlockCount == 0 && !bEat)       //若下落结束
+            if (CapBlock.DropingBlockCount == 0 && CapBlock.EatingBlockCount == 0)       //若下落结束
             {
                 if (m_cageCheckList.Count > 0)          //若有笼子消除完了需要多检查一次消除的可能
                 {

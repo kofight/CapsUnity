@@ -5,7 +5,7 @@ public class UIGameBottom : UIWindow
 {
     UISprite[] m_starsSprites = new UISprite[3];
     UISprite m_progressSprite;
-    static readonly int ProgressLenth = 348;
+    static readonly int ProgressLenth = 386;
     static readonly int ProgressStartX = -89;
 
     UISprite stageBoard;

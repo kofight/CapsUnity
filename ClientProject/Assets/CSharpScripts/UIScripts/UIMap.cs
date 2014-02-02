@@ -23,6 +23,7 @@ public class UIMap : UIWindow
 	SpringPanel springPanel;
 
     UISprite m_headSprite;                      //头像位置
+    UISprite m_cloudSprite;                     //云的图片
 
     Transform[] m_stageBtns;
 
@@ -82,6 +83,7 @@ public class UIMap : UIWindow
         m_secNumber = m_heartUI.GetChildComponent<NumberDrawer>("SecNumber");
 
         m_headSprite = GetChildComponent<UISprite>("Head");
+        m_cloudSprite = GetChildComponent<UISprite>("Cloud");
     }
 
     public void OpenNewButton(int stageNum)
@@ -244,6 +246,10 @@ public class UIMap : UIWindow
                 m_headSprite.gameObject.transform.localPosition = Vector3.Lerp(m_stageBtns[m_newStageNumber - 2].localPosition, target, passTime / HeadMoveTime);
             }
         }
+        //5105 - 2045 = 3060
+        //处理云的移动
+        float y = (mUIObject.transform.localPosition.y - (454.0f)) * 3054 / 3964.0f;
+        m_cloudSprite.transform.LocalPositionY(-y);
     }
 
     private void OnStageClicked()

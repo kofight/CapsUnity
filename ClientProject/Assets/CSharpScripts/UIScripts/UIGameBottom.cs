@@ -6,7 +6,7 @@ public class UIGameBottom : UIWindow
     UISprite[] m_starsSprites = new UISprite[3];
     UISprite m_progressSprite;
     static readonly int ProgressLenth = 386;
-    static readonly int ProgressStartX = -89;
+    static readonly int ProgressStartX = -95;
 
     UISprite stageBoard;
     UISlider m_speedSlider;
@@ -83,7 +83,7 @@ public class UIGameBottom : UIWindow
 	{
 		if (GlobalVars.CurStageData.StarScore[2] > 0)
         {
-            for (int i = 0; i < 2; ++i)
+            for (int i = 0; i < 3; ++i)
             {
                 m_starsSprites[i].LocalPositionX(ProgressStartX + ProgressLenth * GlobalVars.CurStageData.StarScore[i] / GlobalVars.CurStageData.StarScore[2]);      //放置位置
             }

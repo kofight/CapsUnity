@@ -2,7 +2,7 @@
 
 "MapCloud.png":
 {
-	"frame": {"x":1,"y":1,"w":719,"h":2045},
+	"frame": {"x":1441,"y":1,"w":719,"h":2045},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":719,"h":2045},
@@ -10,7 +10,7 @@
 },
 "MapPic0.png":
 {
-	"frame": {"x":1441,"y":1,"w":719,"h":2045},
+	"frame": {"x":721,"y":1,"w":719,"h":2045},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":719,"h":2045},
@@ -18,7 +18,7 @@
 },
 "MapPic1.png":
 {
-	"frame": {"x":721,"y":1,"w":719,"h":2045},
+	"frame": {"x":1,"y":1,"w":719,"h":2045},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":719,"h":2045},
@@ -39,6 +39,6 @@
 	"format": "RGBA8888",
 	"size": {"w":4096,"h":2048},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:fed3dd95c5e1af6e1c144533a4fb0b63$"
+	"smartupdate": "$TexturePacker:SmartUpdate:0787bfbcaffdb11cf370cfa83e061276$"
 }
 }

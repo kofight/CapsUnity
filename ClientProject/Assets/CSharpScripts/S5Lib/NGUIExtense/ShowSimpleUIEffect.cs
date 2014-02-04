@@ -21,6 +21,9 @@ public class ShowSimpleUIEffect : UIEffectPlayer
     public TweenPosition mTweenPos;
     public TweenAlpha mTweenAlpha;
     public TweenScale mTweenScale;
+	
+	public AnimationClip IdleAnim;
+	Animation m_animation;
 
     public List<UITweener> mTweenList = new List<UITweener>();
 
@@ -110,6 +113,17 @@ public class ShowSimpleUIEffect : UIEffectPlayer
                 }
             }
         }
+		
+		if(IdleAnim != null)
+		{
+			m_animation = GetComponent<Animation>();
+			if( m_animation == null)
+			{
+				m_animation = this.gameObject.AddComponent<Animation>();
+				if(IdleAnim != null)
+					m_animation.AddClip(IdleAnim, "IdelAnim");
+			}
+		}
     }
 
     protected override void DoShowEffect()
@@ -118,6 +132,19 @@ public class ShowSimpleUIEffect : UIEffectPlayer
         {
             tweener.Play(true);
         }
+		if (IdleAnim != null)
+        {
+			m_animation.Stop();
+        }
+    }
+	
+	protected override void DoIdleEffect()
+    {
+        if (IdleAnim != null)
+        {
+			m_animation.Stop();
+            m_animation.Play("IdelAnim");
+        }
     }
 
     protected override void DoHideEffect()
@@ -125,6 +152,10 @@ public class ShowSimpleUIEffect : UIEffectPlayer
         foreach (UITweener tweener in mTweenList)
         {
             tweener.Play(false);
+        }
+		if (IdleAnim != null)
+        {
+			m_animation.Stop();
         }
     }
 

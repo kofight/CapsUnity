@@ -67,6 +67,8 @@ public class ShowAnimUIEffect : UIEffectPlayer
 		{
 			return false;			//take it as stop when idle, even if the anim is playing
 		}
+		if(!m_animation)
+			return false;
         return m_animation.isPlaying;
     }
 }

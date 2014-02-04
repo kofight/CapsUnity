@@ -114,15 +114,30 @@ public class UILogin : UIWindow
     private void OnPlayBtnClick()
     {
         HideWindow();
-		UIWindowManager.Singleton.GetUIWindow<UIMap>().ShowWindow();
-
 		GlobalVars.DeveloperMode = m_developerMode.value;
 		
-		if (GlobalVars.DeveloperMode)
+        if (GlobalVars.AvailabeStageCount == 1)
         {
-            UIWindowManager.Singleton.GetUIWindow<UIMap>().RefreshButtons();
+            GlobalVars.UseHeart();      //使用一颗心
+            GlobalVars.CurStageNum = 1;
+            GlobalVars.CurStageData = StageData.CreateStageData();
+            GlobalVars.LastStage = GlobalVars.CurStageNum;
+            GlobalVars.CurStageData.LoadStageData(GlobalVars.CurStageNum);
+            UIWindowManager.Singleton.GetUIWindow("UILoading").ShowWindow(
+            delegate()
+            {
+                CapsApplication.Singleton.ChangeState((int)StateEnum.Game);
+            }
+            );
         }
-		
-        LoginState.Instance.CurFlow = TLoginFlow.LoginFlow_Map;         //切换流程到显示地图
+        else
+        {
+            UIWindowManager.Singleton.GetUIWindow<UIMap>().ShowWindow();
+            if (GlobalVars.DeveloperMode)
+            {
+                UIWindowManager.Singleton.GetUIWindow<UIMap>().RefreshButtons();
+            }
+            LoginState.Instance.CurFlow = TLoginFlow.LoginFlow_Map;         //切换流程到显示地图
+        }
     }
 }

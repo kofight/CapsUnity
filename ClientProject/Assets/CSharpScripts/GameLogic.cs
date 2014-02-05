@@ -634,6 +634,15 @@ public class GameLogic
             }
         }
 
+        //处理预置特殊块
+        foreach (KeyValuePair<int, int> pair in PlayingStageData.SpecialBlock)
+        {
+            int x = pair.Key % 10;
+            int y = pair.Key / 10;
+            m_blocks[x, y].special = (TSpecialBlock)pair.Value;
+            m_blocks[x, y].RefreshBlockSprite(PlayingStageData.GridData[x, y]);
+        }
+
         UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().Reset();
 
         ClearSelected();
@@ -4360,7 +4369,7 @@ public class GameLogic
         return (TDirection)((int)(dir + 3) % 6);
     }
 
-    CapBlock GetBlock(Position p)							//获得某位置的块对象
+    public CapBlock GetBlock(Position p)							//获得某位置的块对象
     {
         return m_blocks[p.x, p.y];
     }

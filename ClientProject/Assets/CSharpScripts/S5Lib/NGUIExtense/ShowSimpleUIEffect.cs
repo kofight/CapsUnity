@@ -25,6 +25,9 @@ public class ShowSimpleUIEffect : UIEffectPlayer
 	public AnimationClip IdleAnim;
 	Animation m_animation;
 
+    public AnimationCurve forwardPositionAnimationCurve = new AnimationCurve(new Keyframe(0f, 0f, 0f, 1f), new Keyframe(1f, 1f, 1f, 0f));
+    public AnimationCurve backwardPositionAnimationCurve = new AnimationCurve(new Keyframe(0f, 0f, 0f, 1f), new Keyframe(1f, 1f, 1f, 0f));
+
     public List<UITweener> mTweenList = new List<UITweener>();
 
     void AddEffectTo(GameObject gameObject)
@@ -128,6 +131,7 @@ public class ShowSimpleUIEffect : UIEffectPlayer
 
     protected override void DoShowEffect()
     {
+        mTweenPos.animationCurve = forwardPositionAnimationCurve;
         foreach (UITweener tweener in mTweenList)
         {
             tweener.Play(true);
@@ -149,6 +153,7 @@ public class ShowSimpleUIEffect : UIEffectPlayer
 
     protected override void DoHideEffect()
 	{
+        mTweenPos.animationCurve = backwardPositionAnimationCurve;
         foreach (UITweener tweener in mTweenList)
         {
             tweener.Play(false);

@@ -58,6 +58,7 @@ public class FTUEData
     public string pic;
     public Position from;
     public Position to;
+    public bool bHighLightBackground;
     public List<Position> highLightPosList;
 }
 
@@ -360,6 +361,15 @@ public class StageData
                     else
                     {
                         data.pic = "None";
+                    }
+
+                    if (values.Length > 7)
+                    {
+                        data.bHighLightBackground = (System.Convert.ToInt32(values[7]) > 0);
+                    }
+                    else
+                    {
+                        data.bHighLightBackground = false;
                     }
 
                     curFTUEGroup.Add(data);                               //添加对话数据

@@ -3691,12 +3691,12 @@ public class GameLogic
         }
     }
 
-    public void SetHighLight(bool bVal, Position p)
+    public void SetHighLight(bool bVal, Position p, bool bLightBackground = false)
     {
-        SetHighLight(bVal, p.x, p.y);
+        SetHighLight(bVal, p.x, p.y, bLightBackground);
     }
 
-    public void SetHighLight(bool bVal, int x, int y)         //设置某块高亮
+    public void SetHighLight(bool bVal, int x, int y, bool bLightBackground = false)         //设置某块高亮
     {
         if (m_blocks[x, y] == null)
         {
@@ -3705,10 +3705,34 @@ public class GameLogic
         if (bVal)
         {
             m_blocks[x, y].m_addColorSprite.alpha = 1.0f;
+            if (bLightBackground)
+            {
+                m_blocks[x, y].m_blockSprite.depth = 5;
+                if (m_gridBackImage[x, y].layer0 != null)
+                {
+                    m_gridBackImage[x, y].layer0.depth = 4;
+                }
+                if (m_gridBackImage[x, y].layer1 != null)
+                {
+                    m_gridBackImage[x, y].layer1.depth = 6;
+                }
+            }
         }
         else
         {
             m_blocks[x, y].m_addColorSprite.alpha = 0.0f;
+            if (bLightBackground)
+            {
+                m_blocks[x, y].m_blockSprite.depth = 2;
+                if (m_gridBackImage[x, y].layer0 != null)
+                {
+                    m_gridBackImage[x, y].layer0.depth = 0;
+                }
+                if (m_gridBackImage[x, y].layer1 != null)
+                {
+                    m_gridBackImage[x, y].layer1.depth = 3;
+                }
+            }
         }
     }
 

@@ -29,12 +29,13 @@ public class UIFTUE : UIWindow
 		
 		if(m_ftueData[m_FTUEIndex].from.IsAvailable())
 		{
-        	GameLogic.Singleton.SetHighLight(false, m_ftueData[m_FTUEIndex].from);
-	        foreach (Position highLightPos in m_ftueData[m_FTUEIndex].highLightPosList)
-	        {
-	            GameLogic.Singleton.SetHighLight(false, highLightPos);
-	        }
+            GameLogic.Singleton.SetHighLight(false, m_ftueData[m_FTUEIndex].from);
 		}
+
+        foreach (Position highLightPos in m_ftueData[m_FTUEIndex].highLightPosList)
+        {
+            GameLogic.Singleton.SetHighLight(false, highLightPos, m_ftueData[m_FTUEIndex].bHighLightBackground);
+        }
 
         GameLogic.Singleton.ShowUI();
     }
@@ -46,24 +47,24 @@ public class UIFTUE : UIWindow
         if (GameLogic.Singleton.PlayingStageData.FTUEMap.TryGetValue(step, out m_ftueData))
         {
             BoxCollider collider = m_dialogBoardSprite.GetComponent<BoxCollider>();
-            if (!m_ftueData[m_FTUEIndex].from.IsAvailable())
+
+            ShowText(m_ftueData[m_FTUEIndex].headImage, m_ftueData[m_FTUEIndex].pic, m_ftueData[m_FTUEIndex].dialog, delegate()
             {
-                collider.size = new Vector3(2048, 2048, 1);
-                ShowText(m_ftueData[m_FTUEIndex].headImage, m_ftueData[m_FTUEIndex].pic, m_ftueData[m_FTUEIndex].dialog, null);
-            }
-            else
-            {
-				collider.size = new Vector3(2048, 2048, 1);
-                ShowText(m_ftueData[m_FTUEIndex].headImage, m_ftueData[m_FTUEIndex].pic, m_ftueData[m_FTUEIndex].dialog, delegate()
+                if (m_ftueData[m_FTUEIndex].from.IsAvailable())
                 {
-					collider.size = new Vector3(300, 200, 1);
+					m_bLock =  true;
+                    collider.size = new Vector3(300, 200, 1);
                     GameLogic.Singleton.SetHighLight(true, m_ftueData[m_FTUEIndex].from);
-                    foreach (Position highLightPos in m_ftueData[m_FTUEIndex].highLightPosList)
-                    {
-                        GameLogic.Singleton.SetHighLight(true, highLightPos);
-                    }
-                });
-            }
+                }
+                else
+                {
+                    collider.size = new Vector3(2048, 2048, 1);
+                }
+                foreach (Position highLightPos in m_ftueData[m_FTUEIndex].highLightPosList)
+                {
+                    GameLogic.Singleton.SetHighLight(true, highLightPos, m_ftueData[m_FTUEIndex].bHighLightBackground);
+                }
+            });
         }
 
         GameLogic.Singleton.HideUI();
@@ -140,7 +141,6 @@ public class UIFTUE : UIWindow
 				{
                 	func();
 					m_pointer.SetActive(true);
-					m_bLock = true;
 				}
             }
 			++m_curDialogIndex;
@@ -179,7 +179,7 @@ public class UIFTUE : UIWindow
             //播放下一段
             m_dialogText.Play(m_dialogContents[m_curDialogIndex], delegate()
             {
-				
+				m_bLock = false;
                 ++m_curDialogIndex;
 				if (m_afterDialogFunc != null)          //若有结束函数
                 {
@@ -188,7 +188,6 @@ public class UIFTUE : UIWindow
                 }
 				else
 				{
-					m_bLock = false;
                     m_pointer.SetActive(false);
 				}
             });

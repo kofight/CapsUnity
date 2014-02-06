@@ -934,8 +934,13 @@ public class GameLogic
         //播放开始游戏的动画
         TweenPosition tweenPos = m_gameArea.GetComponent<TweenPosition>();
         tweenPos.Play(true);
-
-        AddPartile("StartGameAnim", AudioEnum.Audio_None, 5, 5, false);
+		
+		if(PlayingStageData.Target == GameTarget.GetScore)
+        	AddPartile("StartGameAnim-Score", AudioEnum.Audio_None, 5, 5, false);
+		if(PlayingStageData.Target == GameTarget.ClearJelly)
+        	AddPartile("StartGameAnim-Ice", AudioEnum.Audio_None, 5, 5, false);
+		if(PlayingStageData.Target == GameTarget.BringFruitDown)
+        	AddPartile("StartGameAnim-Fruit", AudioEnum.Audio_None, 5, 5, false);
     }
 
     public void CheckFTUE()

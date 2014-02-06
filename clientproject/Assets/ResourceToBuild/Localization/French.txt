@@ -1,1 +1,9 @@
 ﻿Play = Play
+SFX = SFX
+Music = Music
+Target = Target
+PlayOn = Play On
+GameEnd = Game End
+NextStage = Next Stage
+Retry = Retry
+FullHeart = Full

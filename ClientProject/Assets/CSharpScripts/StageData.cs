@@ -58,6 +58,7 @@ public class FTUEData
     public string pic;
     public Position from;
     public Position to;
+    public bool bHighLightBackground;
     public List<Position> highLightPosList;
 }
 
@@ -108,6 +109,8 @@ public class StageData
 
     public Dictionary<int, Portal> PortalToMap = new Dictionary<int, Portal>();                                                                //用来储存所有的传送门，键值是传送目标的编码
     public Dictionary<int, Portal> PortalFromMap = new Dictionary<int, Portal>();                                                                //用来储存所有的传送门，键值是传送目标的编码
+
+    public Dictionary<int, int> SpecialBlock = new Dictionary<int, int>();      //关卡开始特殊块
 
     public bool CheckFlag(int x, int y, GridFlag flag)
     {
@@ -258,6 +261,19 @@ public class StageData
             }
         }
 
+        //Portals
+        _config.GetValue<string>("SpecialArray", out temp);
+        if (temp != null)
+        {
+            string[] specialDataTokens = temp.Split(',');
+            for (int i = 0; i < specialDataTokens.Length - 2; i += 3)
+            {
+                Position pos = new Position((int)System.Convert.ChangeType(specialDataTokens[i], typeof(int)), (int)System.Convert.ChangeType(specialDataTokens[i + 1], typeof(int)));
+                int special = (int)System.Convert.ChangeType(specialDataTokens[i + 2], typeof(int));
+                SpecialBlock.Add(pos.ToInt(), special);
+            }
+        }
+
         Debug.Log("Level " + levelNum + " Loaded");
 
         FTUEMap.Clear();
@@ -347,6 +363,15 @@ public class StageData
                         data.pic = "None";
                     }
 
+                    if (values.Length > 7)
+                    {
+                        data.bHighLightBackground = (System.Convert.ToInt32(values[7]) > 0);
+                    }
+                    else
+                    {
+                        data.bHighLightBackground = false;
+                    }
+
                     curFTUEGroup.Add(data);                               //添加对话数据
                 }
 
@@ -408,6 +433,23 @@ public class StageData
         }
 
         _config.Write("PortalArray", temp);
+
+        //保存画面上的特殊块
+        temp = string.Empty;
+        for (int j = 0; j < GameLogic.BlockCountY; ++j)
+        {
+            for (int i = 0; i < GameLogic.BlockCountX; ++i)
+            {
+                CapBlock block = GameLogic.Singleton.GetBlock(new Position(i, j));
+                if (block != null && block.special != TSpecialBlock.ESpecial_Normal)
+                {
+                    temp = temp + i + ",";
+                    temp = temp + j + ",";
+                    temp = temp + (int)block.special+ ",";
+                }
+            }
+        }
+        _config.Write("SpecialArray", temp);
 
         _config.Save();
         Debug.Log("Level " + levelNum + " Saved");

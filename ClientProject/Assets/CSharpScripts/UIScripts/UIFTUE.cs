@@ -9,6 +9,9 @@ public class UIFTUE : UIWindow
 	UISprite m_headSprite;
     UISprite m_backPic;
     UISprite m_pic;             //配的图片
+
+    UILabel m_clickLabel;
+
     GameObject m_pointer;
     UIEffectPlayer m_dialogEffectPlayer;
     WindowEffectFinished m_afterDialogFunc;
@@ -137,7 +140,9 @@ public class UIFTUE : UIWindow
 		m_curDialogIndex = 0;
 		
 		m_bLock = true;
-		
+
+        m_clickLabel.gameObject.SetActive(false);
+
         //开始播放文字
         m_dialogText.Play(m_dialogContents[m_curDialogIndex], delegate()
         {
@@ -150,6 +155,17 @@ public class UIFTUE : UIWindow
                 	func();
 				}
             }
+
+            m_clickLabel.gameObject.SetActive(true);
+            if (m_ftueData[m_FTUEIndex].from.IsAvailable() && m_curDialogIndex == m_dialogContents.Length - 1)
+            {
+                m_clickLabel.text = Localization.instance.Get("MoveBlock");
+            }
+            else
+            {
+                m_clickLabel.text = Localization.instance.Get("Click");
+            }
+
 			++m_curDialogIndex;
         });
 
@@ -166,6 +182,7 @@ public class UIFTUE : UIWindow
         m_pic = GetChildComponent<UISprite>("Picture");
         m_pointer = GameObject.Find("FTUEPointer");
         m_pointer.SetActive(false);
+        m_clickLabel = GetChildComponent<UILabel>("ClickLabel");
 		AddChildComponentMouseClick("DialogBoard", OnClick);
     }
 
@@ -187,11 +204,21 @@ public class UIFTUE : UIWindow
             m_dialogEffectPlayer.HideEffect(delegate()
             {
                 m_dialogEffectPlayer.ShowEffect();
+                m_clickLabel.gameObject.SetActive(false);
                 //播放下一段
                 m_dialogText.Play(m_dialogContents[m_curDialogIndex], delegate()
                 {
                     m_bLock = false;
                     ++m_curDialogIndex;
+                    m_clickLabel.gameObject.SetActive(true);
+                    if (m_ftueData[m_FTUEIndex].from.IsAvailable())
+                    {
+                        m_clickLabel.text = Localization.instance.Get("MoveBlock");
+                    }
+                    else
+                    {
+                        m_clickLabel.text = Localization.instance.Get("Click");
+                    }
                     if (m_afterDialogFunc != null)          //若有结束函数
                     {
                         m_afterDialogFunc();

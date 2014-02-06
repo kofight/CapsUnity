@@ -1,5 +1,13 @@
 {"frames": {
 
+"Click.png":
+{
+	"frame": {"x":2,"y":908,"w":57,"h":60},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":57,"h":60},
+	"sourceSize": {"w":57,"h":60}
+},
 "Dog.png":
 {
 	"frame": {"x":2,"y":566,"w":218,"h":340},
@@ -26,7 +34,7 @@
 },
 "TextBox.png":
 {
-	"frame": {"x":222,"y":751,"w":250,"h":176},
+	"frame": {"x":222,"y":744,"w":250,"h":176},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":250,"h":176},
@@ -34,11 +42,19 @@
 },
 "TextBox2.png":
 {
-	"frame": {"x":222,"y":566,"w":215,"h":183},
+	"frame": {"x":646,"y":2,"w":146,"h":125},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":0,"w":146,"h":125},
+	"sourceSize": {"w":146,"h":183}
+},
+"TextBoxMir.png":
+{
+	"frame": {"x":222,"y":566,"w":250,"h":176},
 	"rotated": false,
 	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":215,"h":183},
-	"sourceSize": {"w":215,"h":183}
+	"spriteSourceSize": {"x":0,"y":0,"w":250,"h":176},
+	"sourceSize": {"w":250,"h":176}
 }},
 "meta": {
 	"app": "http://www.texturepacker.com",
@@ -47,6 +63,6 @@
 	"format": "RGBA8888",
 	"size": {"w":1024,"h":1024},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:af9eeaf7a14bfb770bad98e8aefdb99b$"
+	"smartupdate": "$TexturePacker:SmartUpdate:8129df7c2a578375e67ab72481d98e97$"
 }
 }

@@ -36,6 +36,7 @@ public class UIDialog : UIWindow
 	UISprite m_head2Sprite;
 	UISprite m_itemBoard;
     UISprite m_backPic;
+    UISprite m_clickSprite;
 
     UIEffectPlayer m_dialogEffectPlayer;
 
@@ -120,14 +121,13 @@ public class UIDialog : UIWindow
         }
         else
         {
-            m_dialogBoardSprite.spriteName = "TextBox";
             if (activeLeftHead)
             {
-                m_dialogBoardSprite.transform.LocalScaleX(1.0f);
+                m_dialogBoardSprite.spriteName = "TextBox";
             }
             else
             {
-                m_dialogBoardSprite.transform.LocalScaleX(-1.0f);
+                m_dialogBoardSprite.spriteName = "TextBoxMir";
             }
         }
 
@@ -168,9 +168,11 @@ public class UIDialog : UIWindow
 			m_head2Sprite.gameObject.SetActive(false);
 		}
 
+        m_clickSprite.gameObject.SetActive(false);
+
         m_dialogText.Play(content, delegate()
         {
-
+            m_clickSprite.gameObject.SetActive(true);
         });
 	}
 	
@@ -210,6 +212,7 @@ public class UIDialog : UIWindow
 
         m_backPic = GetChildComponent<UISprite>("Background");
 		m_itemBoard = GetChildComponent<UISprite>("ItemBoard");
+        m_clickSprite = GetChildComponent<UISprite>("ClickSprite");
 
         AddChildComponentMouseClick("SkipBtn", delegate()
         {

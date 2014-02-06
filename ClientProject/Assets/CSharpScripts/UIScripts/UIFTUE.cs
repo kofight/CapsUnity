@@ -10,7 +10,7 @@ public class UIFTUE : UIWindow
     UISprite m_backPic;
     UISprite m_pic;             //配的图片
     GameObject m_pointer;
-
+    UIEffectPlayer m_dialogEffectPlayer;
     WindowEffectFinished m_afterDialogFunc;
 	
 	string [] m_dialogContents;
@@ -162,6 +162,7 @@ public class UIFTUE : UIWindow
 		m_dialogText = GetChildComponent<AocTypewriterEffect>("DialogText");
 		m_headSprite = GetChildComponent<UISprite>("Head");
         m_dialogBoardSprite = GetChildComponent<UISprite>("DialogBoard");
+        m_dialogEffectPlayer = m_dialogBoardSprite.GetComponent<UIEffectPlayer>();
         m_pic = GetChildComponent<UISprite>("Picture");
         m_pointer = GameObject.Find("FTUEPointer");
         m_pointer.SetActive(false);
@@ -183,20 +184,24 @@ public class UIFTUE : UIWindow
         if (m_curDialogIndex < m_dialogContents.Length)      //若不是最后一段文字
         {
 			m_bLock = true;
-            //播放下一段
-            m_dialogText.Play(m_dialogContents[m_curDialogIndex], delegate()
+            m_dialogEffectPlayer.HideEffect(delegate()
             {
-				m_bLock = false;
-                ++m_curDialogIndex;
-				if (m_afterDialogFunc != null)          //若有结束函数
+                m_dialogEffectPlayer.ShowEffect();
+                //播放下一段
+                m_dialogText.Play(m_dialogContents[m_curDialogIndex], delegate()
                 {
-                    m_afterDialogFunc();
-                    m_pointer.SetActive(true);
-                }
-				else
-				{
-                    m_pointer.SetActive(false);
-				}
+                    m_bLock = false;
+                    ++m_curDialogIndex;
+                    if (m_afterDialogFunc != null)          //若有结束函数
+                    {
+                        m_afterDialogFunc();
+                        m_pointer.SetActive(true);
+                    }
+                    else
+                    {
+                        m_pointer.SetActive(false);
+                    }
+                });
             });
         }
         else        //若是最后一段文字

@@ -25,6 +25,7 @@ public abstract class UIEffectPlayer : MonoBehaviour
     public bool IsDelaying() { return m_state == EffectState.Showing && m_delayStartTime > 0; }
     public float StateTimeOut = 1;                              //切到某状态后状态失效时间(用来处理idle动画无法正确结束的问题)
     protected float m_curStateStartTime = 0;
+    UIWindow.WindowEffectFinished m_finishedFunc;
 
     public void ShowEffect()                        //显示时的特效
     {
@@ -43,11 +44,12 @@ public abstract class UIEffectPlayer : MonoBehaviour
         }
     }
 
-    public virtual void HideEffect()        //隐藏时的特效
+    public virtual void HideEffect(UIWindow.WindowEffectFinished finishedFunc = null)        //隐藏时的特效
     {
         m_state = EffectState.Hiding;
         m_curStateStartTime = Timer.GetRealTimeSinceStartUp();
         DoHideEffect();
+        m_finishedFunc = finishedFunc;
     }            
 
     protected virtual void DoShowEffect() { }
@@ -73,6 +75,13 @@ public abstract class UIEffectPlayer : MonoBehaviour
             m_state = EffectState.Idle;                         //进入Idle状态
             m_curStateStartTime = Timer.GetRealTimeSinceStartUp();
             DoIdleEffect();                                     //播放Idle状态特效
+        }
+
+        if (m_finishedFunc != null && m_state == EffectState.Hiding && !IsPlaying())      //播放结束响应
+        {
+            UIWindow.WindowEffectFinished func = m_finishedFunc;
+            m_finishedFunc = null;
+            func();
         }
     }
 

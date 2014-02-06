@@ -37,6 +37,8 @@ public class UIDialog : UIWindow
 	UISprite m_itemBoard;
     UISprite m_backPic;
 
+    UIEffectPlayer m_dialogEffectPlayer;
+
     int m_curDialogGroupNum;
     int m_curDialogIndex;
 
@@ -166,7 +168,12 @@ public class UIDialog : UIWindow
 		if(m_curDialogIndex < m_dialogGroupMap[m_curDialogGroupNum].Count-1)
         {
 			++m_curDialogIndex;
-            ShowText(m_curDialogIndex);
+            m_dialogEffectPlayer.HideEffect(delegate()
+            {
+                m_dialogEffectPlayer.ShowEffect();
+                ShowText(m_curDialogIndex);
+            });
+            
 		}
 		else
 		{
@@ -188,6 +195,7 @@ public class UIDialog : UIWindow
 		m_head1Sprite = GetChildComponent<UISprite>("LeftHead");
 		m_head2Sprite = GetChildComponent<UISprite>("RightHead");
         m_dialogBoardSprite = GetChildComponent<UISprite>("DialogBoard");
+        m_dialogEffectPlayer = m_dialogBoardSprite.GetComponent<UIEffectPlayer>();
 
         m_backPic = GetChildComponent<UISprite>("Background");
 		m_itemBoard = GetChildComponent<UISprite>("ItemBoard");

@@ -10,7 +10,7 @@ public class UIRetry : UIWindow
     bool m_bWin;
     int m_starCount;
     UISprite[] m_starsSprites = new UISprite[3];
-    NumberDrawer m_stageNumber;
+    UILabel m_levelLabel;
 
     Transform m_winBoard;
     Transform m_failedBoard;
@@ -24,7 +24,7 @@ public class UIRetry : UIWindow
         //m_resultLabel = UIToolkits.FindComponent<UILabel>(mUIObject.transform, "ResultLabel");
         m_infoLabel = UIToolkits.FindComponent<UILabel>(mUIObject.transform, "EndInfomation");
 
-        m_stageNumber = GetChildComponent<NumberDrawer>("LevelNumber");
+        m_levelLabel = GetChildComponent<UILabel>("LevelLabel");
 
         m_winBoard = UIToolkits.FindChild(mUIObject.transform, "WinBoard");
         m_failedBoard = UIToolkits.FindChild(mUIObject.transform, "FailedBoard");
@@ -92,15 +92,15 @@ public class UIRetry : UIWindow
 			m_bWin = false;
             if (!GameLogic.Singleton.CheckGetEnoughScore())       //没到基础的分数要求的情况
             {
-                m_infoLabel.text = "Did not get any star";
+                m_infoLabel.text = Localization.instance.Get("NotEnoughScore");
             }
             else if (GlobalVars.CurStageData.Target == GameTarget.ClearJelly)
             {
-                m_infoLabel.text = "Did not clear all ice block";
+                m_infoLabel.text = Localization.instance.Get("DidNotClearIce");
             }
             else if (GlobalVars.CurStageData.Target == GameTarget.BringFruitDown)
             {
-                m_infoLabel.text = "You didn't brought all nuts down";
+                m_infoLabel.text = Localization.instance.Get("DidNotBringNuts");
             }
         }
 
@@ -241,7 +241,7 @@ public class UIRetry : UIWindow
 			PlayerPrefsExtend.SetIntArray("StageFailed", GlobalVars.StageFailedArray);
         }
 
-        m_stageNumber.SetNumber(GlobalVars.CurStageNum);
+        m_levelLabel.text = String.Format(Localization.instance.Get("LevelName"), GlobalVars.CurStageNum);
 	}
 	
     public override void OnUpdate()

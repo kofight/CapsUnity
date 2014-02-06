@@ -3,15 +3,22 @@ using System.Collections;
 
 public class UIStageInfo : UIWindow 
 {
+    UILabel m_levelLabel;
+
     public override void OnCreate()
     {
         base.OnCreate();
         AddChildComponentMouseClick("CloseBtn", OnCloseClicked);
         AddChildComponentMouseClick("PlayBtn", OnPlayClicked);
+
+        m_levelLabel = GetChildComponent<UILabel>("LevelLabel");
     }
     public override void OnShow()
     {
         base.OnShow();
+
+        m_levelLabel.text = System.String.Format(Localization.instance.Get("LevelName"), GlobalVars.CurStageNum);
+
         for (int i = 0; i < 3; ++i )
         {
             UISprite star = GetChildComponent<UISprite>("Star" + (i + 1));

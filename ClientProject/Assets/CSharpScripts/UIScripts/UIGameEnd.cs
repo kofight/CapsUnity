@@ -48,22 +48,22 @@ public class UIGameEnd : UIWindow
     public override void OnShow()
     {
         base.OnShow();
-        UISprite sprite = GetChildComponent<UISprite>("FailedReason");
+        UILabel label = GetChildComponent<UILabel>("FailedReason");
 
         if (GameLogic.Singleton.CheckLimit())
         {
             if (GlobalVars.CurStageData.StepLimit > 0)
             {
-                sprite.spriteName = "TextOutOfMove";
+                label.text = Localization.instance.Get("OutOfMove");
             }
             else if (GlobalVars.CurStageData.TimeLimit > 0)
             {
-                sprite.spriteName = "TextOutOfTime";
+                label.text = Localization.instance.Get("OutOfTime");
             }
         }
         else
         {
-            sprite.spriteName = "TextPressedMenuBtn";
+            label.text = Localization.instance.Get("GamePaused");
         }
 
 		m_curScore.SetNumber(GameLogic.Singleton.GetProgress());

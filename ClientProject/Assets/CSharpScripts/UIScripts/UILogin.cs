@@ -4,6 +4,7 @@ using System.Collections;
 public class UILogin : UIWindow 
 {
     UIToggle m_developerMode;
+    UIToggle m_englishVersion;
     UILabel m_testLabel;            //用来显示测试信息的label
     GameObject m_debugBoard;        //调试面板
 
@@ -41,6 +42,26 @@ public class UILogin : UIWindow
 
         m_developerMode = UIToolkits.FindComponent<UIToggle>(mUIObject.transform, "DeveloperCheck");
         m_developerMode.value = false;
+
+        m_englishVersion = UIToolkits.FindComponent<UIToggle>(mUIObject.transform, "EnglishCheck");
+        m_englishVersion.value = false;
+        EventDelegate.Set(m_englishVersion.onChange, delegate()
+        {
+            if (m_englishVersion.value)
+            {
+                if (Localization.instance != null)
+                {
+                    Localization.instance.currentLanguage = "English";
+                }
+            }
+            else
+            {
+                if (Localization.instance != null)
+                {
+                    Localization.instance.currentLanguage = "Chinese";
+                }
+            }
+        });
 
         UIToggle musicCheck = UIToolkits.FindComponent<UIToggle>(mUIObject.transform, "MusicCheck");
         musicCheck.value = GlobalVars.UseMusic;

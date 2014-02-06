@@ -215,6 +215,15 @@ public enum AudioEnum
     Audio_Stone,
     Audio_Cage,
     Audio_Chocolate,
+
+    Audio_Combo1,
+    Audio_Combo2,
+    Audio_Combo3,
+    Audio_Combo4,
+    Audio_Combo5,
+    Audio_Combo6,
+    Audio_Combo7,
+    Audio_Combo8,
 }
 
 public class GameLogic
@@ -363,64 +372,72 @@ public class GameLogic
             return;
         }
         AudioClip clip = null;
-        switch (audio)
+        if (audio >= AudioEnum.Audio_Combo1)
         {
-            case AudioEnum.Audio_Bomb:
-                {
-                    clip = CapsConfig.CurAudioList.BombAudioClip;
-                }
-                break;
-            case AudioEnum.Audio_Drop:
-                {
-                    clip = CapsConfig.CurAudioList.DropClip;
-                }
-                break;
-            case AudioEnum.Audio_Eat:
-                {
-                    clip = CapsConfig.CurAudioList.EatClip;
-                }
-                break;
-            case AudioEnum.Audio_EatColor:
-                {
-                    clip = CapsConfig.CurAudioList.EatColorClip;
-                }
-                break;
-            case AudioEnum.Audio_itemBirth:
-                {
-                    clip = CapsConfig.CurAudioList.ItemBirthClip;
-                }
-                break;
-            case AudioEnum.Audio_Jelly:
-                {
-                    clip = CapsConfig.CurAudioList.JellyClip;
-                }
-                break;
-            case AudioEnum.Audio_Line1:
-                {
-                    clip = CapsConfig.CurAudioList.Line1Clip;
-                }
-                break;
-            case AudioEnum.Audio_MoveFailed:
-                {
-                    clip = CapsConfig.CurAudioList.MoveFailedClip;
-                }
-                break;
-            case AudioEnum.Audio_Stone:
-                {
-                    clip = CapsConfig.CurAudioList.StoneClip;
-                }
-                break;
-            case AudioEnum.Audio_Cage:
-                {
-                    clip = CapsConfig.CurAudioList.CageClip;
-                }
-                break;
-            case AudioEnum.Audio_Chocolate:
-                {
-                    clip = CapsConfig.CurAudioList.ChocolateClip;
-                }
-                break;
+            clip = CapsConfig.CurAudioList.ComboClip[(int)audio - (int)AudioEnum.Audio_Combo1];
         }
+        else
+        {
+            switch (audio)
+            {
+                case AudioEnum.Audio_Bomb:
+                    {
+                        clip = CapsConfig.CurAudioList.BombAudioClip;
+                    }
+                    break;
+                case AudioEnum.Audio_Drop:
+                    {
+                        clip = CapsConfig.CurAudioList.DropClip;
+                    }
+                    break;
+                case AudioEnum.Audio_Eat:
+                    {
+                        clip = CapsConfig.CurAudioList.EatClip;
+                    }
+                    break;
+                case AudioEnum.Audio_EatColor:
+                    {
+                        clip = CapsConfig.CurAudioList.EatColorClip;
+                    }
+                    break;
+                case AudioEnum.Audio_itemBirth:
+                    {
+                        clip = CapsConfig.CurAudioList.ItemBirthClip;
+                    }
+                    break;
+                case AudioEnum.Audio_Jelly:
+                    {
+                        clip = CapsConfig.CurAudioList.JellyClip;
+                    }
+                    break;
+                case AudioEnum.Audio_Line1:
+                    {
+                        clip = CapsConfig.CurAudioList.Line1Clip;
+                    }
+                    break;
+                case AudioEnum.Audio_MoveFailed:
+                    {
+                        clip = CapsConfig.CurAudioList.MoveFailedClip;
+                    }
+                    break;
+                case AudioEnum.Audio_Stone:
+                    {
+                        clip = CapsConfig.CurAudioList.StoneClip;
+                    }
+                    break;
+                case AudioEnum.Audio_Cage:
+                    {
+                        clip = CapsConfig.CurAudioList.CageClip;
+                    }
+                    break;
+                case AudioEnum.Audio_Chocolate:
+                    {
+                        clip = CapsConfig.CurAudioList.ChocolateClip;
+                    }
+                    break;
+            }
+        }
+        
 		NGUITools.PlaySound(clip);
     }
 
@@ -2718,6 +2735,14 @@ public class GameLogic
         m_scoreToShow[position.x, position.y] += 50 * kQuantity * (kCombo + kItem + kLevel + 1);
 
         ++m_comboCount;
+        if (m_comboCount > 8)
+        {
+            PlaySoundNextFrame(AudioEnum.Audio_Combo8);
+        }
+        else
+        {
+            PlaySoundNextFrame((AudioEnum)((int)AudioEnum.Audio_Combo1 + m_comboCount - 1));
+        }
         return true;
     }
 

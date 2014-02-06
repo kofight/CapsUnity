@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class AudioList : MonoBehaviour {
 	
@@ -19,6 +20,8 @@ public class AudioList : MonoBehaviour {
 
     public AudioClip MapMusic;
     public AudioClip GameMusic;
+
+    public List<AudioClip> ComboClip;
 	
 	// Use this for initialization
 	void Start () {

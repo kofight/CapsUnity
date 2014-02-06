@@ -44,7 +44,7 @@ public class UILogin : UIWindow
         m_developerMode.value = false;
 
         m_englishVersion = UIToolkits.FindComponent<UIToggle>(mUIObject.transform, "EnglishCheck");
-        m_englishVersion.value = false;
+        m_englishVersion.value = Localization.instance.currentLanguage == "English";
         EventDelegate.Set(m_englishVersion.onChange, delegate()
         {
             if (m_englishVersion.value)

@@ -17,10 +17,6 @@ public class S5Application
     public MonoBehaviour mCoroutineStarter { private get; set; }				  //Any Exist MonoBehaviour could be a starter, usually is AppLaugher
     public S5Application()
     {
-		if (Localization.instance != null)
-		{
-			Localization.instance.currentLanguage = "Chinese";
-		}
         GameObject obj = GameObject.Find("UI Root");
         UIRoot root = obj.GetComponent<UIRoot>();
 

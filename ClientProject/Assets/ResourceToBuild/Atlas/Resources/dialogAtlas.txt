@@ -26,11 +26,19 @@
 },
 "TextBox.png":
 {
-	"frame": {"x":222,"y":566,"w":250,"h":176},
+	"frame": {"x":222,"y":751,"w":250,"h":176},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":250,"h":176},
 	"sourceSize": {"w":250,"h":176}
+},
+"TextBox2.png":
+{
+	"frame": {"x":222,"y":566,"w":215,"h":183},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":215,"h":183},
+	"sourceSize": {"w":215,"h":183}
 }},
 "meta": {
 	"app": "http://www.texturepacker.com",
@@ -39,6 +47,6 @@
 	"format": "RGBA8888",
 	"size": {"w":1024,"h":1024},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:70cfdd9d38c3eda8e2eb95e3f3e7cfb0$"
+	"smartupdate": "$TexturePacker:SmartUpdate:af9eeaf7a14bfb770bad98e8aefdb99b$"
 }
 }

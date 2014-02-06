@@ -113,14 +113,25 @@ public class UIDialog : UIWindow
         {
             m_itemBoard.gameObject.SetActive(false);
         }
-        if (activeLeftHead)
+
+        if (head1 == "None" && head2 == "None")
         {
-            m_dialogBoardSprite.transform.LocalScaleX(1.0f);
+            m_dialogBoardSprite.spriteName = "TextBox2";
         }
         else
         {
-            m_dialogBoardSprite.transform.LocalScaleX(-1.0f);
+            m_dialogBoardSprite.spriteName = "TextBox";
+            if (activeLeftHead)
+            {
+                m_dialogBoardSprite.transform.LocalScaleX(1.0f);
+            }
+            else
+            {
+                m_dialogBoardSprite.transform.LocalScaleX(-1.0f);
+            }
         }
+
+        
 		if(head1 != "None")
 		{
 			m_head1Sprite.gameObject.SetActive(true);

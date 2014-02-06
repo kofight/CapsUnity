@@ -243,23 +243,25 @@ public class UIWindow
 
     public virtual void OnHideEffectPlayOver() 
     {
+		uiWindowState = UIWindowStateEnum.Hide;
+		EnableColliders(true);
         if (m_hideFinishEffect != null)
         {
-            m_hideFinishEffect();
-            m_hideFinishEffect = null;
+			WindowEffectFinished func = m_hideFinishEffect;         //这种写法是为了防止循环调用,若在Func里面再调用到OnHideEffectPlayOver时，不重复执行func
+			m_hideFinishEffect = null;
+            func();
         }
-        uiWindowState = UIWindowStateEnum.Hide;
-		EnableColliders(true);
     }
 
     public virtual void OnShowEffectPlayOver() 
     {
+		uiWindowState = UIWindowStateEnum.Show; 
         if (m_showFinishEffect != null)
         {
-            m_showFinishEffect();
+            WindowEffectFinished func = m_showFinishEffect;         //这种写法是为了防止循环调用,若在Func里面再调用到OnShowEffectPlayOver时，不重复执行func
             m_showFinishEffect = null;
+			func();
         }
-        uiWindowState = UIWindowStateEnum.Show; 
     }
 
     public virtual void OnDestory() { }

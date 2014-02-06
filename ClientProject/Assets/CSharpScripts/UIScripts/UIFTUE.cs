@@ -22,6 +22,11 @@ public class UIFTUE : UIWindow
 	int m_curStep = 0;
 
     List<FTUEData> m_ftueData;
+	
+	public override void OnShow()
+	{
+		base.OnShow();	
+	}
 
     public override void OnHide()
     {
@@ -36,6 +41,8 @@ public class UIFTUE : UIWindow
         {
             GameLogic.Singleton.SetHighLight(false, highLightPos, m_ftueData[m_FTUEIndex].bHighLightBackground);
         }
+		
+		m_pointer.SetActive(false);
 
         GameLogic.Singleton.ShowUI();
     }
@@ -53,6 +60,7 @@ public class UIFTUE : UIWindow
                 if (m_ftueData[m_FTUEIndex].from.IsAvailable())
                 {
 					m_bLock =  true;
+					m_pointer.SetActive(true);
                     collider.size = new Vector3(300, 200, 1);
                     GameLogic.Singleton.SetHighLight(true, m_ftueData[m_FTUEIndex].from);
                 }
@@ -140,7 +148,6 @@ public class UIFTUE : UIWindow
 				if(func != null)
 				{
                 	func();
-					m_pointer.SetActive(true);
 				}
             }
 			++m_curDialogIndex;
@@ -163,9 +170,9 @@ public class UIFTUE : UIWindow
 
     public void EndFTUE()
     {
+		m_FTUEIndex = 0;
         HideWindow();                               //隐藏窗体
         GameLogic.Singleton.SetGameFlow(TGameFlow.EGameState_Playing);
-        m_pointer.SetActive(false);
     }
 	
 	public void OnClick()
@@ -196,8 +203,11 @@ public class UIFTUE : UIWindow
         {
             if (m_FTUEIndex < m_ftueData.Count - 1)
             {
-                ++m_FTUEIndex;
-                ShowFTUE(m_curStep);                         //若有步数，循环调用
+				++m_FTUEIndex;
+				HideWindow(delegate()
+				{
+					ShowFTUE(m_curStep);                         //若有步数，循环调用
+				});
             }
             else                                            //若没有
             {

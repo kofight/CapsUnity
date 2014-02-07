@@ -10,10 +10,13 @@ public class UIRetry : UIWindow
     bool m_bWin;
     int m_starCount;
     UISprite[] m_starsSprites = new UISprite[3];
+	ParticleSystem[] m_starParticles = new ParticleSystem[3];
     UILabel m_levelLabel;
 
     Transform m_winBoard;
     Transform m_failedBoard;
+	
+	float m_showTime;
 	
 	bool m_bStartNewStage = false;		//record if started a new stage
 
@@ -36,6 +39,7 @@ public class UIRetry : UIWindow
         for (int i = 0; i < 3; ++i)
         {
             m_starsSprites[i] = GetChildComponent<UISprite>("Star" + (i + 1));      //查找sprite
+	        m_starParticles[i] = GetChildComponent<ParticleSystem>("StarEffect" + (i + 1));
         }
     }
 	
@@ -58,7 +62,7 @@ public class UIRetry : UIWindow
             m_starCount = GlobalVars.StageStarArray[GlobalVars.CurStageNum - 1];
             NumberDrawer number = GetChildComponent<NumberDrawer>("StageScore");
             number.SetNumber(GameLogic.Singleton.GetProgress());
-
+			m_showTime = Time.realtimeSinceStartup;
             //根据starCount显示星星
             for (int i = 0; i < 3; ++i)
             {
@@ -70,12 +74,7 @@ public class UIRetry : UIWindow
                 {
                     m_starsSprites[i].spriteName = "Grey_Star_Large";
                 }
-
-                ParticleSystem par = m_starsSprites[i].GetComponentInChildren<ParticleSystem>();
-                if (par != null)
-                {
-                    par.Play();
-                }
+				
             }
         }
         else
@@ -259,6 +258,19 @@ public class UIRetry : UIWindow
             UIDrawer.Singleton.DrawNumber("ScoreTarget", 0, -72, GlobalVars.StageScoreArray[GlobalVars.CurStageNum - 1], "", 22);           //当前关卡的最高分
             UIDrawer.Singleton.DefaultAnchor = UIWindowManager.Anchor.TopLeft;
         }
+		
+		if(m_showTime > 0)
+		{
+			if(Time.realtimeSinceStartup - m_showTime > 1.0f)
+			{
+				for(int i=0; i<3; ++i)
+				{
+					if(m_starParticles[i] != null)
+						m_starParticles[i].Play();
+				}
+				m_showTime = 0;
+			}
+		}
     }
 
     private void OnRetryClicked()

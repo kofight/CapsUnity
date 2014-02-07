@@ -39,7 +39,8 @@ public class UIDialog : UIWindow
     UISprite m_clickSprite;
 
     UIEffectPlayer m_dialogEffectPlayer;
-
+	
+	bool m_bLock;
     int m_curDialogGroupNum;
     int m_curDialogIndex;
 
@@ -169,15 +170,18 @@ public class UIDialog : UIWindow
 		}
 
         m_clickSprite.gameObject.SetActive(false);
-
+		
+		m_bLock = true;
         m_dialogText.Play(content, delegate()
         {
+			m_bLock = false;
             m_clickSprite.gameObject.SetActive(true);
         });
 	}
 	
 	public void OnClick()
 	{
+		if(m_bLock)return;
 		if(m_curDialogIndex < m_dialogGroupMap[m_curDialogGroupNum].Count-1)
         {
 			++m_curDialogIndex;
@@ -199,6 +203,7 @@ public class UIDialog : UIWindow
     {
         m_curDialogGroupNum = -1;
         HideWindow(m_afterDialogFunc);
+		m_bLock = false;
     }
 	
     public override void OnCreate()

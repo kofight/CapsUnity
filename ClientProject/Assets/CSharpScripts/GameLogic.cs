@@ -1395,12 +1395,20 @@ public class GameLogic
                 GameLogic.Singleton.PlayEndGameAnim();		//play the end anim(move the game area out of screen)
                 HideUI();
 
-                //触发关卡结束对话，并在对话结束后切回大地图
-                UIWindowManager.Singleton.GetUIWindow<UIDialog>().TriggerDialog(GlobalVars.CurStageNum, DialogTriggerPos.StageEnd, delegate()
+                //若达成过关条件，触发关卡结束对话，并在对话结束后出游戏结束窗口
+                if (IsStageFinish())
+                {
+                    UIWindowManager.Singleton.GetUIWindow<UIDialog>().TriggerDialog(GlobalVars.CurStageNum, DialogTriggerPos.StageEnd, delegate()
+                    {
+                        UIWindowManager.Singleton.GetUIWindow<UIRetry>().RefreshData();
+                        UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();      //弹游戏结束的窗口
+                    });
+                }
+                else //若没达成过关条件
                 {
                     UIWindowManager.Singleton.GetUIWindow<UIRetry>().RefreshData();
                     UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();      //弹游戏结束的窗口
-                });
+                }
             }
             return;
         }
@@ -3131,6 +3139,7 @@ public class GameLogic
         }
         
         gameObj.transform.localPosition = new Vector3(GetXPos(x), -GetYPos(x, y), -200);        //指定位置
+        gameObj.transform.localScale = new Vector3(757.144f, 757.144f, 200.0f);                 //指定位置
 
         //放到正在播放的列表里
         LinkedList<DelayParticle> particleList;
@@ -3218,7 +3227,7 @@ public class GameLogic
 
     void ProcessCheckStageFinish()
     {
-        if (IsStageFinish())                 //检查关卡是否完成，若已经完成
+        if (IsStageFinish())                 //检查关卡是否完成，若已经达成过关条件
         {
 			m_stepCountWhenReachTarget = PlayingStageData.StepLimit;		//save the step for submit data later
 
@@ -3259,8 +3268,32 @@ public class GameLogic
             }
             return;
         }
-        else if (CheckLimit())          //若限制已到
+        
+        if (CheckLimit())          //若限制已到，失败
         {
+            if (PlayingStageData.TimeLimit > 0)         //若是时间关
+            {
+                bool foundSpecial = false;
+                for (int i = 0; i < BlockCountX; ++i)
+                {
+                    for (int j = 0; j < BlockCountY; ++j)
+                    {
+                        if (m_blocks[i, j] != null && m_blocks[i, j].special != TSpecialBlock.ESpecial_Normal)
+                        {
+                            foundSpecial = true;
+                            break;
+                        }
+                    }
+                }
+                if (foundSpecial)
+                {
+                    m_gameFlow = TGameFlow.EGameState_SugarCrushAnim;
+                    AddPartile("SugarCrushAnim", AudioEnum.Audio_None, 5, 5, false);
+                    ClearHelpPoint();
+                    m_curStateStartTime = Timer.millisecondNow();
+                    return;
+                }
+            }
             //否则直接结束游戏
             m_gameStartTime = 0;
             m_gameFlow = TGameFlow.EGameState_End;

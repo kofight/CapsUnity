@@ -20,26 +20,9 @@ public class S5Application
         GameObject obj = GameObject.Find("UI Root");
         UIRoot root = obj.GetComponent<UIRoot>();
 
-        if ((float)Screen.width / Screen.height > 0.667)           //如果长宽比低于2/3， 按长度计算大小(iphone4, ipad等)
-        {
-            float factor = Screen.height / 960.0f;          //
-            root.manualHeight = 960;
-            root.maximumHeight = 960;
-            root.minimumHeight = 960;
-
-            Width = (int)(Screen.width / factor);
-        }
-        else                                                //按宽度计算
-        {
-            float factor = Screen.width / 640.0f;
-
-            root.manualHeight = (int)(Screen.height / factor);
-            root.maximumHeight = root.manualHeight;
-            root.minimumHeight = root.manualHeight;
-
-            Width = 640;
-        }
-        Height = root.manualHeight;
+        Height = root.activeHeight;
+        float factor = (float)Screen.height / Height;
+        Width = (int)(Screen.width / factor);
 
         Debug.Log("Width = " + Width + "Height = " + Height);
 

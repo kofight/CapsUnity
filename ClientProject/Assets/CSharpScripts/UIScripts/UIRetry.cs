@@ -70,6 +70,12 @@ public class UIRetry : UIWindow
                 {
                     m_starsSprites[i].spriteName = "Grey_Star_Large";
                 }
+
+                ParticleSystem par = m_starsSprites[i].GetComponentInChildren<ParticleSystem>();
+                if (par != null)
+                {
+                    par.Play();
+                }
             }
         }
         else

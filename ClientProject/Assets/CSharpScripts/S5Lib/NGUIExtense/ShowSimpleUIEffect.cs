@@ -89,15 +89,16 @@ public class ShowSimpleUIEffect : UIEffectPlayer
 
         if (bTweenScale)
         {
+			Vector3 localScale = transform.localScale;
             //创建需要的特效
             if (mTweenScale == null)
             {
                 mTweenScale = TweenScale.Begin(transform.gameObject, duration, endScale);
             }
             
-            mTweenScale.value = startScale;
-            mTweenScale.from = startScale;
-			mTweenScale.to = endScale;
+            mTweenScale.value = new Vector3(localScale.x * startScale.x, localScale.y * startScale.y, localScale.z * startScale.z);
+            mTweenScale.from = mTweenScale.value;
+			mTweenScale.to = new Vector3(localScale.x * endScale.x, localScale.y * endScale.y, localScale.z * endScale.z);
 			mTweenScale.duration = duration;
 
             mTweenList.Add(mTweenScale);

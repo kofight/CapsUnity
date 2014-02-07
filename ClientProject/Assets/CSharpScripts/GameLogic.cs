@@ -308,6 +308,10 @@ public class GameLogic
 
 
     int m_comboCount;				//记录当前连击数
+	
+	int m_comboSoundCount;			//
+	float m_comboSoundPlayTime;		//
+	
     bool m_changeBack;		//在交换方块动画中标志是否为换回动画
     System.Random m_random;
     long m_gameStartTime = 0;                              //游戏开始时间
@@ -2748,14 +2752,28 @@ public class GameLogic
         m_scoreToShow[position.x, position.y] += 50 * kQuantity * (kCombo + kItem + kLevel + 1);
 
         ++m_comboCount;
-        if (m_comboCount > 8)
-        {
-            PlaySoundNextFrame(AudioEnum.Audio_Combo8);
-        }
-        else
-        {
-            PlaySoundNextFrame((AudioEnum)((int)AudioEnum.Audio_Combo1 + m_comboCount - 1));
-        }
+		
+		if(m_comboCount > 1                 //从combo2开始
+			&& m_comboCount > m_comboSoundCount         //若combo比声音播放进度快
+			&& Timer.GetRealTimeSinceStartUp() - m_comboSoundPlayTime > 1.0f)       //若到了时间间隔
+		{
+			++m_comboSoundCount;
+			if (m_comboSoundCount > 8)
+	        {
+	            PlaySoundNextFrame(AudioEnum.Audio_Combo8);
+	        }
+	        else
+	        {
+	            PlaySoundNextFrame((AudioEnum)((int)AudioEnum.Audio_Combo1 + m_comboSoundCount - 1));
+	        }
+		}
+		
+		if(m_comboCount == 1)
+		{
+			m_comboSoundCount = 0;
+			m_comboSoundPlayTime  = 0;
+		}
+		
         return true;
     }
 

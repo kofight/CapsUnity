@@ -21,6 +21,8 @@ public class UIGameBottom : UIWindow
     NumberDrawer m_minNumber;
     NumberDrawer m_secNumber;
 
+    int m_startCount = 0;
+
     public override void OnCreate()
     {
         base.OnCreate();
@@ -86,6 +88,8 @@ public class UIGameBottom : UIWindow
 	
 	public void Reset()
 	{
+        m_startCount = 0;
+
 		if (GlobalVars.CurStageData.StarScore[2] > 0)
         {
             for (int i = 0; i < 3; ++i)
@@ -145,7 +149,16 @@ public class UIGameBottom : UIWindow
         {
             if (progress >= GlobalVars.CurStageData.StarScore[i])
             {
-                m_starsSprites[i].spriteName = "LightStar";
+                if (m_startCount < i + 1)
+                {
+                    m_starsSprites[i].spriteName = "LightStar";
+                    ParticleSystem par = m_starsSprites[i].GetComponentInChildren<ParticleSystem>();
+                    if (par != null)
+                    {
+                        par.Play();
+                    }
+					m_startCount = i + 1;
+                }
             }
         }
         m_scoreDrawer.SetNumber(progress);

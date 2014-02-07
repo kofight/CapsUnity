@@ -3139,7 +3139,7 @@ public class GameLogic
         }
         
         gameObj.transform.localPosition = new Vector3(GetXPos(x), -GetYPos(x, y), -200);        //指定位置
-        gameObj.transform.localScale = new Vector3(757.144f, 757.144f, 200.0f);                 //指定位置
+        gameObj.transform.localScale = new Vector3(640.0f, 640.0f, 200.0f);                 //指定位置
 
         //放到正在播放的列表里
         LinkedList<DelayParticle> particleList;

@@ -11,7 +11,7 @@ public class UIGameBottom : UIWindow
     UISprite stageBoard;
     UISlider m_speedSlider;
     UILabel m_speedLabel;
-    UILabel m_stepLabel;
+    UISprite m_stepTextSprite;
     UISprite m_timeBar;
 
     NumberDrawer m_scoreDrawer;
@@ -20,6 +20,8 @@ public class UIGameBottom : UIWindow
     GameObject m_timeNumber;
     NumberDrawer m_minNumber;
     NumberDrawer m_secNumber;
+
+    int m_startCount = 0;
 
     public override void OnCreate()
     {
@@ -36,7 +38,7 @@ public class UIGameBottom : UIWindow
         m_speedSlider = GetChildComponent<UISlider>("SpeedSlider");
         m_speedLabel = GetChildComponent<UILabel>("SpeedLabel");
 
-        m_stepLabel = GetChildComponent<UILabel>("StepLabel");
+        m_stepTextSprite = GetChildComponent<UISprite>("StepLabel");
 
         m_timeBar = GetChildComponent<UISprite>("TimeBar");
 
@@ -58,7 +60,7 @@ public class UIGameBottom : UIWindow
 
             m_stepDrawer.gameObject.SetActive(false);
             m_timeNumber.SetActive(true);
-            m_stepLabel.gameObject.SetActive(false);
+            m_stepTextSprite.gameObject.SetActive(false);
         }
         else
         {
@@ -66,7 +68,7 @@ public class UIGameBottom : UIWindow
             m_timeBar.gameObject.SetActive(false);
 
             m_stepDrawer.gameObject.SetActive(true);
-            m_stepLabel.gameObject.SetActive(true);
+            m_stepTextSprite.gameObject.SetActive(true);
             m_timeNumber.SetActive(false);
         }
 
@@ -86,6 +88,8 @@ public class UIGameBottom : UIWindow
 	
 	public void Reset()
 	{
+        m_startCount = 0;
+
 		if (GlobalVars.CurStageData.StarScore[2] > 0)
         {
             for (int i = 0; i < 3; ++i)
@@ -145,7 +149,16 @@ public class UIGameBottom : UIWindow
         {
             if (progress >= GlobalVars.CurStageData.StarScore[i])
             {
-                m_starsSprites[i].spriteName = "LightStar";
+                if (m_startCount < i + 1)
+                {
+                    m_starsSprites[i].spriteName = "LightStar";
+                    ParticleSystem par = m_starsSprites[i].GetComponentInChildren<ParticleSystem>();
+                    if (par != null)
+                    {
+                        par.Play();
+                    }
+					m_startCount = i + 1;
+                }
             }
         }
         m_scoreDrawer.SetNumber(progress);

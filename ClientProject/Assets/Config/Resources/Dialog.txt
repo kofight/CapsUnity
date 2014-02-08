@@ -58,15 +58,14 @@
 
 //段落编号   左边激活    左边头像    右边头像    中间道具   对话速度(1-3)    对话内容
 ////////////////////////////////////////////////////////////////////
-101             R            None       Feledes         None          3   原来又诞生了一个小姑娘……时间应该还没到啊，这个世界是怎么了……
-101             L            Speicher       Feledes         None          3   你……你就是梦境女王？
-101             R            Speicher       Feledes         None          3   没有记忆……还好，不用花太多力气。在我的魔法下死去吧。
+101             R            None       Feledes         None          3   又诞生了一个小姑娘……时间应该还没到，这个世界是怎么了……
+101             L            Speicher       Feledes         None          3   你就是梦境女王？
+101             R            Speicher       Feledes         None          3   没有记忆……还好，不用花太多力气。在我的魔法下消失吧。
 101             L            Speicher       Feledes         None          3   不要！
 101             L            Dog       None         None          3   ……
 101             L            Speicher       Dog       None          3   鲁夫……你……保护了我？
-101             R            Speicher       Dog       None          3   快离开这里去下一个地方。记得……带上星星，一定要带上所有的星星……
-101             L            Speicher       Dog       None          3   鲁夫……你……受伤了……不要这样……
-101             R            Speicher       Dog       None          3   我有很多话，不能对你说。虽然这并不能让你相信我，但是……我不会害你。
-101             R            Speicher       Dog       None          3   正如同我之前所说，我很早以前，就认识……你。
-101             R            Speicher       Dog       None          3   你要记得……星星……非常重要。尽可能收集更多的星星。你会寻找到自己的记忆。
-101             R            Speicher       Dog       None          3   快走吧。你走后，我会把梦境花园的门关上。梦境女王交给我了。再见！
+101             R            Speicher       Dog       None          3   快离开这里去下一个地方。记得……一定要带上所有的星星……
+101             L            Speicher       Dog       None          3   鲁夫……你受伤了……
+101             R            Speicher       Dog       None          3   虽然这并不能让你相信我，但是……我很早以前，就认识……你。
+101             R            Speicher       Dog       None          3   要记得……尽可能收集更多的星星。你会寻找到自己的记忆。
+101             R            Speicher       Dog       None          3   你走后，我会把梦境花园的门关上。快走吧！

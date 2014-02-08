@@ -3785,9 +3785,9 @@ public class GameLogic
         }
         if (bVal)
         {
-            m_blocks[x, y].m_addColorSprite.alpha = 1.0f;
             if (bLightBackground)
             {
+				m_blocks[x, y].m_addColorSprite.alpha = 0.0f;
                 m_blocks[x, y].m_blockSprite.depth = 5;
                 if (m_gridBackImage[x, y].layer0 != null)
                 {
@@ -3798,6 +3798,10 @@ public class GameLogic
                     m_gridBackImage[x, y].layer1.depth = 6;
                 }
             }
+			else
+			{
+				m_blocks[x, y].m_addColorSprite.alpha = 1.0f;
+			}
         }
         else
         {

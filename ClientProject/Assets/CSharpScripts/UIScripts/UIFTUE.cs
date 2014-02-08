@@ -31,21 +31,26 @@ public class UIFTUE : UIWindow
 		base.OnShow();	
 	}
 
+	void HideHighLight()
+	{
+		if(m_ftueData[m_FTUEIndex].from.IsAvailable())
+		{
+			GameLogic.Singleton.SetHighLight(false, m_ftueData[m_FTUEIndex].from);
+		}
+		
+		foreach (Position highLightPos in m_ftueData[m_FTUEIndex].highLightPosList)
+		{
+			GameLogic.Singleton.SetHighLight(false, highLightPos, m_ftueData[m_FTUEIndex].bHighLightBackground);
+		}
+		
+		m_pointer.SetActive(false);
+	}
+
     public override void OnHide()
     {
         base.OnHide();
 		
-		if(m_ftueData[m_FTUEIndex].from.IsAvailable())
-		{
-            GameLogic.Singleton.SetHighLight(false, m_ftueData[m_FTUEIndex].from);
-		}
-
-        foreach (Position highLightPos in m_ftueData[m_FTUEIndex].highLightPosList)
-        {
-            GameLogic.Singleton.SetHighLight(false, highLightPos, m_ftueData[m_FTUEIndex].bHighLightBackground);
-        }
-		
-		m_pointer.SetActive(false);
+		HideHighLight ();
 
         GameLogic.Singleton.ShowUI();
     }
@@ -236,6 +241,7 @@ public class UIFTUE : UIWindow
             if (m_FTUEIndex < m_ftueData.Count - 1)
             {
 				++m_FTUEIndex;
+				HideHighLight();
 				HideWindow(delegate()
 				{
 					ShowFTUE(m_curStep);                         //若有步数，循环调用

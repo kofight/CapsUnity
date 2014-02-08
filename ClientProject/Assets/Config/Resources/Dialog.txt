@@ -2,45 +2,35 @@
 ////////////////////////////////////////////////////////////////////
 10             L            Speicher       None        None          3   我什么都不知道……我……流眼泪了？似乎做了一个很孤单的梦…… 
 10             L            Speicher       None        None          3   这……是哪里？花园一般的地方，真漂亮……
-10             R            Speicher       Dog         None          3   ……
-10             L            Speicher       Dog         None          3   小狗……你……是谁？
 10             R            Speicher       Dog         None          3   汪…… 
 10             L            Speicher       Dog         None          3   你别跑啊……别丢下我…… 
-10             R            None       	   None        None          3   （斯佩莎来到一扇巨大的门前，门上有一个六边形的魔法阵）
+10             L            Speicher       Dog         None          3   这是……一扇巨大的门，这上面的魔法阵是…… 
 10             R            Speicher       Dog         None          3   汪…… 
-10             L            Speicher       Dog         None          3   这是……你想要到门那边去么？ 
-10             R            None       None         None          3   （小狗朝着斯佩莎摇着尾巴，点点头）
-10             L            Speicher       Dog         None          3   斯佩莎：我似乎……明白这个……我来帮你。 
-10             R            None       None         None          3   （斯佩莎用手接触了魔法阵，白光闪过）
+10             L            Speicher       Dog         None          3   你想过去么？我似乎可以帮你……
 
 
 //段落编号   左边激活    左边头像    右边头像    中间道具   对话速度(1-3)    对话内容
 ////////////////////////////////////////////////////////////////////
-11             L            Speicher       None        None          3   慢着，你能说话……？不可思议……我有种见过你的感觉……我叫斯佩莎，我只记得我的名字了。
-11             R            Speicher       Dog        None          3   我的名字叫做鲁夫，我在梦境花园已经很久了。
-11             R            Speicher       Dog         None          3   梦境花园中有许多这样的魔法门，只有你才能打开。带我……去更远的世界吧……
-
-
+11             L            Speicher       None        None          3   一只会说话的狗？不可思议……我叫斯佩莎，我只记得我的名字了。
+11             R            Speicher       Dog        None          3   我叫鲁夫，在梦境花园已经很久了。带我往前走吧。
 
 //段落编号   左边激活    左边头像    右边头像    中间道具   对话速度(1-3)    对话内容
 ////////////////////////////////////////////////////////////////////
-20             L            Speicher       Dog         None          3   这是什么？
-20             R            Speicher       Dog         None          3   第二个魔法门，打开它就可以进入更远的地方。
-20             L            Speicher       Dog         None          3   好吧，为什么你不做？ 
+20             R            Speicher       Dog         None          3   这是第二个魔法门，打开它就可以进入更远的地方。
+20             L            Speicher       Dog         None          3   为什么你不自己打开呢，鲁夫？ 
 20             R            Speicher       Dog         None          3   因为你是特别的……只有你，才能操作这些魔法石。
 
 
 //段落编号   左边激活    左边头像    右边头像    中间道具   对话速度(1-3)    对话内容
 ////////////////////////////////////////////////////////////////////
-30             L            Speicher       Dog         None          3   对了，你。你是什么时候在这里的？
+30             L            Speicher       Dog         None          3   鲁夫你是什么时候在这里的？
 30             R            Speicher       Dog         None          3   我从有记忆开始，就在这里了。
 
 
 //段落编号   左边激活    左边头像    右边头像    中间道具   对话速度(1-3)    对话内容
 ////////////////////////////////////////////////////////////////////
-40             L            Speicher       Dog         None          3   这个门，似乎和原来的不太一样。
-40             R            Speicher       Dog         None          3   要通过这个门，需要解除掉这个里面所有的冰块的封印。 
-40             L            Speicher       Dog         None          3   冰之封印……这……
+40             R            Speicher       Dog         None          3   这个门和原来不太一样。要通过这个门，需要解除掉这个里面所有的冰块封印。 
+40             L            Speicher       Dog         None          3   冰之封印……这……应该怎么做呢？
  
  
 //段落编号   左边激活    左边头像    右边头像    中间道具   对话速度(1-3)    对话内容
@@ -52,37 +42,31 @@
 
 //段落编号   左边激活    左边头像    右边头像    中间道具   对话速度(1-3)    对话内容
 ////////////////////////////////////////////////////////////////////
-70             L            Speicher       Dog         None          3   每一扇门，都有三颗星星，你知道那些星星有什么用处么？
+70             L            Speicher       Dog         None          3   每一扇门的三颗星星，有什么特别的用处么？
 70             R            Speicher       Dog         None          3   我我……不知道，不过带着它们……总是好的。
-70             L            Speicher       Dog         None          3   你确定，没有事情瞒着我？
-70             R            Speicher       Dog         None          3   ……
-70             L            Speicher       Dog         None          3   果然，你在隐瞒。你既然有其他目的，为什么要帮助我？
-70             R            Speicher       Dog         None          3   ……我不能和你说……因为……
-70             L            Speicher       Dog         None          3   因为什么？
-70             R            Speicher       Dog         None          3   ……我认识，另一个你……
+70             L            Speicher       Dog         None          3   你在隐瞒，我不喜欢别人隐瞒事情。你为什么要帮我？
+70             R            Speicher       Dog         None          3   因为……我认识，另一个你……
 
 
 
 //段落编号   左边激活    左边头像    右边头像    中间道具   对话速度(1-3)    对话内容
 ////////////////////////////////////////////////////////////////////
-90             R            Speicher       Dog         None          3   我感觉到，这里有梦境女王的气息。
-90             L            Speicher       Dog         None          3   她是什么样的人？
-90             R            Speicher       Dog         None          3   伟大，但又可怕的人……
-90             R            Speicher       Dog         None          3   正如这个魔法阵，因为她的设计，这些水果形状的符文……是开启这扇门的钥匙。
+90             R            Speicher       Dog         None          3   我感觉到，这里有梦境女王的气息。那个伟大，但又可怕的人……
+90             R            Speicher       Dog         None          3   正如这个魔法阵，因为她的设计，这些水果形状的符文……就是开启这扇门的钥匙。
 90             L            Speicher       Dog         None          3   如果这些水果是钥匙，那梦境女王还真是一个有恶趣味的人。
 90             R            Speicher       Dog         None          3   可能她成为女王之前没有人给她吃水果吧。
 
 //段落编号   左边激活    左边头像    右边头像    中间道具   对话速度(1-3)    对话内容
 ////////////////////////////////////////////////////////////////////
-101             R            None       Feledes         None          3   原来又诞生了一个小姑娘……我就说梦境世界的门，怎么会一扇一扇地打开。
+101             R            None       Feledes         None          3   原来又诞生了一个小姑娘……时间应该还没到啊，这个世界是怎么了……
 101             L            Speicher       Feledes         None          3   你……你就是梦境女王？
-101             R            Speicher       Feledes         None          3   看来你刚刚醒过来……还好，不用花太多力气。在我的魔法下死去吧。
+101             R            Speicher       Feledes         None          3   没有记忆……还好，不用花太多力气。在我的魔法下死去吧。
 101             L            Speicher       Feledes         None          3   不要！
-101             L            Doghurt       None         None          3   ……
-101             L            Speicher       Doghurt         None          3   鲁夫……你……保护了我？
-101             R            Speicher       Doghurt         None          3   快离开这里去下一个地方。记得……带上星星，一定要带上所有的星星……
-101             L            Speicher       Doghurt         None          3   鲁夫……你……受伤了……不要这样……
-101             R            Speicher       Doghurt         None          3   我有很多话，不能对你说。虽然这并不能让你相信我，但是……我不会害你。
-101             R            Speicher       Doghurt         None          3   正如同我之前所说，我很早以前，就认识……你。
-101             R            Speicher       Doghurt         None          3   你要记得……星星……非常重要。尽可能收集更多的星星。你会寻找到自己的记忆。
-101             R            Speicher       Doghurt         None          3   快走吧。你走后，我会把梦境花园的门关上。梦境女王交给我了。再见！
+101             L            Dog       None         None          3   ……
+101             L            Speicher       Dog       None          3   鲁夫……你……保护了我？
+101             R            Speicher       Dog       None          3   快离开这里去下一个地方。记得……带上星星，一定要带上所有的星星……
+101             L            Speicher       Dog       None          3   鲁夫……你……受伤了……不要这样……
+101             R            Speicher       Dog       None          3   我有很多话，不能对你说。虽然这并不能让你相信我，但是……我不会害你。
+101             R            Speicher       Dog       None          3   正如同我之前所说，我很早以前，就认识……你。
+101             R            Speicher       Dog       None          3   你要记得……星星……非常重要。尽可能收集更多的星星。你会寻找到自己的记忆。
+101             R            Speicher       Dog       None          3   快走吧。你走后，我会把梦境花园的门关上。梦境女王交给我了。再见！

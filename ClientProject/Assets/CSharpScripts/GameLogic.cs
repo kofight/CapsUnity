@@ -488,11 +488,14 @@ public class GameLogic
 
     void AddNumber(int number, int x, int y)                //添加一个数字特效
     {
+        ShowingNumberEffect numEffect;
         if (m_freeNumberList.Count == 0)
         {
-            return;
+            numEffect = new ShowingNumberEffect();      //创建个新的
+            numEffect.Init(m_numInstance);
+            m_freeNumberList.AddLast(numEffect);
         }
-        ShowingNumberEffect numEffect = m_freeNumberList.Last.Value;
+        numEffect = m_freeNumberList.Last.Value;
         m_freeNumberList.RemoveLast();
         numEffect.SetNumber(number, x, y);
         m_showingNumberEffectList.AddLast(numEffect);
@@ -1636,34 +1639,37 @@ public class GameLogic
             }
         }
 
-        //处理延迟消除
-        LinkedListNode<DelayProceedGrid> node = m_delayProcessGrid.First;
-        LinkedListNode<DelayProceedGrid> nodeLast = m_delayProcessGrid.Last;
-        LinkedListNode<DelayProceedGrid> nodeTmp;//临时结点
-        if (m_delayProcessGrid.Count > 0)
         {
-            while (node != nodeLast)
+            //处理延迟消除
+            LinkedListNode<DelayProceedGrid> node = m_delayProcessGrid.First;
+            LinkedListNode<DelayProceedGrid> nodeLast = m_delayProcessGrid.Last;
+            LinkedListNode<DelayProceedGrid> nodeTmp;//临时结点
+            if (m_delayProcessGrid.Count > 0)
             {
-                if (Timer.GetRealTimeSinceStartUp() > node.Value.startTime)       //若到了处理时间
+                while (node != nodeLast)
                 {
-                    ProcessEatChanges(node.Value, true, true);                          //处理延迟处理的消块
+                    if (Timer.GetRealTimeSinceStartUp() > node.Value.startTime)       //若到了处理时间
+                    {
+                        ProcessEatChanges(node.Value, true, true);                          //处理延迟处理的消块
 
-                    nodeTmp = node.Next;
-                    m_delayProcessGrid.Remove(node.Value);                              //移除中间一个元素
-                    node = nodeTmp;
+                        nodeTmp = node.Next;
+                        m_delayProcessGrid.Remove(node.Value);                              //移除中间一个元素
+                        node = nodeTmp;
+                    }
+                    else
+                    {
+                        node = node.Next;
+                    }
                 }
-                else
+
+                if (Timer.GetRealTimeSinceStartUp() > nodeLast.Value.startTime)       //若到了处理时间
                 {
-                    node = node.Next;
+                    ProcessEatChanges(nodeLast.Value, true, true);                          //处理延迟处理的消块
+                    m_delayProcessGrid.Remove(nodeLast.Value);                              //移除中间一个元素
                 }
-            }
-
-            if (Timer.GetRealTimeSinceStartUp() > nodeLast.Value.startTime)       //若到了处理时间
-            {
-                ProcessEatChanges(nodeLast.Value, true, true);                          //处理延迟处理的消块
-                m_delayProcessGrid.Remove(nodeLast.Value);                              //移除中间一个元素
             }
         }
+
 
         TimerWork();
 
@@ -1731,14 +1737,38 @@ public class GameLogic
         }
 
         //处理数字
-        foreach (ShowingNumberEffect numEffect in m_showingNumberEffectList)
+        //处理延迟消除
         {
-            numEffect.Update();
-            if (numEffect.IsEnd())
+            if (m_showingNumberEffectList.Count > 0)
             {
-                m_freeNumberList.AddLast(numEffect);
-                m_showingNumberEffectList.Remove(numEffect);
-                break;
+                LinkedListNode<ShowingNumberEffect> node = m_showingNumberEffectList.First;
+                LinkedListNode<ShowingNumberEffect> nodeLast = m_showingNumberEffectList.Last;
+                LinkedListNode<ShowingNumberEffect> nodeTmp;//临时结点
+                while (node != nodeLast)
+                {
+                    if (node.Value.IsEnd())       //若到了处理时间
+                    {
+                        nodeTmp = node.Next;
+                        m_freeNumberList.AddLast(node.Value);
+                        m_showingNumberEffectList.Remove(node.Value);                              //移除中间一个元素
+                        node = nodeTmp;
+                    }
+                    else
+                    {
+                        node.Value.Update();
+                        node = node.Next;
+                    }
+                }
+
+                if (nodeLast.Value.IsEnd())       //若到了处理时间
+                {
+                    m_freeNumberList.AddLast(nodeLast.Value);
+                    m_showingNumberEffectList.Remove(nodeLast.Value);                              //移除中间一个元素
+                }
+                else
+                {
+                    nodeLast.Value.Update();
+                }
             }
         }
 
@@ -3540,6 +3570,11 @@ public class GameLogic
             return;
         }
 
+        if (ges.fingerIndex != 0)
+        {
+            return;
+        }
+
         Position p = GetBlockByTouch((int)ges.position.x, (int)ges.position.y);
         if (!p.IsAvailable())
         {
@@ -3719,6 +3754,11 @@ public class GameLogic
             return;
         }
 
+        if (ges.fingerIndex != 0)
+        {
+            return;
+        }
+
         touchBeginPos.MakeItUnAvailable();
 
         int x = (int)ges.position.x * CapsApplication.Singleton.Height / Screen.height;
@@ -3762,6 +3802,11 @@ public class GameLogic
 
     public void OnTouchEnd(Gesture ges)
     {
+        if (ges.fingerIndex != 0)
+        {
+            return;
+        }
+
         if (touchBeginGrid.IsAvailable())
         {
             if (m_gameFlow != TGameFlow.EGameState_FTUE)
@@ -3845,6 +3890,11 @@ public class GameLogic
     public void OnTouchMove(Gesture ges)
     {
         if (!IsMoveAble())
+        {
+            return;
+        }
+
+        if (ges.fingerIndex != 0)
         {
             return;
         }

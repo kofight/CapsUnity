@@ -679,7 +679,14 @@ public class GameLogic
             if (CapsConfig.EnableTalkingData)
 				TalkingDataPlugin.TrackEvent("Stage" + GlobalVars.CurStageNum + ":Start");  //记录当前开始的关卡的数据
 #endif
-		}        
+		}       
+		
+		UIFTUE ftue = UIWindowManager.Singleton.GetUIWindow<UIFTUE>();
+        if (ftue == null)
+        {
+            ftue = UIWindowManager.Singleton.CreateWindow<UIFTUE>();
+        }
+		ftue.ResetFTUEStep();
     }
 
     void ProcessGridSprites(int x, int y)
@@ -969,14 +976,14 @@ public class GameLogic
         if(PlayingStageData.FTUEMap.TryGetValue(GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit, out data))      //查看是否有FTUE数据
         {
             //进入FTUE状态
-            m_gameFlow = TGameFlow.EGameState_FTUE;
             UIFTUE ftue = UIWindowManager.Singleton.GetUIWindow<UIFTUE>();
             if (ftue == null)
             {
                 ftue = UIWindowManager.Singleton.CreateWindow<UIFTUE>();
             }
-
-            ftue.ShowFTUE(GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit);
+		
+            if(ftue.ShowFTUE(GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit))
+				m_gameFlow = TGameFlow.EGameState_FTUE;
         }
     }
 
@@ -1413,8 +1420,7 @@ public class GameLogic
                 }
                 else //若没达成过关条件
                 {
-                    UIWindowManager.Singleton.GetUIWindow<UIRetry>().RefreshData();
-                    UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();      //弹游戏结束的窗口
+                    UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();            //出游戏结束界面
                 }
             }
             return;

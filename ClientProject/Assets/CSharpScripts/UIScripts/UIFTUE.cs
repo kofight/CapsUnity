@@ -54,9 +54,19 @@ public class UIFTUE : UIWindow
 
         GameLogic.Singleton.ShowUI();
     }
+	
+	public void ResetFTUEStep()
+	{
+		m_curStep = -1;
+	}
 
-    public void ShowFTUE(int step)
+    public bool ShowFTUE(int step)
     {
+		if(step <= m_curStep)
+		{
+			return false;
+		}
+		
 		m_curStep = step;
 
         if (GameLogic.Singleton.PlayingStageData.FTUEMap.TryGetValue(step, out m_ftueData))
@@ -84,6 +94,8 @@ public class UIFTUE : UIWindow
         }
 
         GameLogic.Singleton.HideUI();
+		
+		return true;
     }
 
     public bool CheckMoveTo(Position to)

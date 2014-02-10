@@ -78,6 +78,8 @@ public class UIDialog : UIWindow
         {
             if (PlayerPrefs.GetInt("StageEndDialogFinished") >= stageNum)
             {
+				if (func != null)
+                func();
                 return false;
             }
             else

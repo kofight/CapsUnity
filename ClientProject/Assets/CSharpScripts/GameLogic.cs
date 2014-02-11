@@ -457,7 +457,6 @@ public class GameLogic
     public int GetProgress() { return m_progress; }
     public void AddProgress(int progress, int x, int y)     //增加分数，同时在某位置显示一个得分的数字特效
     {
-        //Debug.Log("AddProgress at x = " + x + " y = " + y);
         m_progress += progress;
         UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().OnChangeProgress(m_progress);
         AddNumber(progress, GetXPos(x), GetYPos(x, y));
@@ -1406,6 +1405,8 @@ public class GameLogic
             {
                 m_gameStartTime = 0;
                 m_gameFlow = TGameFlow.EGameState_End;
+                Time.timeScale = 1.0f;                                                        //恢复正常的时间比例
+
 
                 GameLogic.Singleton.PlayEndGameAnim();		//play the end anim(move the game area out of screen)
                 HideUI();
@@ -2242,8 +2243,11 @@ public class GameLogic
         {
             if (needEatBlock)       //处理吃块
             {
-				if(addBlockProgress)
-                	m_scoreToShow[processGrid.x, processGrid.y] += 50;                                                  //加分
+                if (addBlockProgress && !processGrid.block.EatProgressAdded)
+                {
+                    processGrid.block.EatProgressAdded = true;
+                    m_scoreToShow[processGrid.x, processGrid.y] += 50;                                                  //加分
+                }
                 processGrid.block.m_dropDownStartTime = 0;
             }
             else
@@ -2254,7 +2258,7 @@ public class GameLogic
             }
         }
 
-        if (showProgress)
+        if (showProgress && m_scoreToShow[processGrid.x, processGrid.y] > 0)
         {
             AddProgress(m_scoreToShow[processGrid.x, processGrid.y], processGrid.x, processGrid.y);
             m_scoreToShow[processGrid.x, processGrid.y] = 0;
@@ -3118,8 +3122,6 @@ public class GameLogic
 
     public void AddFlyParticle(string name, AudioEnum audio, Position from, Position to, float duration, float delay)
     {
-
-        Debug.Log("AddFlyParticle delay = " + delay);
         //先看freeParticleList里面有没有可用的
         LinkedList<ParticleSystem> freeParticleList;
         if (!m_freeParticleMap.TryGetValue(name, out freeParticleList))
@@ -3318,6 +3320,7 @@ public class GameLogic
             if (foundSpecial || PlayingStageData.StepLimit > 0)     //若能进SugarCrush
             {
                 m_gameFlow = TGameFlow.EGameState_SugarCrushAnim;
+                Time.timeScale = 1.1f;                                                        //临时加快时间
                 AddPartile("SugarCrushAnim", AudioEnum.Audio_None, 0, 0, false);
                 ClearHelpPoint();
                 m_curStateStartTime = Timer.millisecondNow();
@@ -3359,6 +3362,7 @@ public class GameLogic
                 if (foundSpecial)
                 {
                     m_gameFlow = TGameFlow.EGameState_SugarCrushAnim;
+                    Time.timeScale = 1.1f;                                                        //临时加快时间
                     AddPartile("SugarCrushAnim", AudioEnum.Audio_None, 0, 0, false);
                     ClearHelpPoint();
                     m_curStateStartTime = Timer.millisecondNow();
@@ -3368,10 +3372,10 @@ public class GameLogic
             //否则直接结束游戏
             m_gameStartTime = 0;
             m_gameFlow = TGameFlow.EGameState_End;
+            Time.timeScale = 1.0f;                                                        //恢复正常的时间比例
 
             if (CapsConfig.EnableGA)        //游戏结束的数据
             {
-                Debug.Log("GameEnd GA");
                 GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed:Score_Percent", (float)m_progress / PlayingStageData.StarScore[0]);  //记录当前开始的关卡的百分比
                 if (PlayingStageData.Target == GameTarget.ClearJelly)
                 {
@@ -3855,6 +3859,7 @@ public class GameLogic
         {
             if (bLightBackground)
             {
+				Debug.Log("Light Background x = " + x + " y =  " + y);
 				m_blocks[x, y].m_addColorSprite.alpha = 0.0f;
                 m_blocks[x, y].m_blockSprite.depth = 5;
                 if (m_gridBackImage[x, y].layer0 != null)
@@ -3876,6 +3881,7 @@ public class GameLogic
             m_blocks[x, y].m_addColorSprite.alpha = 0.0f;
             if (bLightBackground)
             {
+				Debug.Log("UnLight Background x = " + x + " y =  " + y);
                 m_blocks[x, y].m_blockSprite.depth = 2;
                 if (m_gridBackImage[x, y].layer0 != null)
                 {
@@ -4399,6 +4405,7 @@ public class GameLogic
     void MakeSpriteFree(int x, int y)
     {
         m_blocks[x, y].m_addColorSprite.alpha = 0.0f;
+        m_blocks[x, y].EatProgressAdded = false;
         m_blocks[x, y].m_animation.Stop();
         m_blocks[x, y].m_animation.enabled = false;
         m_capBlockFreeList.AddLast(m_blocks[x, y]);

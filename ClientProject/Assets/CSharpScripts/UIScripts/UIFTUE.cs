@@ -253,8 +253,8 @@ public class UIFTUE : UIWindow
         {
             if (m_FTUEIndex < m_ftueData.Count - 1)
             {
-				++m_FTUEIndex;
 				HideHighLight();
+				++m_FTUEIndex;
 				HideWindow(delegate()
 				{
 					ShowFTUE(m_curStep);                         //若有步数，循环调用

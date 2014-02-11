@@ -102,6 +102,8 @@ public class CapBlock
 
     public bool EatEffectPlayed;                //吃块特效是否已经播放了？
 
+    public bool EatProgressAdded;               //是否已经加过分数了（防止重复加分数）
+
     public float EatDelay;
     public string EatAnimationName;             //消块的动画名称
     public string EatEffectName;             //消块的动画名称

@@ -345,6 +345,7 @@ public class GameLogic
     GameObject m_gameArea;                  //游戏区域
     GameObject m_capsPool;                  //瓶盖池
     GameObject TopLeftAnchor;               //左上角
+    GameObject CenterAnchor;               //中心
     GameObject m_gridInstance;              //把Grid的实例存起来，用来优化性能
     GameObject m_numInstance;              //把数字的实例存起来，用来优化性能
     GameObject m_shadowSpriteInstance;      //影子图片的实例
@@ -513,6 +514,7 @@ public class GameLogic
         m_capsPool = GameObject.Find("CapsPool");
         m_gameArea = GameObject.Find("GameArea");
         TopLeftAnchor = GameObject.Find("TopLeftAnchor");
+        CenterAnchor = GameObject.Find("CenterAnchor");
 
         m_gridInstance = GameObject.Find("GridInstance");
         m_angleInstance = GameObject.Find("Angle");
@@ -950,11 +952,11 @@ public class GameLogic
         tweenPos.Play(true);
 		
 		if(PlayingStageData.Target == GameTarget.GetScore)
-        	AddPartile("StartGameAnim-Score", AudioEnum.Audio_None, 5, 5, false);
+            AddPartile("StartGameAnim-Score", AudioEnum.Audio_None, 0, 0, false);
 		if(PlayingStageData.Target == GameTarget.ClearJelly)
-        	AddPartile("StartGameAnim-Ice", AudioEnum.Audio_None, 5, 5, false);
+            AddPartile("StartGameAnim-Ice", AudioEnum.Audio_None, 0, 0, false);
 		if(PlayingStageData.Target == GameTarget.BringFruitDown)
-        	AddPartile("StartGameAnim-Fruit", AudioEnum.Audio_None, 5, 5, false);
+            AddPartile("StartGameAnim-Fruit", AudioEnum.Audio_None, 0, 0, false);
     }
 
     public void CheckFTUE()
@@ -1693,7 +1695,7 @@ public class GameLogic
                         if (!Help())
                         {
                             m_curStateStartTime = Timer.millisecondNow();
-                            AddPartile("ResortAnim", AudioEnum.Audio_None, 5, 5, false);                                    //显示需要重排
+                            AddPartile("ResortAnim", AudioEnum.Audio_None, 0, 0, false);                                    //显示需要重排
                             m_gameFlow = TGameFlow.EGameState_ResortAnim;
                         }
                     }
@@ -1873,6 +1875,15 @@ public class GameLogic
     {
         TSpecialBlock special0 = m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special;
         TSpecialBlock special1 = m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special;
+        //+5当成普通块来处理
+        if (special0 == TSpecialBlock.ESpecial_NormalPlus5)
+        {
+            special0 = TSpecialBlock.ESpecial_Normal;
+        }
+        if (special1 == TSpecialBlock.ESpecial_NormalPlus5)
+        {
+            special1 = TSpecialBlock.ESpecial_Normal;
+        }
 
         //普通交换的情况
         if ((special0 == TSpecialBlock.ESpecial_Normal && special1 == TSpecialBlock.ESpecial_Normal)                //两个都是普通块
@@ -3186,13 +3197,21 @@ public class GameLogic
             }
             else
             {
-                gameObj.transform.parent = TopLeftAnchor.transform;
+                gameObj.transform.parent = CenterAnchor.transform;
             }
             par = gameObj.GetComponent<ParticleSystem>();
             par.Stop();     //这里先不播放
         }
+
+        if (addToGameArea)
+        {
+            gameObj.transform.localPosition = new Vector3(GetXPos(x), -GetYPos(x, y), -200);        //指定位置
+        }
+        else
+        {
+            gameObj.transform.localPosition = new Vector3(x, -y, -200);        //指定位置
+        }
         
-        gameObj.transform.localPosition = new Vector3(GetXPos(x), -GetYPos(x, y), -200);        //指定位置
         gameObj.transform.localScale = new Vector3(580.0f, 580.0f, 200.0f);                 //指定位置
 
         //放到正在播放的列表里
@@ -3301,7 +3320,7 @@ public class GameLogic
             if (foundSpecial || PlayingStageData.StepLimit > 0)     //若能进SugarCrush
             {
                 m_gameFlow = TGameFlow.EGameState_SugarCrushAnim;
-                AddPartile("SugarCrushAnim", AudioEnum.Audio_None, 5, 5, false);
+                AddPartile("SugarCrushAnim", AudioEnum.Audio_None, 0, 0, false);
                 ClearHelpPoint();
                 m_curStateStartTime = Timer.millisecondNow();
             }
@@ -3342,7 +3361,7 @@ public class GameLogic
                 if (foundSpecial)
                 {
                     m_gameFlow = TGameFlow.EGameState_SugarCrushAnim;
-                    AddPartile("SugarCrushAnim", AudioEnum.Audio_None, 5, 5, false);
+                    AddPartile("SugarCrushAnim", AudioEnum.Audio_None, 0, 0, false);
                     ClearHelpPoint();
                     m_curStateStartTime = Timer.millisecondNow();
                     return;
@@ -4075,11 +4094,11 @@ public class GameLogic
             }
 			if (extraEat)
 			{
-                AddPartile("Dir1BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true);
+                AddPartile("Dir1BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y);
 			}
 			else
 			{
-                AddPartile("Dir1Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true);
+                AddPartile("Dir1Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y);
 			}
         }
         if (dir == -1 || dir == (int)TSpecialBlock.ESpecial_EatLineDir0)
@@ -4110,11 +4129,11 @@ public class GameLogic
             }
             if (extraEat)
             {
-                AddPartile("Dir0BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true);
+                AddPartile("Dir0BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y);
             }
             else
             {
-                AddPartile("Dir0Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true);
+                AddPartile("Dir0Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y);
             }
         }
         if (dir == -1 || dir == (int)TSpecialBlock.ESpecial_EatLineDir2)
@@ -4146,11 +4165,11 @@ public class GameLogic
             }
             if (extraEat)
             {
-                AddPartile("Dir2BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true);
+                AddPartile("Dir2BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y);
             }
             else
             {
-                AddPartile("Dir2Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true);
+                AddPartile("Dir2Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y);
             }
         }
     }

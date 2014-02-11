@@ -151,6 +151,9 @@ public class S5Application
             mCurGameState.InitState();
             m_changeStateNextFrame = -1;
         }
+
+        Timer.s_currentTime = Timer.s_currentTime + Time.deltaTime * CapsConfig.Instance.GameSpeed;		//更新时间
+        Timer.Update();
     }
 
     protected virtual void DoInit()

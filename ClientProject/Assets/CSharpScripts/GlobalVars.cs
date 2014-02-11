@@ -22,6 +22,7 @@ public enum PurchasedItem
 public class GlobalVars {
 
     public static int AvailabeStageCount = 3;           //当前可用关卡的数量
+    public static int HeadStagePos = 1;                 //当前大地图头像在第几关(第一关就是1)
     public static int[] StageStarArray;                 //存每关得了几颗星
     public static int[] StageScoreArray;                 //存每关得了几颗星
 	public static int[] StageFailedArray;               //how many times every stage failed

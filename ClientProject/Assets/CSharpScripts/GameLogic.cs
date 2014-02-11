@@ -938,7 +938,6 @@ public class GameLogic
 
     public void StartGame()     //开始游戏（及重新开始游戏）
     {
-        Timer.s_currentTime = Time.realtimeSinceStartup;        //更新一次时间
         long time = Timer.millisecondNow();
         m_gameStartTime = time;
 		m_gameStartTimeReal = CapsApplication.Singleton.GetPlayTime ();
@@ -1623,7 +1622,6 @@ public class GameLogic
     {
         //Profiler.BeginSample("GameLogic");
         //Timer.s_currentTime = Time.realtimeSinceStartup;
-        Timer.s_currentTime = Timer.s_currentTime + Time.deltaTime * CapsConfig.Instance.GameSpeed;		//
 
         ProcessState();
 

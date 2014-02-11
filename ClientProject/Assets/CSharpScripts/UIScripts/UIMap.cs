@@ -52,9 +52,15 @@ public class UIMap : UIWindow
         m_stageBtns = new Transform[GlobalVars.TotalStageCount];
 
         GlobalVars.AvailabeStageCount = PlayerPrefs.GetInt("StageAvailableCount");
+        GlobalVars.HeadStagePos = PlayerPrefs.GetInt("HeadStagePos");
+
         if (GlobalVars.AvailabeStageCount == 0)
         {
             GlobalVars.AvailabeStageCount = 1;
+        }
+        if (GlobalVars.HeadStagePos == 0)
+        {
+            GlobalVars.HeadStagePos = 1;
         }
 		GlobalVars.StageStarArray = PlayerPrefsExtend.GetIntArray("StageStars", 0, 100);
         GlobalVars.StageScoreArray = PlayerPrefsExtend.GetIntArray("StageScores", 0, 100);
@@ -131,7 +137,7 @@ public class UIMap : UIWindow
 			
 			m_stageBtns[i] = transform;
 
-            if (!GlobalVars.DeveloperMode && i >= GlobalVars.AvailabeStageCount)     //隐藏超出范围的按钮
+            if (!GlobalVars.DeveloperMode && i >= GlobalVars.HeadStagePos)     //隐藏超出范围的按钮
             {
                 transform.gameObject.SetActive(false);
             }
@@ -175,6 +181,10 @@ public class UIMap : UIWindow
         base.OnShow();
         m_heartUI.ShowWindow();
         UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
+        if (GlobalVars.HeadStagePos < GlobalVars.AvailabeStageCount)        //若有新开的关卡，先用头像去开启关卡
+        {
+            OpenNewButton(GlobalVars.AvailabeStageCount);
+        }
     }
 
     public override void OnShowEffectPlayOver()
@@ -237,7 +247,18 @@ public class UIMap : UIWindow
             if (passTime >= HeadMoveTime)     //若移动到了
             {
                 RefreshButton(m_newStageNumber);
+                AddStagePartile(m_newStageNumber);
                 m_headSprite.gameObject.transform.localPosition = new Vector3(m_stageBtns[m_newStageNumber - 1].localPosition.x, m_stageBtns[m_newStageNumber - 1].localPosition.y + HeadYOffset, m_stageBtns[m_newStageNumber - 1].localPosition.z);            ////移到目标点     
+                GlobalVars.HeadStagePos = GlobalVars.AvailabeStageCount;        //记录头像移动
+                PlayerPrefs.SetInt("HeadStagePos", GlobalVars.HeadStagePos);    //记录
+
+                int tempNum = m_newStageNumber;
+                Timer.AddDelayFunc(1.0f, delegate()
+                {
+                    UIButton.current = m_stageBtns[tempNum - 1].GetComponent<UIButton>();
+                    OnStageClicked();
+                });
+
                 m_newStageNumber = -1;
             }
             else
@@ -250,6 +271,17 @@ public class UIMap : UIWindow
         //处理云的移动
         float y = (mUIObject.transform.localPosition.y - (454.0f)) * 3054 / 3964.0f;
         m_cloudSprite.transform.LocalPositionY(-y);
+    }
+
+    void AddStagePartile(int stageNumber)
+    {
+        //Todo 临时加的粒子代码
+        Object obj = Resources.Load("LevelOpenedEffect");
+        GameObject gameObj= GameObject.Instantiate(obj) as GameObject;
+
+        gameObj.transform.parent = m_stageBtns[stageNumber - 1];
+        gameObj.transform.localPosition = Vector3.zero;
+        gameObj.transform.localScale = new Vector3(580.0f, 580.0f, 200.0f);                 //指定位置
     }
 
     private void OnStageClicked()

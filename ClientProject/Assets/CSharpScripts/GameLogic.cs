@@ -345,6 +345,7 @@ public class GameLogic
     GameObject m_gameArea;                  //游戏区域
     GameObject m_capsPool;                  //瓶盖池
     GameObject TopLeftAnchor;               //左上角
+    GameObject CenterAnchor;               //中心
     GameObject m_gridInstance;              //把Grid的实例存起来，用来优化性能
     GameObject m_numInstance;              //把数字的实例存起来，用来优化性能
     GameObject m_shadowSpriteInstance;      //影子图片的实例
@@ -456,7 +457,6 @@ public class GameLogic
     public int GetProgress() { return m_progress; }
     public void AddProgress(int progress, int x, int y)     //增加分数，同时在某位置显示一个得分的数字特效
     {
-        //Debug.Log("AddProgress at x = " + x + " y = " + y);
         m_progress += progress;
         UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().OnChangeProgress(m_progress);
         AddNumber(progress, GetXPos(x), GetYPos(x, y));
@@ -488,11 +488,14 @@ public class GameLogic
 
     void AddNumber(int number, int x, int y)                //添加一个数字特效
     {
+        ShowingNumberEffect numEffect;
         if (m_freeNumberList.Count == 0)
         {
-            return;
+            numEffect = new ShowingNumberEffect();      //创建个新的
+            numEffect.Init(m_numInstance);
+            m_freeNumberList.AddLast(numEffect);
         }
-        ShowingNumberEffect numEffect = m_freeNumberList.Last.Value;
+        numEffect = m_freeNumberList.Last.Value;
         m_freeNumberList.RemoveLast();
         numEffect.SetNumber(number, x, y);
         m_showingNumberEffectList.AddLast(numEffect);
@@ -510,6 +513,7 @@ public class GameLogic
         m_capsPool = GameObject.Find("CapsPool");
         m_gameArea = GameObject.Find("GameArea");
         TopLeftAnchor = GameObject.Find("TopLeftAnchor");
+        CenterAnchor = GameObject.Find("CenterAnchor");
 
         m_gridInstance = GameObject.Find("GridInstance");
         m_angleInstance = GameObject.Find("Angle");
@@ -676,7 +680,14 @@ public class GameLogic
             if (CapsConfig.EnableTalkingData)
 				TalkingDataPlugin.TrackEvent("Stage" + GlobalVars.CurStageNum + ":Start");  //记录当前开始的关卡的数据
 #endif
-		}        
+		}       
+		
+		UIFTUE ftue = UIWindowManager.Singleton.GetUIWindow<UIFTUE>();
+        if (ftue == null)
+        {
+            ftue = UIWindowManager.Singleton.CreateWindow<UIFTUE>();
+        }
+		ftue.ResetFTUEStep();
     }
 
     void ProcessGridSprites(int x, int y)
@@ -926,7 +937,6 @@ public class GameLogic
 
     public void StartGame()     //开始游戏（及重新开始游戏）
     {
-        Timer.s_currentTime = Time.realtimeSinceStartup;        //更新一次时间
         long time = Timer.millisecondNow();
         m_gameStartTime = time;
 		m_gameStartTimeReal = CapsApplication.Singleton.GetPlayTime ();
@@ -940,11 +950,11 @@ public class GameLogic
         tweenPos.Play(true);
 		
 		if(PlayingStageData.Target == GameTarget.GetScore)
-        	AddPartile("StartGameAnim-Score", AudioEnum.Audio_None, 5, 5, false);
+            AddPartile("StartGameAnim-Score", AudioEnum.Audio_None, 0, 0, false);
 		if(PlayingStageData.Target == GameTarget.ClearJelly)
-        	AddPartile("StartGameAnim-Ice", AudioEnum.Audio_None, 5, 5, false);
+            AddPartile("StartGameAnim-Ice", AudioEnum.Audio_None, 0, 0, false);
 		if(PlayingStageData.Target == GameTarget.BringFruitDown)
-        	AddPartile("StartGameAnim-Fruit", AudioEnum.Audio_None, 5, 5, false);
+            AddPartile("StartGameAnim-Fruit", AudioEnum.Audio_None, 0, 0, false);
     }
 
     public void CheckFTUE()
@@ -966,14 +976,14 @@ public class GameLogic
         if(PlayingStageData.FTUEMap.TryGetValue(GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit, out data))      //查看是否有FTUE数据
         {
             //进入FTUE状态
-            m_gameFlow = TGameFlow.EGameState_FTUE;
             UIFTUE ftue = UIWindowManager.Singleton.GetUIWindow<UIFTUE>();
             if (ftue == null)
             {
                 ftue = UIWindowManager.Singleton.CreateWindow<UIFTUE>();
             }
-
-            ftue.ShowFTUE(GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit);
+		
+            if(ftue.ShowFTUE(GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit))
+				m_gameFlow = TGameFlow.EGameState_FTUE;
         }
     }
 
@@ -1395,6 +1405,8 @@ public class GameLogic
             {
                 m_gameStartTime = 0;
                 m_gameFlow = TGameFlow.EGameState_End;
+                Time.timeScale = 1.0f;                                                        //恢复正常的时间比例
+
 
                 GameLogic.Singleton.PlayEndGameAnim();		//play the end anim(move the game area out of screen)
                 HideUI();
@@ -1410,8 +1422,7 @@ public class GameLogic
                 }
                 else //若没达成过关条件
                 {
-                    UIWindowManager.Singleton.GetUIWindow<UIRetry>().RefreshData();
-                    UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();      //弹游戏结束的窗口
+                    UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();            //出游戏结束界面
                 }
             }
             return;
@@ -1612,7 +1623,6 @@ public class GameLogic
     {
         //Profiler.BeginSample("GameLogic");
         //Timer.s_currentTime = Time.realtimeSinceStartup;
-        Timer.s_currentTime = Timer.s_currentTime + Time.deltaTime * CapsConfig.Instance.GameSpeed;		//
 
         ProcessState();
 
@@ -1636,34 +1646,37 @@ public class GameLogic
             }
         }
 
-        //处理延迟消除
-        LinkedListNode<DelayProceedGrid> node = m_delayProcessGrid.First;
-        LinkedListNode<DelayProceedGrid> nodeLast = m_delayProcessGrid.Last;
-        LinkedListNode<DelayProceedGrid> nodeTmp;//临时结点
-        if (m_delayProcessGrid.Count > 0)
         {
-            while (node != nodeLast)
+            //处理延迟消除
+            LinkedListNode<DelayProceedGrid> node = m_delayProcessGrid.First;
+            LinkedListNode<DelayProceedGrid> nodeLast = m_delayProcessGrid.Last;
+            LinkedListNode<DelayProceedGrid> nodeTmp;//临时结点
+            if (m_delayProcessGrid.Count > 0)
             {
-                if (Timer.GetRealTimeSinceStartUp() > node.Value.startTime)       //若到了处理时间
+                while (node != nodeLast)
                 {
-                    ProcessEatChanges(node.Value, true, true);                          //处理延迟处理的消块
+                    if (Timer.GetRealTimeSinceStartUp() > node.Value.startTime)       //若到了处理时间
+                    {
+                        ProcessEatChanges(node.Value, true, true);                          //处理延迟处理的消块
 
-                    nodeTmp = node.Next;
-                    m_delayProcessGrid.Remove(node.Value);                              //移除中间一个元素
-                    node = nodeTmp;
+                        nodeTmp = node.Next;
+                        m_delayProcessGrid.Remove(node.Value);                              //移除中间一个元素
+                        node = nodeTmp;
+                    }
+                    else
+                    {
+                        node = node.Next;
+                    }
                 }
-                else
+
+                if (Timer.GetRealTimeSinceStartUp() > nodeLast.Value.startTime)       //若到了处理时间
                 {
-                    node = node.Next;
+                    ProcessEatChanges(nodeLast.Value, true, true);                          //处理延迟处理的消块
+                    m_delayProcessGrid.Remove(nodeLast.Value);                              //移除中间一个元素
                 }
-            }
-
-            if (Timer.GetRealTimeSinceStartUp() > nodeLast.Value.startTime)       //若到了处理时间
-            {
-                ProcessEatChanges(nodeLast.Value, true, true);                          //处理延迟处理的消块
-                m_delayProcessGrid.Remove(nodeLast.Value);                              //移除中间一个元素
             }
         }
+
 
         TimerWork();
 
@@ -1681,7 +1694,7 @@ public class GameLogic
                         if (!Help())
                         {
                             m_curStateStartTime = Timer.millisecondNow();
-                            AddPartile("ResortAnim", AudioEnum.Audio_None, 5, 5, false);                                    //显示需要重排
+                            AddPartile("ResortAnim", AudioEnum.Audio_None, 0, 0, false);                                    //显示需要重排
                             m_gameFlow = TGameFlow.EGameState_ResortAnim;
                         }
                     }
@@ -1731,14 +1744,38 @@ public class GameLogic
         }
 
         //处理数字
-        foreach (ShowingNumberEffect numEffect in m_showingNumberEffectList)
+        //处理延迟消除
         {
-            numEffect.Update();
-            if (numEffect.IsEnd())
+            if (m_showingNumberEffectList.Count > 0)
             {
-                m_freeNumberList.AddLast(numEffect);
-                m_showingNumberEffectList.Remove(numEffect);
-                break;
+                LinkedListNode<ShowingNumberEffect> node = m_showingNumberEffectList.First;
+                LinkedListNode<ShowingNumberEffect> nodeLast = m_showingNumberEffectList.Last;
+                LinkedListNode<ShowingNumberEffect> nodeTmp;//临时结点
+                while (node != nodeLast)
+                {
+                    if (node.Value.IsEnd())       //若到了处理时间
+                    {
+                        nodeTmp = node.Next;
+                        m_freeNumberList.AddLast(node.Value);
+                        m_showingNumberEffectList.Remove(node.Value);                              //移除中间一个元素
+                        node = nodeTmp;
+                    }
+                    else
+                    {
+                        node.Value.Update();
+                        node = node.Next;
+                    }
+                }
+
+                if (nodeLast.Value.IsEnd())       //若到了处理时间
+                {
+                    m_freeNumberList.AddLast(nodeLast.Value);
+                    m_showingNumberEffectList.Remove(nodeLast.Value);                              //移除中间一个元素
+                }
+                else
+                {
+                    nodeLast.Value.Update();
+                }
             }
         }
 
@@ -1837,6 +1874,15 @@ public class GameLogic
     {
         TSpecialBlock special0 = m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special;
         TSpecialBlock special1 = m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special;
+        //+5当成普通块来处理
+        if (special0 == TSpecialBlock.ESpecial_NormalPlus5)
+        {
+            special0 = TSpecialBlock.ESpecial_Normal;
+        }
+        if (special1 == TSpecialBlock.ESpecial_NormalPlus5)
+        {
+            special1 = TSpecialBlock.ESpecial_Normal;
+        }
 
         //普通交换的情况
         if ((special0 == TSpecialBlock.ESpecial_Normal && special1 == TSpecialBlock.ESpecial_Normal)                //两个都是普通块
@@ -2197,8 +2243,11 @@ public class GameLogic
         {
             if (needEatBlock)       //处理吃块
             {
-				if(addBlockProgress)
-                	m_scoreToShow[processGrid.x, processGrid.y] += 50;                                                  //加分
+                if (addBlockProgress && !processGrid.block.EatProgressAdded)
+                {
+                    processGrid.block.EatProgressAdded = true;
+                    m_scoreToShow[processGrid.x, processGrid.y] += 50;                                                  //加分
+                }
                 processGrid.block.m_dropDownStartTime = 0;
             }
             else
@@ -2209,7 +2258,7 @@ public class GameLogic
             }
         }
 
-        if (showProgress)
+        if (showProgress && m_scoreToShow[processGrid.x, processGrid.y] > 0)
         {
             AddProgress(m_scoreToShow[processGrid.x, processGrid.y], processGrid.x, processGrid.y);
             m_scoreToShow[processGrid.x, processGrid.y] = 0;
@@ -3073,8 +3122,6 @@ public class GameLogic
 
     public void AddFlyParticle(string name, AudioEnum audio, Position from, Position to, float duration, float delay)
     {
-
-        Debug.Log("AddFlyParticle delay = " + delay);
         //先看freeParticleList里面有没有可用的
         LinkedList<ParticleSystem> freeParticleList;
         if (!m_freeParticleMap.TryGetValue(name, out freeParticleList))
@@ -3150,13 +3197,21 @@ public class GameLogic
             }
             else
             {
-                gameObj.transform.parent = TopLeftAnchor.transform;
+                gameObj.transform.parent = CenterAnchor.transform;
             }
             par = gameObj.GetComponent<ParticleSystem>();
             par.Stop();     //这里先不播放
         }
+
+        if (addToGameArea)
+        {
+            gameObj.transform.localPosition = new Vector3(GetXPos(x), -GetYPos(x, y), -200);        //指定位置
+        }
+        else
+        {
+            gameObj.transform.localPosition = new Vector3(x, -y, -200);        //指定位置
+        }
         
-        gameObj.transform.localPosition = new Vector3(GetXPos(x), -GetYPos(x, y), -200);        //指定位置
         gameObj.transform.localScale = new Vector3(580.0f, 580.0f, 200.0f);                 //指定位置
 
         //放到正在播放的列表里
@@ -3265,7 +3320,8 @@ public class GameLogic
             if (foundSpecial || PlayingStageData.StepLimit > 0)     //若能进SugarCrush
             {
                 m_gameFlow = TGameFlow.EGameState_SugarCrushAnim;
-                AddPartile("SugarCrushAnim", AudioEnum.Audio_None, 5, 5, false);
+                Time.timeScale = 1.1f;                                                        //临时加快时间
+                AddPartile("SugarCrushAnim", AudioEnum.Audio_None, 0, 0, false);
                 ClearHelpPoint();
                 m_curStateStartTime = Timer.millisecondNow();
             }
@@ -3306,7 +3362,8 @@ public class GameLogic
                 if (foundSpecial)
                 {
                     m_gameFlow = TGameFlow.EGameState_SugarCrushAnim;
-                    AddPartile("SugarCrushAnim", AudioEnum.Audio_None, 5, 5, false);
+                    Time.timeScale = 1.1f;                                                        //临时加快时间
+                    AddPartile("SugarCrushAnim", AudioEnum.Audio_None, 0, 0, false);
                     ClearHelpPoint();
                     m_curStateStartTime = Timer.millisecondNow();
                     return;
@@ -3315,10 +3372,10 @@ public class GameLogic
             //否则直接结束游戏
             m_gameStartTime = 0;
             m_gameFlow = TGameFlow.EGameState_End;
+            Time.timeScale = 1.0f;                                                        //恢复正常的时间比例
 
             if (CapsConfig.EnableGA)        //游戏结束的数据
             {
-                Debug.Log("GameEnd GA");
                 GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed:Score_Percent", (float)m_progress / PlayingStageData.StarScore[0]);  //记录当前开始的关卡的百分比
                 if (PlayingStageData.Target == GameTarget.ClearJelly)
                 {
@@ -3540,6 +3597,11 @@ public class GameLogic
             return;
         }
 
+        if (ges.fingerIndex != 0)
+        {
+            return;
+        }
+
         Position p = GetBlockByTouch((int)ges.position.x, (int)ges.position.y);
         if (!p.IsAvailable())
         {
@@ -3719,6 +3781,11 @@ public class GameLogic
             return;
         }
 
+        if (ges.fingerIndex != 0)
+        {
+            return;
+        }
+
         touchBeginPos.MakeItUnAvailable();
 
         int x = (int)ges.position.x * CapsApplication.Singleton.Height / Screen.height;
@@ -3762,6 +3829,11 @@ public class GameLogic
 
     public void OnTouchEnd(Gesture ges)
     {
+        if (ges.fingerIndex != 0)
+        {
+            return;
+        }
+
         if (touchBeginGrid.IsAvailable())
         {
             if (m_gameFlow != TGameFlow.EGameState_FTUE)
@@ -3787,6 +3859,7 @@ public class GameLogic
         {
             if (bLightBackground)
             {
+				Debug.Log("Light Background x = " + x + " y =  " + y);
 				m_blocks[x, y].m_addColorSprite.alpha = 0.0f;
                 m_blocks[x, y].m_blockSprite.depth = 5;
                 if (m_gridBackImage[x, y].layer0 != null)
@@ -3808,6 +3881,7 @@ public class GameLogic
             m_blocks[x, y].m_addColorSprite.alpha = 0.0f;
             if (bLightBackground)
             {
+				Debug.Log("UnLight Background x = " + x + " y =  " + y);
                 m_blocks[x, y].m_blockSprite.depth = 2;
                 if (m_gridBackImage[x, y].layer0 != null)
                 {
@@ -3845,6 +3919,11 @@ public class GameLogic
     public void OnTouchMove(Gesture ges)
     {
         if (!IsMoveAble())
+        {
+            return;
+        }
+
+        if (ges.fingerIndex != 0)
         {
             return;
         }
@@ -4019,11 +4098,11 @@ public class GameLogic
             }
 			if (extraEat)
 			{
-                AddPartile("Dir1BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true);
+                AddPartile("Dir1BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y);
 			}
 			else
 			{
-                AddPartile("Dir1Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true);
+                AddPartile("Dir1Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y);
 			}
         }
         if (dir == -1 || dir == (int)TSpecialBlock.ESpecial_EatLineDir0)
@@ -4054,11 +4133,11 @@ public class GameLogic
             }
             if (extraEat)
             {
-                AddPartile("Dir0BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true);
+                AddPartile("Dir0BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y);
             }
             else
             {
-                AddPartile("Dir0Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true);
+                AddPartile("Dir0Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y);
             }
         }
         if (dir == -1 || dir == (int)TSpecialBlock.ESpecial_EatLineDir2)
@@ -4090,11 +4169,11 @@ public class GameLogic
             }
             if (extraEat)
             {
-                AddPartile("Dir2BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true);
+                AddPartile("Dir2BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y);
             }
             else
             {
-                AddPartile("Dir2Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true);
+                AddPartile("Dir2Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y);
             }
         }
     }
@@ -4326,6 +4405,7 @@ public class GameLogic
     void MakeSpriteFree(int x, int y)
     {
         m_blocks[x, y].m_addColorSprite.alpha = 0.0f;
+        m_blocks[x, y].EatProgressAdded = false;
         m_blocks[x, y].m_animation.Stop();
         m_blocks[x, y].m_animation.enabled = false;
         m_capBlockFreeList.AddLast(m_blocks[x, y]);

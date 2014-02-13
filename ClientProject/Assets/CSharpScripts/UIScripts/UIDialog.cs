@@ -74,6 +74,20 @@ public class UIDialog : UIWindow
             }
 		}
 
+        if (pos == DialogTriggerPos.StageEnd)
+        {
+            if (PlayerPrefs.GetInt("StageEndDialogFinished") >= stageNum)
+            {
+				if (func != null)
+                func();
+                return false;
+            }
+            else
+            {
+                PlayerPrefs.SetInt("StageEndDialogFinished", stageNum);
+            }
+        }
+
         if (dialogEvent.backPic == "None")
         {
             m_backPic.gameObject.SetActive(false);

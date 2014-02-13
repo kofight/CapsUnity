@@ -137,7 +137,10 @@ public class UIGameHead : UIWindow
                         --GlobalVars.Coins;
                         GA.API.Business.NewEvent("BuyStep", "RMB", 1);
                         PlayerPrefs.SetInt("Coins", GlobalVars.Coins);
-                        GameLogic.Singleton.PlayingStageData.StepLimit += 5;        //步数加5
+						if(GlobalVars.CurStageData.StepLimit > 0)
+                        	GameLogic.Singleton.PlayingStageData.StepLimit += 5;        //步数加5
+						else if(GlobalVars.CurStageData.TimeLimit > 0)
+							GameLogic.Singleton.AddGameTime(15);        //Add 15 Seconds
                     }
                 }
                 else if (item == PurchasedItem.Item_Hammer)

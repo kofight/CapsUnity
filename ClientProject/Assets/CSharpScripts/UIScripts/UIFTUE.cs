@@ -54,9 +54,19 @@ public class UIFTUE : UIWindow
 
         GameLogic.Singleton.ShowUI();
     }
+	
+	public void ResetFTUEStep()
+	{
+		m_curStep = -1;
+	}
 
-    public void ShowFTUE(int step)
+    public bool ShowFTUE(int step)
     {
+		if(step <= m_curStep)
+		{
+			return false;
+		}
+		
 		m_curStep = step;
 
         if (GameLogic.Singleton.PlayingStageData.FTUEMap.TryGetValue(step, out m_ftueData))
@@ -69,12 +79,7 @@ public class UIFTUE : UIWindow
                 {
 					m_bLock =  true;
 					m_pointer.SetActive(true);
-                    collider.size = new Vector3(300, 200, 1);
                     GameLogic.Singleton.SetHighLight(true, m_ftueData[m_FTUEIndex].from);
-                }
-                else
-                {
-                    collider.size = new Vector3(2048, 2048, 1);
                 }
                 foreach (Position highLightPos in m_ftueData[m_FTUEIndex].highLightPosList)
                 {
@@ -84,6 +89,8 @@ public class UIFTUE : UIWindow
         }
 
         GameLogic.Singleton.HideUI();
+		
+		return true;
     }
 
     public bool CheckMoveTo(Position to)
@@ -162,13 +169,16 @@ public class UIFTUE : UIWindow
             }
 
             m_clickLabel.gameObject.SetActive(true);
+			BoxCollider collider = m_dialogBoardSprite.GetComponent<BoxCollider>();
             if (m_ftueData[m_FTUEIndex].from.IsAvailable() && m_curDialogIndex == m_dialogContents.Length - 1)
             {
                 m_clickLabel.text = Localization.instance.Get("MoveBlock");
+				collider.size = new Vector3(300, 200, 1);
             }
             else
             {
                 m_clickLabel.text = Localization.instance.Get("Click");
+				collider.size = new Vector3(2048, 2048, 1);
             }
 
 			++m_curDialogIndex;
@@ -216,13 +226,16 @@ public class UIFTUE : UIWindow
                     m_bLock = false;
                     ++m_curDialogIndex;
                     m_clickLabel.gameObject.SetActive(true);
+					BoxCollider collider = m_dialogBoardSprite.GetComponent<BoxCollider>();
                     if (m_ftueData[m_FTUEIndex].from.IsAvailable())
                     {
                         m_clickLabel.text = Localization.instance.Get("MoveBlock");
+						collider.size = new Vector3(300, 200, 1);
                     }
                     else
                     {
                         m_clickLabel.text = Localization.instance.Get("Click");
+						collider.size = new Vector3(2048, 2048, 1);
                     }
                     if (m_afterDialogFunc != null)          //若有结束函数
                     {
@@ -240,8 +253,8 @@ public class UIFTUE : UIWindow
         {
             if (m_FTUEIndex < m_ftueData.Count - 1)
             {
-				++m_FTUEIndex;
 				HideHighLight();
+				++m_FTUEIndex;
 				HideWindow(delegate()
 				{
 					ShowFTUE(m_curStep);                         //若有步数，循环调用

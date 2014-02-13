@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public enum TimerEnum
 {
@@ -7,8 +8,16 @@ public enum TimerEnum
 	EStop,
 };
 
+struct DelayAction
+{
+    public float startTime;
+    public System.Action action;
+}
+
 
 public class Timer {
+
+    static LinkedList<DelayAction> m_delayActoinList = new LinkedList<DelayAction>();
 
     public static long millisecondNow()
     {
@@ -18,6 +27,27 @@ public class Timer {
     public static float GetRealTimeSinceStartUp()
     {
         return s_currentTime;
+    }
+
+    public static void AddDelayFunc(float time, System.Action action)
+    {
+        DelayAction act = new DelayAction();
+        act.startTime = s_currentTime + time;
+        act.action = action;
+        m_delayActoinList.AddLast(act);
+    }
+
+    public static void Update()
+    {
+        foreach (DelayAction act in m_delayActoinList)
+        {
+            if (s_currentTime > act.startTime)
+            {
+                act.action();
+                m_delayActoinList.Remove(act);
+                break;
+            }
+        }
     }
 
 	public static float s_currentTime = 0;

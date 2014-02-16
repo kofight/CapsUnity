@@ -1,0 +1,161 @@
+{
+  "iOSSKU": "102",
+  "androidBillingPlatform": "GooglePlay",
+  "GooglePlayPublicKey": "[Your key]",
+  "useAmazonSandbox": false,
+  "UseWP8MockingFramework": true,
+  "useHostedConfig": false,
+  "hostedConfigUrl": null,
+  "UseWin8_1Sandbox": true,
+  "purchasableItems": {
+    "com.linkrstudio.jellycraft.140goldcoins": {
+      "@id": "com.linkrstudio.jellycraft.140goldcoins",
+      "@purchaseType": "Consumable",
+      "name": "140 Gold Coins",
+      "description": "140 Gold Coins",
+      "platforms": {
+        "GooglePlay": {
+          "GooglePlay.Id": "com.outlinegames.100goldcoins.v2.c",
+          "priceInLocalCurrency": 1.99,
+          "defaultLocale": "en_US"
+        },
+        "AmazonAppstore": {},
+        "AppleAppStore": {
+          "AppleAppStore.Id": "com.outlinegames.100goldcoins.5",
+          "appleAppStorePriceTier": "33"
+        },
+        "MacAppStore": {
+          "MacAppStore.Id": "com.outlinegames.100goldcoinsosx"
+        },
+        "WindowsPhone8": {},
+        "Windows8_1": {
+          "Windows8_1.Id": "com.outlinegames.100goldcoins.win8"
+        },
+        "UnityEditor": {}
+      }
+    },
+    "com.linkrstudio.jellycraft.800goldcoins": {
+      "@id": "com.linkrstudio.jellycraft.800goldcoins",
+      "@purchaseType": "Consumable",
+      "name": "800 Gold coins",
+      "description": "800 Gold coins",
+      "platforms": {
+        "GooglePlay": {
+          "priceInLocalCurrency": "1",
+          "defaultLocale": "en_US"
+        },
+        "AmazonAppstore": {},
+        "AppleAppStore": {
+          "appleAppStorePriceTier": "1"
+        },
+        "MacAppStore": {},
+        "WindowsPhone8": {},
+        "Windows8_1": {},
+        "UnityEditor": {}
+      }
+    },
+    "com.linkrstudio.jellycraft.1700goldcoins": {
+      "@id": "com.linkrstudio.jellycraft.1700goldcoins",
+      "@purchaseType": "Consumable",
+      "name": "1700 Gold coins",
+      "description": "1700 Gold coins",
+      "platforms": {
+        "GooglePlay": {
+          "priceInLocalCurrency": "1",
+          "defaultLocale": "en_US"
+        },
+        "AmazonAppstore": {},
+        "AppleAppStore": {
+          "appleAppStorePriceTier": "1"
+        },
+        "MacAppStore": {},
+        "WindowsPhone8": {},
+        "Windows8_1": {},
+        "UnityEditor": {}
+      }
+    },
+    "com.linkrstudio.jellycraft.4500goldcoins": {
+      "@id": "com.linkrstudio.jellycraft.4500goldcoins",
+      "@purchaseType": "Consumable",
+      "name": "4500 Gold coins",
+      "description": "4500 Gold coins",
+      "platforms": {
+        "GooglePlay": {
+          "priceInLocalCurrency": "1",
+          "defaultLocale": "en_US"
+        },
+        "AmazonAppstore": {},
+        "AppleAppStore": {
+          "appleAppStorePriceTier": "1"
+        },
+        "MacAppStore": {},
+        "WindowsPhone8": {},
+        "Windows8_1": {},
+        "UnityEditor": {}
+      }
+    },
+    "com.linkrstudio.jellycraft.9500goldcoins": {
+      "@id": "com.linkrstudio.jellycraft.9500goldcoins",
+      "@purchaseType": "Consumable",
+      "name": "9500 Gold coins",
+      "description": "9500 Gold coins",
+      "platforms": {
+        "GooglePlay": {},
+        "AmazonAppstore": {},
+        "AppleAppStore": {},
+        "MacAppStore": {},
+        "WindowsPhone8": {},
+        "Windows8_1": {},
+        "UnityEditor": {}
+      }
+    }
+  },
+  "currencies": {
+    "gold": {
+      "com.outlinegames.250goldcoins": 250.0,
+      "com.outlinegames.100goldcoins": 100.0,
+      "com.l": 100.0,
+      "com.li": 100.0,
+      "com.lin": 100.0,
+      "com.": 100.0,
+      "com.link": 100.0,
+      "com.linkr": 100.0,
+      "com.linkrs": 100.0,
+      "com.linkrst": 100.0,
+      "com.linkrstu": 100.0,
+      "com.linkrstud": 100.0,
+      "com.linkrstudi": 100.0,
+      "com.linkrstudio": 100.0,
+      "com.linkrstudio.": 100.0,
+      "com.linkrstudio.j": 100.0,
+      "com.linkrstudio.je": 100.0,
+      "com.linkrstudio.jel": 100.0,
+      "com.linkrstudio.jell": 100.0,
+      "com.linkrstudio.jelly": 100.0,
+      "com.linkrstudio.jellyc": 100.0,
+      "com.linkrstudio.jellycr": 100.0,
+      "com.linkrstudio.jellycra": 100.0,
+      "com.linkrstudio.jellycraf": 100.0,
+      "com.linkrstudio.jellycraft": 100.0,
+      "com.linkrstudio.jellycraft.": 100.0,
+      "com.linkrstudio.jellycraft.1": 100.0,
+      "com.linkrstudio.jellycraft.14": 100.0,
+      "com.linkrstudio.jellycraft.140": 100.0,
+      "com.linkrstudio.jellycraft.140g": 100.0,
+      "com.linkrstudio.jellycraft.140go": 100.0,
+      "com.linkrstudio.jellycraft.140gol": 100.0,
+      "com.linkrstudio.jellycraft.140gold": 100.0,
+      "com.linkrstudio.jellycraft.140goldc": 100.0,
+      "com.linkrstudio.jellycraft.140goldco": 100.0,
+      "com.linkrstudio.jellycraft.140goldcoi": 100.0,
+      "com.linkrstudio.jellycraft.140goldcoin": 100.0,
+      "com.linkrstudio.jellycraft.140goldcoins": 140.0,
+      "com.linkrstudio.jellycraft.8goldcoins": 250.0,
+      "com.linkrstudio.jellycraft.80goldcoins": 250.0,
+      "com.linkrstudio.jellycraft.800goldcoins": 800.0,
+      "com.linkrstudio.jellycraft.1700goldcoins": 1700.0,
+      "com.linkrstudio.jellycraft.4500goldcoins": 4500.0,
+      "com.linkrstudio.jellycraft.9500goldcoins": 9500.0
+    }
+  }
+}

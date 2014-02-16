@@ -1,0 +1,37 @@
+{
+  "com.linkrstudio.jellycraft.140goldcoins": {
+    "itemType": "CONSUMABLE",
+    "description": "140 Gold Coins",
+    "price": 0.99,
+    "smallIconUrl": "http://example.com",
+    "title": "140 Gold Coins"
+  },
+  "com.linkrstudio.jellycraft.800goldcoins": {
+    "itemType": "CONSUMABLE",
+    "description": "800 Gold coins",
+    "price": 0.99,
+    "smallIconUrl": "http://example.com",
+    "title": "800 Gold coins"
+  },
+  "com.linkrstudio.jellycraft.1700goldcoins": {
+    "itemType": "CONSUMABLE",
+    "description": "1700 Gold coins",
+    "price": 0.99,
+    "smallIconUrl": "http://example.com",
+    "title": "1700 Gold coins"
+  },
+  "com.linkrstudio.jellycraft.4500goldcoins": {
+    "itemType": "CONSUMABLE",
+    "description": "4500 Gold coins",
+    "price": 0.99,
+    "smallIconUrl": "http://example.com",
+    "title": "4500 Gold coins"
+  },
+  "com.linkrstudio.jellycraft.9500goldcoins": {
+    "itemType": "CONSUMABLE",
+    "description": "9500 Gold coins",
+    "price": 0.99,
+    "smallIconUrl": "http://example.com",
+    "title": "9500 Gold coins"
+  }
+}

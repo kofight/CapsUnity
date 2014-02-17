@@ -53,11 +53,28 @@ public class S5Application
 
     public void Init()
     {
+        //初始化支付插件
+        Unibiller.onBillerReady += OnUniBillInitialised;
+        Unibiller.Initialise();
+
         Application.runInBackground = true;
         new UIWindowManager();          //Create UIManager Singleton
         new TextTable();
         new UIDrawer();
         DoInit();
+    }
+
+    //初始化支付插件
+    private void OnUniBillInitialised(UnibillState result)
+    {
+        if (result != UnibillState.SUCCESS)
+        {
+            Debug.LogError(result.ToString());
+        }
+        else
+        {
+            Debug.Log(result.ToString());
+        }
     }
 
     bool backKeyPress = false;

@@ -296,6 +296,7 @@ public class GameLogic
     int m_progress;										//当前进度
     TGameFlow m_gameFlow;								//游戏状态
     long m_curStateStartTime = 0;                       //当前状态的开始时间
+    float m_lastPlayDropSoundTime = 0;                       //上一次播放Drop声音的时间
 
 
     TSpecialEffect m_curSpecialEffect;                  //当前的特殊效果
@@ -323,6 +324,9 @@ public class GameLogic
 	public int m_stepCountWhenReachTarget;							//save it for submit data
 	public float GetStagePlayTime(){ return CapsApplication.Singleton.GetPlayTime() - m_gameStartTimeReal; }
     public bool m_bNeedCheckEatAllLineAgain = false;        //是否需要在下落都完成都额外检查一次消除的可能(当发生笼子消除时)
+
+    public int m_chocolateCount = 0;                        //当前关卡里巧克力块的数量（用来优化性能）
+    public int m_stoneCount = 0;                            //当前关卡里石头块的数量（用来优化性能）
 
     //计时器
     Timer timerMoveBlock = new Timer();
@@ -448,6 +452,14 @@ public class GameLogic
 
     void PlaySoundNextFrame(AudioEnum audio)                            //为了同一声音在一帧内播放多次，把要播放的声音存起来下一帧播放
     {
+        if (audio == AudioEnum.Audio_Drop)       //对于下落声音，若没到固定时间间隔不播放，防止声音太密集
+        {
+            if (Timer.s_currentTime < m_lastPlayDropSoundTime + 0.2f)
+            {
+                return;
+            }
+            m_lastPlayDropSoundTime = Timer.s_currentTime;
+        }
         m_playSoundNextFrame.Add(audio);
     }
 
@@ -1155,7 +1167,7 @@ public class GameLogic
 
         //for (int i = 0; i < BlockCountX; i++)
         //{
-            //UIDrawer.Singleton.DrawText("lock" + i, GetXPos(i) - 30, GetYPos(i, 0) - 30, m_slopeDropLock[i].ToString());
+        //    UIDrawer.Singleton.DrawText("lock" + i, GetXPos(i) - 30, GetYPos(i, m_slopeDropLock[i]) - 30, m_slopeDropLock[i].ToString());
         //}
 
         //根据数据绘制Sprite
@@ -1797,21 +1809,7 @@ public class GameLogic
         }
         m_playSoundNextFrame.Clear();
 
-        //计算锁的位置
-        for (int i = 0; i < BlockCountX; ++i )
-        {
-            for (int j = 0; j < BlockCountY; ++j )
-            {
-                if (m_blocks[i, j] != null)     //若有下落块
-                {
-                    if (m_blocks[i, j].IsDroping() || m_blocks[i, j].IsEating())     //若有下落块或正在消的块
-                    {
-                        m_slopeDropLock[i] = j + (int)(m_blocks[i, j].y_move / BLOCKHEIGHT + 1);
-                        break;
-                    }
-                }
-            }
-        }
+        UpdateSlopeLock();
 
         //处理飞行特效
         foreach (FlyParticle flyParticle in m_flyParticleList)
@@ -1839,6 +1837,34 @@ public class GameLogic
                 }
 
                 flyParticle.par.transform.localPosition = Vector3.Lerp(flyParticle.start, flyParticle.end, (Timer.GetRealTimeSinceStartUp() - flyParticle.startTime) / flyParticle.duration);        //指定位置
+            }
+        }
+    }
+
+    void UpdateSlopeLock()
+    {
+        //计算锁的位置
+        for (int i = 0; i < BlockCountX; ++i)
+        {
+            for (int j = 0; j < BlockCountY; ++j)
+            {
+                if (m_blocks[i, j] != null)     //若有下落块
+                {
+                    if (m_blocks[i, j].IsDroping() || m_blocks[i, j].IsEating())     //若有下落块或正在消的块
+                    {
+                        m_slopeDropLock[i] = j + (int)(m_blocks[i, j].y_move / BLOCKHEIGHT + 1);
+                        break;
+                    }
+                }
+                else if (PlayingStageData.CheckFlag(i, j, GridFlag.Birth))      //若出生点为空
+                {
+                    m_slopeDropLock[i] = j;     //锁住出生点以下
+                    break;
+                }
+                if (j == BlockCountY - 1)       //若到底了
+                {
+                    m_slopeDropLock[i] = 10;    //清掉锁
+                }
             }
         }
     }
@@ -2179,6 +2205,7 @@ public class GameLogic
             PlayingStageData.ClearFlag(processGrid.x, processGrid.y, GridFlag.Chocolate);
             PlayingStageData.ClearFlag(processGrid.x, processGrid.y, GridFlag.NotGenerateCap);
             PlayingStageData.AddFlag(processGrid.x, processGrid.y, GridFlag.GenerateCap);
+            --PlayingStageData.ChocolateCount;
             AddPartile("ChocolateEffect", AudioEnum.Audio_Chocolate, processGrid.x, processGrid.y);
             m_scoreToShow[processGrid.x, processGrid.y] += CapsConfig.EatChocolate;
             m_gridBackImage[processGrid.x, processGrid.y].layer1.gameObject.SetActive(false);
@@ -2189,6 +2216,7 @@ public class GameLogic
             PlayingStageData.ClearFlag(processGrid.x, processGrid.y, GridFlag.Stone);
             PlayingStageData.ClearFlag(processGrid.x, processGrid.y, GridFlag.NotGenerateCap);
             PlayingStageData.AddFlag(processGrid.x, processGrid.y, GridFlag.GenerateCap);
+            --PlayingStageData.StoneCount;
 
             AddPartile("StoneEffect", AudioEnum.Audio_Stone, processGrid.x, processGrid.y);
             m_scoreToShow[processGrid.x, processGrid.y] += CapsConfig.EatStonePoint;
@@ -2364,25 +2392,7 @@ public class GameLogic
         bool bNewSpace = true;          //是否有直线下落
 
         //计算锁的位置
-        for (int i = 0; i < BlockCountX; ++i)
-        {
-            for (int j = 0; j < BlockCountY; ++j)
-            {
-                if (m_blocks[i, j] != null)     
-                {
-                    if (m_blocks[i, j].IsDroping() || m_blocks[i, j].IsEating())     //若有下落块或正在消的块
-                    {
-                        m_slopeDropLock[i] = j + (int)(m_blocks[i, j].y_move / BLOCKHEIGHT + 1);
-                        break;
-                    }
-                }
-
-                if (j == BlockCountY - 1)       //已经到了最下面还没有在下落的块
-                {
-                    m_slopeDropLock[i] = 10;
-                }
-            }
-        }
+        UpdateSlopeLock();
 
         while (bNewSpace)                //若有新空间，就循环处理下落，直到没有新的空间出现为止
         {
@@ -2413,20 +2423,7 @@ public class GameLogic
                 }
             }
 	        //计算锁的位置
-	        for (int i = 0; i < BlockCountX; ++i )
-	        {
-	            for (int j = 0; j < BlockCountY; ++j )
-	            {
-                    if (m_blocks[i, j] != null)     //若有下落块
-	                {
-                        if (m_blocks[i, j].IsDroping() || m_blocks[i, j].IsEating())     //若有下落块或正在消的块
-                        {
-                            m_slopeDropLock[i] = j + (int)(m_blocks[i, j].y_move / BLOCKHEIGHT + 1);
-                            break;
-                        }
-	                }
-	            }
-	        }
+            UpdateSlopeLock();
         }
         return bDrop;
     }
@@ -2758,8 +2755,15 @@ public class GameLogic
 				DelayProceedGrid grid = new DelayProceedGrid();
                 grid.x = availablePos.x;
                 grid.y = availablePos.y;
-				grid.bProceeChocolateAround = true;
-				grid.bProceeStoneAround = true;
+                if (PlayingStageData.StoneCount > 0)
+                {
+                    grid.bProceeStoneAround = true;
+                }
+                if (PlayingStageData.ChocolateCount > 0)
+                {
+                    grid.bProceeChocolateAround = true;
+                }
+				
                 grid.startTime = Timer.GetRealTimeSinceStartUp();
                 ProcessEatChanges(grid, false);     //立刻处理一次Grid
             }
@@ -2804,9 +2808,10 @@ public class GameLogic
 		
 		if(m_comboCount > 1                 //从combo2开始
 			&& m_comboCount > m_comboSoundCount         //若combo比声音播放进度快
-			&& Timer.GetRealTimeSinceStartUp() - m_comboSoundPlayTime > 1.0f)       //若到了时间间隔
+			&& Timer.GetRealTimeSinceStartUp() - m_comboSoundPlayTime > 0.3f)       //若到了时间间隔
 		{
 			++m_comboSoundCount;
+            m_comboSoundPlayTime = Timer.GetRealTimeSinceStartUp();
 			if (m_comboSoundCount > 8)
 	        {
 	            PlaySoundNextFrame(AudioEnum.Audio_Combo8);
@@ -2913,11 +2918,12 @@ public class GameLogic
                     PlayingStageData.ClearFlag(pos.x, pos.y, GridFlag.Chocolate);
                     PlayingStageData.ClearFlag(pos.x, pos.y, GridFlag.NotGenerateCap);
                     PlayingStageData.AddFlag(pos.x, pos.y, GridFlag.GenerateCap);
+                    --PlayingStageData.ChocolateCount;
 
                     m_gridBackImage[pos.x, pos.y].layer1.gameObject.SetActive(false);
-					m_scoreToShow[pos.x, pos.y] += CapsConfig.EatChocolate;
                     AddPartile("ChocolateEffect", AudioEnum.Audio_Chocolate, pos.x, pos.y);
 					m_chocolateNeedGrow = false;
+					AddProgress(CapsConfig.EatChocolate, pos.x, pos.y);
                 }
             }
         }
@@ -2935,11 +2941,11 @@ public class GameLogic
                     PlayingStageData.ClearFlag(pos.x, pos.y, GridFlag.Stone);
                     PlayingStageData.ClearFlag(pos.x, pos.y, GridFlag.NotGenerateCap);
                     PlayingStageData.AddFlag(pos.x, pos.y, GridFlag.GenerateCap);
-
+                    --PlayingStageData.StoneCount;
 
                     m_gridBackImage[pos.x, pos.y].layer1.gameObject.SetActive(false);
-					m_scoreToShow[pos.x, pos.y] += CapsConfig.EatStonePoint;
                     AddPartile("StoneEffect", AudioEnum.Audio_Stone, pos.x, pos.y);
+					AddProgress(CapsConfig.EatStonePoint, pos.x, pos.y);
                 }
             }
         }
@@ -3004,13 +3010,23 @@ public class GameLogic
 
         if (delay == 0.0f)
         {
-			grid.bProceeStoneAround = true;
-			grid.bProceeChocolateAround = true;
+            if (PlayingStageData.ChocolateCount > 0)
+            {
+                grid.bProceeChocolateAround = true;
+            }
+            if (PlayingStageData.StoneCount > 0)
+            {
+                grid.bProceeStoneAround = true;
+            }
+			
             ProcessEatChanges(grid, false);     //立刻处理一次Grid
         }
         else
         {
-			grid.bProceeChocolateAround = true;
+            if (PlayingStageData.ChocolateCount > 0)
+            {
+                grid.bProceeChocolateAround = true;
+            }
             m_delayProcessGrid.AddLast(grid); //增加延迟处理的计划
         }
     }
@@ -3819,7 +3835,7 @@ public class GameLogic
 		touchBeginGrid.Set(p.x, p.y);
         if (m_gameFlow != TGameFlow.EGameState_FTUE)
         {
-            SetHighLight(true, touchBeginGrid.x, touchBeginGrid.y);
+            SetHighLight(true, touchBeginGrid.x, touchBeginGrid.y, false, true);
         }
         m_selectedPos[0] = p;
         if (m_selectedPos[0].x == -1) return;
@@ -3838,18 +3854,18 @@ public class GameLogic
         {
             if (m_gameFlow != TGameFlow.EGameState_FTUE)
             {
-                SetHighLight(false, touchBeginGrid.x, touchBeginGrid.y);
+                SetHighLight(false, touchBeginGrid.x, touchBeginGrid.y, false, true);
             }
             touchBeginGrid.MakeItUnAvailable();
         }
     }
 
-    public void SetHighLight(bool bVal, Position p, bool bLightBackground = false)
+    public void SetHighLight(bool bVal, Position p, bool bLightBackground = false, bool bLightBlock = false)
     {
         SetHighLight(bVal, p.x, p.y, bLightBackground);
     }
 
-    public void SetHighLight(bool bVal, int x, int y, bool bLightBackground = false)         //设置某块高亮
+    public void SetHighLight(bool bVal, int x, int y, bool bLightBackground = false, bool bLightBlock = false)         //设置某块高亮
     {
         if (m_blocks[x, y] == null)
         {
@@ -3859,7 +3875,6 @@ public class GameLogic
         {
             if (bLightBackground)
             {
-				Debug.Log("Light Background x = " + x + " y =  " + y);
 				m_blocks[x, y].m_addColorSprite.alpha = 0.0f;
                 m_blocks[x, y].m_blockSprite.depth = 5;
                 if (m_gridBackImage[x, y].layer0 != null)
@@ -3871,17 +3886,20 @@ public class GameLogic
                     m_gridBackImage[x, y].layer1.depth = 6;
                 }
             }
-			else
+            if (bLightBlock)
 			{
-				m_blocks[x, y].m_addColorSprite.alpha = 1.0f;
+                m_blocks[x, y].m_addColorSprite.alpha = 1.0f;
 			}
         }
         else
         {
-            m_blocks[x, y].m_addColorSprite.alpha = 0.0f;
+            if (bLightBlock)
+            {
+                m_blocks[x, y].m_addColorSprite.alpha = 0.0f;
+            }
+
             if (bLightBackground)
             {
-				Debug.Log("UnLight Background x = " + x + " y =  " + y);
                 m_blocks[x, y].m_blockSprite.depth = 2;
                 if (m_gridBackImage[x, y].layer0 != null)
                 {
@@ -4001,7 +4019,7 @@ public class GameLogic
         //取消开始触控点的高亮
         if (touchBeginGrid.IsAvailable())
         {
-            SetHighLight(false, touchBeginGrid.x, touchBeginGrid.y);
+            SetHighLight(false, touchBeginGrid.x, touchBeginGrid.y, false, true);
             touchBeginGrid.MakeItUnAvailable();
         }
 

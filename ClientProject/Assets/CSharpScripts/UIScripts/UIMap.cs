@@ -32,6 +32,7 @@ public class UIMap : UIWindow
     GameObject m_timeNumber;
     NumberDrawer m_minNumber;
     NumberDrawer m_secNumber;
+    NumberDrawer m_coinNumber;
     GameObject m_fullText;
 
     int m_newStageNumber;                       //开启的新关卡的编号
@@ -87,6 +88,16 @@ public class UIMap : UIWindow
         m_fullText = UIToolkits.FindChild(m_heartUI.mUIObject.transform, "HeartFull").gameObject;
         m_minNumber = m_heartUI.GetChildComponent<NumberDrawer>("MinNumber");
         m_secNumber = m_heartUI.GetChildComponent<NumberDrawer>("SecNumber");
+
+        //金币面板
+        m_coinNumber = m_heartUI.GetChildComponent<NumberDrawer>("MoneyNumber");
+        UIButton button = m_heartUI.GetChildComponent<UIButton>("StoreBtn");
+        EventDelegate.Set(button.onClick, delegate()
+        {
+            UIStore storeUI = UIWindowManager.Singleton.GetUIWindow<UIStore>();
+            storeUI.ShowWindow();
+        }
+        );
 
         m_headSprite = GetChildComponent<UISprite>("Head");
         m_cloudSprite = GetChildComponent<UISprite>("Cloud");
@@ -180,6 +191,7 @@ public class UIMap : UIWindow
     {
         base.OnShow();
         m_heartUI.ShowWindow();
+        m_coinNumber.SetNumber((int)Unibiller.GetCurrencyBalance("gold"));
         UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
         if (GlobalVars.HeadStagePos < GlobalVars.AvailabeStageCount)        //若有新开的关卡，先用头像去开启关卡
         {
@@ -209,6 +221,8 @@ public class UIMap : UIWindow
         //显示心数和时间////////////////////////////////////////////////////////////////////////
         UISprite heartNum = m_heartUI.GetChildComponent<UISprite>("HeartNum");
         heartNum.spriteName = "Large_" + GlobalVars.HeartCount;
+
+        m_coinNumber.SetNumber((int)Unibiller.GetCurrencyBalance("gold"));
 		
 		if(GlobalVars.HeartCount < 5)               //若心没满，要显示时间
 		{

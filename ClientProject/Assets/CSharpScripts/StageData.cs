@@ -58,7 +58,8 @@ public class FTUEData
     public string pic;
     public Position from;
     public Position to;
-    public bool bHighLightBackground;
+    public bool bHighLightBackground;               //是否高亮背景
+    public bool bHighLightBlock;                    //是否高亮前景
     public List<Position> highLightPosList;
 }
 
@@ -100,6 +101,9 @@ public class StageData
     public int PlusInitCount = 1;            //初始化数量
     public int PlusStep = 10;            //步数间隔
     public int PlusStartTime = 0;           //开始出现+5的时间
+
+    public int ChocolateCount = 0;
+    public int StoneCount = 0;
 
     public int[]    StarScore = new int[3];          //获得星星的分数
     public int [, ] GridData = new int[GameLogic.BlockCountX, GameLogic.BlockCountY];                        //关卡初始地块数据
@@ -239,6 +243,14 @@ public class StageData
             for (int j = 0; j < GameLogic.BlockCountY; ++j )
             {
                 int number = (int)System.Convert.ChangeType(gridDataTokens[j * GameLogic.BlockCountX + i], typeof(int));
+                if ((number & (int)GridFlag.Chocolate) > 0)
+                {
+                    ++ChocolateCount;
+                }
+                if ((number & (int)GridFlag.Stone) > 0)
+                {
+                    ++StoneCount;
+                }
                 GridData[i, j] = number;
             }
         }
@@ -365,11 +377,22 @@ public class StageData
 
                     if (values.Length > 7)
                     {
+                        if (System.Convert.ToInt32(values[7]) == 1)
+                        {
+                            data.bHighLightBackground = true;
+                            data.bHighLightBlock = false;
+                        }
+                        else if (System.Convert.ToInt32(values[7]) == 2)
+                        {
+                            data.bHighLightBackground = true;
+                            data.bHighLightBlock = true;
+                        }
                         data.bHighLightBackground = (System.Convert.ToInt32(values[7]) > 0);
                     }
                     else
                     {
                         data.bHighLightBackground = false;
+                        data.bHighLightBlock = true;
                     }
 
                     curFTUEGroup.Add(data);                               //添加对话数据

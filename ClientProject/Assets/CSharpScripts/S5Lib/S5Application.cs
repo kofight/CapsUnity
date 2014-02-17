@@ -71,6 +71,10 @@ public class S5Application
         {
             Debug.LogError(result.ToString());
         }
+        else
+        {
+            Debug.Log(result.ToString());
+        }
     }
 
     bool backKeyPress = false;

@@ -1,5 +1,5 @@
 {
-  "iOSSKU": "102",
+  "iOSSKU": "JellyCraft.firsttest",
   "androidBillingPlatform": "GooglePlay",
   "GooglePlayPublicKey": "[Your key]",
   "useAmazonSandbox": false,
@@ -21,8 +21,9 @@
         },
         "AmazonAppstore": {},
         "AppleAppStore": {
-          "AppleAppStore.Id": "com.outlinegames.100goldcoins.5",
-          "appleAppStorePriceTier": "33"
+          "AppleAppStore.Id": "com.linkr.jellycraft.140coins",
+          "appleAppStorePriceTier": 1,
+          "screenshotPath": ""
         },
         "MacAppStore": {
           "MacAppStore.Id": "com.outlinegames.100goldcoinsosx"
@@ -46,7 +47,8 @@
         },
         "AmazonAppstore": {},
         "AppleAppStore": {
-          "appleAppStorePriceTier": "1"
+          "appleAppStorePriceTier": 1,
+          "screenshotPath": ""
         },
         "MacAppStore": {},
         "WindowsPhone8": {},

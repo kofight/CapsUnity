@@ -1,6 +1,6 @@
 SKU	Product ID	Reference Name	Type	Cleared For Sale	Wholesale Price Tier	Displayed Name	Description	Screenshot Path
 102	com.outlinegames.100goldcoins.5	com.outlinegames.100goldcoins.5	Consumable	yes	33	140 Gold Coins	140 Gold Coins	
-102	com.linkrstudio.jellycraft.800goldcoins	com.linkrstudio.jellycraft.800goldcoins	Consumable	yes	1	800 Gold coins	800 Gold coins	
-102	com.linkrstudio.jellycraft.1700goldcoins	com.linkrstudio.jellycraft.1700goldcoins	Consumable	yes	1	1700 Gold coins	1700 Gold coins	
-102	com.linkrstudio.jellycraft.4500goldcoins	com.linkrstudio.jellycraft.4500goldcoins	Consumable	yes	1	4500 Gold coins	4500 Gold coins	
-102	com.linkrstudio.jellycraft.9500goldcoins	com.linkrstudio.jellycraft.9500goldcoins	Consumable	yes		9500 Gold coins	9500 Gold coins	
+102	com.linkrstudio.jellycraft.800coins	com.linkrstudio.jellycraft.800coins	Consumable	yes	1	800 Gold coins	800 Gold coins	
+102	com.linkrstudio.jellycraft.1700coins	com.linkrstudio.jellycraft.1700coins	Consumable	yes	1	1700 Gold coins	1700 Gold coins	
+102	com.linkrstudio.jellycraft.4500coins	com.linkrstudio.jellycraft.4500coins	Consumable	yes	1	4500 Gold coins	4500 Gold coins	
+102	com.linkrstudio.jellycraft.9500coins	com.linkrstudio.jellycraft.9500coins	Consumable	yes		9500 Gold coins	9500 Gold coins	

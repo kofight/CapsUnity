@@ -8,8 +8,8 @@
   "hostedConfigUrl": null,
   "UseWin8_1Sandbox": true,
   "purchasableItems": {
-    "com.linkrstudio.jellycraft.140goldcoins": {
-      "@id": "com.linkrstudio.jellycraft.140goldcoins",
+    "com.linkrstudio.jellycraft.140coins": {
+      "@id": "com.linkrstudio.jellycraft.140coins",
       "@purchaseType": "Consumable",
       "name": "140 Gold Coins",
       "description": "140 Gold Coins",
@@ -34,8 +34,8 @@
         "UnityEditor": {}
       }
     },
-    "com.linkrstudio.jellycraft.800goldcoins": {
-      "@id": "com.linkrstudio.jellycraft.800goldcoins",
+    "com.linkrstudio.jellycraft.800coins": {
+      "@id": "com.linkrstudio.jellycraft.800coins",
       "@purchaseType": "Consumable",
       "name": "800 Gold coins",
       "description": "800 Gold coins",
@@ -54,8 +54,8 @@
         "UnityEditor": {}
       }
     },
-    "com.linkrstudio.jellycraft.1700goldcoins": {
-      "@id": "com.linkrstudio.jellycraft.1700goldcoins",
+    "com.linkrstudio.jellycraft.1700coins": {
+      "@id": "com.linkrstudio.jellycraft.1700coins",
       "@purchaseType": "Consumable",
       "name": "1700 Gold coins",
       "description": "1700 Gold coins",
@@ -74,8 +74,8 @@
         "UnityEditor": {}
       }
     },
-    "com.linkrstudio.jellycraft.4500goldcoins": {
-      "@id": "com.linkrstudio.jellycraft.4500goldcoins",
+    "com.linkrstudio.jellycraft.4500coins": {
+      "@id": "com.linkrstudio.jellycraft.4500coins",
       "@purchaseType": "Consumable",
       "name": "4500 Gold coins",
       "description": "4500 Gold coins",
@@ -94,8 +94,8 @@
         "UnityEditor": {}
       }
     },
-    "com.linkrstudio.jellycraft.9500goldcoins": {
-      "@id": "com.linkrstudio.jellycraft.9500goldcoins",
+    "com.linkrstudio.jellycraft.9500coins": {
+      "@id": "com.linkrstudio.jellycraft.9500coins",
       "@purchaseType": "Consumable",
       "name": "9500 Gold coins",
       "description": "9500 Gold coins",
@@ -155,7 +155,12 @@
       "com.linkrstudio.jellycraft.800goldcoins": 800.0,
       "com.linkrstudio.jellycraft.1700goldcoins": 1700.0,
       "com.linkrstudio.jellycraft.4500goldcoins": 4500.0,
-      "com.linkrstudio.jellycraft.9500goldcoins": 9500.0
+      "com.linkrstudio.jellycraft.9500goldcoins": 9500.0,
+      "com.linkrstudio.jellycraft.140coins": 140.0,
+      "com.linkrstudio.jellycraft.800coins": 800.0,
+      "com.linkrstudio.jellycraft.1700coins": 1700.0,
+      "com.linkrstudio.jellycraft.4500coins": 4500.0,
+      "com.linkrstudio.jellycraft.9500coins": 9500.0
     }
   }
 }

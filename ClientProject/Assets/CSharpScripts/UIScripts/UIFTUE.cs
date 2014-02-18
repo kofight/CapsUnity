@@ -40,7 +40,7 @@ public class UIFTUE : UIWindow
 		
 		foreach (Position highLightPos in m_ftueData[m_FTUEIndex].highLightPosList)
 		{
-			GameLogic.Singleton.SetHighLight(false, highLightPos, m_ftueData[m_FTUEIndex].bHighLightBackground);
+            GameLogic.Singleton.SetHighLight(false, highLightPos, m_ftueData[m_FTUEIndex].bHighLightBackground, m_ftueData[m_FTUEIndex].bHighLightBlock);
 		}
 		
 		m_pointer.SetActive(false);
@@ -83,7 +83,7 @@ public class UIFTUE : UIWindow
                 }
                 foreach (Position highLightPos in m_ftueData[m_FTUEIndex].highLightPosList)
                 {
-                    GameLogic.Singleton.SetHighLight(true, highLightPos, m_ftueData[m_FTUEIndex].bHighLightBackground);
+                    GameLogic.Singleton.SetHighLight(true, highLightPos, m_ftueData[m_FTUEIndex].bHighLightBackground, m_ftueData[m_FTUEIndex].bHighLightBlock);
                 }
             });
         }

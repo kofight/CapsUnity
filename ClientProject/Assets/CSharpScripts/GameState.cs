@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System;
@@ -20,7 +20,7 @@ public class GameState : State
 			UIWindowManager.Singleton.CreateWindow<UIWindow>("UIGameBackground", UIWindowManager.Anchor.Center);
 			UIWindowManager.Singleton.CreateWindow<UIGameEnd>();
 			UIWindowManager.Singleton.CreateWindow<UIRetry>();
-			UIWindowManager.Singleton.CreateWindow<UIPurchase>();
+			UIWindowManager.Singleton.CreateWindow<UIPurchaseNoTarget>();
 			UIWindowManager.Singleton.CreateWindow<UIUseItem>();
         }
 
@@ -93,9 +93,9 @@ public class GameState : State
             return;
         }
 
-        if (UIWindowManager.Singleton.GetUIWindow<UIPurchase>().Visible)
+        if (UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>().Visible)
         {
-            UIWindowManager.Singleton.GetUIWindow<UIPurchase>().OnCancelClicked();
+            UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>().OnCancelClicked();
             return;
         }
 

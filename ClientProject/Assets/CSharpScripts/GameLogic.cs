@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -1494,9 +1494,9 @@ public class GameLogic
             return;
         }
 
-        if (UIWindowManager.Singleton.GetUIWindow<UIPurchase>().Visible)
+        if (UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>().Visible)
         {
-            UIWindowManager.Singleton.GetUIWindow<UIPurchase>().OnCancelClicked();
+            UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>().OnCancelClicked();
             return;
         }
 
@@ -1856,7 +1856,7 @@ public class GameLogic
                         break;
                     }
                 }
-                else if (PlayingStageData.CheckFlag(i, j, GridFlag.Birth))      //若出生点为空
+                else if (PlayingStageData.CheckFlag(i, j, GridFlag.Birth) && PlayingStageData.CheckFlag(i, j, GridFlag.GenerateCap))      //若出生点为空
                 {
                     m_slopeDropLock[i] = j;     //锁住出生点以下
                     break;
@@ -3860,12 +3860,12 @@ public class GameLogic
         }
     }
 
-    public void SetHighLight(bool bVal, Position p, bool bLightBackground = false, bool bLightBlock = false)
+    public void SetHighLight(bool bVal, Position p, bool bLightBackground = false, bool bLightBlock = true)
     {
-        SetHighLight(bVal, p.x, p.y, bLightBackground);
+        SetHighLight(bVal, p.x, p.y, bLightBackground, bLightBlock);
     }
 
-    public void SetHighLight(bool bVal, int x, int y, bool bLightBackground = false, bool bLightBlock = false)         //设置某块高亮
+    public void SetHighLight(bool bVal, int x, int y, bool bLightBackground = false, bool bLightBlock = true)         //设置某块高亮
     {
         if (m_blocks[x, y] == null)
         {

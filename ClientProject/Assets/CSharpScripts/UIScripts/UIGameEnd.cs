@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class UIGameEnd : UIWindow 
@@ -141,16 +141,16 @@ public class UIGameEnd : UIWindow
             if (GlobalVars.Coins > 0)
             {
                 HideWindow();
-                UIWindowManager.Singleton.GetUIWindow<UIPurchase>().ShowWindow();
+                UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>().ShowWindow();
                 if (GlobalVars.CurStageData.StepLimit > 0)
                 {
-                    UIWindowManager.Singleton.GetUIWindow<UIPurchase>().SetString(string.Format("You have {0} coins now,\nit will take you 1 coin to get extra 5 step,\nAre you sure about the purchasing?", GlobalVars.Coins));
+                    UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>().SetString(string.Format("You have {0} coins now,\nit will take you 1 coin to get extra 5 step,\nAre you sure about the purchasing?", GlobalVars.Coins));
                 }
                 else if (GlobalVars.CurStageData.TimeLimit > 0)
                 {
-                    UIWindowManager.Singleton.GetUIWindow<UIPurchase>().SetString(string.Format("You have {0} coins now,\nit will take you 1 coin to get extra 15 seconds,\nAre you sure about the purchasing?", GlobalVars.Coins));
+                    UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>().SetString(string.Format("You have {0} coins now,\nit will take you 1 coin to get extra 15 seconds,\nAre you sure about the purchasing?", GlobalVars.Coins));
                 }
-                UIWindowManager.Singleton.GetUIWindow<UIPurchase>().OnPurchase = delegate()
+                UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>().OnPurchase = delegate()
                 {
                     --GlobalVars.Coins;
                     PlayerPrefs.SetInt("Coins", GlobalVars.Coins);

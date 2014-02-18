@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class UIGameHead : UIWindow
@@ -125,7 +125,7 @@ public class UIGameHead : UIWindow
 
         if (GlobalVars.PurchasedItemArray[(int)item] == 0)
         {
-            UIPurchase purchaseWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchase>();
+            UIPurchaseNoTarget purchaseWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>();
             purchaseWindow.ShowWindow();
             purchaseWindow.SetString("Are you sure about using the item?");
             purchaseWindow.OnPurchase = delegate()

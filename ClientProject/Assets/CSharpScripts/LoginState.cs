@@ -41,6 +41,8 @@ public class LoginState : State
             UIWindowManager.Singleton.CreateWindow<UIWindow>("UILoading", UIWindowManager.Anchor.Center);
             UIWindowManager.Singleton.CreateWindow<UIDialog>(UIWindowManager.Anchor.Bottom);
             UIWindowManager.Singleton.CreateWindow<UIStore>();
+            UIWindowManager.Singleton.CreateWindow<UIWait>();
+            UIWindowManager.Singleton.CreateWindow<UIMessageBox>();
             UIWindowManager.Singleton.GetUIWindow<UIMap>().RefreshButtons();
         }
         
@@ -62,6 +64,17 @@ public class LoginState : State
         base.OnBackKey();
         if (CurFlow == TLoginFlow.LoginFlow_Map)
         {
+            if (UIWindowManager.Singleton.GetUIWindow<UIWait>().Visible)
+            {
+                return;
+            }
+
+            if (UIWindowManager.Singleton.GetUIWindow<UIStore>().Visible)
+            {
+                UIWindowManager.Singleton.GetUIWindow<UIStore>().HideWindow();
+                return;
+            }
+
 			if (UIWindowManager.Singleton.GetUIWindow<UINoMoreHearts>().Visible)
 	        {
 	            UIWindowManager.Singleton.GetUIWindow<UINoMoreHearts>().Close();

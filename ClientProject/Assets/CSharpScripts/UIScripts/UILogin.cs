@@ -18,6 +18,7 @@ public class UILogin : UIWindow
         AddChildComponentMouseClick("ClearBtn", delegate()
         {
             PlayerPrefs.DeleteAll();            //删除进度
+            Unibiller.DebitBalance("gold", Unibiller.GetCurrencyBalance("gold"));
         });
 
         AddChildComponentMouseClick("RecoverHeartBtn", delegate()

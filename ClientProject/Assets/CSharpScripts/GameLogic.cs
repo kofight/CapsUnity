@@ -1170,6 +1170,21 @@ public class GameLogic
         //    UIDrawer.Singleton.DrawText("lock" + i, GetXPos(i) - 30, GetYPos(i, m_slopeDropLock[i]) - 30, m_slopeDropLock[i].ToString());
         //}
 
+        if (GlobalVars.DeveloperMode)
+        {
+            for (int i = 0; i < BlockCountX; i++)
+            {
+                for (int j = 0; j < BlockCountY; j++)
+                {
+                    if (m_blocks[i, j] != null)
+                    {
+                        UIDrawer.Singleton.DrawText(i.ToString() + ", " + j.ToString(), GetXPos(i) - 30, GetYPos(i, j) - 30, i.ToString() + ", " + j.ToString());
+                    }
+                }
+            }
+        }
+        
+
         //根据数据绘制Sprite
         for (int i = 0; i < BlockCountX; i++)
         {

@@ -144,11 +144,11 @@ public class UIGameEnd : UIWindow
                 UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>().ShowWindow();
                 if (GlobalVars.CurStageData.StepLimit > 0)
                 {
-                    UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>().SetString(string.Format("You have {0} coins now,\nit will take you 1 coin to get extra 5 step,\nAre you sure about the purchasing?", GlobalVars.Coins));
+                    //UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>().SetString(string.Format("You have {0} coins now,\nit will take you 1 coin to get extra 5 step,\nAre you sure about the purchasing?", GlobalVars.Coins));
                 }
                 else if (GlobalVars.CurStageData.TimeLimit > 0)
                 {
-                    UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>().SetString(string.Format("You have {0} coins now,\nit will take you 1 coin to get extra 15 seconds,\nAre you sure about the purchasing?", GlobalVars.Coins));
+                    //UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>().SetString(string.Format("You have {0} coins now,\nit will take you 1 coin to get extra 15 seconds,\nAre you sure about the purchasing?", GlobalVars.Coins));
                 }
                 UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>().OnPurchase = delegate()
                 {

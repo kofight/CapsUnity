@@ -123,50 +123,82 @@ public class UIGameHead : UIWindow
             return;
         }
 
-        if (GlobalVars.PurchasedItemArray[(int)item] == 0)
+        GlobalVars.UsingItem = item;
+
+        //先判断是否够钱
+        if (item == PurchasedItem.Item_Hammer)
         {
-            UIPurchaseNoTarget purchaseWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>();
-            purchaseWindow.ShowWindow();
-            purchaseWindow.SetString("Are you sure about using the item?");
-            purchaseWindow.OnPurchase = delegate()
+            if (Unibiller.GetCurrencyBalance("gold") < 6)       //若钱不够，购买窗口
             {
-                if (item == PurchasedItem.Item_PlusStep)
-                {
-                    if (GlobalVars.Coins > 0)
-                    {
-                        --GlobalVars.Coins;
-                        GA.API.Business.NewEvent("BuyStep", "RMB", 1);
-                        PlayerPrefs.SetInt("Coins", GlobalVars.Coins);
-						if(GlobalVars.CurStageData.StepLimit > 0)
-                        	GameLogic.Singleton.PlayingStageData.StepLimit += 5;        //步数加5
-						else if(GlobalVars.CurStageData.TimeLimit > 0)
-							GameLogic.Singleton.AddGameTime(15);        //Add 15 Seconds
-                    }
-                }
-                else if (item == PurchasedItem.Item_Hammer)
-                {
-                    GameLogic.Singleton.UsingItem = item;                       //进入使用道具状态，等着选目标
-                }
-            };
-            return;
+                UIWindow uiWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>();
+                uiWindow.ShowWindow();
+            }
+            else //若钱够，弹使用道具窗口
+            {
+                UIWindow uiWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseTarget>();
+                uiWindow.ShowWindow();
+            }
         }
 
-        UIUseItem useItemWindow = UIWindowManager.Singleton.GetUIWindow<UIUseItem>();
-        useItemWindow.ShowWindow();
-        useItemWindow.OnUse = delegate()
+        if (item == PurchasedItem.Item_PlusStep)
         {
-            if (item == PurchasedItem.Item_Hammer)
+            if (Unibiller.GetCurrencyBalance("gold") < 6)       //若钱不够，购买窗口
             {
-                GameLogic.Singleton.UsingItem = item;
+                UIWindow uiWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>();
+                uiWindow.ShowWindow();
             }
-            else if (item == PurchasedItem.Item_PlusStep)
+            else //若钱够，弹使用道具窗口
             {
-                GameLogic.Singleton.PlayingStageData.StepLimit += 5;        //步数加5
-                --GlobalVars.PurchasedItemArray[(int)item];                     //减少道具数量
-                RefreshItemCount();
-                PlayerPrefsExtend.SetIntArray("PurchasedItemArray", GlobalVars.PurchasedItemArray);
+                UIWindow uiWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>();
+                uiWindow.ShowWindow();
             }
-        };
+        }
+
+        ////若没有存货
+        //if (GlobalVars.PurchasedItemArray[(int)item] == 0)
+        //{
+        //    UIPurchaseNoTarget purchaseWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>();
+        //    purchaseWindow.ShowWindow();
+        //    //purchaseWindow.SetString("Are you sure about using the item?");
+        //    purchaseWindow.OnPurchase = delegate()
+        //    {
+        //        if (item == PurchasedItem.Item_PlusStep)
+        //        {
+        //            if (GlobalVars.Coins > 0)
+        //            {
+        //                --GlobalVars.Coins;
+        //                GA.API.Business.NewEvent("BuyStep", "RMB", 1);
+        //                PlayerPrefs.SetInt("Coins", GlobalVars.Coins);
+        //                if(GlobalVars.CurStageData.StepLimit > 0)
+        //                    GameLogic.Singleton.PlayingStageData.StepLimit += 5;        //步数加5
+        //                else if(GlobalVars.CurStageData.TimeLimit > 0)
+        //                    GameLogic.Singleton.AddGameTime(15);        //Add 15 Seconds
+        //            }
+        //        }
+        //        else if (item == PurchasedItem.Item_Hammer)
+        //        {
+        //            GameLogic.Singleton.UsingItem = item;                       //进入使用道具状态，等着选目标
+        //        }
+        //    };
+        //    return;
+        //}
+
+        //UIUseItem useItemWindow = UIWindowManager.Singleton.GetUIWindow<UIUseItem>();
+        //useItemWindow.ShowWindow();
+        //useItemWindow.OnUse = delegate()
+        //{
+        //    if (item == PurchasedItem.Item_Hammer)
+        //    {
+        //        GameLogic.Singleton.UsingItem = item;
+        //    }
+        //    else if (item == PurchasedItem.Item_PlusStep)
+        //    {
+        //        GameLogic.Singleton.PlayingStageData.StepLimit += 5;        //步数加5
+        //        --GlobalVars.PurchasedItemArray[(int)item];                     //减少道具数量
+        //        RefreshItemCount();
+        //        PlayerPrefsExtend.SetIntArray("PurchasedItemArray", GlobalVars.PurchasedItemArray);
+        //    }
+        //};
 	}
 
     public void RefreshItemCount()

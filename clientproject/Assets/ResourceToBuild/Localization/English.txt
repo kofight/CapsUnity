@@ -38,3 +38,6 @@ PleaseWait = Please wait
 PurchaseSucceed = Purchase succeed
 PurchaseFailed = Purchase failed
 PurchaseCancelled = Purchase cancelled
+EnterShop = Enter shop
+Intro_Hammer = Knock one block
+Intro_StepPlus5 = Add 5 extra step

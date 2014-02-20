@@ -3046,7 +3046,7 @@ public class GameLogic
         }
     }
 
-    void EatBlock(Position position, string eatEffectName, float delay = 0)                   //吃掉块，通过EatLine或特殊道具功能被调用，会触发被吃的块的功能
+    public void EatBlock(Position position, string eatEffectName, float delay = 0)                   //吃掉块，通过EatLine或特殊道具功能被调用，会触发被吃的块的功能
     {
         if (position.x >= BlockCountX || position.y >= BlockCountY || position.x < 0 || position.y < 0)
             return;
@@ -3641,38 +3641,12 @@ public class GameLogic
 
         
 
-        if (UsingItem == PurchasedItem.Item_Hammer)     //若正在使用锤子道具
+        if (GlobalVars.UsingItem == PurchasedItem.Item_Hammer)     //若正在使用锤子道具
         {
-			if(m_blocks[p.x, p.y] == null)
+			if(m_blocks[p.x, p.y] != null)
 			{
-				UsingItem = PurchasedItem.None;
-				return;
+                GlobalVars.UsingItemTarget = p;
 			}
-            if (GlobalVars.PurchasedItemArray[(int)UsingItem] > 0)      //若有道具，扣道具
-            {
-                --GlobalVars.PurchasedItemArray[(int)UsingItem];
-                UIWindowManager.Singleton.GetUIWindow<UIGameHead>().RefreshItemCount();
-                PlayerPrefsExtend.SetIntArray("PurchasedItemArray", GlobalVars.PurchasedItemArray);
-            }
-            else                                                        //没道具，扣钱
-            {
-                if (GlobalVars.Coins > 0)
-                {
-                    --GlobalVars.Coins;
-                    PlayerPrefs.SetInt("Coins", GlobalVars.Coins);
-
-                    GA.API.Business.NewEvent("BuyHammer", "RMB", 1);
-                }
-                else
-                {
-                    UsingItem = PurchasedItem.None;
-                    return;
-                }
-            }
-            
-            UsingItem = PurchasedItem.None;
-
-            EatBlock(p, CapsConfig.EatEffect);                  //使用锤子
         }
 
         if (GlobalVars.EditState == TEditState.ChangeColor)

@@ -2,7 +2,7 @@
 using System.Collections;
 using System;
 
-public class UIPurchaseNoTarget : UIWindow 
+public class UIPurchaseTarget : UIWindow 
 {
 	UILabel m_msgLabel;
 	UILabel m_costLabel;
@@ -22,15 +22,11 @@ public class UIPurchaseNoTarget : UIWindow
     {
         base.OnShow();
         GameLogic.Singleton.PauseGame();
-		if(GlobalVars.UsingItem == PurchasedItem.Item_Hammer)
-		{
-			
-		}
-		
-		if(GlobalVars.UsingItem == PurchasedItem.Item_PlusStep)
-		{
-			
-		}
+    }
+
+    public void SetString(string str)
+    {
+        m_msgLabel.text = str;
     }
 
     private void OnConfirmClicked()

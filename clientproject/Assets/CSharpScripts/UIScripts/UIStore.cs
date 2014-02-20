@@ -70,11 +70,26 @@ public class UIStore : UIWindow
         Debug.Log("Purchase Succeed");
         UIWindowManager.Singleton.GetUIWindow<UIWait>().HideWindow();
         UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().ShowWindow();
+        UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(delegate()        //设置完成后执行的函数
+        {
+            //打开使用窗口
+            if (GlobalVars.UsingItem == PurchasedItem.Item_Hammer)
+            {
+                UIWindow uiWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseTarget>();
+                uiWindow.ShowWindow();
+            }
+            if (GlobalVars.UsingItem == PurchasedItem.Item_PlusStep)
+            {
+                UIWindow uiWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>();
+                uiWindow.ShowWindow();
+            }
+        });
         UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetString(Localization.instance.Get("PurchaseSucceed"));
     }
 
     void OnPurchaseFailed(PurchasableItem item)     //购买失败
     {
+        GlobalVars.UsingItem = PurchasedItem.None;
         Debug.Log("Purchase Failed");
         UIWindowManager.Singleton.GetUIWindow<UIWait>().HideWindow();
         UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().ShowWindow();
@@ -83,6 +98,7 @@ public class UIStore : UIWindow
 
     void OnPurchaseCancelled(PurchasableItem item)      //主动取消购买
     {
+        GlobalVars.UsingItem = PurchasedItem.None;
         Debug.Log("Purchase Cancelled");
         UIWindowManager.Singleton.GetUIWindow<UIWait>().HideWindow();
         UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().ShowWindow();
@@ -92,5 +108,16 @@ public class UIStore : UIWindow
     public override void OnShow()
     {
         base.OnShow();
+        Unibiller.onPurchaseComplete += OnPurchased;
+        Unibiller.onPurchaseFailed += OnPurchaseFailed;
+        Unibiller.onPurchaseCancelled += OnPurchaseCancelled;
+    }
+
+    public override void OnHide()
+    {
+        base.OnHide();
+        Unibiller.onPurchaseComplete -= OnPurchased;
+        Unibiller.onPurchaseFailed -= OnPurchaseFailed;
+        Unibiller.onPurchaseCancelled -= OnPurchaseCancelled;
     }
 }

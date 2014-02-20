@@ -33,6 +33,8 @@ public class GlobalVars {
 	
     public static int HeartCount = 5;                   //爱心数量
     public static System.DateTime GetHeartTime;         //获得爱心的时间
+	
+	public static PurchasedItem UsingItem;				
 
     public static void AddHeart(int count)
     {

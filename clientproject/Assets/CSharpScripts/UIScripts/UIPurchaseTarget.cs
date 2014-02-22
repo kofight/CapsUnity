@@ -21,7 +21,6 @@ public class UIPurchaseTarget : UIWindow
     public override void OnShow()
     {
         base.OnShow();
-        GameLogic.Singleton.PauseGame();
     }
 
     public void SetString(string str)
@@ -33,16 +32,19 @@ public class UIPurchaseTarget : UIWindow
     {
         HideWindow(delegate()
         {
-            GameLogic.Singleton.ResumeGame();
+            if (Unibiller.DebitBalance("gold", 6))
+            {
+               	GA.API.Business.NewEvent("BuyHammer", "RMB", 1);
+				GameLogic.Singleton.EatBlock(GlobalVars.UsingItemTarget, CapsConfig.EatEffect);                  //使用锤子
+            }
         });
-		OnPurchase();
     }
 
     public void OnCancelClicked()
     {
         HideWindow(delegate()
         {
-            GameLogic.Singleton.ResumeGame();
+            
         });
         if (GameLogic.Singleton.GetGameFlow() == TGameFlow.EGameState_End)
         {

@@ -36,7 +36,6 @@ public class UIGameHead : UIWindow
     public override void OnShow()
     {
         base.OnShow();
-        RefreshItemCount();
         if (GlobalVars.CurStageData.Target == GameTarget.BringFruitDown)
         {
             m_fruitBoard.SetActive(true);
@@ -124,7 +123,19 @@ public class UIGameHead : UIWindow
         }
 
         GlobalVars.UsingItem = item;
-
+		for (int i = 0; i < GameLogic.BlockCountX; ++i)
+        {
+            for (int j = 0; j < GameLogic.BlockCountY; ++j)
+			{
+				CapBlock pBlock = GameLogic.Singleton.GetBlock(new Position(i, j));
+				if(pBlock != null)
+				{
+					GlobalVars.UsingItemTarget = new Position(i, j);
+				}
+				break;
+			}
+		}
+		
         //先判断是否够钱
         if (item == PurchasedItem.Item_Hammer)
         {
@@ -153,69 +164,7 @@ public class UIGameHead : UIWindow
                 uiWindow.ShowWindow();
             }
         }
-
-        ////若没有存货
-        //if (GlobalVars.PurchasedItemArray[(int)item] == 0)
-        //{
-        //    UIPurchaseNoTarget purchaseWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>();
-        //    purchaseWindow.ShowWindow();
-        //    //purchaseWindow.SetString("Are you sure about using the item?");
-        //    purchaseWindow.OnPurchase = delegate()
-        //    {
-        //        if (item == PurchasedItem.Item_PlusStep)
-        //        {
-        //            if (GlobalVars.Coins > 0)
-        //            {
-        //                --GlobalVars.Coins;
-        //                GA.API.Business.NewEvent("BuyStep", "RMB", 1);
-        //                PlayerPrefs.SetInt("Coins", GlobalVars.Coins);
-        //                if(GlobalVars.CurStageData.StepLimit > 0)
-        //                    GameLogic.Singleton.PlayingStageData.StepLimit += 5;        //步数加5
-        //                else if(GlobalVars.CurStageData.TimeLimit > 0)
-        //                    GameLogic.Singleton.AddGameTime(15);        //Add 15 Seconds
-        //            }
-        //        }
-        //        else if (item == PurchasedItem.Item_Hammer)
-        //        {
-        //            GameLogic.Singleton.UsingItem = item;                       //进入使用道具状态，等着选目标
-        //        }
-        //    };
-        //    return;
-        //}
-
-        //UIUseItem useItemWindow = UIWindowManager.Singleton.GetUIWindow<UIUseItem>();
-        //useItemWindow.ShowWindow();
-        //useItemWindow.OnUse = delegate()
-        //{
-        //    if (item == PurchasedItem.Item_Hammer)
-        //    {
-        //        GameLogic.Singleton.UsingItem = item;
-        //    }
-        //    else if (item == PurchasedItem.Item_PlusStep)
-        //    {
-        //        GameLogic.Singleton.PlayingStageData.StepLimit += 5;        //步数加5
-        //        --GlobalVars.PurchasedItemArray[(int)item];                     //减少道具数量
-        //        RefreshItemCount();
-        //        PlayerPrefsExtend.SetIntArray("PurchasedItemArray", GlobalVars.PurchasedItemArray);
-        //    }
-        //};
 	}
-
-    public void RefreshItemCount()
-    {
-        for (int i = 0; i < 2; ++i)
-        {
-            if (GlobalVars.PurchasedItemArray[i] == 0)
-            {
-                m_itemUILabel[i].gameObject.SetActive(false);
-            }
-            else
-            {
-                m_itemUILabel[i].gameObject.SetActive(true);
-                m_itemUILabel[i].text = GlobalVars.PurchasedItemArray[i].ToString();
-            }
-        }
-    }
 
     private void OnEditStageClicked()
     {

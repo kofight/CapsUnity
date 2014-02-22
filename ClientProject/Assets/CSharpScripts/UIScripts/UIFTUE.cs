@@ -62,7 +62,7 @@ public class UIFTUE : UIWindow
 
     public bool ShowFTUE(int step)
     {
-		if(step <= m_curStep)
+		if(step < m_curStep)
 		{
 			return false;
 		}

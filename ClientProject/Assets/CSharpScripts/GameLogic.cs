@@ -3551,6 +3551,7 @@ public class GameLogic
 						m_gridBackImage[newPos.x, newPos.y].layer1.gameObject.SetActive(true);
                         Animation anim = m_gridBackImage[newPos.x, newPos.y].layer1.gameObject.GetComponent<Animation>();
                         anim.Play();
+						++PlayingStageData.ChocolateCount;
                         return;
                     }
                 }

@@ -19,23 +19,18 @@ public class UIPurchaseNoTarget : UIWindow
     {
         base.OnShow();
         //GameLogic.Singleton.PauseGame();
-		if(GlobalVars.UsingItem == PurchasedItem.Item_PlusStep)
-		{
-            m_msgLabel.text = Localization.instance.Get("Use_AddStep");
-            m_costLabel.text = "70";
-        }
-        if (GlobalVars.UsingItem == PurchasedItem.Item_PlusTime)
-        {
-            m_msgLabel.text = Localization.instance.Get("Use_AddTime");
-            m_costLabel.text = "70";
-        }
+        
+        //获取道具信息
+        m_msgLabel.text = Localization.instance.Get("Use_" + GlobalVars.UsingItem.ToString());
+        m_costLabel.text = CapsConfig.GetItemPrice(GlobalVars.UsingItem).ToString();
+
         UIGameHead gamehead = UIWindowManager.Singleton.GetUIWindow<UIGameHead>();
         gamehead.ShowCoin(true);
     }
 
-    public override void OnHide()
+    public override void OnHideEffectPlayOver()
     {
-        base.OnHide();
+        base.OnHideEffectPlayOver();
         UIGameHead gamehead = UIWindowManager.Singleton.GetUIWindow<UIGameHead>();
         gamehead.ShowCoin(false);
     }
@@ -46,31 +41,25 @@ public class UIPurchaseNoTarget : UIWindow
         {
             //GameLogic.Singleton.ResumeGame();
 
-            if (GlobalVars.UsingItem == PurchasedItem.Item_PlusStep)
+            if (Unibiller.DebitBalance("gold", CapsConfig.GetItemPrice(GlobalVars.UsingItem)))      //花钱
             {
-                if (Unibiller.DebitBalance("gold", 70))      //花钱
+                GA.API.Business.NewEvent(GlobalVars.UsingItem.ToString(), "Coins", CapsConfig.GetItemPrice(GlobalVars.UsingItem));
+                if (GlobalVars.UsingItem == PurchasedItem.ItemAfterGame_PlusStep)
                 {
-                    GA.API.Business.NewEvent("BuyStep", "Coins", 70);
                     GameLogic.Singleton.PlayingStageData.StepLimit += 5;        //步数加5
                     GameLogic.Singleton.SetGameFlow(TGameFlow.EGameState_Playing);      //回到可以继续玩的状态
                     GameLogic.Singleton.ResumeGame();
                 }
-            }
-            if (GlobalVars.UsingItem == PurchasedItem.Item_PlusTime)
-            {
-                if (Unibiller.DebitBalance("gold", 70))      //花钱
+                if (GlobalVars.UsingItem == PurchasedItem.ItemAfterGame_PlusTime)
                 {
-                    GA.API.Business.NewEvent("BuyTime", "Coins", 70);
-                    if (GameLogic.Singleton.GetGameFlow() == TGameFlow.EGameState_End)
-                    {
-                        GameLogic.Singleton.SetGameTime(15);        //Add 15 Seconds
-                        GameLogic.Singleton.SetGameFlow(TGameFlow.EGameState_Playing);      //回到可以继续玩的状态
-                        GameLogic.Singleton.ResumeGame();
-                    }
-                    else
-                    {
-                        GameLogic.Singleton.AddGameTime(15);        //Add 15 Seconds
-                    }
+                    GameLogic.Singleton.SetGameTime(15);        //Add 15 Seconds
+                    GameLogic.Singleton.SetGameFlow(TGameFlow.EGameState_Playing);      //回到可以继续玩的状态
+                    GameLogic.Singleton.ResumeGame();
+                }
+                
+                if (GlobalVars.UsingItem == PurchasedItem.ItemInGame_Resort)            //重排道具
+                {
+                    GameLogic.Singleton.AutoResort();           //自动重排
                 }
             }
         });
@@ -81,14 +70,11 @@ public class UIPurchaseNoTarget : UIWindow
         HideWindow(delegate()
         {
             //GameLogic.Singleton.ResumeGame();
-        });
-        if (GlobalVars.UsingItem == PurchasedItem.Item_PlusStep ||
-            GlobalVars.UsingItem == PurchasedItem.Item_PlusTime)
-        {
-            if (GameLogic.Singleton.GetGameFlow() == TGameFlow.EGameState_End)
+            if (GlobalVars.UsingItem == PurchasedItem.ItemAfterGame_PlusStep ||
+            GlobalVars.UsingItem == PurchasedItem.ItemAfterGame_PlusTime)
             {
                 UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
             }
-        }
+        });
     }
 }

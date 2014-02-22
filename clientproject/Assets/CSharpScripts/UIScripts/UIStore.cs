@@ -73,12 +73,12 @@ public class UIStore : UIWindow
         UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(delegate()        //设置完成后执行的函数
         {
             //打开使用窗口
-            if (GlobalVars.UsingItem == PurchasedItem.Item_Hammer)
+            if (GlobalVars.UsingItem == PurchasedItem.ItemInGame_Hammer)
             {
                 UIWindow uiWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseTarget>();
                 uiWindow.ShowWindow();
             }
-            if (GlobalVars.UsingItem == PurchasedItem.Item_PlusStep)
+            else
             {
                 UIWindow uiWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>();
                 uiWindow.ShowWindow();

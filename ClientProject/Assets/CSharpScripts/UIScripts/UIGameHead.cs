@@ -3,8 +3,6 @@ using System.Collections;
 
 public class UIGameHead : UIWindow
 {
-    UILabel [] m_itemUILabel = new UILabel [2];
-
     GameObject m_fruitBoard;
     GameObject m_jellyBoard;
     GameObject m_scoreBoard;
@@ -18,23 +16,34 @@ public class UIGameHead : UIWindow
 		
 		AddChildComponentMouseClick("UseItem1Btn", delegate()
 		{
-			UserOrBuyItem(PurchasedItem.Item_Hammer);
+            UserOrBuyItem(PurchasedItem.ItemInGame_Resort);
 		});
 		AddChildComponentMouseClick("UseItem2Btn", delegate()
 		{
-			UserOrBuyItem(PurchasedItem.Item_PlusStep);
+			UserOrBuyItem(PurchasedItem.ItemInGame_Hammer);
 		});
+
+        if (GlobalVars.CurStageData.TimeLimit > 0)
+        {
+            AddChildComponentMouseClick("UseItem3Btn", delegate()
+            {
+                UserOrBuyItem(PurchasedItem.ItemInGame_ChocoStoper);
+            });
+        }
+
+        if (GlobalVars.CurStageData.StepLimit > 0)
+        {
+            AddChildComponentMouseClick("UseItem3Btn", delegate()
+            {
+                UserOrBuyItem(PurchasedItem.ItemInGame_TimeStoper);
+            });
+        }
 
         m_fruitBoard = UIToolkits.FindChild(mUIObject.transform, "FruitBoard").gameObject;
         m_jellyBoard = UIToolkits.FindChild(mUIObject.transform, "JellyBoard").gameObject;
         m_scoreBoard = UIToolkits.FindChild(mUIObject.transform, "ScoreBoard").gameObject;
 
         m_showCoinTweener = mUIObject.GetComponent<TweenPosition>();
-
-        for (int i = 0; i < 2; ++i )
-        {
-            m_itemUILabel[i] = GetChildComponent<UILabel>("ItemCount" + (i + 1));
-        }
     }
     public override void OnShow()
     {
@@ -133,47 +142,24 @@ public class UIGameHead : UIWindow
         }
 
         GlobalVars.UsingItem = item;
-		for (int i = 0; i < GameLogic.BlockCountX; ++i)
+
+        if (Unibiller.GetCurrencyBalance("gold") < CapsConfig.GetItemPrice(item))       //若钱不够，购买窗口
         {
-            for (int j = 0; j < GameLogic.BlockCountY; ++j)
-			{
-				CapBlock pBlock = GameLogic.Singleton.GetBlock(new Position(i, j));
-				if(pBlock != null)
-				{
-					GlobalVars.UsingItemTarget = new Position(i, j);
-                    UIWindowManager.Singleton.GetUIWindow<UIPurchaseTarget>().SetTarget(GlobalVars.UsingItemTarget);
-				}
-				break;
-			}
-		}
+            UIWindow uiWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>();
+            uiWindow.ShowWindow();
+            return;
+        }
 		
         //先判断是否够钱
-        if (item == PurchasedItem.Item_Hammer)
+        if (item == PurchasedItem.ItemInGame_Hammer)
         {
-            if (Unibiller.GetCurrencyBalance("gold") < 50)       //若钱不够，购买窗口
-            {
-                UIWindow uiWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>();
-                uiWindow.ShowWindow();
-            }
-            else //若钱够，弹使用道具窗口
-            {
-                UIWindow uiWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseTarget>();
-                uiWindow.ShowWindow();
-            }
+            UIWindow uiWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseTarget>();
+            uiWindow.ShowWindow();
         }
-
-        if (item == PurchasedItem.Item_PlusStep)
+        else
         {
-            if (Unibiller.GetCurrencyBalance("gold") < 70)       //若钱不够，购买窗口
-            {
-                UIWindow uiWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>();
-                uiWindow.ShowWindow();
-            }
-            else //若钱够，弹使用道具窗口
-            {
-                UIWindow uiWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>();
-                uiWindow.ShowWindow();
-            }
+            UIWindow uiWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>();
+            uiWindow.ShowWindow();
         }
 	}
 

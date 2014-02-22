@@ -16,6 +16,7 @@ public enum PurchasedItem
 {
 	Item_Hammer,
 	Item_PlusStep,
+    Item_PlusTime,
     None,
 }
 

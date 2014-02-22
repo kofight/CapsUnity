@@ -21,6 +21,20 @@ public class UIPurchaseTarget : UIWindow
     public override void OnShow()
     {
         base.OnShow();
+        UIGameHead gamehead = UIWindowManager.Singleton.GetUIWindow<UIGameHead>();
+        gamehead.ShowCoin(true);
+        if (GlobalVars.UsingItem == PurchasedItem.Item_Hammer)
+        {
+            m_msgLabel.text = Localization.instance.Get("Use_Hammer");
+            m_costLabel.text = "6";
+        }
+    }
+
+    public override void OnHide()
+    {
+        base.OnHide();
+        UIGameHead gamehead = UIWindowManager.Singleton.GetUIWindow<UIGameHead>();
+        gamehead.ShowCoin(false);
     }
 
     public void SetString(string str)
@@ -32,10 +46,13 @@ public class UIPurchaseTarget : UIWindow
     {
         HideWindow(delegate()
         {
-            if (Unibiller.DebitBalance("gold", 6))
+            if (GlobalVars.UsingItem == PurchasedItem.Item_Hammer)
             {
-               	GA.API.Business.NewEvent("BuyHammer", "RMB", 1);
-				GameLogic.Singleton.EatBlock(GlobalVars.UsingItemTarget, CapsConfig.EatEffect);                  //使用锤子
+                if (Unibiller.DebitBalance("gold", 6))
+                {
+                    GA.API.Business.NewEvent("BuyHammer", "RMB", 1);
+                    GameLogic.Singleton.EatBlock(GlobalVars.UsingItemTarget, CapsConfig.EatEffect);                  //使用锤子
+                }
             }
         });
     }

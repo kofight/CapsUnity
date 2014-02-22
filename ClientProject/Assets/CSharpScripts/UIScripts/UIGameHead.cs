@@ -8,6 +8,7 @@ public class UIGameHead : UIWindow
     GameObject m_fruitBoard;
     GameObject m_jellyBoard;
     GameObject m_scoreBoard;
+    TweenPosition m_showCoinTweener;
 
     public override void OnCreate()
     {
@@ -27,6 +28,8 @@ public class UIGameHead : UIWindow
         m_fruitBoard = UIToolkits.FindChild(mUIObject.transform, "FruitBoard").gameObject;
         m_jellyBoard = UIToolkits.FindChild(mUIObject.transform, "JellyBoard").gameObject;
         m_scoreBoard = UIToolkits.FindChild(mUIObject.transform, "ScoreBoard").gameObject;
+
+        m_showCoinTweener = mUIObject.GetComponent<TweenPosition>();
 
         for (int i = 0; i < 2; ++i )
         {
@@ -83,6 +86,13 @@ public class UIGameHead : UIWindow
         }
 
         RefreshTarget();
+    }
+
+    public void ShowCoin(bool bShow)
+    {
+        m_showCoinTweener.Play(bShow);
+        UILabel coinLabel = GetChildComponent<UILabel>("CoinCount");
+        coinLabel.text = ((int)Unibiller.GetCurrencyBalance("gold")).ToString();
     }
 	
 	public void RefreshTarget()

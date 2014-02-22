@@ -6,6 +6,7 @@ public class UIPurchaseNotEnoughMoney : UIWindow
 {
 	UILabel m_msgLabel;
 	UILabel m_costLabel;
+    UISprite m_itemIcon;
 	public delegate void OnPurchaseFunc();
 	
 	public OnPurchaseFunc OnPurchase; 
@@ -36,6 +37,7 @@ public class UIPurchaseNotEnoughMoney : UIWindow
 
 		m_msgLabel = GetChildComponent<UILabel>("IntroduceLabel");
 		m_costLabel = GetChildComponent<UILabel>("CostLabel");
+        m_itemIcon = GetChildComponent<UISprite>("ItemIcon");
     }
     public override void OnShow()
     {
@@ -45,12 +47,21 @@ public class UIPurchaseNotEnoughMoney : UIWindow
 		{
 			m_costLabel.text = "6/" + Unibiller.GetCurrencyBalance("gold");
 			m_msgLabel.text = Localization.instance.Get("Intro_Hammer");
+            m_itemIcon.spriteName = "ItemHammer";
 		}
 		
 		if(GlobalVars.UsingItem == PurchasedItem.Item_PlusStep)
 		{
 			m_costLabel.text = "6/" + Unibiller.GetCurrencyBalance("gold");
 			m_msgLabel.text = Localization.instance.Get("Intro_StepPlus5");
+            m_itemIcon.spriteName = "ItemStep";
 		}
+
+        if (GlobalVars.UsingItem == PurchasedItem.Item_PlusTime)
+        {
+            m_costLabel.text = "6/" + Unibiller.GetCurrencyBalance("gold");
+            m_msgLabel.text = Localization.instance.Get("Intro_StepPlus5");
+            m_itemIcon.spriteName = "ItemStep";
+        }
     }
 }

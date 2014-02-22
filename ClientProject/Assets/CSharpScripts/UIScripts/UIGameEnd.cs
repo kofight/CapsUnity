@@ -138,35 +138,21 @@ public class UIGameEnd : UIWindow
         }
         else                                            //若没步数或时间了，就要购买和使用道具
         {
-            if (GlobalVars.Coins > 0)
+            if ((int)Unibiller.GetCurrencyBalance("gold") >= 6)
             {
-                HideWindow();
-                UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>().ShowWindow();
-                if (GlobalVars.CurStageData.StepLimit > 0)
+                HideWindow(delegate()
                 {
-                    //UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>().SetString(string.Format("You have {0} coins now,\nit will take you 1 coin to get extra 5 step,\nAre you sure about the purchasing?", GlobalVars.Coins));
-                }
-                else if (GlobalVars.CurStageData.TimeLimit > 0)
-                {
-                    //UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>().SetString(string.Format("You have {0} coins now,\nit will take you 1 coin to get extra 15 seconds,\nAre you sure about the purchasing?", GlobalVars.Coins));
-                }
-                UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>().OnPurchase = delegate()
-                {
-                    --GlobalVars.Coins;
-                    PlayerPrefs.SetInt("Coins", GlobalVars.Coins);
                     if (GlobalVars.CurStageData.StepLimit > 0)
                     {
-                        GA.API.Business.NewEvent("BuyStep", "RMB", 1);
-                        GameLogic.Singleton.PlayingStageData.StepLimit += 5;        //步数加5
-                        
+                        GlobalVars.UsingItem = PurchasedItem.Item_PlusStep;
                     }
-                    else if (GlobalVars.CurStageData.TimeLimit > 0)
+                    if (GlobalVars.CurStageData.TimeLimit > 0)
                     {
-                        GA.API.Business.NewEvent("BuyTime", "RMB", 1);
-                        GameLogic.Singleton.SetGameTime(15);               //增加15秒时间
+                        GlobalVars.UsingItem = PurchasedItem.Item_PlusTime;
                     }
-                    GameLogic.Singleton.SetGameFlow(TGameFlow.EGameState_Playing);      //回到可以继续玩的状态
-                };
+                    
+                    UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>().ShowWindow();
+                });
             }
         }
     }

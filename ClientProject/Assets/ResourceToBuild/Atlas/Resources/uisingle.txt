@@ -2143,6 +2143,6 @@
 	"format": "RGBA8888",
 	"size": {"w":2048,"h":2048},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:2ebe1da95a68c6c946719697698f81a2$"
+	"smartupdate": "$TexturePacker:SmartUpdate:6ad22f11c9f605d266ddad6aece09a2b$"
 }
 }

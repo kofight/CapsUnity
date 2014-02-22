@@ -3648,9 +3648,7 @@ public class GameLogic
             return;
         }
 
-        
-
-        if (GlobalVars.UsingItem == PurchasedItem.Item_Hammer)     //若正在使用锤子道具
+        if (GlobalVars.UsingItem == PurchasedItem.ItemInGame_Hammer)     //若正在使用锤子道具
         {
 			if(m_blocks[p.x, p.y] != null)
 			{

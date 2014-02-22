@@ -26,16 +26,36 @@ public class UIPurchaseTarget : UIWindow
         base.OnShow();
         UIGameHead gamehead = UIWindowManager.Singleton.GetUIWindow<UIGameHead>();
         gamehead.ShowCoin(true);
-        if (GlobalVars.UsingItem == PurchasedItem.Item_Hammer)
+
+        for (int i = 0; i < GameLogic.BlockCountX; ++i)
         {
-            m_msgLabel.text = Localization.instance.Get("Use_Hammer");
-            m_costLabel.text = "50";
+            for (int j = 0; j < GameLogic.BlockCountY; ++j)
+            {
+                CapBlock pBlock = GameLogic.Singleton.GetBlock(new Position(i, j));
+                if (pBlock != null)
+                {
+                    GlobalVars.UsingItemTarget = new Position(i, j);
+                    SetTarget(GlobalVars.UsingItemTarget);
+                    break;
+                }
+            }
         }
+
+        Debug.Log(GlobalVars.UsingItem.ToString());
+
+        m_msgLabel.text = Localization.instance.Get("Use_" + GlobalVars.UsingItem.ToString());
+        m_costLabel.text = CapsConfig.GetItemPrice(GlobalVars.UsingItem).ToString();
     }
 
     public override void OnHide()
     {
         base.OnHide();
+        m_target.SetActive(false);
+    }
+
+    public override void OnHideEffectPlayOver()
+    {
+        base.OnHideEffectPlayOver();
         UIGameHead gamehead = UIWindowManager.Singleton.GetUIWindow<UIGameHead>();
         gamehead.ShowCoin(false);
     }
@@ -60,11 +80,11 @@ public class UIPurchaseTarget : UIWindow
     {
         HideWindow(delegate()
         {
-            if (GlobalVars.UsingItem == PurchasedItem.Item_Hammer)
+            if (GlobalVars.UsingItem == PurchasedItem.ItemInGame_Hammer)
             {
-                if (Unibiller.DebitBalance("gold", 50))
+                if (Unibiller.DebitBalance("gold", CapsConfig.GetItemPrice(GlobalVars.UsingItem)))
                 {
-                    GA.API.Business.NewEvent("BuyHammer", "Coins", 50);
+                    GA.API.Business.NewEvent("BuyHammer", "Coins", CapsConfig.GetItemPrice(GlobalVars.UsingItem));
                     GameLogic.Singleton.EatBlock(GlobalVars.UsingItemTarget, CapsConfig.EatEffect);                  //使用锤子
                 }
                 m_target.SetActive(false);

@@ -14,9 +14,20 @@ public enum TEditState
 
 public enum PurchasedItem
 {
-	Item_Hammer,
-	Item_PlusStep,
-    Item_PlusTime,
+	ItemPreGame_PlusStep,
+    ItemPreGame_AddEatColor,
+    ItemPreGame_PlusTime,
+    ItemPreGame_ExtraScore,
+    
+	ItemInGame_Resort,
+    ItemInGame_Hammer,
+    ItemInGame_ChocoStoper,
+    ItemInGame_TimeStoper,
+
+
+	ItemAfterGame_PlusStep,
+    ItemAfterGame_PlusTime,
+
     None,
 }
 

@@ -143,11 +143,11 @@ public class UIGameEnd : UIWindow
                 {
                     if (GlobalVars.CurStageData.StepLimit > 0)
                     {
-                        GlobalVars.UsingItem = PurchasedItem.Item_PlusStep;
+                        GlobalVars.UsingItem = PurchasedItem.ItemAfterGame_PlusStep;
                     }
                     if (GlobalVars.CurStageData.TimeLimit > 0)
                     {
-                        GlobalVars.UsingItem = PurchasedItem.Item_PlusTime;
+                        GlobalVars.UsingItem = PurchasedItem.ItemAfterGame_PlusTime;
                     }
 
                     if ((int)Unibiller.GetCurrencyBalance("gold") >= 70)        //是否有足够的钱购买道具

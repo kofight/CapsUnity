@@ -29,7 +29,7 @@ public class UIPurchaseTarget : UIWindow
         if (GlobalVars.UsingItem == PurchasedItem.Item_Hammer)
         {
             m_msgLabel.text = Localization.instance.Get("Use_Hammer");
-            m_costLabel.text = "6";
+            m_costLabel.text = "50";
         }
     }
 
@@ -62,9 +62,9 @@ public class UIPurchaseTarget : UIWindow
         {
             if (GlobalVars.UsingItem == PurchasedItem.Item_Hammer)
             {
-                if (Unibiller.DebitBalance("gold", 6))
+                if (Unibiller.DebitBalance("gold", 50))
                 {
-                    GA.API.Business.NewEvent("BuyHammer", "RMB", 1);
+                    GA.API.Business.NewEvent("BuyHammer", "Coins", 50);
                     GameLogic.Singleton.EatBlock(GlobalVars.UsingItemTarget, CapsConfig.EatEffect);                  //使用锤子
                 }
                 m_target.SetActive(false);

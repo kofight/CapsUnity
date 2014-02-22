@@ -32,7 +32,13 @@ public class UIPurchaseNotEnoughMoney : UIWindow
 
         AddChildComponentMouseClick("CloseBtn", delegate()
         {
-            HideWindow();
+            HideWindow(delegate()
+            {
+                if (GameLogic.Singleton.GetGameFlow() == TGameFlow.EGameState_End)
+                {
+                    UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
+                }
+            });
         });
 
 		m_msgLabel = GetChildComponent<UILabel>("IntroduceLabel");
@@ -45,21 +51,21 @@ public class UIPurchaseNotEnoughMoney : UIWindow
 
 		if(GlobalVars.UsingItem == PurchasedItem.Item_Hammer)
 		{
-			m_costLabel.text = "6/" + Unibiller.GetCurrencyBalance("gold");
+			m_costLabel.text = "50/" + Unibiller.GetCurrencyBalance("gold");
 			m_msgLabel.text = Localization.instance.Get("Intro_Hammer");
             m_itemIcon.spriteName = "ItemHammer";
 		}
 		
 		if(GlobalVars.UsingItem == PurchasedItem.Item_PlusStep)
 		{
-			m_costLabel.text = "6/" + Unibiller.GetCurrencyBalance("gold");
+            m_costLabel.text = "70/" + Unibiller.GetCurrencyBalance("gold");
             m_msgLabel.text = Localization.instance.Get("Intro_PlusStep");
             m_itemIcon.spriteName = "ItemStep";
 		}
 
         if (GlobalVars.UsingItem == PurchasedItem.Item_PlusTime)
         {
-            m_costLabel.text = "6/" + Unibiller.GetCurrencyBalance("gold");
+            m_costLabel.text = "70/" + Unibiller.GetCurrencyBalance("gold");
             m_msgLabel.text = Localization.instance.Get("Intro_PlusTime");
             m_itemIcon.spriteName = "ItemStep";
         }

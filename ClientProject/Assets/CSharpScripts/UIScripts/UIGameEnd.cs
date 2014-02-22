@@ -138,8 +138,7 @@ public class UIGameEnd : UIWindow
         }
         else                                            //若没步数或时间了，就要购买和使用道具
         {
-            if ((int)Unibiller.GetCurrencyBalance("gold") >= 6)
-            {
+            
                 HideWindow(delegate()
                 {
                     if (GlobalVars.CurStageData.StepLimit > 0)
@@ -150,10 +149,19 @@ public class UIGameEnd : UIWindow
                     {
                         GlobalVars.UsingItem = PurchasedItem.Item_PlusTime;
                     }
+
+                    if ((int)Unibiller.GetCurrencyBalance("gold") >= 70)        //是否有足够的钱购买道具
+                    {
+                        UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>().ShowWindow();
+                    }
+                    else
+                    {
+                        UIWindow uiWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>();
+                        uiWindow.ShowWindow();
+                    }
                     
-                    UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>().ShowWindow();
+                    
                 });
-            }
         }
     }
 }

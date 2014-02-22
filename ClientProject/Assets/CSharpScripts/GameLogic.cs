@@ -153,10 +153,6 @@ struct ShowingNumberEffect
                 sprites[i].alpha = (1.0f - (Timer.millisecondNow() - startTime) * 1.0f / effectTime);
             }
         }
-        else
-        {
-            SetFree();
-        }
     }
 
     public bool IsEnd()
@@ -505,10 +501,13 @@ public class GameLogic
         {
             numEffect = new ShowingNumberEffect();      //创建个新的
             numEffect.Init(m_numInstance);
-            m_freeNumberList.AddLast(numEffect);
         }
-        numEffect = m_freeNumberList.Last.Value;
-        m_freeNumberList.RemoveLast();
+        else
+        {
+            numEffect = m_freeNumberList.Last.Value;
+            m_freeNumberList.RemoveLast();
+        }
+        
         numEffect.SetNumber(number, x, y);
         m_showingNumberEffectList.AddLast(numEffect);
     }
@@ -1038,6 +1037,14 @@ public class GameLogic
         {
             sprite.gameObject.SetActive(false);
         }
+
+        //处理数字
+        foreach (ShowingNumberEffect number in m_showingNumberEffectList)
+        {
+            number.SetFree();
+            m_freeNumberList.AddLast(number);
+        }
+        m_showingNumberEffectList.Clear();
 
         m_progress = 0;
         //回收粒子////////////////////////////////////////////////////////////////////////
@@ -1783,6 +1790,7 @@ public class GameLogic
                     if (node.Value.IsEnd())       //若到了处理时间
                     {
                         nodeTmp = node.Next;
+                        node.Value.SetFree();
                         m_freeNumberList.AddLast(node.Value);
                         m_showingNumberEffectList.Remove(node.Value);                              //移除中间一个元素
                         node = nodeTmp;

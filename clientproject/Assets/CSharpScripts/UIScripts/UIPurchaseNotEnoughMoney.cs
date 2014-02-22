@@ -53,14 +53,14 @@ public class UIPurchaseNotEnoughMoney : UIWindow
 		if(GlobalVars.UsingItem == PurchasedItem.Item_PlusStep)
 		{
 			m_costLabel.text = "6/" + Unibiller.GetCurrencyBalance("gold");
-			m_msgLabel.text = Localization.instance.Get("Intro_StepPlus5");
+            m_msgLabel.text = Localization.instance.Get("Intro_PlusStep");
             m_itemIcon.spriteName = "ItemStep";
 		}
 
         if (GlobalVars.UsingItem == PurchasedItem.Item_PlusTime)
         {
             m_costLabel.text = "6/" + Unibiller.GetCurrencyBalance("gold");
-            m_msgLabel.text = Localization.instance.Get("Intro_StepPlus5");
+            m_msgLabel.text = Localization.instance.Get("Intro_PlusTime");
             m_itemIcon.spriteName = "ItemStep";
         }
     }

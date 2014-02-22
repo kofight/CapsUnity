@@ -141,6 +141,7 @@ public class UIGameHead : UIWindow
 				if(pBlock != null)
 				{
 					GlobalVars.UsingItemTarget = new Position(i, j);
+                    UIWindowManager.Singleton.GetUIWindow<UIPurchaseTarget>().SetTarget(GlobalVars.UsingItemTarget);
 				}
 				break;
 			}

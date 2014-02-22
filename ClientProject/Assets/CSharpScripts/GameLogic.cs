@@ -3655,6 +3655,7 @@ public class GameLogic
 			if(m_blocks[p.x, p.y] != null)
 			{
                 GlobalVars.UsingItemTarget = p;
+                UIWindowManager.Singleton.GetUIWindow<UIPurchaseTarget>().SetTarget(GlobalVars.UsingItemTarget);
 			}
         }
 

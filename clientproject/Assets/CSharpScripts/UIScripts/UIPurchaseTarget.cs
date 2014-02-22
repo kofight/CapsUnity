@@ -7,6 +7,7 @@ public class UIPurchaseTarget : UIWindow
 	UILabel m_msgLabel;
 	UILabel m_costLabel;
 	public delegate void OnPurchaseFunc();
+    GameObject m_target;
 	
 	public OnPurchaseFunc OnPurchase; 
 	
@@ -17,6 +18,8 @@ public class UIPurchaseTarget : UIWindow
         AddChildComponentMouseClick("CancelBtn", OnCancelClicked);
 		m_msgLabel = GetChildComponent<UILabel>("IntroduceLabel");
 		m_costLabel = GetChildComponent<UILabel>("CostLabel");
+        m_target = GameObject.Find("TargetBlock");
+        m_target.SetActive(false);
     }
     public override void OnShow()
     {
@@ -37,6 +40,17 @@ public class UIPurchaseTarget : UIWindow
         gamehead.ShowCoin(false);
     }
 
+    public void SetTarget(Position pos)     //设置目标点
+    {
+        if (!pos.IsAvailable())
+        {
+            m_target.SetActive(false);
+            return;
+        }
+        m_target.SetActive(true);
+        m_target.transform.localPosition = new Vector3(GameLogic.Singleton.GetXPos(pos.x), -GameLogic.Singleton.GetYPos(pos.x, pos.y));
+    }
+
     public void SetString(string str)
     {
         m_msgLabel.text = str;
@@ -53,6 +67,7 @@ public class UIPurchaseTarget : UIWindow
                     GA.API.Business.NewEvent("BuyHammer", "RMB", 1);
                     GameLogic.Singleton.EatBlock(GlobalVars.UsingItemTarget, CapsConfig.EatEffect);                  //使用锤子
                 }
+                m_target.SetActive(false);
             }
         });
     }

@@ -46,3 +46,4 @@ Use_Hammer = 敲碎此块？
 Use_AddStep = 增加5步？
 Use_AddTime = 增加15秒？
 NotEnoughMoney = 金币不足
+Get140Coins = 购买140个金币

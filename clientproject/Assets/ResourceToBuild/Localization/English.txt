@@ -46,3 +46,4 @@ Use_Hammer = Knock the block？
 Use_AddStep = Add 5 steps？
 Use_AddTime = Add 15 seconds？
 NotEnoughMoney = Out of money
+Get140Coins = Get 140 Coins

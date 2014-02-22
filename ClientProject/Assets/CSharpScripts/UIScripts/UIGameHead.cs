@@ -150,7 +150,7 @@ public class UIGameHead : UIWindow
         //先判断是否够钱
         if (item == PurchasedItem.Item_Hammer)
         {
-            if (Unibiller.GetCurrencyBalance("gold") < 6)       //若钱不够，购买窗口
+            if (Unibiller.GetCurrencyBalance("gold") < 50)       //若钱不够，购买窗口
             {
                 UIWindow uiWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>();
                 uiWindow.ShowWindow();
@@ -164,7 +164,7 @@ public class UIGameHead : UIWindow
 
         if (item == PurchasedItem.Item_PlusStep)
         {
-            if (Unibiller.GetCurrencyBalance("gold") < 6)       //若钱不够，购买窗口
+            if (Unibiller.GetCurrencyBalance("gold") < 70)       //若钱不够，购买窗口
             {
                 UIWindow uiWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>();
                 uiWindow.ShowWindow();

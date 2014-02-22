@@ -7,6 +7,7 @@ public class UIPurchaseTarget : UIWindow
 	UILabel m_msgLabel;
 	UILabel m_costLabel;
 	public delegate void OnPurchaseFunc();
+    GameObject m_target;
 	
 	public OnPurchaseFunc OnPurchase; 
 	
@@ -17,10 +18,37 @@ public class UIPurchaseTarget : UIWindow
         AddChildComponentMouseClick("CancelBtn", OnCancelClicked);
 		m_msgLabel = GetChildComponent<UILabel>("IntroduceLabel");
 		m_costLabel = GetChildComponent<UILabel>("CostLabel");
+        m_target = GameObject.Find("TargetBlock");
+        m_target.SetActive(false);
     }
     public override void OnShow()
     {
         base.OnShow();
+        UIGameHead gamehead = UIWindowManager.Singleton.GetUIWindow<UIGameHead>();
+        gamehead.ShowCoin(true);
+        if (GlobalVars.UsingItem == PurchasedItem.Item_Hammer)
+        {
+            m_msgLabel.text = Localization.instance.Get("Use_Hammer");
+            m_costLabel.text = "6";
+        }
+    }
+
+    public override void OnHide()
+    {
+        base.OnHide();
+        UIGameHead gamehead = UIWindowManager.Singleton.GetUIWindow<UIGameHead>();
+        gamehead.ShowCoin(false);
+    }
+
+    public void SetTarget(Position pos)     //设置目标点
+    {
+        if (!pos.IsAvailable())
+        {
+            m_target.SetActive(false);
+            return;
+        }
+        m_target.SetActive(true);
+        m_target.transform.localPosition = new Vector3(GameLogic.Singleton.GetXPos(pos.x), -GameLogic.Singleton.GetYPos(pos.x, pos.y));
     }
 
     public void SetString(string str)
@@ -32,10 +60,14 @@ public class UIPurchaseTarget : UIWindow
     {
         HideWindow(delegate()
         {
-            if (Unibiller.DebitBalance("gold", 6))
+            if (GlobalVars.UsingItem == PurchasedItem.Item_Hammer)
             {
-               	GA.API.Business.NewEvent("BuyHammer", "RMB", 1);
-				GameLogic.Singleton.EatBlock(GlobalVars.UsingItemTarget, CapsConfig.EatEffect);                  //使用锤子
+                if (Unibiller.DebitBalance("gold", 6))
+                {
+                    GA.API.Business.NewEvent("BuyHammer", "RMB", 1);
+                    GameLogic.Singleton.EatBlock(GlobalVars.UsingItemTarget, CapsConfig.EatEffect);                  //使用锤子
+                }
+                m_target.SetActive(false);
             }
         });
     }

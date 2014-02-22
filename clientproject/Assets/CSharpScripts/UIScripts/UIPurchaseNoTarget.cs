@@ -22,15 +22,25 @@ public class UIPurchaseNoTarget : UIWindow
     {
         base.OnShow();
         //GameLogic.Singleton.PauseGame();
-		if(GlobalVars.UsingItem == PurchasedItem.Item_Hammer)
-		{
-			
-		}
-		
 		if(GlobalVars.UsingItem == PurchasedItem.Item_PlusStep)
 		{
-			
-		}
+            m_msgLabel.text = Localization.instance.Get("Use_AddStep");
+            m_costLabel.text = "6";
+        }
+        if (GlobalVars.UsingItem == PurchasedItem.Item_PlusTime)
+        {
+            m_msgLabel.text = Localization.instance.Get("Use_AddTime");
+            m_costLabel.text = "6";
+        }
+        UIGameHead gamehead = UIWindowManager.Singleton.GetUIWindow<UIGameHead>();
+        gamehead.ShowCoin(true);
+    }
+
+    public override void OnHide()
+    {
+        base.OnHide();
+        UIGameHead gamehead = UIWindowManager.Singleton.GetUIWindow<UIGameHead>();
+        gamehead.ShowCoin(false);
     }
 
     private void OnConfirmClicked()
@@ -43,12 +53,16 @@ public class UIPurchaseNoTarget : UIWindow
         {
             if (Unibiller.DebitBalance("gold", 6))      //花钱
             {
-                GA.API.Business.NewEvent("BuyStep", "RMB", 1);
-                PlayerPrefs.SetInt("Coins", GlobalVars.Coins);
-                if (GlobalVars.CurStageData.StepLimit > 0)
-                    GameLogic.Singleton.PlayingStageData.StepLimit += 5;        //步数加5
-                else if (GlobalVars.CurStageData.TimeLimit > 0)
-                    GameLogic.Singleton.AddGameTime(15);        //Add 15 Seconds
+                GA.API.Business.NewEvent("BuyStep", "Coins", 6);
+                GameLogic.Singleton.PlayingStageData.StepLimit += 5;        //步数加5
+            }
+        }
+        if (GlobalVars.UsingItem == PurchasedItem.Item_PlusTime)
+        {
+            if (Unibiller.DebitBalance("gold", 6))      //花钱
+            {
+                GA.API.Business.NewEvent("BuyTime", "Coins", 6);
+                GameLogic.Singleton.AddGameTime(15);        //Add 15 Seconds
             }
         }
     }
@@ -59,7 +73,8 @@ public class UIPurchaseNoTarget : UIWindow
         {
             //GameLogic.Singleton.ResumeGame();
         });
-        if (GlobalVars.UsingItem == PurchasedItem.Item_PlusStep)
+        if (GlobalVars.UsingItem == PurchasedItem.Item_PlusStep ||
+            GlobalVars.UsingItem == PurchasedItem.Item_PlusTime)
         {
             if (GameLogic.Singleton.GetGameFlow() == TGameFlow.EGameState_End)
             {

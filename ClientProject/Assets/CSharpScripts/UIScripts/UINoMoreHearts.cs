@@ -22,23 +22,25 @@ public class UINoMoreHearts : UIWindow
 
         AddChildComponentMouseClick("Buy1HeartBtn", delegate()
         {
-            if (GlobalVars.Coins > 0)
-            {
-                --GlobalVars.Coins;
-                ++GlobalVars.HeartCount;
-                PlayerPrefs.SetInt("Coins", GlobalVars.Coins);
-                ContinuePlay();
-            }
+
         });
 
         AddChildComponentMouseClick("Buy5HeartBtn", delegate()
         {
-            if (GlobalVars.Coins >= 3)
+            if (Unibiller.DebitBalance("gold", 100))
             {
-                GlobalVars.Coins -= 3;
                 GlobalVars.HeartCount = 5;
-                PlayerPrefs.SetInt("Coins", GlobalVars.Coins);
                 ContinuePlay();
+            }
+            else
+            {
+                UIWindowManager.Singleton.GetUIWindow<UIStore>().ShowWindow();
+                UIWindowManager.Singleton.GetUIWindow<UIStore>().OnPurchaseFunc = delegate()
+                {
+                    Unibiller.DebitBalance("gold", 100);
+                    GlobalVars.HeartCount = 5;
+                    ContinuePlay();
+                };
             }
         });
     }

@@ -1,12 +1,11 @@
 ﻿Target			2				
-StepLimit			1				
+StepLimit			7				
 TimeLimit			0				
 ColorCount			5				
 Nut1Count			0				
 Nut2Count			0				
 NutInitCount			0				
 NutMaxCount			0				
-NutMinCount			0				
 NutStep			0				
 PlusInitCount			0				
 PlusMaxCount			0				
@@ -17,4 +16,3 @@ NewFormat			1
 StarScore			600,1200,1500,				
 GridDataArray			0,0,0,0,9,0,0,0,0,0,0,9,9,1,9,9,0,0,0,9,1,1,1,1,1,9,0,0,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,				
 PortalArray							
-SpecialArray							

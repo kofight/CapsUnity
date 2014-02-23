@@ -145,6 +145,12 @@ public class UILogin : UIWindow
             GlobalVars.CurStageData = StageData.CreateStageData();
             GlobalVars.LastStage = GlobalVars.CurStageNum;
             GlobalVars.CurStageData.LoadStageData(GlobalVars.CurStageNum);
+
+            for (int i = 0; i < 3; ++i )
+            {
+                GlobalVars.StartStageItem[i] = PurchasedItem.None;
+            }
+            
             UIWindowManager.Singleton.GetUIWindow("UILoading").ShowWindow(
             delegate()
             {

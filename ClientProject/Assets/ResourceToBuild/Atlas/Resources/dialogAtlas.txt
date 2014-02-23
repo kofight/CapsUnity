@@ -32,9 +32,41 @@
 	"spriteSourceSize": {"x":0,"y":128,"w":320,"h":472},
 	"sourceSize": {"w":320,"h":600}
 },
+"Tech_Bomb.png":
+{
+	"frame": {"x":1056,"y":289,"w":415,"h":285},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":415,"h":285},
+	"sourceSize": {"w":415,"h":285}
+},
+"Tech_Eat.png":
+{
+	"frame": {"x":646,"y":2,"w":415,"h":285},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":415,"h":285},
+	"sourceSize": {"w":415,"h":285}
+},
+"Tech_EatAColor.png":
+{
+	"frame": {"x":639,"y":476,"w":415,"h":285},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":415,"h":285},
+	"sourceSize": {"w":415,"h":285}
+},
+"Tech_Line.png":
+{
+	"frame": {"x":222,"y":566,"w":415,"h":285},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":415,"h":285},
+	"sourceSize": {"w":415,"h":285}
+},
 "TextBox.png":
 {
-	"frame": {"x":222,"y":744,"w":250,"h":176},
+	"frame": {"x":646,"y":289,"w":250,"h":176},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":250,"h":176},
@@ -42,15 +74,23 @@
 },
 "TextBox2.png":
 {
-	"frame": {"x":646,"y":2,"w":146,"h":125},
+	"frame": {"x":222,"y":853,"w":146,"h":125},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":146,"h":125},
 	"sourceSize": {"w":146,"h":183}
 },
+"TextBox3.png":
+{
+	"frame": {"x":639,"y":763,"w":283,"h":216},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":283,"h":216},
+	"sourceSize": {"w":283,"h":216}
+},
 "TextBoxMir.png":
 {
-	"frame": {"x":222,"y":566,"w":250,"h":176},
+	"frame": {"x":924,"y":763,"w":250,"h":176},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":250,"h":176},
@@ -61,8 +101,8 @@
 	"version": "1.0",
 	"image": "dialogAtlas.png",
 	"format": "RGBA8888",
-	"size": {"w":1024,"h":1024},
+	"size": {"w":2048,"h":1024},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:8129df7c2a578375e67ab72481d98e97$"
+	"smartupdate": "$TexturePacker:SmartUpdate:8c69e6b426bcefede22ebe42c789a2db$"
 }
 }

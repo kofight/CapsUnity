@@ -31,7 +31,7 @@ public class UIFTUE : UIWindow
 		base.OnShow();	
 	}
 
-	void HideHighLight()
+	public void HideHighLight()
 	{
 		if(m_ftueData[m_FTUEIndex].from.IsAvailable())
 		{
@@ -155,36 +155,10 @@ public class UIFTUE : UIWindow
 
         m_clickLabel.gameObject.SetActive(false);
 
-        //开始播放文字
-        m_dialogText.Play(m_dialogContents[m_curDialogIndex], delegate()
-        {
-			m_bLock = false;
-            //若是最后一段文字，调用结尾函数
-            if (m_curDialogIndex == m_dialogContents.Length - 1)
-            {
-				if(func != null)
-				{
-                	func();
-				}
-            }
-
-            m_clickLabel.gameObject.SetActive(true);
-			BoxCollider collider = m_dialogBoardSprite.GetComponent<BoxCollider>();
-            if (m_ftueData[m_FTUEIndex].from.IsAvailable() && m_curDialogIndex == m_dialogContents.Length - 1)
-            {
-                m_clickLabel.text = Localization.instance.Get("MoveBlock");
-				collider.size = new Vector3(300, 200, 1);
-            }
-            else
-            {
-                m_clickLabel.text = Localization.instance.Get("Click");
-				collider.size = new Vector3(2048, 2048, 1);
-            }
-
-			++m_curDialogIndex;
-        });
-
         m_afterDialogFunc = func;
+
+        //开始播放文字
+        NextDialog();
 	}
 	
     public override void OnCreate()
@@ -207,6 +181,46 @@ public class UIFTUE : UIWindow
         HideWindow();                               //隐藏窗体
         GameLogic.Singleton.SetGameFlow(TGameFlow.EGameState_Playing);
     }
+
+    public void NextDialog()
+    {
+        m_bLock = true;         //先锁上点击
+        BoxCollider collider = m_dialogBoardSprite.GetComponent<BoxCollider>();
+        collider.size = new Vector3(2048, 2048, 1);
+
+            m_dialogEffectPlayer.ShowEffect();          //打开新窗口
+            m_clickLabel.gameObject.SetActive(false);   //关闭操作提示
+
+            m_dialogText.Play(m_dialogContents[m_curDialogIndex], delegate()            //播放下一段文字
+            {
+                m_bLock = false;                                                        //播放完毕后解锁
+                m_clickLabel.gameObject.SetActive(true);                                //显示操作提示
+			
+				
+			
+                if (m_curDialogIndex < m_dialogContents.Length - 1)
+                {
+                    m_clickLabel.text = Localization.instance.Get("Click");           //把索引指向下一段文字
+                }
+                else                                                                    //若已经播到了最后一条
+                {
+                    
+                    if (m_ftueData[m_FTUEIndex].from.IsAvailable())     //看看是否需要操作，需要的话显示划动提示
+                    {
+                        m_clickLabel.text = Localization.instance.Get("MoveBlock");
+                        collider.size = new Vector3(300, 200, 1);
+                        m_pointer.SetActive(true);
+                    }
+                    else                                                //不需要操作的话显示点击提示
+                    {
+                        m_clickLabel.text = Localization.instance.Get("Click");
+                        m_pointer.SetActive(false);
+                    }
+                    m_afterDialogFunc();
+                }
+                ++m_curDialogIndex;
+            });
+    }
 	
 	public void OnClick()
 	{
@@ -215,43 +229,14 @@ public class UIFTUE : UIWindow
 
         if (m_curDialogIndex < m_dialogContents.Length)      //若不是最后一段文字
         {
-			m_bLock = true;
-            m_dialogEffectPlayer.HideEffect(delegate()
+            m_dialogEffectPlayer.HideEffect(delegate()      //关闭当前窗口
             {
-                m_dialogEffectPlayer.ShowEffect();
-                m_clickLabel.gameObject.SetActive(false);
-                //播放下一段
-                m_dialogText.Play(m_dialogContents[m_curDialogIndex], delegate()
-                {
-                    m_bLock = false;
-                    ++m_curDialogIndex;
-                    m_clickLabel.gameObject.SetActive(true);
-					BoxCollider collider = m_dialogBoardSprite.GetComponent<BoxCollider>();
-                    if (m_ftueData[m_FTUEIndex].from.IsAvailable())
-                    {
-                        m_clickLabel.text = Localization.instance.Get("MoveBlock");
-						collider.size = new Vector3(300, 200, 1);
-                    }
-                    else
-                    {
-                        m_clickLabel.text = Localization.instance.Get("Click");
-						collider.size = new Vector3(2048, 2048, 1);
-                    }
-                    if (m_afterDialogFunc != null)          //若有结束函数
-                    {
-                        m_afterDialogFunc();
-                        m_pointer.SetActive(true);
-                    }
-                    else
-                    {
-                        m_pointer.SetActive(false);
-                    }
-                });
+                NextDialog();
             });
         }
-        else        //若是最后一段文字
+        else        //若是最后一段文字,且可以通过点击结束，则进到这里
         {
-            if (m_FTUEIndex < m_ftueData.Count - 1)
+            if (m_FTUEIndex < m_ftueData.Count - 1)         //检测FTUE有多条的情况
             {
 				HideHighLight();
 				++m_FTUEIndex;
@@ -262,7 +247,7 @@ public class UIFTUE : UIWindow
             }
             else                                            //若没有
             {
-				EndFTUE();
+				EndFTUE();                                  //结束当前这个FTUE
             }
         }
 	}

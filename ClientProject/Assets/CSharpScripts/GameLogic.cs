@@ -4102,6 +4102,7 @@ public class GameLogic
             {
                 return;
             }
+            ftue.HideHighLight();
         }
 
         m_selectedPos[1] = p;

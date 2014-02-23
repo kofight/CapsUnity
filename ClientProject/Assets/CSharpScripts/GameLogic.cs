@@ -75,6 +75,8 @@ public struct Position
     {
         x = -99999;
     }
+
+    public static Position UnAvailablePos = new Position(-99999, -99999);
 };
 
 public class GridSprites
@@ -282,6 +284,13 @@ public class GameLogic
     LinkedList<DelayProceedGrid> m_delayProcessGrid = new LinkedList<DelayProceedGrid>();           //延迟处理消除对场景的影响
 
     Position [] m_saveHelpBlocks = new Position[3];        //用来保存帮助找到的可消块
+
+    ///特殊游戏状态///////////////////////////////////////////////////////////////////////
+    bool m_gettingExtraScore = false;                                           //特殊状态，获得额外的分数
+    bool m_stoppingChocoGrow = false;                                           //特殊状态，停止巧克力生长
+    int m_stoppingChocoGrowStepLeft;                                            //停止巧克力生长的剩余步数
+    bool m_stoppingTime = false;                                                //特殊状态，时间暂停
+    int m_stoppingTimeStepLeft;                                                 //停止时间的剩余步数
 
     //用这4个数来记录每关实际块的范围，用来计算游戏区位置及优化性能
     int BlockXStart = 0;
@@ -699,6 +708,31 @@ public class GameLogic
             ftue = UIWindowManager.Singleton.CreateWindow<UIFTUE>();
         }
 		ftue.ResetFTUEStep();
+
+        ///处理游戏开始使用的道具///////////////////////////////////////////////////////////////////////
+        for (int i = 0; i < 3; ++i )
+        {
+            if (GlobalVars.StartStageItem[i] == PurchasedItem.ItemPreGame_AddEatColor)
+            {
+                Position pos = FindRandomPos(TBlockColor.EColor_None, null, true);
+                m_blocks[pos.x, pos.y].special = TSpecialBlock.ESpecial_EatAColor;
+                m_blocks[pos.x, pos.y].RefreshBlockSprite(PlayingStageData.GridData[pos.x, pos.y]);
+            }
+            else if (GlobalVars.StartStageItem[i] == PurchasedItem.ItemPreGame_ExtraScore)
+            {
+                m_gettingExtraScore = true;
+            }
+            else if (GlobalVars.StartStageItem[i] == PurchasedItem.ItemPreGame_PlusStep)
+            {
+                GameLogic.Singleton.PlayingStageData.StepLimit += 5;        //步数加5
+            }
+            else if (GlobalVars.StartStageItem[i] == PurchasedItem.ItemPreGame_PlusTime)
+            {
+                AddGameTime(15);
+            }
+
+            GlobalVars.StartStageItem[i] = PurchasedItem.None;
+        }
     }
 
     void ProcessGridSprites(int x, int y)
@@ -1109,6 +1143,10 @@ public class GameLogic
 
         m_bStopFTUE = false;
 
+        m_gettingExtraScore = false;
+        m_stoppingChocoGrow = false;
+        m_stoppingTime = false;
+
         CapBlock.DropingBlockCount = 0;
         CapBlock.EatingBlockCount = 0;
 
@@ -1290,6 +1328,21 @@ public class GameLogic
                 UIDrawer.Singleton.DrawSprite("InviPortalEnd" + pair.Key, GetXPos(pair.Value.to.x), GetYPos(pair.Value.to.x, pair.Value.to.y), "InviPortalEnd", 3);
             }
         }
+
+        UIDrawer.Singleton.CurDepth = 5;
+        if (m_gettingExtraScore)
+        {
+            UIDrawer.Singleton.DrawSprite(PurchasedItem.ItemPreGame_ExtraScore.ToString(), 100, 100, PurchasedItem.ItemPreGame_ExtraScore.ToString(), UIDrawer.Singleton.spriteDefaultPrefabID);       //出生点   
+        }
+        if (m_stoppingChocoGrow)
+        {
+            UIDrawer.Singleton.DrawSprite(PurchasedItem.ItemPreGame_ExtraScore.ToString(), 200, 100, PurchasedItem.ItemPreGame_ExtraScore.ToString(), UIDrawer.Singleton.spriteDefaultPrefabID);       //出生点   
+        }
+        if (m_stoppingTime)
+        {
+            UIDrawer.Singleton.DrawSprite(PurchasedItem.ItemPreGame_ExtraScore.ToString(), 300, 100, PurchasedItem.ItemPreGame_ExtraScore.ToString(), UIDrawer.Singleton.spriteDefaultPrefabID);       //出生点   
+        }
+        UIDrawer.Singleton.CurDepth = 0;
     }
 
     void ProcessState()     //处理各个状态
@@ -1470,22 +1523,17 @@ public class GameLogic
                 if (PlayingStageData.StepLimit > 0)
                 {
                     Position pos = FindRandomPos(TBlockColor.EColor_None, null, true);
-                    if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Cage))
+                    if (pos.IsAvailable())
                     {
-                        PlayingStageData.ClearFlag(pos.x, pos.y, GridFlag.Cage);
-                        AddPartile("CageEffect", AudioEnum.Audio_Cage, pos.x, pos.y);
-                        m_scoreToShow[pos.x, pos.y] += CapsConfig.EatCagePoint;
-                        m_gridBackImage[pos.x, pos.y].layer1.gameObject.SetActive(false);
-                        m_cageCheckList.Add(new Position(pos.x, pos.y));                //记录一个位置，之后需要再检查一次消除
-                    }
-                    //if (PlayingStageData.Target == GameTarget.BringFruitDown)
-                    {
-                        
                         m_blocks[pos.x, pos.y].special = TSpecialBlock.ESpecial_EatLineDir0 + (m_random.Next() % 3);
                         m_blocks[pos.x, pos.y].RefreshBlockSprite(PlayingStageData.GridData[pos.x, pos.y]);
                         AddPartile(CapsConfig.AddSpecialEffect, AudioEnum.Audio_itemBirth, pos.x, pos.y);
                         AddProgress(CapsConfig.SugarCrushStepReward, pos.x, pos.y);
                         --PlayingStageData.StepLimit;           //步数减一
+                    }
+                    else
+                    {
+                        PlayingStageData.StepLimit = 0;         //没地方放奖励了，直接置0
                     }
                 }
                 else
@@ -2869,7 +2917,7 @@ public class GameLogic
                 }
 
                 if (m_blocks[i, j] == null || m_blocks[i, j].color > TBlockColor.EColor_Grey
-                    || m_blocks[i, j].color == excludeColor || m_blocks[i, j].special == TSpecialBlock.ESpecial_EatAColor || m_blocks[i, j].IsEating())
+                    || m_blocks[i, j].color == excludeColor || m_blocks[i, j].special == TSpecialBlock.ESpecial_EatAColor || m_blocks[i, j].CurState != BlockState.Normal)
                 {
                     if (i == BlockCountX - 1 && j == BlockCountY - 1)//Repeat the loop till get a result
                     {
@@ -2919,7 +2967,7 @@ public class GameLogic
                 }
             }
         }
-        return new Position(-1, -1);
+        return Position.UnAvailablePos;
     }
 
     void ChangeColor(Position pos, TBlockColor color)

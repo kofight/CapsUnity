@@ -46,8 +46,12 @@ public class GlobalVars {
     public static int HeartCount = 5;                   //爱心数量
     public static System.DateTime GetHeartTime;         //获得爱心的时间
 	
+    ///当前正在使用的道具//////////////////////////////////////////////////////////////
 	public static PurchasedItem UsingItem = PurchasedItem.None;
     public static Position UsingItemTarget;             //使用道具的目标点
+
+    ///进入关卡携带的道具///////////////////////////////////////////////////////////
+    public static PurchasedItem [] StartStageItem = new PurchasedItem[3];          //进入关卡使用3个道具
 
     public static void AddHeart(int count)
     {

@@ -19,28 +19,32 @@ public class UIGameEnd : UIWindow
     UIToggle m_scoreCheck;
     UIToggle m_jellyCheck;
     UIToggle m_nutsCheck;
+
+    UISprite m_planOnItemIcon;
 	
     public override void OnCreate()
     {
         base.OnCreate();
 
-        m_playOnBtn = UIToolkits.FindComponent<UIButton>(mUIObject.transform, "PlayOnBtn");
-        m_EndGameBtn = UIToolkits.FindComponent<UIButton>(mUIObject.transform, "EndGameBtn");
-		
-		m_curScore = UIToolkits.FindComponent<NumberDrawer>(mUIObject.transform, "CurScore");
-        m_targetScore = UIToolkits.FindComponent<NumberDrawer>(mUIObject.transform, "TargetScore");
+        m_playOnBtn = GetChildComponent<UIButton>("PlayOnBtn");
+        m_EndGameBtn = GetChildComponent<UIButton>("EndGameBtn");
 
-        m_curJelly = UIToolkits.FindComponent<NumberDrawer>(mUIObject.transform, "CurJelly");
-        m_targetJelly = UIToolkits.FindComponent<NumberDrawer>(mUIObject.transform, "TargetJelly");
+        m_curScore = GetChildComponent<NumberDrawer>("CurScore");
+        m_targetScore = GetChildComponent<NumberDrawer>("TargetScore");
 
-        m_curNut1 = UIToolkits.FindComponent<NumberDrawer>(mUIObject.transform, "CurNut1");
-        m_targetNut1 = UIToolkits.FindComponent<NumberDrawer>(mUIObject.transform, "TargetNut1");
-        m_curNut2 = UIToolkits.FindComponent<NumberDrawer>(mUIObject.transform, "CurNut2");
-        m_targetNut2 = UIToolkits.FindComponent<NumberDrawer>(mUIObject.transform, "TargetNut2");
+        m_curJelly = GetChildComponent<NumberDrawer>("CurJelly");
+        m_targetJelly = GetChildComponent<NumberDrawer>("TargetJelly");
 
-        m_scoreCheck = UIToolkits.FindComponent<UIToggle>(mUIObject.transform, "CheckBoxScore");
-        m_jellyCheck = UIToolkits.FindComponent<UIToggle>(mUIObject.transform, "CheckBoxJelly");
-        m_nutsCheck = UIToolkits.FindComponent<UIToggle>(mUIObject.transform, "CheckBoxNuts");
+        m_curNut1 = GetChildComponent<NumberDrawer>("CurNut1");
+        m_targetNut1 = GetChildComponent<NumberDrawer>("TargetNut1");
+        m_curNut2 = GetChildComponent<NumberDrawer>("CurNut2");
+        m_targetNut2 = GetChildComponent<NumberDrawer>("TargetNut2");
+
+        m_scoreCheck = GetChildComponent<UIToggle>("CheckBoxScore");
+        m_jellyCheck = GetChildComponent<UIToggle>("CheckBoxJelly");
+        m_nutsCheck = GetChildComponent<UIToggle>("CheckBoxNuts");
+
+        m_planOnItemIcon = GetChildComponent<UISprite>("ItemIcon");
 		
         AddChildComponentMouseClick("EndGameBtn", OnEndGameClicked);
         AddChildComponentMouseClick("PlayOnBtn", OnPlayOnClicked);
@@ -101,6 +105,15 @@ public class UIGameEnd : UIWindow
         {
             m_nutsCheck.gameObject.SetActive(false);
             m_jellyCheck.gameObject.SetActive(false);
+        }
+
+        if (GlobalVars.CurStageData.StepLimit > 0)
+        {
+            m_planOnItemIcon.spriteName = PurchasedItem.ItemAfterGame_PlusStep.ToString();
+        }
+        else if (GlobalVars.CurStageData.TimeLimit > 0)
+        {
+            m_planOnItemIcon.spriteName = PurchasedItem.ItemAfterGame_PlusStep.ToString();
         }
 
         GameLogic.Singleton.PauseGame();

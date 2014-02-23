@@ -27,6 +27,20 @@ public class UIPurchaseNotEnoughMoney : UIWindow
 			HideWindow(delegate()
 			{
 				UIWindowManager.Singleton.GetUIWindow<UIStore>().ShowWindow();
+                UIWindowManager.Singleton.GetUIWindow<UIStore>().OnPurchaseFunc = delegate()
+                {
+                    //打开使用窗口
+                    if (GlobalVars.UsingItem == PurchasedItem.ItemInGame_Hammer)
+                    {
+                        UIWindow uiWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseTarget>();
+                        uiWindow.ShowWindow();
+                    }
+                    else
+                    {
+                        UIWindow uiWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>();
+                        uiWindow.ShowWindow();
+                    }
+                };
 			});
 		});
 

@@ -4,6 +4,9 @@ using System;
 
 public class UIStore : UIWindow 
 {
+    public UIWindow.WindowEffectFinished OnPurchaseFunc;
+    public UIWindow.WindowEffectFinished OnCancelFunc;
+
     public override void OnCreate()
     {
         base.OnCreate();
@@ -12,6 +15,7 @@ public class UIStore : UIWindow
         AddChildComponentMouseClick("CloseBtn", delegate()
         {
             HideWindow();
+            UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(OnCancelFunc);        //设置完成后执行的函数
         });
 
         AddChildComponentMouseClick("BuyItem1Btn", delegate()
@@ -70,20 +74,7 @@ public class UIStore : UIWindow
         Debug.Log("Purchase Succeed");
         UIWindowManager.Singleton.GetUIWindow<UIWait>().HideWindow();
         UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().ShowWindow();
-        UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(delegate()        //设置完成后执行的函数
-        {
-            //打开使用窗口
-            if (GlobalVars.UsingItem == PurchasedItem.ItemInGame_Hammer)
-            {
-                UIWindow uiWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseTarget>();
-                uiWindow.ShowWindow();
-            }
-            else
-            {
-                UIWindow uiWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>();
-                uiWindow.ShowWindow();
-            }
-        });
+        UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(OnPurchaseFunc);        //设置完成后执行的函数
         UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetString(Localization.instance.Get("PurchaseSucceed"));
     }
 
@@ -94,6 +85,7 @@ public class UIStore : UIWindow
         UIWindowManager.Singleton.GetUIWindow<UIWait>().HideWindow();
         UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().ShowWindow();
         UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetString(Localization.instance.Get("PurchaseFailed"));
+        UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(OnCancelFunc);        //设置完成后执行的函数
     }
 
     void OnPurchaseCancelled(PurchasableItem item)      //主动取消购买
@@ -103,6 +95,7 @@ public class UIStore : UIWindow
         UIWindowManager.Singleton.GetUIWindow<UIWait>().HideWindow();
         UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().ShowWindow();
         UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetString(Localization.instance.Get("PurchaseCancelled"));
+        UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(OnCancelFunc);        //设置完成后执行的函数
     }
 
     public override void OnShow()
@@ -119,5 +112,7 @@ public class UIStore : UIWindow
         Unibiller.onPurchaseComplete -= OnPurchased;
         Unibiller.onPurchaseFailed -= OnPurchaseFailed;
         Unibiller.onPurchaseCancelled -= OnPurchaseCancelled;
+        OnPurchaseFunc = null;
+        OnCancelFunc = null;
     }
 }

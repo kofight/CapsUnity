@@ -728,7 +728,8 @@ public class GameLogic
             }
             else if (GlobalVars.StartStageItem[i] == PurchasedItem.ItemPreGame_PlusTime)
             {
-                AddGameTime(15);
+                GlobalVars.CurStageData.TimeLimit += 20;                    //增加20秒限制
+                GameLogic.Singleton.PlayingStageData.TimeLimit += 20;       //增加20秒限制
             }
 
             GlobalVars.StartStageItem[i] = PurchasedItem.None;
@@ -886,6 +887,18 @@ public class GameLogic
             }
         }
         return false;
+    }
+
+    public void UserStopTimeItem()
+    {
+        m_stoppingTime = true;
+        m_stoppingTimeStepLeft = 7;
+    }
+
+    public void UseStopChocoItem()
+    {
+        m_stoppingChocoGrow = true;
+        m_stoppingChocoGrowStepLeft = 7;
     }
 
     public void AutoResort()           //自动重排功能 Todo 没处理交换后形成消除的情况，不确定要不要处理
@@ -1336,11 +1349,11 @@ public class GameLogic
         }
         if (m_stoppingChocoGrow)
         {
-            UIDrawer.Singleton.DrawSprite(PurchasedItem.ItemPreGame_ExtraScore.ToString(), 200, 100, PurchasedItem.ItemPreGame_ExtraScore.ToString(), UIDrawer.Singleton.spriteDefaultPrefabID);       //出生点   
+            UIDrawer.Singleton.DrawSprite(PurchasedItem.ItemPreGame_ExtraScore.ToString(), 200, 100, PurchasedItem.ItemInGame_ChocoStoper.ToString(), UIDrawer.Singleton.spriteDefaultPrefabID);       //出生点   
         }
         if (m_stoppingTime)
         {
-            UIDrawer.Singleton.DrawSprite(PurchasedItem.ItemPreGame_ExtraScore.ToString(), 300, 100, PurchasedItem.ItemPreGame_ExtraScore.ToString(), UIDrawer.Singleton.spriteDefaultPrefabID);       //出生点   
+            UIDrawer.Singleton.DrawSprite(PurchasedItem.ItemPreGame_ExtraScore.ToString(), 300, 100, PurchasedItem.ItemInGame_TimeStoper.ToString(), UIDrawer.Singleton.spriteDefaultPrefabID);       //出生点   
         }
         UIDrawer.Singleton.CurDepth = 0;
     }
@@ -1909,6 +1922,12 @@ public class GameLogic
 
                 flyParticle.par.transform.localPosition = Vector3.Lerp(flyParticle.start, flyParticle.end, (Timer.GetRealTimeSinceStartUp() - flyParticle.startTime) / flyParticle.duration);        //指定位置
             }
+        }
+
+        //时间暂停但仍可继续游戏的状态
+        if (m_stoppingTime)
+        {
+            m_gameStartTime += (long)(Time.deltaTime * 1000);
         }
     }
 
@@ -3551,7 +3570,33 @@ public class GameLogic
 
         CheckFTUE();            //检测一次FTUE
 
-        if (m_chocolateNeedGrow)        //若需要巧克力生长
+        if (m_stoppingChocoGrow)        //处理停止巧克力生长状态的更新
+        {
+            if (m_stoppingChocoGrowStepLeft > 0)
+            {
+                --m_stoppingChocoGrowStepLeft;
+            }
+
+            if (m_stoppingChocoGrowStepLeft == 0)
+            {
+                m_stoppingChocoGrow = false;
+            }
+        }
+
+        if (m_stoppingTime)             //处理停止时间状态的更新
+        {
+            if (m_stoppingTimeStepLeft > 0)
+            {
+                --m_stoppingTimeStepLeft;
+            }
+
+            if (m_stoppingTimeStepLeft == 0)
+            {
+                m_stoppingTime = false;
+            }
+        }
+
+        if (m_chocolateNeedGrow && !m_stoppingChocoGrow)        //若需要巧克力生长
         {
             ChocolateGrow();
         }

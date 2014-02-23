@@ -61,6 +61,16 @@ public class UIPurchaseNoTarget : UIWindow
                 {
                     GameLogic.Singleton.AutoResort();           //自动重排
                 }
+
+                if (GlobalVars.UsingItem == PurchasedItem.ItemInGame_ChocoStoper)       //停止巧克力
+                {
+                    GameLogic.Singleton.UseStopChocoItem();
+                }
+
+                if (GlobalVars.UsingItem == PurchasedItem.ItemInGame_TimeStoper)        //时间暂停
+                {
+                    GameLogic.Singleton.UserStopTimeItem();
+                }
             }
         });
     }

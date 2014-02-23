@@ -22,22 +22,17 @@ public class UIGameHead : UIWindow
 		{
 			UserOrBuyItem(PurchasedItem.ItemInGame_Hammer);
 		});
-
-        if (GlobalVars.CurStageData.TimeLimit > 0)
+        AddChildComponentMouseClick("UseItem3Btn", delegate()
         {
-            AddChildComponentMouseClick("UseItem3Btn", delegate()
-            {
-                UserOrBuyItem(PurchasedItem.ItemInGame_ChocoStoper);
-            });
-        }
-
-        if (GlobalVars.CurStageData.StepLimit > 0)
-        {
-            AddChildComponentMouseClick("UseItem3Btn", delegate()
+            if (GlobalVars.CurStageData.TimeLimit > 0)
             {
                 UserOrBuyItem(PurchasedItem.ItemInGame_TimeStoper);
-            });
-        }
+            }
+            if (GlobalVars.CurStageData.ChocolateCount > 0)
+            {
+                UserOrBuyItem(PurchasedItem.ItemInGame_ChocoStoper);
+            }
+        });
 
         m_fruitBoard = UIToolkits.FindChild(mUIObject.transform, "FruitBoard").gameObject;
         m_jellyBoard = UIToolkits.FindChild(mUIObject.transform, "JellyBoard").gameObject;
@@ -92,6 +87,32 @@ public class UIGameHead : UIWindow
             m_jellyBoard.SetActive(false);
             m_scoreBoard.SetActive(true);
             UIToolkits.FindComponent<NumberDrawer>(m_scoreBoard.transform, "ScoreNum").SetNumber(GlobalVars.CurStageData.StarScore[0]);
+        }
+
+        if (GlobalVars.CurStageData.TimeLimit > 0)
+        {
+            UserOrBuyItem(PurchasedItem.ItemInGame_TimeStoper);
+        }
+        if (GlobalVars.CurStageData.ChocolateCount > 0)
+        {
+            UserOrBuyItem(PurchasedItem.ItemInGame_ChocoStoper);
+        }
+
+        UISprite item3Icon = GetChildComponent<UISprite>("Item3Icon");
+
+        if (GlobalVars.CurStageData.TimeLimit > 0)
+        {
+            item3Icon.spriteName = PurchasedItem.ItemInGame_TimeStoper.ToString();
+            item3Icon.transform.parent.gameObject.SetActive(true);
+        }
+        else if (GlobalVars.CurStageData.ChocolateCount > 0)
+        {
+            item3Icon.spriteName = PurchasedItem.ItemInGame_ChocoStoper.ToString();
+            item3Icon.transform.parent.gameObject.SetActive(true);
+        }
+        else
+        {
+            item3Icon.transform.parent.gameObject.SetActive(false);
         }
 
         RefreshTarget();

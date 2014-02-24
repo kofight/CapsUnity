@@ -61,6 +61,8 @@ public class FTUEData
     public bool bHighLightBackground;               //是否高亮背景
     public bool bHighLightBlock;                    //是否高亮前景
     public List<Position> highLightPosList;
+    public int dialogPos = 0;                           //对话框位置0,1(上下)
+    public int picturePos = 0;                          //图片位置
 }
 
 public class Portal
@@ -387,12 +389,24 @@ public class StageData
                             data.bHighLightBackground = true;
                             data.bHighLightBlock = true;
                         }
-                        data.bHighLightBackground = (System.Convert.ToInt32(values[7]) > 0);
+						else if (System.Convert.ToInt32(values[7]) == 0)
+						{
+							data.bHighLightBackground = false;
+                        	data.bHighLightBlock = true;
+						}
                     }
                     else
                     {
                         data.bHighLightBackground = false;
                         data.bHighLightBlock = true;
+                    }
+
+                    if (values.Length > 8)
+                    {
+                        posArray = values[8].Split(',');
+
+                        data.dialogPos = System.Convert.ToInt32(posArray[0]);
+                        data.picturePos = System.Convert.ToInt32(posArray[1]);
                     }
 
                     curFTUEGroup.Add(data);                               //添加对话数据

@@ -172,8 +172,6 @@ public class UIGameEnd : UIWindow
                         UIWindow uiWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>();
                         uiWindow.ShowWindow();
                     }
-                    
-                    
                 });
         }
     }

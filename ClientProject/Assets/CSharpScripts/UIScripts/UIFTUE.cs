@@ -8,7 +8,9 @@ public class UIFTUE : UIWindow
     UISprite m_dialogBoardSprite;
 	UISprite m_headSprite;
     UISprite m_backPic;
-    UISprite m_pic;             //配的图片
+    UISprite [] m_pic = new UISprite [9];             //配的图片
+
+    Transform m_dialogTrans;
 
     UILabel m_clickLabel;
 
@@ -140,12 +142,36 @@ public class UIFTUE : UIWindow
 
         if (pic != "None")
         {
-            m_pic.gameObject.SetActive(true);
-            m_pic.spriteName = pic;
+            for (int i = 0; i < 9; ++i )
+            {
+                if (i != m_ftueData[m_FTUEIndex].picturePos - 1)
+                {
+                    m_pic[i].gameObject.SetActive(false);
+                }
+                else
+                {
+                    m_pic[i].gameObject.SetActive(true);
+                    m_pic[i].spriteName = pic;
+                }
+            }
         }
         else
         {
-            m_pic.gameObject.SetActive(false);
+            for (int i = 0; i < 9; ++i)
+            {
+                m_pic[i].gameObject.SetActive(false);
+            }
+        }
+
+        if (m_ftueData[m_FTUEIndex].dialogPos == 0)
+        {
+            m_dialogBoardSprite.spriteName = "TextBox";
+            m_dialogTrans.LocalPositionY(334);
+        }
+        else
+        {
+            m_dialogBoardSprite.spriteName = "TextBox3";
+            m_dialogTrans.LocalPositionY(-311);
         }
 		
 		m_dialogContents = content.Split('@');
@@ -168,11 +194,18 @@ public class UIFTUE : UIWindow
 		m_headSprite = GetChildComponent<UISprite>("Head");
         m_dialogBoardSprite = GetChildComponent<UISprite>("DialogBoard");
         m_dialogEffectPlayer = m_dialogBoardSprite.GetComponent<UIEffectPlayer>();
-        m_pic = GetChildComponent<UISprite>("Picture");
         m_pointer = GameObject.Find("FTUEPointer");
         m_pointer.SetActive(false);
         m_clickLabel = GetChildComponent<UILabel>("ClickLabel");
+
+        m_dialogTrans = mUIObject.transform.FindChild("DialogBoard");
+
 		AddChildComponentMouseClick("DialogBoard", OnClick);
+
+        for (int i=0; i<9; ++i)
+        {
+            m_pic[i] = GetChildComponent<UISprite>("Picture" + (i+1).ToString());
+        }
     }
 
     public void EndFTUE()

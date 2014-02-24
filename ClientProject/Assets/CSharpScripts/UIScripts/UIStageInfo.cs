@@ -11,6 +11,8 @@ public class UIStageInfo : UIWindow
 
     int m_moneyCost = 0;
 
+    public int GetCurCost() { return m_moneyCost; }
+
     public override void OnCreate()
     {
         base.OnCreate();
@@ -21,6 +23,7 @@ public class UIStageInfo : UIWindow
         {
             m_itemCostLabels[i] = GetChildComponent<UILabel>("Item" + (i+1).ToString() +"Cost");
             m_itemToggles[i] = GetChildComponent<UIToggle>("Item" + (i + 1).ToString() + "Btn");
+			m_itemToggles[i].SetWithoutTrigger(false);
             EventDelegate.Set(m_itemToggles[i].onChange, OnToggle);
         }
 
@@ -31,8 +34,13 @@ public class UIStageInfo : UIWindow
     public void OnToggle()
     {
         m_moneyCost = 0;
+        int curItemIndex = -1;
         for (int i = 0; i < 3; ++i)
         {
+            if (UIToggle.current == m_itemToggles[i])
+            {
+                curItemIndex = i;
+            }
             if (m_itemToggles[i].value)
             {
                 GlobalVars.StartStageItem[i] = m_items[i];
@@ -42,6 +50,33 @@ public class UIStageInfo : UIWindow
             {
                 GlobalVars.StartStageItem[i] = PurchasedItem.None;
             }
+        }
+
+        if (m_moneyCost > Unibiller.GetCurrencyBalance("gold"))
+        {
+			UIToggle.current.SetWithoutTrigger(false);     //把值置回来
+            m_moneyCost -= CapsConfig.GetItemPrice(m_items[curItemIndex]);
+            GlobalVars.StartStageItem[curItemIndex] = PurchasedItem.None;
+			
+            HideWindow(delegate()
+            {
+
+
+                //弹出购买金币提示
+                UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>().OnCancelFunc = delegate()
+                {
+                    ShowWindow();
+                };
+
+                UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>().OnPurchaseFunc = delegate()
+                {
+                    ShowWindow();
+                };
+
+                GlobalVars.UsingItem = m_items[curItemIndex];
+
+                UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>().ShowWindow();
+            });
         }
     }
 
@@ -89,11 +124,6 @@ public class UIStageInfo : UIWindow
         UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().HideWindow();
     }
 
-    public override void OnUpdate()
-    {
-        base.OnUpdate();
-    }
-
     public void OnCloseClicked()
     {
         HideWindow();
@@ -109,6 +139,21 @@ public class UIStageInfo : UIWindow
         {
             UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
         }
+
+        ClearToggles();
+    }
+
+    public void ClearToggles()
+    {
+        //清理CheckBox
+        for (int i = 0; i < 3; ++i)
+        {
+            if (m_itemToggles[i].value)
+            {
+                m_itemToggles[i].SetWithoutTrigger(false);
+            }
+        }
+        m_moneyCost = 0;
     }
 
     private void OnPlayClicked()
@@ -126,7 +171,8 @@ public class UIStageInfo : UIWindow
                 {
                     GlobalVars.StartStageItem[i] = PurchasedItem.None;
                 }
-            } 
+            }
+            ClearToggles();
         }
         else        //若钱不够
         {

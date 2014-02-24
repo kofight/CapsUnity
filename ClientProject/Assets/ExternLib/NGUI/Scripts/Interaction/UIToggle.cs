@@ -239,4 +239,68 @@ public class UIToggle : UIWidgetContainer
 			}
 		}
 	}
+
+    public void SetWithoutTrigger(bool state)
+    {
+        if (!mStarted)
+        {
+            mIsActive = state;
+            startsActive = state;
+            if (activeSprite != null) activeSprite.alpha = state ? 1f : 0f;
+        }
+        else if (mIsActive != state)
+        {
+            // Uncheck all other toggles
+            if (group != 0 && state)
+            {
+                for (int i = 0, imax = list.size; i < imax; )
+                {
+                    UIToggle cb = list[i];
+                    if (cb != this && cb.group == group) cb.Set(false);
+
+                    if (list.size != imax)
+                    {
+                        imax = list.size;
+                        i = 0;
+                    }
+                    else ++i;
+                }
+            }
+
+            // Remember the state
+            mIsActive = state;
+
+            // Tween the color of the active sprite
+            if (activeSprite != null)
+            {
+                if (instantTween)
+                {
+                    activeSprite.alpha = mIsActive ? 1f : 0f;
+                }
+                else
+                {
+                    TweenAlpha.Begin(activeSprite.gameObject, 0.15f, mIsActive ? 1f : 0f);
+                }
+            }
+
+            current = this;
+
+            //if (EventDelegate.IsValid(onChange))
+            //{
+            //    EventDelegate.Execute(onChange);
+            //}
+            //else if (eventReceiver != null && !string.IsNullOrEmpty(functionName))
+            //{
+            //    // Legacy functionality support (for backwards compatibility)
+            //    eventReceiver.SendMessage(functionName, mIsActive, SendMessageOptions.DontRequireReceiver);
+            //}
+            current = null;
+
+            // Play the checkmark animation
+            if (activeAnimation != null)
+            {
+                ActiveAnimation.Play(activeAnimation, state ? Direction.Forward : Direction.Reverse);
+            }
+        }
+    }
 }

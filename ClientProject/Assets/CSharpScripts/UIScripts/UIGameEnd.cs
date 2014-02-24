@@ -64,9 +64,21 @@ public class UIGameEnd : UIWindow
             {
                 label.text = Localization.instance.Get("OutOfTime");
             }
+
+            m_planOnItemIcon.transform.parent.gameObject.SetActive(true);
+
+            if (GlobalVars.CurStageData.StepLimit > 0)
+            {
+                m_planOnItemIcon.spriteName = PurchasedItem.ItemAfterGame_PlusStep.ToString();
+            }
+            else if (GlobalVars.CurStageData.TimeLimit > 0)
+            {
+                m_planOnItemIcon.spriteName = PurchasedItem.ItemAfterGame_PlusStep.ToString();
+            }
         }
         else
         {
+            m_planOnItemIcon.transform.parent.gameObject.SetActive(false);
             label.text = Localization.instance.Get("GamePaused");
         }
 
@@ -105,15 +117,6 @@ public class UIGameEnd : UIWindow
         {
             m_nutsCheck.gameObject.SetActive(false);
             m_jellyCheck.gameObject.SetActive(false);
-        }
-
-        if (GlobalVars.CurStageData.StepLimit > 0)
-        {
-            m_planOnItemIcon.spriteName = PurchasedItem.ItemAfterGame_PlusStep.ToString();
-        }
-        else if (GlobalVars.CurStageData.TimeLimit > 0)
-        {
-            m_planOnItemIcon.spriteName = PurchasedItem.ItemAfterGame_PlusStep.ToString();
         }
 
         GameLogic.Singleton.PauseGame();
@@ -169,8 +172,16 @@ public class UIGameEnd : UIWindow
                     }
                     else
                     {
-                        UIWindow uiWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>();
+                        UIPurchaseNotEnoughMoney uiWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>();
                         uiWindow.ShowWindow();
+                        uiWindow.OnCancelFunc = delegate()              //若取消，还显示GameEnd窗口
+                        {
+                            ShowWindow();
+                        };
+                        uiWindow.OnPurchaseFunc = delegate()            //若成功，显示使用道具窗口
+                        {
+                            UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>().ShowWindow();
+                        };
                     }
                 });
         }

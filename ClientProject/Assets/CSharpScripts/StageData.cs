@@ -62,7 +62,7 @@ public class FTUEData
     public bool bHighLightBlock;                    //是否高亮前景
     public List<Position> highLightPosList;
     public int dialogPos = 0;                           //对话框位置0,1(上下)
-    public int picturePos = 0;                          //图片位置
+    public int picturePos = 1;                          //图片位置
 }
 
 public class Portal

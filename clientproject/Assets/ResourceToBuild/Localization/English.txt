@@ -39,14 +39,33 @@ PurchaseSucceed = Purchase succeed
 PurchaseFailed = Purchase failed
 PurchaseCancelled = Purchase cancelled
 EnterShop = Enter shop
+
+Intro_ItemPreGame_PlusStep = 增加7步
+Intro_ItemPreGame_AddEatColor = 增加一个道具
+Intro_ItemPreGame_PlusTime = 增加20秒
+Intro_ItemPreGame_ExtraScore = 获得120%的分数
+
 Intro_ItemInGame_Resort = 使用就可以重排所有块
 Intro_ItemInGame_Hammer = Knock one block
+Intro_ItemInGame_ChocoStoper = 巧克力停止生长7步
+Intro_ItemInGame_TimeStoper= 时间停止7步
+
 Intro_ItemAfterGame_PlusStep = Add 5 extra steps
 Intro_ItemAfterGame_PlusTime = Add 5 extra seconds
+
 Use_ItemInGame_Resort = 重排？
 Use_ItemInGame_Hammer = Knock the block？
+Use_ItemInGame_ChocoStoper = 巧克力停止生长7步
+Use_ItemInGame_TimeStoper= 时间停止7步
+
 Use_ItemAfterGame_PlusStep = Add 5 steps？
 Use_ItemAfterGame_PlusTime = Add 15 seconds？
+
+Use_ItemPreGame_PlusStep = 增加7步
+Use_ItemPreGame_AddEatColor = 增加一个道具
+Use_ItemPreGame_PlusTime = 增加20秒
+Use_ItemPreGame_ExtraScore = 获得120%的分数
+
 NotEnoughMoney = Out of money
 Get140Coins = Get 140 Coins
 QuitConfirm = Do you want quit the game?

@@ -474,6 +474,10 @@ public class GameLogic
     public int GetProgress() { return m_progress; }
     public void AddProgress(int progress, int x, int y)     //增加分数，同时在某位置显示一个得分的数字特效
     {
+        if (m_gettingExtraScore)
+        {
+            progress = (int)(progress * 1.2f);
+        }
         m_progress += progress;
         UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().OnChangeProgress(m_progress);
         AddNumber(progress, GetXPos(x), GetYPos(x, y));
@@ -724,7 +728,7 @@ public class GameLogic
             }
             else if (GlobalVars.StartStageItem[i] == PurchasedItem.ItemPreGame_PlusStep)
             {
-                GameLogic.Singleton.PlayingStageData.StepLimit += 5;        //步数加5
+                GameLogic.Singleton.PlayingStageData.StepLimit += 7;        //步数加5
             }
             else if (GlobalVars.StartStageItem[i] == PurchasedItem.ItemPreGame_PlusTime)
             {

@@ -30,7 +30,8 @@ public class AocTypewriterEffect : MonoBehaviour
 
                 char c = mText[mOffset];
 
-                if (c == '.' || c == '\n' || c == '!' || c == '?') delay *= 4f;
+                if (c == '.' || c == '\n' || c == '!' || c == '?'
+                    || c == '£¬' || c == '¡£') delay *= 4f;
 
                 if (c == '[')
                 {

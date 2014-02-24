@@ -13,9 +13,7 @@ public class AocTypewriterEffect : MonoBehaviour
 	UILabel mLabel;
 	string mText = string.Empty;
 	int mOffset = 0;
-
-    float delay;
-    float lastTime = 0.0f;
+    float mNextChar = 0f;
 
 	void Update()
 	{
@@ -26,21 +24,24 @@ public class AocTypewriterEffect : MonoBehaviour
 
         if( mOffset < mText.Length )
         {
-            if( lastTime + delay < Time.time )
+            if (mNextChar < RealTime.time)
             {
-                int Count = (int)( ( Time.time - lastTime ) / delay );
+                float delay = 1f / charsPerSecond;
 
-                if( mOffset + Count < mText.Length )
+                char c = mText[mOffset];
+
+                if (c == '.' || c == '\n' || c == '!' || c == '?') delay *= 4f;
+
+                if (c == '[')
                 {
-                    mOffset += Count;
-                    mLabel.text = mText.Substring( 0 , mOffset );
+                    if (mText[mOffset + 1] == '-')
+                        mOffset += 2;
+                    else
+                        mOffset += 7;
                 }
-                else
-                {
-                    mOffset = mText.Length;
-                    mLabel.text = mText;
-                }
-                lastTime = Time.time;
+
+                mNextChar = RealTime.time + delay;
+                mLabel.text = mText.Substring(0, ++mOffset);
             }
         }
         else
@@ -64,9 +65,7 @@ public class AocTypewriterEffect : MonoBehaviour
         CallWhenFinished = action;
         
         charsPerSecond = Mathf.Max( 1 , charsPerSecond );
-        delay = 1f / charsPerSecond;
 		mOffset = 0;
-        lastTime = Time.time;
     }
 
 

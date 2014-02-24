@@ -166,8 +166,13 @@ public class UIGameHead : UIWindow
 
         if (Unibiller.GetCurrencyBalance("gold") < CapsConfig.GetItemPrice(item))       //若钱不够，购买窗口
         {
-            UIWindow uiWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>();
+            UIPurchaseNotEnoughMoney uiWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>();
             uiWindow.ShowWindow();
+            uiWindow.OnPurchaseFunc = delegate()
+            {
+                UserOrBuyItem(item);
+            };
+            uiWindow.OnCancelFunc = null;                                               //取消时什么都不做，直接回到游戏
             return;
         }
 		

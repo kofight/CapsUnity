@@ -28,8 +28,7 @@ public class UILogin : UIWindow
 
         AddChildComponentMouseClick("AddCoinBtn", delegate()
         {
-            GlobalVars.Coins += 10;
-            PlayerPrefs.SetInt("Coins", GlobalVars.Coins);
+            Unibiller.CreditBalance("gold", 100);
         });
 
         AddChildComponentMouseClick("DebugBtn", delegate()

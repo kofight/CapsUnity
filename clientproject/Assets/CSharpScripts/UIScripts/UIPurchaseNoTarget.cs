@@ -6,6 +6,7 @@ public class UIPurchaseNoTarget : UIWindow
 {
 	UILabel m_msgLabel;
 	UILabel m_costLabel;
+    UISprite m_itemIcon;
 
     public override void OnCreate()
     {
@@ -14,6 +15,7 @@ public class UIPurchaseNoTarget : UIWindow
         AddChildComponentMouseClick("CancelBtn", OnCancelClicked);
 		m_msgLabel = GetChildComponent<UILabel>("IntroduceLabel");
 		m_costLabel = GetChildComponent<UILabel>("CostLabel");
+        m_itemIcon = GetChildComponent<UISprite>("ItemIcon");
     }
     public override void OnShow()
     {
@@ -23,6 +25,7 @@ public class UIPurchaseNoTarget : UIWindow
         //获取道具信息
         m_msgLabel.text = Localization.instance.Get("Use_" + GlobalVars.UsingItem.ToString());
         m_costLabel.text = CapsConfig.GetItemPrice(GlobalVars.UsingItem).ToString();
+        m_itemIcon.spriteName = GlobalVars.UsingItem.ToString();
 
         UIGameHead gamehead = UIWindowManager.Singleton.GetUIWindow<UIGameHead>();
         gamehead.ShowCoin(true);

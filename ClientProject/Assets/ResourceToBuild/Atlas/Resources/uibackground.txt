@@ -2,11 +2,11 @@
 
 "MapCloud.png":
 {
-	"frame": {"x":1441,"y":1,"w":719,"h":2045},
+	"frame": {"x":1441,"y":1,"w":719,"h":1136},
 	"rotated": false,
 	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":719,"h":2045},
-	"sourceSize": {"w":719,"h":2045}
+	"spriteSourceSize": {"x":0,"y":0,"w":719,"h":1136},
+	"sourceSize": {"w":719,"h":1136}
 },
 "MapPic0.png":
 {
@@ -39,6 +39,6 @@
 	"format": "RGBA8888",
 	"size": {"w":4096,"h":2048},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:b670ae663620afe8139eb9481886028d$"
+	"smartupdate": "$TexturePacker:SmartUpdate:aa800fb6c95d9ac64760ba2e300916d6$"
 }
 }

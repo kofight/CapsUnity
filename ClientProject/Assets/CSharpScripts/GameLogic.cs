@@ -1524,10 +1524,13 @@ public class GameLogic
                 //若达成过关条件，触发关卡结束对话，并在对话结束后出游戏结束窗口
                 if (IsStageFinish())
                 {
-                    UIWindowManager.Singleton.GetUIWindow<UIDialog>().TriggerDialog(GlobalVars.CurStageNum, DialogTriggerPos.StageEnd, delegate()
+                    Timer.AddDelayFunc(0.8f, delegate()
                     {
-                        UIWindowManager.Singleton.GetUIWindow<UIRetry>().RefreshData();
-                        UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();      //弹游戏结束的窗口
+                        UIWindowManager.Singleton.GetUIWindow<UIDialog>().TriggerDialog(GlobalVars.CurStageNum, DialogTriggerPos.StageEnd, delegate()
+                        {
+                            UIWindowManager.Singleton.GetUIWindow<UIRetry>().RefreshData();
+                            UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();      //弹游戏结束的窗口
+                        });
                     });
                 }
                 else //若没达成过关条件
@@ -3464,10 +3467,13 @@ public class GameLogic
                 HideUI();
 
                 //触发关卡结束对话，并在对话结束后切回大地图
-                UIWindowManager.Singleton.GetUIWindow<UIDialog>().TriggerDialog(GlobalVars.CurStageNum, DialogTriggerPos.StageEnd, delegate()
+                Timer.AddDelayFunc(0.8f, delegate()
                 {
-                    UIWindowManager.Singleton.GetUIWindow<UIRetry>().RefreshData();
-                    UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();
+                    UIWindowManager.Singleton.GetUIWindow<UIDialog>().TriggerDialog(GlobalVars.CurStageNum, DialogTriggerPos.StageEnd, delegate()
+                    {
+                        UIWindowManager.Singleton.GetUIWindow<UIRetry>().RefreshData();
+                        UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();
+                    });
                 });
             }
             return;

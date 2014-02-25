@@ -200,15 +200,14 @@ public class UIStageInfo : UIWindow
         {
             HideWindow(delegate()
             {
-				UIWindowManager.Singleton.GetUIWindow<UIDialog>().TriggerDialog(GlobalVars.CurStageNum, DialogTriggerPos.StageStart, delegate()
+                UIWindowManager.Singleton.GetUIWindow<UIDialog>().TriggerDialog(GlobalVars.CurStageNum, DialogTriggerPos.StageStart, delegate()
                 {
                     GameLogic.Singleton.Init();
-                	GameLogic.Singleton.StartGame();
-					UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
-					UIWindowManager.Singleton.GetUIWindow<UIGameHead>().ShowWindow();
-					UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().ShowWindow();
+                    GameLogic.Singleton.StartGame();
+                    UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
+                    UIWindowManager.Singleton.GetUIWindow<UIGameHead>().ShowWindow();
+                    UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().ShowWindow();
                 });
-
             });
         }
     }

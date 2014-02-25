@@ -119,6 +119,7 @@ public class UILogin : UIWindow
         base.OnShowEffectPlayOver();
 		UIButton playBtn = GetChildComponent<UIButton>("PlayBtn");
 		playBtn.GetComponent<UIEffectPlayer>().Delay = 0;
+        UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
     }
 
     public override void OnUpdate()

@@ -50,7 +50,6 @@ public class UIMainMenu : UIWindow
         }
         else if (UIWindowManager.Singleton.GetUIWindow<UIMap>().Visible)
         {
-            UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().HideWindow();
             UIWindowManager.Singleton.GetUIWindow<UIMap>().HideWindow();
             UIWindowManager.Singleton.GetUIWindow<UILogin>().ShowWindow();
         }

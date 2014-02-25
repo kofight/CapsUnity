@@ -311,7 +311,7 @@ public class GameLogic
     TBlockColor m_colorToBomb;                          //要变成Bomb的颜色
     float m_colorToBombLastTime;                        //同颜色变炸弹，上次发生时间
 
-
+    float m_endingAccelarateStartTime;                  //游戏结束时的额外加速的开始时间
 
     int m_comboCount;				//记录当前连击数
 	
@@ -907,6 +907,8 @@ public class GameLogic
 
     public void AutoResort()           //自动重排功能 Todo 没处理交换后形成消除的情况，不确定要不要处理
     {
+        ClearHelpPoint();
+
         Position[] array = new Position[BlockCountX * BlockCountY];
 
         int count = 0;
@@ -1157,7 +1159,7 @@ public class GameLogic
         m_curStateStartTime = 0;
         m_lastStepRewardTime = 0;
         m_lastHelpTime = 0;
-
+        m_endingAccelarateStartTime = 0;
         m_bStopFTUE = false;
 
         m_gettingExtraScore = false;
@@ -1510,6 +1512,7 @@ public class GameLogic
                 m_gameStartTime = 0;
                 m_gameFlow = TGameFlow.EGameState_End;
                 Time.timeScale = 1.0f;                                                        //恢复正常的时间比例
+                m_endingAccelarateStartTime = 0;
 
 
                 GameLogic.Singleton.PlayEndGameAnim();		//play the end anim(move the game area out of screen)
@@ -1932,6 +1935,18 @@ public class GameLogic
         if (m_stoppingTime)
         {
             m_gameStartTime += (long)(Time.deltaTime * 1000);
+        }
+
+        if (m_endingAccelarateStartTime > 0 && Timer.GetRealTimeSinceStartUp() > m_endingAccelarateStartTime)
+        {
+            if (Timer.GetRealTimeSinceStartUp() - m_endingAccelarateStartTime >5)
+            {
+                Time.timeScale = 1.5f;
+            }
+            else if (Timer.GetRealTimeSinceStartUp() - m_endingAccelarateStartTime > 10)
+            {
+                Time.timeScale = 1.75f;
+            }
         }
     }
 
@@ -3430,7 +3445,8 @@ public class GameLogic
             if (foundSpecial || PlayingStageData.StepLimit > 0)     //若能进SugarCrush
             {
                 m_gameFlow = TGameFlow.EGameState_SugarCrushAnim;
-                Time.timeScale = 1.1f;                                                        //临时加快时间
+                m_endingAccelarateStartTime = Timer.GetRealTimeSinceStartUp();
+                Time.timeScale = 1.2f;                                                        //临时加快时间
                 AddPartile("SugarCrushAnim", AudioEnum.Audio_None, 0, 0, false);
                 ClearHelpPoint();
                 m_curStateStartTime = Timer.millisecondNow();
@@ -3472,7 +3488,8 @@ public class GameLogic
                 if (foundSpecial)
                 {
                     m_gameFlow = TGameFlow.EGameState_SugarCrushAnim;
-                    Time.timeScale = 1.1f;                                                        //临时加快时间
+                    m_endingAccelarateStartTime = Timer.GetRealTimeSinceStartUp();
+                    Time.timeScale = 1.2f;                                                    //临时加快时间
                     AddPartile("SugarCrushAnim", AudioEnum.Audio_None, 0, 0, false);
                     ClearHelpPoint();
                     m_curStateStartTime = Timer.millisecondNow();
@@ -3483,6 +3500,7 @@ public class GameLogic
             m_gameStartTime = 0;
             m_gameFlow = TGameFlow.EGameState_End;
             Time.timeScale = 1.0f;                                                        //恢复正常的时间比例
+            m_endingAccelarateStartTime = 0;
 
             if (CapsConfig.EnableGA)        //游戏结束的数据
             {
@@ -3832,6 +3850,7 @@ public class GameLogic
 
         if (GlobalVars.EditState == TEditState.Eat)
         {
+            ClearHelpPoint();
             EatBlock(p, CapsConfig.EatEffect);          //编辑功能
             if (CapBlock.EatingBlockCount == 0)         //若没有形成掉落
             {

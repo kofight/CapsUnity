@@ -21,6 +21,8 @@ public class AudioList : MonoBehaviour {
     public AudioClip MapMusic;
     public AudioClip GameMusic;
 
+    public AudioClip GetStarClip;
+
     public List<AudioClip> ComboClip;
 	
 	// Use this for initialization

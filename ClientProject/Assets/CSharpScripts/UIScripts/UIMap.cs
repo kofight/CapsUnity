@@ -24,6 +24,7 @@ public class UIMap : UIWindow
 
     UISprite m_headSprite;                      //头像位置
     UISprite m_cloudSprite;                     //云的图片
+	UISprite m_cloud2Sprite;                     //云的图片
 
     Transform[] m_stageBtns;
 
@@ -100,7 +101,15 @@ public class UIMap : UIWindow
         );
 
         m_headSprite = GetChildComponent<UISprite>("Head");
-        m_cloudSprite = GetChildComponent<UISprite>("Cloud");
+
+
+        GameObject obj = GameObject.Find("Cloud");
+        m_cloudSprite = obj.GetComponent<UISprite>();
+        m_cloudSprite.gameObject.SetActive(false);
+
+        obj = GameObject.Find("Cloud2");
+        m_cloud2Sprite = obj.GetComponent<UISprite>();
+        m_cloud2Sprite.gameObject.SetActive(false);
     }
 
     public void OpenNewButton(int stageNum)
@@ -197,6 +206,9 @@ public class UIMap : UIWindow
         {
             OpenNewButton(GlobalVars.AvailabeStageCount);
         }
+
+        m_cloud2Sprite.gameObject.SetActive(true);
+        m_cloudSprite.gameObject.SetActive(true);
     }
 
     public override void OnShowEffectPlayOver()
@@ -209,6 +221,8 @@ public class UIMap : UIWindow
     public override void OnHide()
     {
         base.OnHide();
+        m_cloud2Sprite.gameObject.SetActive(false);
+        m_cloudSprite.gameObject.SetActive(false);
         m_heartUI.HideWindow();
     }
 
@@ -285,8 +299,19 @@ public class UIMap : UIWindow
         }
         //5105 - 2045 = 3060
         //处理云的移动
-        float y = (mUIObject.transform.localPosition.y - (454.0f)) * 3054 / 3964.0f;
-        m_cloudSprite.transform.LocalPositionY(-y);
+        //float y = (mUIObject.transform.localPosition.y - (454.0f)) * 3054 / 3964.0f;
+        //m_cloudSprite.transform.LocalPositionY(-y);
+
+        m_cloudSprite.LocalPositionY((mUIObject.transform.localPosition.y * 2) % 2045);
+		
+		if(m_cloudSprite.transform.localPosition.y > 0)
+		{
+            m_cloud2Sprite.transform.LocalPositionY(m_cloudSprite.transform.localPosition.y - 2044);
+		}
+		else
+		{
+            m_cloud2Sprite.transform.LocalPositionY(m_cloudSprite.transform.localPosition.y + 2044);
+		}
     }
 
     void AddStagePartile(int stageNumber)
@@ -298,6 +323,7 @@ public class UIMap : UIWindow
         gameObj.transform.parent = m_stageBtns[stageNumber - 1];
         gameObj.transform.localPosition = Vector3.zero;
         gameObj.transform.localScale = new Vector3(580.0f, 580.0f, 200.0f);                 //指定位置
+		gameObj.GetComponent<ParticleSystem>().Play(true);
     }
 
     private void OnStageClicked()

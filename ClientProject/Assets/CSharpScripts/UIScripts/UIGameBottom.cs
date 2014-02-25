@@ -156,6 +156,7 @@ public class UIGameBottom : UIWindow
                     if (par != null)
                     {
                         par.Play();
+                        NGUITools.PlaySound(CapsConfig.CurAudioList.GetStarClip);
                     }
 					m_startCount = i + 1;
                 }

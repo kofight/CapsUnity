@@ -22,7 +22,6 @@ public class GameState : State
 			UIWindowManager.Singleton.CreateWindow<UIRetry>();
 			UIWindowManager.Singleton.CreateWindow<UIPurchaseNoTarget>();
             UIWindowManager.Singleton.CreateWindow<UIPurchaseTarget>(UIWindowManager.Anchor.Bottom);
-            UIWindowManager.Singleton.CreateWindow<UIPurchaseNotEnoughMoney>();
         }
 
         

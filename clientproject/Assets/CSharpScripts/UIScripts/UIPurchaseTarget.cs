@@ -85,6 +85,7 @@ public class UIPurchaseTarget : UIWindow
                 if (Unibiller.DebitBalance("gold", CapsConfig.GetItemPrice(GlobalVars.UsingItem)))
                 {
                     GA.API.Business.NewEvent("BuyHammer", "Coins", CapsConfig.GetItemPrice(GlobalVars.UsingItem));
+                    GameLogic.Singleton.ClearHelpPoint();
                     GameLogic.Singleton.EatBlock(GlobalVars.UsingItemTarget, CapsConfig.EatEffect);                  //使用锤子
                 }
                 m_target.SetActive(false);

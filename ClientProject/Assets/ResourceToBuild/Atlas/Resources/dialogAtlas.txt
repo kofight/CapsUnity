@@ -2,11 +2,19 @@
 
 "Click.png":
 {
-	"frame": {"x":2,"y":908,"w":57,"h":60},
+	"frame": {"x":324,"y":476,"w":57,"h":60},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":57,"h":60},
 	"sourceSize": {"w":57,"h":60}
+},
+"CopyrightInfo.png":
+{
+	"frame": {"x":2,"y":908,"w":640,"h":64},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":640,"h":64},
+	"sourceSize": {"w":640,"h":64}
 },
 "Dog.png":
 {
@@ -24,6 +32,14 @@
 	"spriteSourceSize": {"x":0,"y":38,"w":320,"h":562},
 	"sourceSize": {"w":320,"h":600}
 },
+"Logo.png":
+{
+	"frame": {"x":639,"y":763,"w":597,"h":135},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":597,"h":135},
+	"sourceSize": {"w":597,"h":135}
+},
 "Speicher.png":
 {
 	"frame": {"x":324,"y":2,"w":320,"h":472},
@@ -34,7 +50,7 @@
 },
 "Tech_Bomb.png":
 {
-	"frame": {"x":1056,"y":289,"w":415,"h":285},
+	"frame": {"x":1063,"y":2,"w":415,"h":285},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":415,"h":285},
@@ -66,7 +82,7 @@
 },
 "TextBox.png":
 {
-	"frame": {"x":646,"y":289,"w":250,"h":176},
+	"frame": {"x":898,"y":289,"w":250,"h":176},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":250,"h":176},
@@ -74,7 +90,7 @@
 },
 "TextBox2.png":
 {
-	"frame": {"x":222,"y":853,"w":146,"h":125},
+	"frame": {"x":1150,"y":289,"w":146,"h":125},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":146,"h":125},
@@ -82,7 +98,7 @@
 },
 "TextBox3.png":
 {
-	"frame": {"x":639,"y":763,"w":283,"h":216},
+	"frame": {"x":1056,"y":467,"w":283,"h":216},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":283,"h":216},
@@ -90,7 +106,7 @@
 },
 "TextBoxMir.png":
 {
-	"frame": {"x":924,"y":763,"w":250,"h":176},
+	"frame": {"x":646,"y":289,"w":250,"h":176},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":250,"h":176},
@@ -103,6 +119,6 @@
 	"format": "RGBA8888",
 	"size": {"w":2048,"h":1024},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:8c69e6b426bcefede22ebe42c789a2db$"
+	"smartupdate": "$TexturePacker:SmartUpdate:eb698357e3c8e9da20e8dc1fb9311059$"
 }
 }

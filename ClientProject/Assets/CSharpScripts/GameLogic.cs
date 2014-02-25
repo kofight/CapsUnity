@@ -268,7 +268,7 @@ public class GameLogic
     public static int StartAnimTime = 1200;            //开始动画的时间长度
 
     public PurchasedItem UsingItem = PurchasedItem.None;                         //当前正在使用的道具
-
+    UIGameBottom m_gameBottomUI;
 
 
     ///游戏逻辑变量/////////////////////////////////////////////////////////////////
@@ -479,7 +479,7 @@ public class GameLogic
             progress = (int)(progress * 1.2f);
         }
         m_progress += progress;
-        UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().OnChangeProgress(m_progress);
+        m_gameBottomUI.OnChangeProgress(m_progress);
         AddNumber(progress, GetXPos(x), GetYPos(x, y));
     }
 
@@ -545,6 +545,8 @@ public class GameLogic
         m_angle3Instance = GameObject.Find("Angle3");
         m_numInstance = GameObject.Find("NumberInstance");
         m_shadowSpriteInstance = GameObject.Find("ShadowSprite");
+
+        m_gameBottomUI = UIWindowManager.Singleton.GetUIWindow<UIGameBottom>();
 
         //初始化瓶盖图片池
         for (int j = 0; j < 100; ++j)              //一百个够了
@@ -729,6 +731,7 @@ public class GameLogic
             else if (GlobalVars.StartStageItem[i] == PurchasedItem.ItemPreGame_PlusStep)
             {
                 GameLogic.Singleton.PlayingStageData.StepLimit += 7;        //步数加5
+                UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().OnChangeStep(GameLogic.Singleton.PlayingStageData.StepLimit);
             }
             else if (GlobalVars.StartStageItem[i] == PurchasedItem.ItemPreGame_PlusTime)
             {
@@ -2214,6 +2217,7 @@ public class GameLogic
 
         //如果交换成功////////////////////////////////////////////////////////////////////////
         --PlayingStageData.StepLimit;                                                   //步数扣步数
+        m_gameBottomUI.OnChangeStep(PlayingStageData.StepLimit);
         ClearSelected();                                                                //清空所选
         ProcessTempBlocks();                                                            //处理正常移动后消块对场景的影响
     }

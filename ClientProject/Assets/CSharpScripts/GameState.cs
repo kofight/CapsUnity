@@ -13,8 +13,6 @@ public class GameState : State
 
         if (GameLogic.Singleton == null)
         {
-            new GameLogic();
-
 			UIWindowManager.Singleton.CreateWindow<UIGameHead>(UIWindowManager.Anchor.Top);
 			UIWindowManager.Singleton.CreateWindow<UIGameBottom>(UIWindowManager.Anchor.Bottom);
 			UIWindowManager.Singleton.CreateWindow<UIWindow>("UIGameBackground", UIWindowManager.Anchor.Center);
@@ -22,6 +20,8 @@ public class GameState : State
 			UIWindowManager.Singleton.CreateWindow<UIRetry>();
 			UIWindowManager.Singleton.CreateWindow<UIPurchaseNoTarget>();
             UIWindowManager.Singleton.CreateWindow<UIPurchaseTarget>(UIWindowManager.Anchor.Bottom);
+
+            new GameLogic();
         }
 
         

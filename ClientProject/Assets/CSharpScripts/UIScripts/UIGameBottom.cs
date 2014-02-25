@@ -21,6 +21,9 @@ public class UIGameBottom : UIWindow
     NumberDrawer m_minNumber;
     NumberDrawer m_secNumber;
 
+    Animation m_stepChangeAnim;
+    Animation m_scoreChangeAnim;
+
     int m_startCount = 0;
 
     public override void OnCreate()
@@ -48,7 +51,9 @@ public class UIGameBottom : UIWindow
         m_timeNumber = UIToolkits.FindChild(mUIObject.transform, "TimeNumber").gameObject;
         m_minNumber = GetChildComponent<NumberDrawer>("MinNumber");
         m_secNumber = GetChildComponent<NumberDrawer>("SecNumber");
-        
+
+        m_stepChangeAnim = m_stepDrawer.GetComponent<Animation>();
+        m_scoreChangeAnim = m_scoreDrawer.GetComponent<Animation>();
     }
     public override void OnShow()
     {
@@ -84,6 +89,9 @@ public class UIGameBottom : UIWindow
             m_speedSlider.gameObject.SetActive(false);
             m_speedLabel.gameObject.SetActive(false);
         }
+
+        OnChangeStep(GameLogic.Singleton.PlayingStageData.StepLimit);
+        OnChangeProgress(GameLogic.Singleton.GetProgress());
     }
 	
 	public void Reset()
@@ -108,17 +116,6 @@ public class UIGameBottom : UIWindow
     public override void OnUpdate()
     {
         base.OnUpdate();
-        float completeRatio = 0.0f;
-        if (GlobalVars.CurStageData.StarScore[2] > 0)
-        {
-            completeRatio = (float)GameLogic.Singleton.GetProgress() / GlobalVars.CurStageData.StarScore[2];
-        }
-        completeRatio = Mathf.Min(1.0f, completeRatio);
-        if (completeRatio != 0.0f)
-        {
-			m_progressSprite.gameObject.SetActive(true);
-            m_progressSprite.width = (int)(ProgressLenth * completeRatio);
-        }
 
         if (GlobalVars.CurStageData.TimeLimit > 0)          //限制时间的关卡
         {
@@ -129,18 +126,18 @@ public class UIGameBottom : UIWindow
 
             m_timeBar.fillAmount = GameLogic.Singleton.GetTimeRemain() / GlobalVars.CurStageData.TimeLimit;
         }
-        if (GlobalVars.CurStageData.StepLimit > 0)          //限制步数的关卡
-        {
-            m_stepDrawer.SetNumber(GameLogic.Singleton.PlayingStageData.StepLimit);
-        }
-
-        m_scoreDrawer.SetNumber(GameLogic.Singleton.GetProgress());
     }
 
     public void OnValueChange()
     {
         CapsConfig.Instance.GameSpeed = UISlider.current.value;
         m_speedLabel.text = CapsConfig.Instance.GameSpeed.ToString();
+    }
+
+    public void OnChangeStep(int curStep)
+    {
+        m_stepDrawer.SetNumber(curStep);
+        m_stepChangeAnim.Play();
     }
 
     public void OnChangeProgress(int progress)
@@ -162,6 +159,19 @@ public class UIGameBottom : UIWindow
                 }
             }
         }
+        m_scoreChangeAnim.Play();
         m_scoreDrawer.SetNumber(progress);
+
+        float completeRatio = 0.0f;
+        if (GlobalVars.CurStageData.StarScore[2] > 0)
+        {
+            completeRatio = (float)GameLogic.Singleton.GetProgress() / GlobalVars.CurStageData.StarScore[2];
+        }
+        completeRatio = Mathf.Min(1.0f, completeRatio);
+        if (completeRatio != 0.0f)
+        {
+            m_progressSprite.gameObject.SetActive(true);
+            m_progressSprite.width = (int)(ProgressLenth * completeRatio);
+        }
     }
 }

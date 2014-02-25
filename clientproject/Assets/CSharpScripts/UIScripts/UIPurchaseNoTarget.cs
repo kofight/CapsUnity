@@ -50,6 +50,7 @@ public class UIPurchaseNoTarget : UIWindow
                 if (GlobalVars.UsingItem == PurchasedItem.ItemAfterGame_PlusStep)
                 {
                     GameLogic.Singleton.PlayingStageData.StepLimit += 5;        //步数加5
+                    UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().OnChangeStep(GameLogic.Singleton.PlayingStageData.StepLimit);
                     GameLogic.Singleton.SetGameFlow(TGameFlow.EGameState_Playing);      //回到可以继续玩的状态
                     GameLogic.Singleton.ResumeGame();
                 }

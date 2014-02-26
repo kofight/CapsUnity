@@ -1945,13 +1945,9 @@ public class GameLogic
 
         if (m_endingAccelarateStartTime > 0 && Timer.GetRealTimeSinceStartUp() > m_endingAccelarateStartTime)
         {
-            if (Timer.GetRealTimeSinceStartUp() - m_endingAccelarateStartTime >5)
+            if (Timer.GetRealTimeSinceStartUp() - m_endingAccelarateStartTime >15)
             {
-                Time.timeScale = 1.5f;
-            }
-            else if (Timer.GetRealTimeSinceStartUp() - m_endingAccelarateStartTime > 10)
-            {
-                Time.timeScale = 1.75f;
+                Time.timeScale = 1.6f;
             }
         }
     }

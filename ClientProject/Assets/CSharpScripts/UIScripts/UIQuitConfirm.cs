@@ -26,5 +26,6 @@ public class UIQuitConfirm : UIWindow
     private void OnCancelClicked()
     {
         HideWindow();
+        UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
     }
 }

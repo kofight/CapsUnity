@@ -302,15 +302,15 @@ public class UIMap : UIWindow
         //float y = (mUIObject.transform.localPosition.y - (454.0f)) * 3054 / 3964.0f;
         //m_cloudSprite.transform.LocalPositionY(-y);
 
-        m_cloudSprite.LocalPositionY((mUIObject.transform.localPosition.y * 2) % 2045);
+        m_cloudSprite.LocalPositionY((mUIObject.transform.localPosition.y * 2) % 1135);
 		
 		if(m_cloudSprite.transform.localPosition.y > 0)
 		{
-            m_cloud2Sprite.transform.LocalPositionY(m_cloudSprite.transform.localPosition.y - 2044);
+            m_cloud2Sprite.transform.LocalPositionY(m_cloudSprite.transform.localPosition.y - 1135);
 		}
 		else
 		{
-            m_cloud2Sprite.transform.LocalPositionY(m_cloudSprite.transform.localPosition.y + 2044);
+            m_cloud2Sprite.transform.LocalPositionY(m_cloudSprite.transform.localPosition.y + 1135);
 		}
     }
 

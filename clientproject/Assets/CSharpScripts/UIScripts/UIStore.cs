@@ -12,12 +12,7 @@ public class UIStore : UIWindow
         base.OnCreate();
         //AddChildComponentMouseClick("ConfirmBtn", OnConfirmClicked);
         //AddChildComponentMouseClick("CancelBtn", OnCancelClicked);
-        AddChildComponentMouseClick("CloseBtn", delegate()
-        {
-            HideWindow();
-			if(OnCancelFunc != null)
-				OnCancelFunc();				//完成后执行的函数
-        });
+        AddChildComponentMouseClick("CloseBtn", OnCloseBtn);
 
         AddChildComponentMouseClick("BuyItem1Btn", delegate()
         {
@@ -69,6 +64,13 @@ public class UIStore : UIWindow
             });
             UIWindowManager.Singleton.GetUIWindow<UIWait>().SetString(Localization.instance.Get("WaitForPurchase"));
         });
+    }
+
+    public void OnCloseBtn()
+    {
+        HideWindow();
+        if (OnCancelFunc != null)
+            OnCancelFunc();				//完成后执行的函数
     }
 
     void OnPurchased(PurchasableItem item)      //购买成功

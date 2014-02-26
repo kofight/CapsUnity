@@ -287,9 +287,11 @@ public class GameLogic
 
     ///特殊游戏状态///////////////////////////////////////////////////////////////////////
     bool m_gettingExtraScore = false;                                           //特殊状态，获得额外的分数
-    bool m_stoppingChocoGrow = false;                                           //特殊状态，停止巧克力生长
     int m_stoppingChocoGrowStepLeft;                                            //停止巧克力生长的剩余步数
-    bool m_stoppingTime = false;                                                //特殊状态，时间暂停
+
+    public bool IsStopingChocoGrow { get; set; }                                //特殊状态，停止巧克力生长
+    public bool IsStoppingTime{get; set;}                                      //特殊状态，时间暂停
+    
     int m_stoppingTimeStepLeft;                                                 //停止时间的剩余步数
 
     //用这4个数来记录每关实际块的范围，用来计算游戏区位置及优化性能
@@ -730,7 +732,8 @@ public class GameLogic
             }
             else if (GlobalVars.StartStageItem[i] == PurchasedItem.ItemPreGame_PlusStep)
             {
-                GameLogic.Singleton.PlayingStageData.StepLimit += 7;        //步数加5
+                GlobalVars.CurStageData.StepLimit += 7;
+                GameLogic.Singleton.PlayingStageData.StepLimit += 7;        //步数加7
                 UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().OnChangeStep(GameLogic.Singleton.PlayingStageData.StepLimit);
             }
             else if (GlobalVars.StartStageItem[i] == PurchasedItem.ItemPreGame_PlusTime)
@@ -898,13 +901,13 @@ public class GameLogic
 
     public void UserStopTimeItem()
     {
-        m_stoppingTime = true;
+        IsStoppingTime = true;
         m_stoppingTimeStepLeft = 7;
     }
 
     public void UseStopChocoItem()
     {
-        m_stoppingChocoGrow = true;
+        IsStopingChocoGrow = true;
         m_stoppingChocoGrowStepLeft = 7;
     }
 
@@ -1039,8 +1042,10 @@ public class GameLogic
             }
         }
 
+        int FTUEStepCount = GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit;
+
         List<FTUEData> data;
-        if(PlayingStageData.FTUEMap.TryGetValue(GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit, out data))      //查看是否有FTUE数据
+        if (PlayingStageData.FTUEMap.TryGetValue(FTUEStepCount, out data))      //查看是否有FTUE数据
         {
             //进入FTUE状态
             UIFTUE ftue = UIWindowManager.Singleton.GetUIWindow<UIFTUE>();
@@ -1048,8 +1053,8 @@ public class GameLogic
             {
                 ftue = UIWindowManager.Singleton.CreateWindow<UIFTUE>();
             }
-		
-            if(ftue.ShowFTUE(GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit))
+
+            if (ftue.ShowFTUE(FTUEStepCount))
 				m_gameFlow = TGameFlow.EGameState_FTUE;
         }
     }
@@ -1166,8 +1171,8 @@ public class GameLogic
         m_bStopFTUE = false;
 
         m_gettingExtraScore = false;
-        m_stoppingChocoGrow = false;
-        m_stoppingTime = false;
+        IsStopingChocoGrow = false;
+        IsStoppingTime = false;
 
         CapBlock.DropingBlockCount = 0;
         CapBlock.EatingBlockCount = 0;
@@ -1356,13 +1361,13 @@ public class GameLogic
         {
             UIDrawer.Singleton.DrawSprite(PurchasedItem.ItemPreGame_ExtraScore.ToString(), 100, 100, PurchasedItem.ItemPreGame_ExtraScore.ToString(), UIDrawer.Singleton.spriteDefaultPrefabID);       //出生点   
         }
-        if (m_stoppingChocoGrow)
+        if (IsStopingChocoGrow)
         {
-            UIDrawer.Singleton.DrawSprite(PurchasedItem.ItemPreGame_ExtraScore.ToString(), 200, 100, PurchasedItem.ItemInGame_ChocoStoper.ToString(), UIDrawer.Singleton.spriteDefaultPrefabID);       //出生点   
+            UIDrawer.Singleton.DrawSprite(PurchasedItem.ItemInGame_ChocoStoper.ToString(), 200, 100, PurchasedItem.ItemInGame_ChocoStoper.ToString(), UIDrawer.Singleton.spriteDefaultPrefabID);       //出生点   
         }
-        if (m_stoppingTime)
+        if (IsStoppingTime)
         {
-            UIDrawer.Singleton.DrawSprite(PurchasedItem.ItemPreGame_ExtraScore.ToString(), 300, 100, PurchasedItem.ItemInGame_TimeStoper.ToString(), UIDrawer.Singleton.spriteDefaultPrefabID);       //出生点   
+            UIDrawer.Singleton.DrawSprite(PurchasedItem.ItemInGame_TimeStoper.ToString(), 300, 100, PurchasedItem.ItemInGame_TimeStoper.ToString(), UIDrawer.Singleton.spriteDefaultPrefabID);       //出生点   
         }
         UIDrawer.Singleton.CurDepth = 0;
     }
@@ -1517,8 +1522,6 @@ public class GameLogic
                 Time.timeScale = 1.0f;                                                        //恢复正常的时间比例
                 m_endingAccelarateStartTime = 0;
 
-
-                GameLogic.Singleton.PlayEndGameAnim();		//play the end anim(move the game area out of screen)
                 HideUI();
 
                 //若达成过关条件，触发关卡结束对话，并在对话结束后出游戏结束窗口
@@ -1938,7 +1941,7 @@ public class GameLogic
         }
 
         //时间暂停但仍可继续游戏的状态
-        if (m_stoppingTime)
+        if (IsStoppingTime)
         {
             m_gameStartTime += (long)(Time.deltaTime * 1000);
         }
@@ -3598,7 +3601,7 @@ public class GameLogic
 
         CheckFTUE();            //检测一次FTUE
 
-        if (m_stoppingChocoGrow)        //处理停止巧克力生长状态的更新
+        if (IsStopingChocoGrow)        //处理停止巧克力生长状态的更新
         {
             if (m_stoppingChocoGrowStepLeft > 0)
             {
@@ -3607,11 +3610,11 @@ public class GameLogic
 
             if (m_stoppingChocoGrowStepLeft == 0)
             {
-                m_stoppingChocoGrow = false;
+                IsStopingChocoGrow = false;
             }
         }
 
-        if (m_stoppingTime)             //处理停止时间状态的更新
+        if (IsStoppingTime)             //处理停止时间状态的更新
         {
             if (m_stoppingTimeStepLeft > 0)
             {
@@ -3620,11 +3623,11 @@ public class GameLogic
 
             if (m_stoppingTimeStepLeft == 0)
             {
-                m_stoppingTime = false;
+                IsStoppingTime = false;
             }
         }
 
-        if (m_chocolateNeedGrow && !m_stoppingChocoGrow)        //若需要巧克力生长
+        if (m_chocolateNeedGrow && !IsStopingChocoGrow)        //若需要巧克力生长
         {
             ChocolateGrow();
         }
@@ -3771,7 +3774,7 @@ public class GameLogic
 
         if (GlobalVars.UsingItem == PurchasedItem.ItemInGame_Hammer)     //若正在使用锤子道具
         {
-			if(m_blocks[p.x, p.y] != null)
+            if (m_blocks[p.x, p.y] != null && m_blocks[p.x, p.y].color < TBlockColor.EColor_Nut1 && m_blocks[p.x, p.y].CurState == BlockState.Normal)       //限制只有普通块在普通状态下才能被选中
 			{
                 GlobalVars.UsingItemTarget = p;
                 UIWindowManager.Singleton.GetUIWindow<UIPurchaseTarget>().SetTarget(GlobalVars.UsingItemTarget);
@@ -4032,7 +4035,7 @@ public class GameLogic
         }
     }
 
-    bool IsMoveAble()
+    public bool IsMoveAble()
     {
         if (CapsConfig.Instance.GameSpeed == 0.0f)
         {

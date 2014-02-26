@@ -73,7 +73,7 @@ public class UIGameEnd : UIWindow
             }
             else if (GlobalVars.CurStageData.TimeLimit > 0)
             {
-                m_planOnItemIcon.spriteName = PurchasedItem.ItemAfterGame_PlusStep.ToString();
+                m_planOnItemIcon.spriteName = PurchasedItem.ItemAfterGame_PlusTime.ToString();
             }
         }
         else
@@ -85,7 +85,7 @@ public class UIGameEnd : UIWindow
 		m_curScore.SetNumber(GameLogic.Singleton.GetProgress());
 		m_targetScore.SetNumber(GlobalVars.CurStageData.StarScore[0]);
 
-        m_scoreCheck.value = (GameLogic.Singleton.GetProgress() >= GlobalVars.CurStageData.StarScore[0]);
+        m_scoreCheck.SetWithoutTrigger((GameLogic.Singleton.GetProgress() >= GlobalVars.CurStageData.StarScore[0]));
         
 
         if (GlobalVars.CurStageData.Target == GameTarget.ClearJelly)

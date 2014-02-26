@@ -36,20 +36,22 @@ public class UIPurchaseNotEnoughMoney : UIWindow
 			});
 		});
 
-        AddChildComponentMouseClick("CloseBtn", delegate()
-        {
-            HideWindow(delegate()
-            {
-                if (OnCancelFunc != null)
-                {
-                    OnCancelFunc();
-                }
-            });
-        });
+        AddChildComponentMouseClick("CloseBtn", OnCloseBtn);
 
 		m_msgLabel = GetChildComponent<UILabel>("IntroduceLabel");
 		m_costLabel = GetChildComponent<UILabel>("CostLabel");
         m_itemIcon = GetChildComponent<UISprite>("ItemIcon");
+    }
+
+    public void OnCloseBtn()
+    {
+        HideWindow(delegate()
+        {
+            if (OnCancelFunc != null)
+            {
+                OnCancelFunc();
+            }
+        });
     }
 
     public override void OnShow()

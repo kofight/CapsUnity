@@ -24,11 +24,11 @@ public class UIGameHead : UIWindow
 		});
         AddChildComponentMouseClick("UseItem3Btn", delegate()
         {
-            if (GlobalVars.CurStageData.TimeLimit > 0)
+            if (GlobalVars.CurStageData.TimeLimit > 0 && !GameLogic.Singleton.IsStoppingTime)
             {
                 UserOrBuyItem(PurchasedItem.ItemInGame_TimeStoper);
             }
-            if (GlobalVars.CurStageData.ChocolateCount > 0)
+            if (GlobalVars.CurStageData.ChocolateCount > 0 && !GameLogic.Singleton.IsStopingChocoGrow)
             {
                 UserOrBuyItem(PurchasedItem.ItemInGame_ChocoStoper);
             }
@@ -87,15 +87,6 @@ public class UIGameHead : UIWindow
             m_jellyBoard.SetActive(false);
             m_scoreBoard.SetActive(true);
             UIToolkits.FindComponent<NumberDrawer>(m_scoreBoard.transform, "ScoreNum").SetNumber(GlobalVars.CurStageData.StarScore[0]);
-        }
-
-        if (GlobalVars.CurStageData.TimeLimit > 0)
-        {
-            UserOrBuyItem(PurchasedItem.ItemInGame_TimeStoper);
-        }
-        if (GlobalVars.CurStageData.ChocolateCount > 0)
-        {
-            UserOrBuyItem(PurchasedItem.ItemInGame_ChocoStoper);
         }
 
         UISprite item3Icon = GetChildComponent<UISprite>("Item3Icon");
@@ -157,7 +148,7 @@ public class UIGameHead : UIWindow
 	
 	void UserOrBuyItem(PurchasedItem item)
 	{
-        if (GameLogic.Singleton.GetGameFlow() != TGameFlow.EGameState_Playing)
+        if (GameLogic.Singleton.GetGameFlow() != TGameFlow.EGameState_Playing || !GameLogic.Singleton.IsMoveAble())
         {
             return;
         }

@@ -99,6 +99,18 @@ public class GameState : State
             return;
         }
 
+        if (UIWindowManager.Singleton.GetUIWindow<UIPurchaseTarget>().Visible)
+        {
+            UIWindowManager.Singleton.GetUIWindow<UIPurchaseTarget>().OnCancelClicked();
+            return;
+        }
+
+        if (UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>().Visible)
+        {
+            UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>().HideWindow();
+            return;
+        }
+
         if (UIWindowManager.Singleton.GetUIWindow<UIStageInfo>().Visible)
         {
             UIWindowManager.Singleton.GetUIWindow<UIStageInfo>().OnCloseClicked();

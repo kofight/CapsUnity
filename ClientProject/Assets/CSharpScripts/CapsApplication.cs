@@ -122,12 +122,15 @@ public class CapsApplication : S5Application
 
         GlobalVars.ReadHeart();
 
-        UIWindowManager.Singleton.CreateWindow<UILogin>().ShowWindow();
-        UIWindowManager.Singleton.GetUIWindow<UILogin>().ShowWindow(delegate()
+        UIWindowManager.Singleton.CreateWindow<UILogin>();
+        Timer.AddDelayFunc(0.3f, delegate()
         {
-            GameObject obj = GameObject.Find("FirstTimeBackground");           //为了让第一次进游戏的图平滑变化没有闪烁，先在场景里垫了一张图，现在用完了，把图删除
-            GameObject.Destroy(obj);
+            UIWindowManager.Singleton.GetUIWindow<UILogin>().ShowWindow(delegate()
+            {
+                GameObject obj = GameObject.Find("FirstTimeBackground");           //为了让第一次进游戏的图平滑变化没有闪烁，先在场景里垫了一张图，现在用完了，把图删除
+                GameObject.Destroy(obj);
 
+            });
         });
     }
 

@@ -72,7 +72,13 @@ public class LoginState : State
 
             if (UIWindowManager.Singleton.GetUIWindow<UIStore>().Visible)
             {
-                UIWindowManager.Singleton.GetUIWindow<UIStore>().HideWindow();
+                UIWindowManager.Singleton.GetUIWindow<UIStore>().OnCloseBtn();
+                return;
+            }
+
+            if (UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>().Visible)
+            {
+                UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>().OnCloseBtn();
                 return;
             }
 

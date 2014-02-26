@@ -24,7 +24,8 @@ public class UIFTUE : UIWindow
 	bool m_bLock;
 
     int m_FTUEIndex = 0;
-	int m_curStep = 0;
+	int m_curStep = -1;
+	int m_finishedStep = -1;
 
     List<FTUEData> m_ftueData;
 	
@@ -60,11 +61,12 @@ public class UIFTUE : UIWindow
 	public void ResetFTUEStep()
 	{
 		m_curStep = -1;
+		m_finishedStep = -1;
 	}
 
     public bool ShowFTUE(int step)
     {
-		if(step < m_curStep)
+		if(step <= m_finishedStep)
 		{
 			return false;
 		}
@@ -210,6 +212,7 @@ public class UIFTUE : UIWindow
 
     public void EndFTUE()
     {
+		m_finishedStep = m_curStep;
 		m_FTUEIndex = 0;
         HideWindow();                               //隐藏窗体
         GameLogic.Singleton.SetGameFlow(TGameFlow.EGameState_Playing);

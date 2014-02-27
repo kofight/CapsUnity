@@ -65,7 +65,7 @@ public class UIGameEnd : UIWindow
                 label.text = Localization.instance.Get("OutOfTime");
             }
 
-            m_planOnItemIcon.transform.parent.gameObject.SetActive(true);
+            m_planOnItemIcon.gameObject.SetActive(true);
 
             if (GlobalVars.CurStageData.StepLimit > 0)
             {
@@ -78,7 +78,7 @@ public class UIGameEnd : UIWindow
         }
         else
         {
-            m_planOnItemIcon.transform.parent.gameObject.SetActive(false);
+            m_planOnItemIcon.gameObject.SetActive(false);
             label.text = Localization.instance.Get("GamePaused");
         }
 

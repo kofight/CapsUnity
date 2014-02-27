@@ -3132,7 +3132,7 @@ public class GameLogic
         {
             if (PlayingStageData.ChocolateCount > 0)
             {
-                grid.bProceeChocolateAround = true;
+                //grid.bProceeChocolateAround = true;
             }
             if (PlayingStageData.StoneCount > 0)
             {
@@ -3145,7 +3145,7 @@ public class GameLogic
         {
             if (PlayingStageData.ChocolateCount > 0)
             {
-                grid.bProceeChocolateAround = true;
+                //grid.bProceeChocolateAround = true;
             }
             m_delayProcessGrid.AddLast(grid); //增加延迟处理的计划
         }

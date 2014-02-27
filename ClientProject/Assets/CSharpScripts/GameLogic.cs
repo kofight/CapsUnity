@@ -1538,7 +1538,11 @@ public class GameLogic
                 }
                 else //若没达成过关条件
                 {
-                    UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();            //出游戏结束界面
+                    Timer.AddDelayFunc(2.0f, delegate()
+                    {
+                        UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();            //出游戏结束界面
+                    });
+                    AddPartile("EndGameFailed", AudioEnum.Audio_None, 0, 0, false);
                 }
             }
             return;
@@ -1559,6 +1563,7 @@ public class GameLogic
                         AddPartile(CapsConfig.AddSpecialEffect, AudioEnum.Audio_itemBirth, pos.x, pos.y);
                         AddProgress(CapsConfig.SugarCrushStepReward, pos.x, pos.y);
                         --PlayingStageData.StepLimit;           //步数减一
+                        m_gameBottomUI.OnChangeStep(PlayingStageData.StepLimit);
                     }
                     else
                     {
@@ -3582,7 +3587,11 @@ public class GameLogic
 
 #endif
 
-            UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();            //出游戏结束界面
+            Timer.AddDelayFunc(2.0f, delegate()
+            {
+                UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();            //出游戏结束界面
+            });
+            AddPartile("EndGameFailed", AudioEnum.Audio_None, 0, 0, false);
         }
     }
 

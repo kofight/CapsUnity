@@ -15,9 +15,8 @@ public class AudioList : MonoBehaviour {
     public AudioClip StoneClip;
 	public AudioClip CageClip;
 	public AudioClip ChocolateClip;
-	
+    public AudioClip GameFailedClip;
 	public AudioClip ButtonClip;
-
     public AudioClip MapMusic;
     public AudioClip GameMusic;
 

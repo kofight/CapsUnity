@@ -87,6 +87,8 @@ public class UIPurchaseTarget : UIWindow
                     GA.API.Business.NewEvent("BuyHammer", "Coins", CapsConfig.GetItemPrice(GlobalVars.UsingItem));
                     GameLogic.Singleton.ClearHelpPoint();
                     GameLogic.Singleton.EatBlock(GlobalVars.UsingItemTarget, CapsConfig.EatEffect);                  //使用锤子
+                    GlobalVars.UsingItem = PurchasedItem.None;
+                    GameLogic.Singleton.ProcessTempBlocks();
                 }
                 m_target.SetActive(false);
             }

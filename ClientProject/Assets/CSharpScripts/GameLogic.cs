@@ -2413,7 +2413,7 @@ public class GameLogic
         }
     }
 
-    void ProcessTempBlocks()
+    public void ProcessTempBlocks()
     {
         for (int i = 0; i < BlockCountX; ++i)
         {
@@ -3933,6 +3933,11 @@ public class GameLogic
             return;
         }
 
+        if (GlobalVars.UsingItem != PurchasedItem.None)
+        {
+            return;
+        }
+
         touchBeginPos.MakeItUnAvailable();
 
         int x = (int)ges.position.x * CapsApplication.Singleton.Height / Screen.height;
@@ -3981,6 +3986,11 @@ public class GameLogic
             return;
         }
 
+        if (GlobalVars.UsingItem != PurchasedItem.None)
+        {
+            return;
+        }
+
         if (touchBeginGrid.IsAvailable())
         {
             if (m_gameFlow != TGameFlow.EGameState_FTUE)
@@ -4011,6 +4021,20 @@ public class GameLogic
                 if (m_gridBackImage[x, y].layer0 != null)
                 {
                     m_gridBackImage[x, y].layer0.depth = 4;
+
+
+                    if (PlayingStageData.CheckFlag(x, y, GridFlag.Jelly))
+                    {
+                        m_gridBackImage[x, y].layer0.spriteName = "Jelly" + ((y + (x % 2)) % 3) + "_f";
+                    }
+                    else if (PlayingStageData.CheckFlag(x, y, GridFlag.JellyDouble))
+                    {
+                        m_gridBackImage[x, y].layer0.spriteName = "JellyDouble" + ((y + (x % 2)) % 3) + "_f";
+                    }
+                    else
+                    {
+                        m_gridBackImage[x, y].layer0.spriteName = "Grid" + ((y + (x % 2)) % 3) + "_f";
+                    }
                 }
                 if (m_gridBackImage[x, y].layer1 != null)
                 {
@@ -4035,6 +4059,19 @@ public class GameLogic
                 if (m_gridBackImage[x, y].layer0 != null)
                 {
                     m_gridBackImage[x, y].layer0.depth = 0;
+
+                    if (PlayingStageData.CheckFlag(x, y, GridFlag.Jelly))
+                    {
+                        m_gridBackImage[x, y].layer0.spriteName = "Jelly" + ((y + (x % 2)) % 3);
+                    }
+                    else if (PlayingStageData.CheckFlag(x, y, GridFlag.JellyDouble))
+                    {
+                        m_gridBackImage[x, y].layer0.spriteName = "JellyDouble" + ((y + (x % 2)) % 3);
+                    }
+                    else
+                    {
+                        m_gridBackImage[x, y].layer0.spriteName = "Grid" + ((y + (x % 2)) % 3);
+                    }
                 }
                 if (m_gridBackImage[x, y].layer1 != null)
                 {
@@ -4073,6 +4110,11 @@ public class GameLogic
         }
 
         if (ges.fingerIndex != 0)
+        {
+            return;
+        }
+
+        if (GlobalVars.UsingItem != PurchasedItem.None)
         {
             return;
         }

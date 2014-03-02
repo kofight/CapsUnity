@@ -3,14 +3,14 @@ using System.Collections;
 
 public enum TBlockColor
 {
-    EColor_None,				//尚未分配颜色
-    EColor_Purple,               //紫
-    EColor_Green,              //绿
-    EColor_Blue,               //蓝
-    EColor_Yellow,                 //黄
-    EColor_Red,              //红
-    EColor_Orange,              //橙
-    EColor_Cyan,                //青
+    EColor_None,				//0尚未分配颜色
+    EColor_Purple,              //1紫
+    EColor_Green,               //2绿
+    EColor_Blue,                //3蓝
+    EColor_Yellow,              //4黄
+    EColor_Red,                 //5红
+    EColor_Orange,              //6橙
+    EColor_Cyan,                //7青
 
     EColor_Nut1,                  //坚果1
     EColor_Nut2,                  //坚果2
@@ -18,13 +18,13 @@ public enum TBlockColor
 
 public enum TSpecialBlock
 {
-    ESpecial_Normal,			    //普通块
-    ESpecial_NormalPlus5,			//普通块加5时间
-    ESpecial_EatLineDir0,			//一次消一线，方向0
-    ESpecial_EatLineDir1,			//一次消一线，方向1
-    ESpecial_EatLineDir2,			//一次消一线，方向2
-    ESpecial_Bomb,					//一次消周围9个
-    ESpecial_EatAColor,				//一次消一个颜色
+    ESpecial_Normal,			    //0普通块
+    ESpecial_NormalPlus5,			//1普通块加5时间
+    ESpecial_EatLineDir0,			//2一次消一线，方向0
+    ESpecial_EatLineDir1,			//3一次消一线，方向1
+    ESpecial_EatLineDir2,			//4一次消一线，方向2
+    ESpecial_Bomb,					//5一次消周围9个
+    ESpecial_EatAColor,				//6一次消一个颜色
 };
 
 public enum BlockState

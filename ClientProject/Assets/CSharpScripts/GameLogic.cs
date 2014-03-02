@@ -935,7 +935,7 @@ public class GameLogic
                     continue;
                 }
 
-                if (m_blocks[i, j].color > TBlockColor.EColor_Grey)                        //坚果
+                if (m_blocks[i, j].color > TBlockColor.EColor_Cyan)                        //坚果
                 {
                     continue;
                 }
@@ -970,7 +970,7 @@ public class GameLogic
                         continue;
                     }
 
-                    if (m_blocks[i, j].color > TBlockColor.EColor_Grey)                        //坚果
+                    if (m_blocks[i, j].color > TBlockColor.EColor_Cyan)                        //坚果
                     {
                         continue;
                     }
@@ -1681,7 +1681,7 @@ public class GameLogic
                         PlaySoundNextFrame(AudioEnum.Audio_Drop);
                         m_blocks[i, j].m_dropDownStartTime = Timer.GetRealTimeSinceStartUp();           //记录开始时间(用于强制停止下落动画)
 							
-						if (m_blocks[i, j].color > TBlockColor.EColor_Grey)                     //若为坚果
+						if (m_blocks[i, j].color > TBlockColor.EColor_Cyan)                     //若为坚果
 		                {
 		                    //到了消失点
 		                    if (PlayingStageData.CheckFlag(i, j, GridFlag.FruitExit))
@@ -2058,12 +2058,12 @@ public class GameLogic
             //若有水果可以吃掉，处理下吃水果
             if (PlayingStageData.Target == GameTarget.BringFruitDown)
             {
-                if (m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color > TBlockColor.EColor_Grey &&
+                if (m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color > TBlockColor.EColor_Cyan &&
                 PlayingStageData.CheckFlag(m_selectedPos[0].x, m_selectedPos[0].y, GridFlag.FruitExit))
                 {
                     EatFruit(m_selectedPos[0].x, m_selectedPos[0].y);
                 }
-                if (m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color > TBlockColor.EColor_Grey &&
+                if (m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color > TBlockColor.EColor_Cyan &&
                     PlayingStageData.CheckFlag(m_selectedPos[1].x, m_selectedPos[1].y, GridFlag.FruitExit))
                 {
                     EatFruit(m_selectedPos[1].x, m_selectedPos[1].y);
@@ -2270,17 +2270,9 @@ public class GameLogic
                                 {
                                     if (GlobalVars.CurStageData.CollectCount[k] > 0)
                                     {
-                                        if (GlobalVars.CurStageData.CollectTypes[k] <= CollectType.Collor7)
+                                        if (GlobalVars.CurStageData.CollectSpecial[k] == m_blocks[i, j].special)
                                         {
-                                            if (((int)m_blocks[i, j].color - (int)TBlockColor.EColor_White) == ((int)GlobalVars.CurStageData.CollectTypes[k] - (int)CollectType.Collor1))
-                                            {
-                                                ++PlayingStageData.CollectCount[k];                             //增加一个搜集数量
-                                                bNeedRefreshTarget = true;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            if (((int)m_blocks[i, j].special - (int)TSpecialBlock.ESpecial_EatLineDir0) == ((int)GlobalVars.CurStageData.CollectTypes[k] - (int)CollectType.Line0Bomb))
+                                            if (m_blocks[i, j].special == TSpecialBlock.ESpecial_EatAColor || GlobalVars.CurStageData.CollectColors[k] == m_blocks[i, j].color)
                                             {
                                                 ++PlayingStageData.CollectCount[k];                             //增加一个搜集数量
                                                 bNeedRefreshTarget = true;
@@ -2765,7 +2757,7 @@ public class GameLogic
         availablePos.MakeItUnAvailable();
 
         TBlockColor color = GetBlockColor(position);
-        if (color > TBlockColor.EColor_Grey || color == TBlockColor.EColor_None)
+        if (color > TBlockColor.EColor_Cyan || color == TBlockColor.EColor_None)
         {
             return false;
         }
@@ -3008,7 +3000,7 @@ public class GameLogic
                     continue;
                 }
 
-                if (m_blocks[i, j] == null || m_blocks[i, j].color > TBlockColor.EColor_Grey
+                if (m_blocks[i, j] == null || m_blocks[i, j].color > TBlockColor.EColor_Cyan
                     || m_blocks[i, j].color == excludeColor || m_blocks[i, j].special == TSpecialBlock.ESpecial_EatAColor || m_blocks[i, j].CurState != BlockState.Normal)
                 {
                     if (i == BlockCountX - 1 && j == BlockCountY - 1)//Repeat the loop till get a result
@@ -3204,7 +3196,7 @@ public class GameLogic
         if (block != null &&
             block.CurState != BlockState.Moving &&
             (block.CurState != BlockState.Eating || block.m_eatStartTime > Timer.GetRealTimeSinceStartUp() + delay) && //对于Eating的块，原预计消除的时间比delay后的晚才处理，相当于提前引爆
-            block.color <= TBlockColor.EColor_Grey)       //移动不处理特殊块
+            block.color <= TBlockColor.EColor_Cyan)       //移动不处理特殊块
         {
             block.EatEffectName = eatEffectName;         //消除特效名字，用传进来的
             block.Eat(delay);                             //在这里提前给Block的状态赋值，是为了防止重复EatBlock
@@ -4735,13 +4727,13 @@ public class GameLogic
             }
         }
 
-        return TBlockColor.EColor_White + m_random.Next() % PlayingStageData.ColorCount;
+        return TBlockColor.EColor_Purple + m_random.Next() % PlayingStageData.ColorCount;
     }
 
     TBlockColor GetNextColor(TBlockColor color)
     {
-        int index = color - TBlockColor.EColor_White;
-        return (TBlockColor)((index + 1) % PlayingStageData.ColorCount + TBlockColor.EColor_White);
+        int index = color - TBlockColor.EColor_Purple;
+        return (TBlockColor)((index + 1) % PlayingStageData.ColorCount + TBlockColor.EColor_Purple);
     }
 
     bool IsHaveLine()

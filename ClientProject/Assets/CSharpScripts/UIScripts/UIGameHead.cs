@@ -106,14 +106,38 @@ public class UIGameHead : UIWindow
                 if (GlobalVars.CurStageData.CollectCount[i] > 0)
                 {
                     m_collectLabel[i].gameObject.SetActive(true);
-                    if (GlobalVars.CurStageData.CollectTypes[i] <= CollectType.Collor7)
+
+                    switch (GlobalVars.CurStageData.CollectSpecial[i])
                     {
-                        m_collectSprite[i].spriteName = "Item" + ((int)GlobalVars.CurStageData.CollectTypes[i] - (int)CollectType.Collor1 + 1).ToString();
+                        case TSpecialBlock.ESpecial_Normal:
+                            {
+                                m_collectSprite[i].spriteName = "Item" + (int)(GlobalVars.CurStageData.CollectColors[i] - TBlockColor.EColor_None);
+                            }
+                            break;
+                        case TSpecialBlock.ESpecial_NormalPlus5:
+                            {
+                                m_collectSprite[i].spriteName = "TimeAdded" + (int)(GlobalVars.CurStageData.CollectColors[i] - TBlockColor.EColor_None);
+                            }
+                            break;
+                        case TSpecialBlock.ESpecial_EatLineDir0:
+                            m_collectSprite[i].spriteName = "Line" + (int)(GlobalVars.CurStageData.CollectColors[i] - TBlockColor.EColor_None) + "_3";
+                            break;
+                        case TSpecialBlock.ESpecial_EatLineDir1:
+                            m_collectSprite[i].spriteName = "Line" + (int)(GlobalVars.CurStageData.CollectColors[i] - TBlockColor.EColor_None) + "_1";
+                            break;
+                        case TSpecialBlock.ESpecial_EatLineDir2:
+                            m_collectSprite[i].spriteName = "Line" + (int)(GlobalVars.CurStageData.CollectColors[i] - TBlockColor.EColor_None) + "_2";
+                            break;
+                        case TSpecialBlock.ESpecial_Bomb:
+                            m_collectSprite[i].spriteName = "Bomb" + (int)(GlobalVars.CurStageData.CollectColors[i] - TBlockColor.EColor_None);
+                            break;
+                        case TSpecialBlock.ESpecial_EatAColor:
+                            m_collectSprite[i].spriteName = "Rainbow";
+                            break;
+                        default:
+                            break;
                     }
-                    else
-                    {
-                        m_collectSprite[i].spriteName = GlobalVars.CurStageData.CollectTypes[i].ToString();
-                    }
+
                 }
                 else
                 {

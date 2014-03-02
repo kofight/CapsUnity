@@ -4,16 +4,16 @@ using System.Collections;
 public enum TBlockColor
 {
     EColor_None,				//尚未分配颜色
-    EColor_White,
-    EColor_Purple,
-    EColor_Green,
-    EColor_Red,
-    EColor_Golden,
-    EColor_Blue,
-    EColor_Grey,
+    EColor_Purple,               //紫
+    EColor_Green,              //绿
+    EColor_Blue,               //蓝
+    EColor_Yellow,                 //黄
+    EColor_Red,              //红
+    EColor_Orange,              //橙
+    EColor_Cyan,                //青
 
-    EColor_Nut1,                  //
-    EColor_Nut2,                  //
+    EColor_Nut1,                  //坚果1
+    EColor_Nut2,                  //坚果2
 };
 
 public enum TSpecialBlock

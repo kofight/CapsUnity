@@ -260,20 +260,8 @@ public class UIStageEditor : UIWindow
         for (int i = 0; i < 3; ++i )
         {
             input = GetChildComponent<UIInput>("Collects" + i.ToString() + "Input");
-            input.value = (int)GlobalVars.CurStageData.CollectTypes[i] + "," + GlobalVars.CurStageData.CollectCount[i];
-
-            
-            UILabel label = GetChildComponent<UILabel>("Collects" + i.ToString() + "Label");
-            if (GlobalVars.CurStageData.CollectCount[i] > 0)
-            {
-                label.text = GlobalVars.CurStageData.CollectTypes[i].ToString() + " " + GlobalVars.CurStageData.CollectCount[i].ToString() + "个";
-            }
-            else
-            {
-                label.text = string.Empty;
-            }
+            input.value = GlobalVars.CurStageData.CollectCount[i].ToString() + "," + (int)GlobalVars.CurStageData.CollectColors[i] + "," + (int)GlobalVars.CurStageData.CollectSpecial[i];
         }
-        
 
         for (int i = 0; i < 3; ++i)
         {
@@ -385,10 +373,16 @@ public class UIStageEditor : UIWindow
             for (int i = 0; i < 3; ++i)
             {
                 input = GetChildComponent<UIInput>("Collects" + i.ToString() + "Input");
+                if (input.value == System.String.Empty)
+                {
+                    continue;
+                }
                 string[] tokens = input.value.Split(',');
 
-                GameLogic.Singleton.PlayingStageData.CollectTypes[i] = (CollectType)System.Convert.ToInt32(tokens[0]);
-                GameLogic.Singleton.PlayingStageData.CollectCount[i] = System.Convert.ToInt32(tokens[1]);
+                GameLogic.Singleton.PlayingStageData.CollectCount[i] = System.Convert.ToInt32(tokens[0]);
+                GameLogic.Singleton.PlayingStageData.CollectColors[i] = (TBlockColor)System.Convert.ToInt32(tokens[1]);
+                GameLogic.Singleton.PlayingStageData.CollectSpecial[i] = (TSpecialBlock)System.Convert.ToInt32(tokens[2]);
+                
             }
         }
 

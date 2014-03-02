@@ -126,7 +126,8 @@ public class StageData
     public int[]    StarScore = new int[3];          //获得星星的分数
     public int [, ] GridData = new int[GameLogic.BlockCountX, GameLogic.BlockCountY];                        //关卡初始地块数据
 
-    public CollectType [] CollectTypes = new CollectType [3];
+    public TSpecialBlock[] CollectSpecial = new TSpecialBlock[3];
+    public TBlockColor[] CollectColors = new TBlockColor[3];
     public int [] CollectCount = new int[3];
 
     public Dictionary<int, List<FTUEData>> FTUEMap = new Dictionary<int, List<FTUEData>>();                             //FTUE地图
@@ -254,21 +255,30 @@ public class StageData
             StarScore[i] = (int)System.Convert.ChangeType(scoreTokens[i], typeof(int));
         }
 
-        if (_config.GetValue<string>("CollectTypes", out temp))
-        {
-            string[] collectTypeTokens = temp.Split(',');
-            for (int i = 0; i < 3; ++i)
-            {
-                CollectTypes[i] = (CollectType)System.Convert.ToInt32(collectTypeTokens[i]);
-            }
-        }
-
         if (_config.GetValue<string>("CollectCount", out temp))
         {
             string[] collectCountTokens = temp.Split(',');
             for (int i = 0; i < 3; ++i)
             {
                 CollectCount[i] = System.Convert.ToInt32(collectCountTokens[i]);
+            }
+        }
+
+        if (_config.GetValue<string>("CollectColors", out temp))
+        {
+            string[] collectColorTokens = temp.Split(',');
+            for (int i = 0; i < 3; ++i)
+            {
+                CollectColors[i] = (TBlockColor)System.Convert.ToInt32(collectColorTokens[i]);
+            }
+        }
+
+        if (_config.GetValue<string>("CollectSpecial", out temp))
+        {
+            string[] collectSpecialTokens = temp.Split(',');
+            for (int i = 0; i < 3; ++i)
+            {
+                CollectSpecial[i] = (TSpecialBlock)System.Convert.ToInt32(collectSpecialTokens[i]);
             }
         }
 
@@ -487,10 +497,18 @@ public class StageData
         temp = string.Empty;
         for (int i = 0; i < 3; ++i)
         {
-            temp = temp + (int)CollectTypes[i] + ",";
+            temp = temp + (int)CollectColors[i] + ",";
         }
 
-        _config.Write("CollectTypes", temp);
+        _config.Write("CollectColors", temp);
+
+        temp = string.Empty;
+        for (int i = 0; i < 3; ++i)
+        {
+            temp = temp + (int)CollectSpecial[i] + ",";
+        }
+
+        _config.Write("CollectSpecial", temp);
 
         temp = string.Empty;
         for (int i = 0; i < 3; ++i)

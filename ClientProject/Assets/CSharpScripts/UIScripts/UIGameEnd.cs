@@ -19,6 +19,10 @@ public class UIGameEnd : UIWindow
     UIToggle m_scoreCheck;
     UIToggle m_jellyCheck;
     UIToggle m_nutsCheck;
+    UIToggle m_collectCheck;
+
+    UISprite[] m_collectSprite = new UISprite[3];
+    UILabel[] m_collectLabel = new UILabel[3];
 
     UISprite m_planOnItemIcon;
 	
@@ -43,11 +47,18 @@ public class UIGameEnd : UIWindow
         m_scoreCheck = GetChildComponent<UIToggle>("CheckBoxScore");
         m_jellyCheck = GetChildComponent<UIToggle>("CheckBoxJelly");
         m_nutsCheck = GetChildComponent<UIToggle>("CheckBoxNuts");
+        m_collectCheck = GetChildComponent<UIToggle>("CheckCollect");
 
         m_planOnItemIcon = GetChildComponent<UISprite>("ItemIcon");
 		
         AddChildComponentMouseClick("EndGameBtn", OnEndGameClicked);
         AddChildComponentMouseClick("PlayOnBtn", OnPlayOnClicked);
+
+        for (int i = 0; i < 3; ++i)
+        {
+            m_collectSprite[i] = GetChildComponent<UISprite>("Collect" + i);
+            m_collectLabel[i] = GetChildComponent<UILabel>("CollectLabel" + i);
+        }
     }
     public override void OnShow()
     {
@@ -92,6 +103,7 @@ public class UIGameEnd : UIWindow
         {
             m_jellyCheck.gameObject.SetActive(true);
             m_nutsCheck.gameObject.SetActive(false);
+            m_collectCheck.gameObject.SetActive(false);
 
             int totalJellyCount = GlobalVars.CurStageData.GetSingleJellyCount() + GlobalVars.CurStageData.GetDoubleJellyCount() * 2;
             int curJellyCount = GameLogic.Singleton.PlayingStageData.GetSingleJellyCount() + GameLogic.Singleton.PlayingStageData.GetDoubleJellyCount() * 2;
@@ -110,13 +122,42 @@ public class UIGameEnd : UIWindow
 
             m_nutsCheck.gameObject.SetActive(true);
             m_jellyCheck.gameObject.SetActive(false);
+            m_collectCheck.gameObject.SetActive(false);
 
             m_nutsCheck.value = (GameLogic.Singleton.PlayingStageData.Nut1Count == GlobalVars.CurStageData.Nut1Count && GameLogic.Singleton.PlayingStageData.Nut2Count == GlobalVars.CurStageData.Nut2Count);
+        }
+        else if (GlobalVars.CurStageData.Target == GameTarget.Collect)      //处理搜集关的显示
+        {
+            m_nutsCheck.gameObject.SetActive(false);
+            m_jellyCheck.gameObject.SetActive(false);
+            m_collectCheck.gameObject.SetActive(true);
+
+            for (int i = 0; i < 3; ++i)
+            {
+                if (GlobalVars.CurStageData.CollectCount[i] > 0)
+                {
+                    m_collectLabel[i].gameObject.SetActive(true);
+                    if (GlobalVars.CurStageData.CollectTypes[i] <= CollectType.Collor7)
+                    {
+                        m_collectSprite[i].spriteName = "Item" + ((int)GlobalVars.CurStageData.CollectTypes[i] - (int)CollectType.Collor1 + 1).ToString();
+                    }
+                    else
+                    {
+                        m_collectSprite[i].spriteName = GlobalVars.CurStageData.CollectTypes[i].ToString();
+                    }
+                    m_collectLabel[i].text = GameLogic.Singleton.PlayingStageData.CollectCount[i].ToString() + "/" + GlobalVars.CurStageData.CollectCount[i].ToString();
+                }
+                else
+                {
+                    m_collectLabel[i].gameObject.SetActive(false);
+                }
+            }
         }
         else
         {
             m_nutsCheck.gameObject.SetActive(false);
             m_jellyCheck.gameObject.SetActive(false);
+            m_collectCheck.gameObject.SetActive(false);
         }
 
         GameLogic.Singleton.PauseGame();

@@ -124,6 +124,10 @@ public class UIRetry : UIWindow
             {
                 m_infoLabel.text = Localization.instance.Get("DidNotBringNuts");
             }
+            else if (GlobalVars.CurStageData.Target == GameTarget.Collect)
+            {
+                m_infoLabel.text = Localization.instance.Get("DidNotCollectEnough");
+            }
         }
 
         if (m_bWin)

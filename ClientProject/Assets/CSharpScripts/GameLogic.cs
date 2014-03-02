@@ -744,6 +744,14 @@ public class GameLogic
 
             GlobalVars.StartStageItem[i] = PurchasedItem.None;
         }
+
+        if (PlayingStageData.Target == GameTarget.Collect)
+        {
+            for (int i = 0; i < 3; ++i)
+            {
+                PlayingStageData.CollectCount[i] = 0;           //先把已搜集数量清零
+            }
+        }
     }
 
     void ProcessGridSprites(int x, int y)
@@ -1025,6 +1033,8 @@ public class GameLogic
             AddPartile("StartGameAnim-Ice", AudioEnum.Audio_None, 0, 0, false);
 		if(PlayingStageData.Target == GameTarget.BringFruitDown)
             AddPartile("StartGameAnim-Fruit", AudioEnum.Audio_None, 0, 0, false);
+        if (PlayingStageData.Target == GameTarget.Collect)
+            AddPartile("StartGameAnim-Collect", AudioEnum.Audio_None, 0, 0, false);
     }
 
     public void CheckFTUE()
@@ -1953,9 +1963,9 @@ public class GameLogic
 
         if (m_endingAccelarateStartTime > 0 && Timer.GetRealTimeSinceStartUp() > m_endingAccelarateStartTime)
         {
-            if (Timer.GetRealTimeSinceStartUp() - m_endingAccelarateStartTime >15)
+            if (Timer.GetRealTimeSinceStartUp() - m_endingAccelarateStartTime >10)
             {
-                Time.timeScale = 1.6f;
+                Time.timeScale = 1.4f;
             }
         }
     }
@@ -2235,6 +2245,7 @@ public class GameLogic
         if (CapBlock.EatingBlockCount > 0)      //若有在消块的
         {
             bool bEat = false;
+            bool bNeedRefreshTarget = false;        //搜集关可能需要更新目标
             //消块逻辑，把正在消失的块变成粒子，原块置空
             for (int i = 0; i < BlockCountX; i++)
             {
@@ -2252,6 +2263,33 @@ public class GameLogic
                             m_blocks[i, j].EatEffectPlayed = true;
                             m_blocks[i, j].m_animation.enabled = true;
                             m_blocks[i, j].m_animation.Play(m_blocks[i, j].EatAnimationName);                             //播放吃块动画
+
+                            if (PlayingStageData.Target == GameTarget.Collect)      //搜集关处理吃块
+                            {
+                                for (int k = 0; k < 3; ++k)
+                                {
+                                    if (GlobalVars.CurStageData.CollectCount[k] > 0)
+                                    {
+                                        if (GlobalVars.CurStageData.CollectTypes[k] <= CollectType.Collor7)
+                                        {
+                                            if (((int)m_blocks[i, j].color - (int)TBlockColor.EColor_White) == ((int)GlobalVars.CurStageData.CollectTypes[k] - (int)CollectType.Collor1))
+                                            {
+                                                ++PlayingStageData.CollectCount[k];                             //增加一个搜集数量
+                                                bNeedRefreshTarget = true;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (((int)m_blocks[i, j].special - (int)TSpecialBlock.ESpecial_EatLineDir0) == ((int)GlobalVars.CurStageData.CollectTypes[k] - (int)CollectType.Line0Bomb))
+                                            {
+                                                ++PlayingStageData.CollectCount[k];                             //增加一个搜集数量
+                                                bNeedRefreshTarget = true;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
                             AddPartile(m_blocks[i, j].EatEffectName, m_blocks[i, j].EatAudio, i, j);     //添加吃块特效
                         }
                     }
@@ -2264,6 +2302,11 @@ public class GameLogic
                         bEat = true;
                     }
                 }
+            }
+
+            if (bNeedRefreshTarget)
+            {
+                UIWindowManager.Singleton.GetUIWindow<UIGameHead>().RefreshTarget();
             }
 
             if (bEat)               //若有块被消除，相当于产生了新的空间，要处理一次下落
@@ -3165,7 +3208,9 @@ public class GameLogic
         {
             block.EatEffectName = eatEffectName;         //消除特效名字，用传进来的
             block.Eat(delay);                             //在这里提前给Block的状态赋值，是为了防止重复EatBlock
-			
+
+            bool hasBeenCollected = false;               //消除关中用来记录是否已被收集
+
             //处理特殊块
             switch (block.special)
             {
@@ -3419,6 +3464,17 @@ public class GameLogic
                 return true;
             }
         }
+        else if (PlayingStageData.Target == GameTarget.Collect)
+        {
+            for (int i = 0; i < 3; ++i )
+            {
+                if (GlobalVars.CurStageData.CollectCount[i] > 0 && PlayingStageData.CollectCount[i] < GlobalVars.CurStageData.CollectCount[i])
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
         else if (PlayingStageData.Target == GameTarget.GetScore && CheckGetEnoughScore())     //分数满足最低要求了
         {
             if (GlobalVars.CurStageData.StepLimit > 0 && PlayingStageData.StepLimit == 0)            //限制步数的关卡步用完了
@@ -3527,6 +3583,13 @@ public class GameLogic
 				{
 					GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed:NutCount", m_nut1Count + m_nut2Count);  //记录失败时的果冻数
 				}
+                else if (PlayingStageData.Target == GameTarget.Collect)
+                {
+                    GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed:Collect", 
+                        (float)(GlobalVars.CurStageData.CollectCount[0] - PlayingStageData.CollectCount[0]), 
+                        (GlobalVars.CurStageData.CollectCount[1] - PlayingStageData.CollectCount[1]), 
+                        (GlobalVars.CurStageData.CollectCount[2] - PlayingStageData.CollectCount[2]));  //记录失败时的果冻数
+                }
             }
 
 #if UNITY_ANDROID || UNITY_IPHONE
@@ -3560,6 +3623,10 @@ public class GameLogic
 					int nutCount = m_nut1Count + m_nut2Count;
 					param["NutsCount"] = nutCount.ToString();
 				}
+                else if (PlayingStageData.Target == GameTarget.Collect)
+                {
+
+                }
 
 				if (m_progress > PlayingStageData.StarScore[0])
 				{

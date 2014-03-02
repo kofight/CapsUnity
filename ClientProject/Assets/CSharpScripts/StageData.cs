@@ -51,6 +51,22 @@ public enum GameTarget
     Collect,
 }
 
+public enum CollectType
+{
+    Collor1,
+    Collor2,
+    Collor3,
+    Collor4,
+    Collor5,
+    Collor6,
+    Collor7,
+    Line0Bomb,
+    Line1Bomb,
+    Line2Bomb,
+    Bomb,
+    EatColorBomb,
+}
+
 public class FTUEData
 {
     public string headImage;
@@ -109,6 +125,9 @@ public class StageData
 
     public int[]    StarScore = new int[3];          //获得星星的分数
     public int [, ] GridData = new int[GameLogic.BlockCountX, GameLogic.BlockCountY];                        //关卡初始地块数据
+
+    public CollectType [] CollectTypes = new CollectType [3];
+    public int [] CollectCount = new int[3];
 
     public Dictionary<int, List<FTUEData>> FTUEMap = new Dictionary<int, List<FTUEData>>();                             //FTUE地图
 
@@ -233,6 +252,24 @@ public class StageData
         for (int i = 0; i < 3; ++i)
         {
             StarScore[i] = (int)System.Convert.ChangeType(scoreTokens[i], typeof(int));
+        }
+
+        if (_config.GetValue<string>("CollectTypes", out temp))
+        {
+            string[] collectTypeTokens = temp.Split(',');
+            for (int i = 0; i < 3; ++i)
+            {
+                CollectTypes[i] = (CollectType)System.Convert.ToInt32(collectTypeTokens[i]);
+            }
+        }
+
+        if (_config.GetValue<string>("CollectCount", out temp))
+        {
+            string[] collectCountTokens = temp.Split(',');
+            for (int i = 0; i < 3; ++i)
+            {
+                CollectCount[i] = System.Convert.ToInt32(collectCountTokens[i]);
+            }
         }
 
         //GridData
@@ -446,6 +483,22 @@ public class StageData
         }
 
         _config.Write("StarScore", temp);
+
+        temp = string.Empty;
+        for (int i = 0; i < 3; ++i)
+        {
+            temp = temp + (int)CollectTypes[i] + ",";
+        }
+
+        _config.Write("CollectTypes", temp);
+
+        temp = string.Empty;
+        for (int i = 0; i < 3; ++i)
+        {
+            temp = temp + CollectCount[i] + ",";
+        }
+
+        _config.Write("CollectCount", temp);
 
         temp = string.Empty;
         for (int j = 0; j < GameLogic.BlockCountY; ++j)

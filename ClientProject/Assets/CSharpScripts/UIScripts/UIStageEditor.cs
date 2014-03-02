@@ -99,7 +99,7 @@ public class UIStageEditor : UIWindow
             });
         }
 
-        for (int i = 0; i <= (int)GameTarget.GetScore; ++i)
+        for (int i = 0; i <= (int)GameTarget.Collect; ++i)
         {
             int targetType = i;
             AddChildComponentMouseClick("TargetMode" + i, delegate()
@@ -256,6 +256,25 @@ public class UIStageEditor : UIWindow
         input = GetChildComponent<UIInput>("PlusStartTime");
         input.value = GlobalVars.CurStageData.PlusStartTime.ToString();
 
+        //收集关
+        for (int i = 0; i < 3; ++i )
+        {
+            input = GetChildComponent<UIInput>("Collects" + i.ToString() + "Input");
+            input.value = (int)GlobalVars.CurStageData.CollectTypes[i] + "," + GlobalVars.CurStageData.CollectCount[i];
+
+            
+            UILabel label = GetChildComponent<UILabel>("Collects" + i.ToString() + "Label");
+            if (GlobalVars.CurStageData.CollectCount[i] > 0)
+            {
+                label.text = GlobalVars.CurStageData.CollectTypes[i].ToString() + " " + GlobalVars.CurStageData.CollectCount[i].ToString() + "个";
+            }
+            else
+            {
+                label.text = string.Empty;
+            }
+        }
+        
+
         for (int i = 0; i < 3; ++i)
         {
             input = GetChildComponent<UIInput>("Star" + (i + 1));
@@ -359,6 +378,20 @@ public class UIStageEditor : UIWindow
 
         input = GetChildComponent<UIInput>("LevelInput");
         int levelNum = (int)System.Convert.ChangeType(input.value, typeof(int));
+
+        if (GameLogic.Singleton.PlayingStageData.Target == GameTarget.Collect)
+        {
+            //收集关
+            for (int i = 0; i < 3; ++i)
+            {
+                input = GetChildComponent<UIInput>("Collects" + i.ToString() + "Input");
+                string[] tokens = input.value.Split(',');
+
+                GameLogic.Singleton.PlayingStageData.CollectTypes[i] = (CollectType)System.Convert.ToInt32(tokens[0]);
+                GameLogic.Singleton.PlayingStageData.CollectCount[i] = System.Convert.ToInt32(tokens[1]);
+            }
+        }
+
         GameLogic.Singleton.PlayingStageData.SaveStageData(levelNum);
         GlobalVars.CurStageNum = levelNum;
 
@@ -394,6 +427,8 @@ public class UIStageEditor : UIWindow
         
 
         GlobalVars.CurStageData.LoadStageData(levelNum);
+
+        RefreshControlls();
     }
 
     private void OnLoadClicked()

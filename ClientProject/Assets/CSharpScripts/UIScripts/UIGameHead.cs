@@ -6,7 +6,12 @@ public class UIGameHead : UIWindow
     GameObject m_fruitBoard;
     GameObject m_jellyBoard;
     GameObject m_scoreBoard;
+    GameObject m_collectBoard;
+
     TweenPosition m_showCoinTweener;
+
+    UISprite[] m_collectSprite = new UISprite[3];
+    UILabel[] m_collectLabel = new UILabel[3];
 
     public override void OnCreate()
     {
@@ -37,6 +42,13 @@ public class UIGameHead : UIWindow
         m_fruitBoard = UIToolkits.FindChild(mUIObject.transform, "FruitBoard").gameObject;
         m_jellyBoard = UIToolkits.FindChild(mUIObject.transform, "JellyBoard").gameObject;
         m_scoreBoard = UIToolkits.FindChild(mUIObject.transform, "ScoreBoard").gameObject;
+        m_collectBoard = UIToolkits.FindChild(mUIObject.transform, "CollectBoard").gameObject;
+
+        for (int i = 0; i < 3; ++i )
+        {
+            m_collectSprite[i] = GetChildComponent<UISprite>("Collect" + i);
+            m_collectLabel[i] = GetChildComponent<UILabel>("CollectLabel" + i);
+        }
 
         m_showCoinTweener = mUIObject.GetComponent<TweenPosition>();
     }
@@ -48,6 +60,7 @@ public class UIGameHead : UIWindow
             m_fruitBoard.SetActive(true);
             m_jellyBoard.SetActive(false);
             m_scoreBoard.SetActive(false);
+            m_collectBoard.SetActive(false);
             if (GlobalVars.CurStageData.Nut1Count > 0)
             {
                 UIToolkits.FindChild(m_fruitBoard.transform, "Fruit1Board").gameObject.SetActive(true);
@@ -72,6 +85,7 @@ public class UIGameHead : UIWindow
             m_fruitBoard.SetActive(false);
             m_jellyBoard.SetActive(true);
             m_scoreBoard.SetActive(false);
+            m_collectBoard.SetActive(false);
             if (GlobalVars.CurStageData.GetDoubleJellyCount() > 0)
             {
                 UIToolkits.FindChild(m_jellyBoard.transform, "DoubleJellyBoard").gameObject.SetActive(true);
@@ -81,11 +95,38 @@ public class UIGameHead : UIWindow
                 UIToolkits.FindChild(m_jellyBoard.transform, "DoubleJellyBoard").gameObject.SetActive(false);
             }
         }
-        else if (GlobalVars.CurStageData.Target == GameTarget.GetScore)
+        else if (GlobalVars.CurStageData.Target == GameTarget.Collect)          //处理搜集关的显示
+        {
+            m_fruitBoard.SetActive(false);
+            m_jellyBoard.SetActive(false);
+            m_scoreBoard.SetActive(false);
+            m_collectBoard.SetActive(true);
+            for (int i = 0; i < 3;++i )
+            {
+                if (GlobalVars.CurStageData.CollectCount[i] > 0)
+                {
+                    m_collectLabel[i].gameObject.SetActive(true);
+                    if (GlobalVars.CurStageData.CollectTypes[i] <= CollectType.Collor7)
+                    {
+                        m_collectSprite[i].spriteName = "Item" + ((int)GlobalVars.CurStageData.CollectTypes[i] - (int)CollectType.Collor1 + 1).ToString();
+                    }
+                    else
+                    {
+                        m_collectSprite[i].spriteName = GlobalVars.CurStageData.CollectTypes[i].ToString();
+                    }
+                }
+                else
+                {
+                    m_collectLabel[i].gameObject.SetActive(false);
+                }
+            }
+        }
+        if (GlobalVars.CurStageData.Target == GameTarget.GetScore)
         {
             m_fruitBoard.SetActive(false);
             m_jellyBoard.SetActive(false);
             m_scoreBoard.SetActive(true);
+            m_collectBoard.SetActive(false);
             UIToolkits.FindComponent<NumberDrawer>(m_scoreBoard.transform, "ScoreNum").SetNumber(GlobalVars.CurStageData.StarScore[0]);
         }
 
@@ -131,9 +172,6 @@ public class UIGameHead : UIWindow
         }
         else if (GlobalVars.CurStageData.Target == GameTarget.ClearJelly)
         {
-            m_fruitBoard.SetActive(false);
-            m_jellyBoard.SetActive(true);
-            m_scoreBoard.SetActive(false);
             if (GlobalVars.CurStageData.GetJellyCount() > 0)
             {
                 UIToolkits.FindComponent<NumberDrawer>(m_jellyBoard.transform, "JellyNum").SetNumber(GameLogic.Singleton.PlayingStageData.GetSingleJellyCount());
@@ -142,6 +180,16 @@ public class UIGameHead : UIWindow
             if (GlobalVars.CurStageData.GetDoubleJellyCount() > 0)
             {
                 UIToolkits.FindComponent<NumberDrawer>(m_jellyBoard.transform, "DoubleJellyNum").SetNumber(GameLogic.Singleton.PlayingStageData.GetDoubleJellyCount());
+            }
+        }
+        else if (GlobalVars.CurStageData.Target == GameTarget.Collect)          //处理搜集关的显示
+        {
+            for (int i = 0; i < 3; ++i)
+            {
+                if (GlobalVars.CurStageData.CollectCount[i] > 0)
+                {
+                    m_collectLabel[i].text = GameLogic.Singleton.PlayingStageData.CollectCount[i].ToString() + "/" + GlobalVars.CurStageData.CollectCount[i].ToString();
+                }
             }
         }
 	}

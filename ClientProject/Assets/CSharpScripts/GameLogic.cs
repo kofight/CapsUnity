@@ -1541,6 +1541,7 @@ public class GameLogic
                     {
                         UIWindowManager.Singleton.GetUIWindow<UIDialog>().TriggerDialog(GlobalVars.CurStageNum, DialogTriggerPos.StageEnd, delegate()
                         {
+                            GameLogic.Singleton.PlayEndGameAnim();		//play the end anim(move the game area out of screen)
                             UIWindowManager.Singleton.GetUIWindow<UIRetry>().RefreshData();
                             UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();      //弹游戏结束的窗口
                         });

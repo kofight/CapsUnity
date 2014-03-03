@@ -111,7 +111,7 @@ public class LoginState : State
             if (UIWindowManager.Singleton.GetUIWindow<UIOption>().Visible)
             {
                 UIWindowManager.Singleton.GetUIWindow<UIOption>().CloseWindow();
-
+                return;
             }
             UIWindowManager.Singleton.GetUIWindow<UIQuitConfirm>().ShowWindow();
         }

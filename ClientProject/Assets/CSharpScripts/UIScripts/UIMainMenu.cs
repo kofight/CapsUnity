@@ -4,10 +4,17 @@ using System.Collections;
 public class UIMainMenu : UIWindow 
 {
     UIWindow m_mainMenuExtend;
+
+    UIButton m_quitBtn;
+    UIButton m_optionBtn;
+
     public override void OnCreate()
     {
         base.OnCreate();
         m_mainMenuExtend = UIWindowManager.Singleton.CreateWindow<UIWindow>("UIMainMenuExtend", UIWindowManager.Anchor.BottomLeft);
+
+        m_quitBtn = m_mainMenuExtend.GetChildComponent<UIButton>("QuitBtn");
+        m_optionBtn = m_mainMenuExtend.GetChildComponent<UIButton>("OptionBtn");
 
         m_mainMenuExtend.AddChildComponentMouseClick("QuitBtn", OnQuitClicked);
         m_mainMenuExtend.AddChildComponentMouseClick("HelpBtn", delegate()
@@ -16,11 +23,19 @@ public class UIMainMenu : UIWindow
             m_mainMenuExtend.HideWindow();
         });
 
+        m_mainMenuExtend.AddChildComponentMouseClick("OptionBtn", delegate()
+        {
+            UIWindowManager.Singleton.GetUIWindow<UIOption>().ShowWindow();
+            m_mainMenuExtend.HideWindow();
+        });
+
         m_mainMenuExtend.AddChildComponentMouseClick("HideBtn", delegate()
         {
             m_mainMenuExtend.HideWindow();      //隐藏窗口
             ShowWindow();
         });
+
+
 
         AddChildComponentMouseClick("MainBtn", delegate()
         {
@@ -31,6 +46,14 @@ public class UIMainMenu : UIWindow
     public override void OnShow()
     {
         base.OnShow();
+        if (CapsApplication.Singleton.CurStateEnum != StateEnum.Game && !UIWindowManager.Singleton.GetUIWindow<UIMap>().Visible)        //Login画面
+        {
+
+        }
+        else
+        {
+
+        }
     }
     public override void OnUpdate()
     {

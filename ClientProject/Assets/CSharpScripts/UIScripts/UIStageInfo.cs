@@ -4,6 +4,7 @@ using System.Collections;
 public class UIStageInfo : UIWindow 
 {
     UILabel m_levelLabel;
+    UILabel m_totalCostLabel;
 
     UILabel[] m_itemCostLabels = new UILabel[3];
     UIToggle [] m_itemToggles = new UIToggle [3];
@@ -18,6 +19,7 @@ public class UIStageInfo : UIWindow
         base.OnCreate();
 
         m_levelLabel = GetChildComponent<UILabel>("LevelLabel");
+        m_totalCostLabel = GetChildComponent<UILabel>("ItemTotalCost");
 
         for (int i = 0; i < 3; ++i )
         {
@@ -78,6 +80,20 @@ public class UIStageInfo : UIWindow
                 UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>().ShowWindow();
             });
         }
+        RefreshTotalMoney();
+    }
+
+    void RefreshTotalMoney()
+    {
+        if (m_moneyCost == 0)
+        {
+            m_totalCostLabel.gameObject.SetActive(false);
+        }
+        else
+        {
+            m_totalCostLabel.gameObject.SetActive(true);
+            m_totalCostLabel.text = m_moneyCost.ToString();
+        }
     }
 
     public override void OnShow()
@@ -122,6 +138,8 @@ public class UIStageInfo : UIWindow
         number.SetNumber(GlobalVars.CurStageData.StarScore[2]);
 
         UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().HideWindow();
+
+        RefreshTotalMoney();
     }
 
     public void OnCloseClicked()

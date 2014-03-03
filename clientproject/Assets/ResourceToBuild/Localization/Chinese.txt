@@ -71,3 +71,4 @@ Use_ItemPreGame_ExtraScore = 获得120%的分数
 NotEnoughMoney = 金币不足
 Get140Coins = 购买140个金币
 QuitConfirm = 确定离开游戏？
+TotalCost = 总共:

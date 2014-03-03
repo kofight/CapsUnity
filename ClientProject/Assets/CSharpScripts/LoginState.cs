@@ -38,6 +38,7 @@ public class LoginState : State
             UIWindowManager.Singleton.CreateWindow<UIMap>();
             UIWindowManager.Singleton.CreateWindow<UINoMoreHearts>();
             UIWindowManager.Singleton.CreateWindow<UIHowToPlay>();
+            UIWindowManager.Singleton.CreateWindow<UIOption>();
             UIWindowManager.Singleton.CreateWindow<UIWindow>("UILoading", UIWindowManager.Anchor.Center);
             UIWindowManager.Singleton.CreateWindow<UIDialog>(UIWindowManager.Anchor.Bottom);
             UIWindowManager.Singleton.CreateWindow<UIStore>();
@@ -107,6 +108,11 @@ public class LoginState : State
         }
         else
         {
+            if (UIWindowManager.Singleton.GetUIWindow<UIOption>().Visible)
+            {
+                UIWindowManager.Singleton.GetUIWindow<UIOption>().CloseWindow();
+
+            }
             UIWindowManager.Singleton.GetUIWindow<UIQuitConfirm>().ShowWindow();
         }
     }

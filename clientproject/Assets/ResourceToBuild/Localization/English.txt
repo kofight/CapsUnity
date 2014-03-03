@@ -70,3 +70,5 @@ Use_ItemPreGame_ExtraScore = 获得120%的分数
 NotEnoughMoney = Out of money
 Get140Coins = Get 140 Coins
 QuitConfirm = Do you want quit the game?
+
+TotalCost = Total:

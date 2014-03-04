@@ -15,6 +15,9 @@ public class UIFTUE : UIWindow
     UILabel m_clickLabel;
 
     GameObject m_pointer;
+    UISprite m_pointerSprite;
+    long m_pointerStartTime;                         //开始播放箭头的时间
+
     UIEffectPlayer m_dialogEffectPlayer;
     WindowEffectFinished m_afterDialogFunc;
 	
@@ -83,6 +86,7 @@ public class UIFTUE : UIWindow
                 {
 					m_bLock =  true;
 					m_pointer.SetActive(true);
+                    m_pointerStartTime = Timer.millisecondNow();
                     GameLogic.Singleton.SetHighLight(true, m_ftueData[m_FTUEIndex].from);
                 }
                 foreach (Position highLightPos in m_ftueData[m_FTUEIndex].highLightPosList)
@@ -124,8 +128,26 @@ public class UIFTUE : UIWindow
         {
             Vector2 fromXY = new Vector2(GameLogic.Singleton.GetXPos(m_ftueData[m_FTUEIndex].from.x), GameLogic.Singleton.GetYPos(m_ftueData[m_FTUEIndex].from.x, m_ftueData[m_FTUEIndex].from.y));
             Vector2 toXY = new Vector2(GameLogic.Singleton.GetXPos(m_ftueData[m_FTUEIndex].to.x), GameLogic.Singleton.GetYPos(m_ftueData[m_FTUEIndex].to.x, m_ftueData[m_FTUEIndex].to.y));
-            Vector2 pos = Vector2.Lerp(fromXY, toXY, (Timer.millisecondNow() % 1000) / 1000.0f);
-            m_pointer.transform.localPosition = new Vector3(pos.x, -pos.y);
+
+            long pastTime = Timer.millisecondNow() - m_pointerStartTime;
+
+            long curLoopTime = pastTime % 2000;     //当前循环的时间
+
+            if (curLoopTime <= 500)                  //前0.5秒原地Alpha
+            {
+                m_pointerSprite.alpha = curLoopTime / 500.0f;
+				m_pointer.transform.localPosition = new Vector3(fromXY.x, -fromXY.y);
+            }
+            else if (curLoopTime >= 1500)            //后0.5秒原地Alpha
+            {
+                m_pointerSprite.alpha = 1.0f - (curLoopTime - 1500) / 500.0f;
+				m_pointer.transform.localPosition = new Vector3(toXY.x, -toXY.y);
+            }
+            else
+            {
+                Vector2 pos = Vector2.Lerp(fromXY, toXY, ((pastTime - 500) % 1000) / 1000.0f);
+                m_pointer.transform.localPosition = new Vector3(pos.x, -pos.y);
+            }
         }
     }
 
@@ -201,6 +223,7 @@ public class UIFTUE : UIWindow
         m_dialogBoardSprite = GetChildComponent<UISprite>("DialogBoard");
         m_dialogEffectPlayer = m_dialogBoardSprite.GetComponent<UIEffectPlayer>();
         m_pointer = GameObject.Find("FTUEPointer");
+        m_pointerSprite = m_pointer.GetComponent<UISprite>();
         m_pointer.SetActive(false);
         m_clickLabel = GetChildComponent<UILabel>("ClickLabel");
 
@@ -250,6 +273,7 @@ public class UIFTUE : UIWindow
                         m_clickLabel.text = Localization.instance.Get("MoveBlock");
                         collider.size = new Vector3(300, 200, 1);
                         m_pointer.SetActive(true);
+                        m_pointerStartTime = Timer.millisecondNow();
                     }
                     else                                                //不需要操作的话显示点击提示
                     {

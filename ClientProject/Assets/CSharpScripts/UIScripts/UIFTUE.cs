@@ -129,24 +129,35 @@ public class UIFTUE : UIWindow
             Vector2 fromXY = new Vector2(GameLogic.Singleton.GetXPos(m_ftueData[m_FTUEIndex].from.x), GameLogic.Singleton.GetYPos(m_ftueData[m_FTUEIndex].from.x, m_ftueData[m_FTUEIndex].from.y));
             Vector2 toXY = new Vector2(GameLogic.Singleton.GetXPos(m_ftueData[m_FTUEIndex].to.x), GameLogic.Singleton.GetYPos(m_ftueData[m_FTUEIndex].to.x, m_ftueData[m_FTUEIndex].to.y));
 
-            long pastTime = Timer.millisecondNow() - m_pointerStartTime;
+            long curLoopTime = (Timer.millisecondNow() - m_pointerStartTime) % 2500;     //当前循环的时间
 
-            long curLoopTime = pastTime % 2000;     //当前循环的时间
-
-            if (curLoopTime <= 500)                  //前0.5秒原地Alpha
+            if (curLoopTime <= 300)                  //前0.3秒原地Alpha
             {
-                m_pointerSprite.alpha = curLoopTime / 500.0f;
+                m_pointerSprite.alpha = curLoopTime / 300.0f;
 				m_pointer.transform.localPosition = new Vector3(fromXY.x, -fromXY.y);
             }
-            else if (curLoopTime >= 1500)            //后0.5秒原地Alpha
+            else if (curLoopTime <= 500)            //停一下
             {
-                m_pointerSprite.alpha = 1.0f - (curLoopTime - 1500) / 500.0f;
+
+            }
+            else if (curLoopTime <= 1500)           //移动
+            {
+                Vector2 pos = Vector2.Lerp(fromXY, toXY, ((curLoopTime - 500) % 1000) / 1000.0f);
+                m_pointer.transform.localPosition = new Vector3(pos.x, -pos.y);
+            }
+            else if (curLoopTime <= 1700)
+            {
+
+            }
+            else if (curLoopTime <= 2000)
+            {
+                m_pointerSprite.alpha = 1.0f - (curLoopTime - 1700) / 300.0f;
 				m_pointer.transform.localPosition = new Vector3(toXY.x, -toXY.y);
             }
             else
             {
-                Vector2 pos = Vector2.Lerp(fromXY, toXY, ((pastTime - 500) % 1000) / 1000.0f);
-                m_pointer.transform.localPosition = new Vector3(pos.x, -pos.y);
+                m_pointerSprite.alpha = 0.0f;
+                m_pointer.transform.localPosition = new Vector3(toXY.x, -toXY.y);
             }
         }
     }

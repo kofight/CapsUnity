@@ -169,11 +169,15 @@ public class UIFTUE : UIWindow
         {
             m_dialogBoardSprite.spriteName = "TextBox";
             m_dialogTrans.LocalPositionY(334);
+            m_dialogText.transform.LocalPositionX(-204.0f);
+            m_clickLabel.transform.LocalPositionY(-80.0f);
         }
         else
         {
             m_dialogBoardSprite.spriteName = "TextBox3";
             m_dialogTrans.LocalPositionY(-311);
+            m_dialogText.transform.LocalPositionX(-172.1245f);
+            m_clickLabel.transform.LocalPositionY(-131.1079f);
         }
 		
 		m_dialogContents = content.Split('@');
@@ -276,10 +280,10 @@ public class UIFTUE : UIWindow
             {
 				HideHighLight();
 				++m_FTUEIndex;
-				HideWindow(delegate()
-				{
-					ShowFTUE(m_curStep);                         //若有步数，循环调用
-				});
+                m_dialogEffectPlayer.HideEffect(delegate()      //关闭当前窗口
+                {
+                    ShowFTUE(m_curStep);                         //若有步数，循环调用
+                });
             }
             else                                            //若没有
             {

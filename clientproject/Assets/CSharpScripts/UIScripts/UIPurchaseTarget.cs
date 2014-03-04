@@ -97,6 +97,7 @@ public class UIPurchaseTarget : UIWindow
 
     public void OnCancelClicked()
     {
+        GlobalVars.UsingItem = PurchasedItem.None;
         HideWindow(delegate()
         {
             

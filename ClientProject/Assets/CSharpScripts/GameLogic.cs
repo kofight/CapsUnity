@@ -1532,16 +1532,15 @@ public class GameLogic
                 Time.timeScale = 1.0f;                                                        //恢复正常的时间比例
                 m_endingAccelarateStartTime = 0;
 
-                HideUI();
-
                 //若达成过关条件，触发关卡结束对话，并在对话结束后出游戏结束窗口
                 if (IsStageFinish())
                 {
+                    HideUI();
+                    GameLogic.Singleton.PlayEndGameAnim();		//play the end anim(move the game area out of screen)
                     Timer.AddDelayFunc(0.8f, delegate()
                     {
                         UIWindowManager.Singleton.GetUIWindow<UIDialog>().TriggerDialog(GlobalVars.CurStageNum, DialogTriggerPos.StageEnd, delegate()
                         {
-                            GameLogic.Singleton.PlayEndGameAnim();		//play the end anim(move the game area out of screen)
                             UIWindowManager.Singleton.GetUIWindow<UIRetry>().RefreshData();
                             UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();      //弹游戏结束的窗口
                         });
@@ -3168,7 +3167,7 @@ public class GameLogic
         {
             if (PlayingStageData.ChocolateCount > 0)
             {
-                //grid.bProceeChocolateAround = true;
+                grid.bProceeChocolateAround = true;
             }
             if (PlayingStageData.StoneCount > 0)
             {
@@ -3536,6 +3535,20 @@ public class GameLogic
         {
             if (PlayingStageData.TimeLimit > 0)         //若是时间关
             {
+                //时间关需要手动清理开着的窗口
+                if (UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>().Visible)
+                {
+                    UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>().OnCancelClicked();
+                }
+                if (UIWindowManager.Singleton.GetUIWindow<UIPurchaseTarget>().Visible)
+                {
+                    UIWindowManager.Singleton.GetUIWindow<UIPurchaseTarget>().OnCancelClicked();
+                }
+                if (UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>().Visible)
+                {
+                    UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>().OnCloseBtn();
+                }
+
                 bool foundSpecial = false;
                 for (int i = 0; i < BlockCountX; ++i)
                 {

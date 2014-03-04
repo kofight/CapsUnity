@@ -34,6 +34,7 @@ public class UINoMoreHearts : UIWindow
             }
             else
             {
+                HideWindow();
                 UIWindowManager.Singleton.GetUIWindow<UIStore>().ShowWindow();
                 UIWindowManager.Singleton.GetUIWindow<UIStore>().OnPurchaseFunc = delegate()
                 {

@@ -67,11 +67,13 @@ public class UIStageInfo : UIWindow
                 //弹出购买金币提示
                 UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>().OnCancelFunc = delegate()
                 {
+                    GlobalVars.UsingItem = PurchasedItem.None;
                     ShowWindow();
                 };
 
                 UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>().OnPurchaseFunc = delegate()
                 {
+                    GlobalVars.UsingItem = PurchasedItem.None;
                     ShowWindow();
                 };
 

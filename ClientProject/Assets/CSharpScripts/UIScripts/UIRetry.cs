@@ -38,11 +38,12 @@ public class UIRetry : UIWindow
         {
             m_starsSprites[i] = GetChildComponent<UISprite>("Star" + (i + 1));      //查找sprite
 	        m_starParticles[i] = GetChildComponent<ParticleSystem>("StarEffect" + (i + 1));
-            m_starParticles[i].gameObject.SetActive(false);
-            for (int index = 0; index < m_starParticles[i].transform.childCount; ++index)
-            {
-                m_starParticles[i].transform.GetChild(index).gameObject.SetActive(false);
-            }
+            m_starParticles[i].Stop(true);
+            //m_starParticles[i].gameObject.SetActive(false);
+            //for (int index = 0; index < m_starParticles[i].transform.childCount; ++index)
+            //{
+            //    m_starParticles[i].transform.GetChild(index).gameObject.SetActive(false);
+            //}
         }
     }
 
@@ -53,11 +54,12 @@ public class UIRetry : UIWindow
         {
             if (m_starParticles[i] != null)
             {
-                m_starParticles[i].gameObject.SetActive(false);
-                for (int index = 0; index < m_starParticles[i].transform.childCount; ++index)
-                {
-                    m_starParticles[i].transform.GetChild(index).gameObject.SetActive(false);
-                }
+                m_starParticles[i].Stop(true);
+                //m_starParticles[i].gameObject.SetActive(false);
+                //for (int index = 0; index < m_starParticles[i].transform.childCount; ++index)
+                //{
+                //    m_starParticles[i].transform.GetChild(index).gameObject.SetActive(false);   
+                //}
             }
         }
     }
@@ -287,11 +289,12 @@ public class UIRetry : UIWindow
 				{
                     if (m_starParticles[i] != null)
                     {
-                        m_starParticles[i].gameObject.SetActive(true);
-                        for (int index = 0; index < m_starParticles[i].transform.childCount; ++index)
-                        {
-                            m_starParticles[i].transform.GetChild(index).gameObject.SetActive(true);
-                        }
+                        //m_starParticles[i].gameObject.SetActive(true);
+                        //for (int index = 0; index < m_starParticles[i].transform.childCount; ++index)
+                        //{
+                        //    m_starParticles[i].transform.GetChild(index).gameObject.SetActive(true);
+                        //}
+                        m_starParticles[i].Play(true);
                     }
 				}
 				m_showTime = 0;

@@ -40,20 +40,22 @@ public class UIMainMenu : UIWindow
         AddChildComponentMouseClick("MainBtn", delegate()
         {
             m_mainMenuExtend.ShowWindow();
+            if (CapsApplication.Singleton.CurStateEnum != StateEnum.Game && !UIWindowManager.Singleton.GetUIWindow<UIMap>().Visible)        //Login画面
+            {
+                m_quitBtn.gameObject.SetActive(false);
+                m_optionBtn.gameObject.SetActive(true);
+            }
+            else
+            {
+                m_quitBtn.gameObject.SetActive(true);
+                m_optionBtn.gameObject.SetActive(false);
+            }
             HideWindow();
         });
     }
     public override void OnShow()
     {
         base.OnShow();
-        if (CapsApplication.Singleton.CurStateEnum != StateEnum.Game && !UIWindowManager.Singleton.GetUIWindow<UIMap>().Visible)        //Login画面
-        {
-
-        }
-        else
-        {
-
-        }
     }
     public override void OnUpdate()
     {

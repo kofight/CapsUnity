@@ -33,7 +33,7 @@ public class UIGameHead : UIWindow
             {
                 UserOrBuyItem(PurchasedItem.ItemInGame_TimeStoper);
             }
-            if (GlobalVars.CurStageData.ChocolateCount > 0 && !GameLogic.Singleton.IsStopingChocoGrow)
+            else if (GlobalVars.CurStageData.ChocolateCount > 0 && !GameLogic.Singleton.IsStopingChocoGrow)
             {
                 UserOrBuyItem(PurchasedItem.ItemInGame_ChocoStoper);
             }

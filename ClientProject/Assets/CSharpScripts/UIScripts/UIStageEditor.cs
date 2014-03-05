@@ -250,8 +250,11 @@ public class UIStageEditor : UIWindow
         input = GetChildComponent<UIInput>("PlusMaxCount");
         input.value = GlobalVars.CurStageData.PlusMaxCount.ToString();
 
-        input = GetChildComponent<UIInput>("PlusStep");
-        input.value = GlobalVars.CurStageData.PlusStep.ToString();
+        input = GetChildComponent<UIInput>("PlusStepMin");
+        input.value = GlobalVars.CurStageData.PlusStepMin.ToString();
+
+        input = GetChildComponent<UIInput>("PlusStepMax");
+        input.value = GlobalVars.CurStageData.PlusStepMax.ToString();
 
         input = GetChildComponent<UIInput>("PlusStartTime");
         input.value = GlobalVars.CurStageData.PlusStartTime.ToString();
@@ -360,9 +363,13 @@ public class UIStageEditor : UIWindow
         int plusStartTime = (int)System.Convert.ChangeType(input.value, typeof(int));
         GameLogic.Singleton.PlayingStageData.PlusStartTime = plusStartTime;
 
-        input = GetChildComponent<UIInput>("PlusStep");
-        int plusStep = (int)System.Convert.ChangeType(input.value, typeof(int));
-        GameLogic.Singleton.PlayingStageData.PlusStep = plusStep;
+        input = GetChildComponent<UIInput>("PlusStepMin");
+        int plusStepMin = (int)System.Convert.ChangeType(input.value, typeof(int));
+        GameLogic.Singleton.PlayingStageData.PlusStepMin = plusStepMin;
+
+        input = GetChildComponent<UIInput>("PlusStepMax");
+        int plusStepMax = (int)System.Convert.ChangeType(input.value, typeof(int));
+        GameLogic.Singleton.PlayingStageData.PlusStepMax = plusStepMax;
 
         input = GetChildComponent<UIInput>("LevelInput");
         int levelNum = (int)System.Convert.ChangeType(input.value, typeof(int));

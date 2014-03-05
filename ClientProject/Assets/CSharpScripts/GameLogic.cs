@@ -90,8 +90,11 @@ public class GridSprites
 
 struct ShowingNumberEffect
 {
+    UILabel label;
+    TweenAlpha tweenAlpha;
+    TweenPosition tweenPos;
     Transform trans;
-    UISprite[] sprites;     //最多6位
+    //UISprite[] sprites;     //最多6位
     Position position;                           //位置
     long startTime;          //开始时间
     static long effectTime = 1000;              //特效显示时间
@@ -99,35 +102,47 @@ struct ShowingNumberEffect
 
     public void Init(GameObject numInstance)
     {
-        sprites = new UISprite[5];
+        //sprites = new UISprite[5];
         GameObject newObj = GameObject.Instantiate(numInstance) as GameObject;
         trans = newObj.transform;
         trans.parent = numInstance.transform.parent;
         trans.localScale = numInstance.transform.localScale;
-        newObj.SetActive(false);
+        //newObj.SetActive(false);
 
-        for (int i = 0; i < trans.childCount; ++i)
-        {
-            sprites[i] = trans.GetChild(i).GetComponent<UISprite>();
-        }
+        //for (int i = 0; i < trans.childCount; ++i)
+        //{
+        //    sprites[i] = trans.GetChild(i).GetComponent<UISprite>();
+        //}
+
+        label = trans.GetComponent<UILabel>();
+        tweenAlpha = trans.GetComponent<TweenAlpha>();
+        tweenPos = trans.GetComponent<TweenPosition>();
     }
 
     public void SetNumber(int num, int x, int y)
     {
         trans.gameObject.SetActive(true);
-        numberCount = 0;
-        while (num > 0)
-        {
-            sprites[numberCount].spriteName = "Score" + (num % 10);
-            sprites[numberCount].gameObject.SetActive(true);
-            num /= 10;
-            ++numberCount;
-        }
+        tweenPos.from = new Vector3(x, -y);
+        tweenPos.to = new Vector3(x, -(y - 30));
+		tweenPos.ResetToBeginning();
+		tweenAlpha.ResetToBeginning();
+        tweenPos.Play(true);
+        tweenAlpha.Play(true);
+        //numberCount = 0;
+        //while (num > 0)
+        //{
+        //    sprites[numberCount].spriteName = "Score" + (num % 10);
+        //    sprites[numberCount].gameObject.SetActive(true);
+        //    num /= 10;
+        //    ++numberCount;
+        //}
 
-        for (int i = numberCount; i < 5; ++i)
-        {
-            sprites[i].gameObject.SetActive(false);
-        }
+        //for (int i = numberCount; i < 5; ++i)
+        //{
+        //    sprites[i].gameObject.SetActive(false);
+        //}
+
+        label.text = num.ToString();
 
         position = new Position(x, y);
         trans.localPosition = new Vector3(x + numberCount * 27 / 2, -y, -120);
@@ -136,30 +151,30 @@ struct ShowingNumberEffect
 
     public void SetFree()
     {
-        for (int i = 0; i < 5; ++i)
-        {
-            sprites[i].alpha = 1.0f;
-        }
+        //for (int i = 0; i < 5; ++i)
+        //{
+        //    sprites[i].alpha = 1.0f;
+        //}
         trans.gameObject.SetActive(false);
     }
 
-    public void Update()
-    {
-        if (!IsEnd())
-        {
-            long yOffset = (Timer.millisecondNow() - startTime) * 50 / effectTime;
-            trans.localPosition = new Vector3(position.x + numberCount * 27 / 2, -(position.y - yOffset), -120);
-
-            for (int i = 0; i < 5; ++i)
-            {
-                sprites[i].alpha = (1.0f - (Timer.millisecondNow() - startTime) * 1.0f / effectTime);
-            }
-        }
-    }
+    //public void Update()
+    //{
+    //    if (!IsEnd())
+    //    {
+    //        long yOffset = (Timer.millisecondNow() - startTime) * 50 / effectTime;
+    //        trans.localPosition = new Vector3(position.x + numberCount * 27 / 2, -(position.y - yOffset), -120);
+    //        label.alpha = (1.0f - (Timer.millisecondNow() - startTime) * 1.0f / effectTime);
+    //        //for (int i = 0; i < 5; ++i)
+    //        //{
+    //        //    sprites[i].alpha = (1.0f - (Timer.millisecondNow() - startTime) * 1.0f / effectTime);
+    //        //}
+    //    }
+    //}
 
     public bool IsEnd()
     {
-        return Timer.millisecondNow() - startTime > effectTime;
+        return Timer.millisecondNow() - startTime > tweenAlpha.duration * 1000;
     }
 }
 
@@ -1573,6 +1588,10 @@ public class GameLogic
                         AddPartile(CapsConfig.AddSpecialEffect, AudioEnum.Audio_itemBirth, pos.x, pos.y);
                         AddProgress(CapsConfig.SugarCrushStepReward, pos.x, pos.y);
                         --PlayingStageData.StepLimit;           //步数减一
+                        if (m_nextPlus5Step > 0)
+                        {
+                            --m_nextPlus5Step;
+                        }
                         m_gameBottomUI.OnChangeStep(PlayingStageData.StepLimit);
                     }
                     else
@@ -1889,20 +1908,21 @@ public class GameLogic
                     }
                     else
                     {
-                        node.Value.Update();
+                        //node.Value.Update();
                         node = node.Next;
                     }
                 }
 
                 if (nodeLast.Value.IsEnd())       //若到了处理时间
                 {
+					node.Value.SetFree();
                     m_freeNumberList.AddLast(nodeLast.Value);
                     m_showingNumberEffectList.Remove(nodeLast.Value);                              //移除中间一个元素
                 }
-                else
-                {
-                    nodeLast.Value.Update();
-                }
+                //else
+                //{
+                //    nodeLast.Value.Update();
+                //}
             }
         }
 
@@ -2234,6 +2254,10 @@ public class GameLogic
 
         //如果交换成功////////////////////////////////////////////////////////////////////////
         --PlayingStageData.StepLimit;                                                   //步数扣步数
+        if (m_nextPlus5Step > 0)
+        {
+            --m_nextPlus5Step;
+        }
         m_gameBottomUI.OnChangeStep(PlayingStageData.StepLimit);
         ClearSelected();                                                                //清空所选
         ProcessTempBlocks();                                                            //处理正常移动后消块对场景的影响
@@ -4623,7 +4647,7 @@ public class GameLogic
     }
 
     int m_idCount = 0;
-    int m_lastPlus5Step = 0;            //上次+5的步数
+    int m_nextPlus5Step = 0;            //下一个+5的步数
     int m_plus5Count = 0;
 
     bool CreateBlock(int x, int y, bool avoidLine)
@@ -4633,13 +4657,18 @@ public class GameLogic
         m_blocks[x, y].color = color;               //设置颜色
         m_blocks[x, y].m_animation.enabled = false;
 
-        if (Timer.millisecondNow() - m_gameStartTime > PlayingStageData.PlusStartTime * 1000)       //若超过了开始掉+5的时间
+        if (PlayingStageData.TimeLimit > 0 && Timer.millisecondNow() - m_gameStartTime > PlayingStageData.PlusStartTime * 1000)       //若超过了开始掉+5的时间
         {
             //处理+5
-            if (PlayingStageData.TimeLimit > 0 && GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit > m_lastPlus5Step + PlayingStageData.PlusStep)
+            if (m_nextPlus5Step == 0)
             {
                 m_blocks[x, y].special = TSpecialBlock.ESpecial_NormalPlus5;            //生成一个+5
-                m_lastPlus5Step = GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit;
+                int range = PlayingStageData.PlusStepMax - PlayingStageData.PlusStepMin;
+                if (range <= 1)
+                {
+                    range = 1;
+                }
+                m_nextPlus5Step = PlayingStageData.PlusStepMin + m_random.Next() % range;
             }
         }
 

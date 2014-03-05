@@ -109,7 +109,8 @@ public class CapsConfig
 	public static bool EnableTalkingData = false;
 
     public static int[] StageTypeArray;                             //存每关的类型
-    public static int[] ItemPriceArray;                             //存每关的类型
+    public static int[] ItemPriceArray;                             //道具的价格
+    public static int[] ItemUnLockLevelArray;                       //道具的解锁关卡
 
     private ConfigOperator _config;
 
@@ -178,6 +179,20 @@ public class CapsConfig
         else
         {
             ItemPriceArray = new int[10];
+        }
+
+        string itemUnLockArrayStr;
+        _config.GetValue<string>("ItemUnLockArray", out itemUnLockArrayStr);
+        if (itemUnLockArrayStr != null)
+        {
+            string[] stringArray = itemUnLockArrayStr.Split("|"[0]);
+            ItemUnLockLevelArray = new int[stringArray.Length];
+            for (int i = 0; i < stringArray.Length; i++)
+                ItemUnLockLevelArray[i] = Convert.ToInt32(stringArray[i]);
+        }
+        else
+        {
+            ItemUnLockLevelArray = new int[10];
         }
 
         _config.GetValue<float>("BLOCKWIDTH", out GameLogic.BLOCKWIDTH);

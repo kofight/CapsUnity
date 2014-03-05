@@ -250,6 +250,7 @@ public class UIFTUE : UIWindow
 
     public void EndFTUE()
     {
+        Debug.Log("EndFTUE");
 		m_finishedStep = m_curStep;
 		m_FTUEIndex = 0;
         HideWindow();                               //隐藏窗体
@@ -304,6 +305,7 @@ public class UIFTUE : UIWindow
 
         if (m_curDialogIndex < m_dialogContents.Length)      //若不是最后一段文字
         {
+            m_bLock = true;
             m_dialogEffectPlayer.HideEffect(delegate()      //关闭当前窗口
             {
                 NextDialog();
@@ -315,6 +317,7 @@ public class UIFTUE : UIWindow
             {
 				HideHighLight();
 				++m_FTUEIndex;
+                m_bLock = true;
                 m_dialogEffectPlayer.HideEffect(delegate()      //关闭当前窗口
                 {
                     ShowFTUE(m_curStep);                         //若有步数，循环调用

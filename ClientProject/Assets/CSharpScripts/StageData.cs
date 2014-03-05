@@ -117,7 +117,8 @@ public class StageData
 
     public int PlusMaxCount = 3;            //最多同屏数量
     public int PlusInitCount = 1;            //初始化数量
-    public int PlusStep = 10;            //步数间隔
+    public int PlusStepMin = 5;            //步数间隔
+    public int PlusStepMax = 10;            //步数间隔
     public int PlusStartTime = 0;           //开始出现+5的时间
 
     public int ChocolateCount = 0;
@@ -239,7 +240,14 @@ public class StageData
         _config.GetValue<int>("PlusInitCount", out PlusInitCount);
         _config.GetValue<int>("PlusMaxCount", out PlusMaxCount);
         _config.GetValue<int>("PlusStartTime", out PlusStartTime);
-        _config.GetValue<int>("PlusStep", out PlusStep);
+        if (!_config.GetValue<int>("PlusStepMin", out PlusStepMin))
+        {
+            PlusStepMin = 5;
+        }
+        if (!_config.GetValue<int>("PlusStepMax", out PlusStepMax))
+        {
+            PlusStepMax = 10;
+        }
         _config.GetValue<int>("Seed", out Seed);
 
         if (ColorCount == 0)
@@ -482,7 +490,8 @@ public class StageData
         _config.Write("PlusInitCount", PlusInitCount);
         _config.Write("PlusMaxCount", PlusMaxCount);
         _config.Write("PlusStartTime", PlusStartTime);
-        _config.Write("PlusStep", PlusStep);
+        _config.Write("PlusStepMin", PlusStepMin);
+        _config.Write("PlusStepMax", PlusStepMax);
 
         _config.Write("Seed", Seed);
         _config.Write("NewFormat", 1);                  //新格式标记

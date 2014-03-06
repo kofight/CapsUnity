@@ -9,6 +9,7 @@ public class UIStageInfo : UIWindow
     UILabel[] m_itemCostLabels = new UILabel[3];
     UIToggle [] m_itemToggles = new UIToggle [3];
     PurchasedItem [] m_items = new PurchasedItem [3];
+    UISprite[] m_lockItemSprite = new UISprite[3];
 
     int m_moneyCost = 0;
 
@@ -26,6 +27,7 @@ public class UIStageInfo : UIWindow
             m_itemCostLabels[i] = GetChildComponent<UILabel>("Item" + (i+1).ToString() +"Cost");
             m_itemToggles[i] = GetChildComponent<UIToggle>("Item" + (i + 1).ToString() + "Btn");
 			m_itemToggles[i].SetWithoutTrigger(false);
+            m_lockItemSprite[i] = GetChildComponent<UISprite>("LockItem" + (i + 1).ToString());
             EventDelegate.Set(m_itemToggles[i].onChange, OnToggle);
         }
 
@@ -129,9 +131,24 @@ public class UIStageInfo : UIWindow
         m_items[2] = PurchasedItem.ItemPreGame_ExtraScore;
 
         itemIcon.spriteName = m_items[0].ToString();
+
         for (int i = 0; i < 3; ++i )
         {
             m_itemCostLabels[i].text = CapsConfig.GetItemPrice(m_items[i]).ToString();
+            m_itemToggles[i].SetWithoutTrigger(false);
+
+            if (CapsConfig.ItemUnLockLevelArray[(int)m_items[i]] <= GlobalVars.AvailabeStageCount)       //判断道具是否已经解锁?
+            {
+                m_lockItemSprite[i].gameObject.SetActive(false);
+                m_itemToggles[i].enabled = true;
+                m_itemCostLabels[i].gameObject.SetActive(true);
+            }
+            else
+            {
+				m_lockItemSprite[i].gameObject.SetActive(true);
+                m_itemToggles[i].enabled = false;
+                m_itemCostLabels[i].gameObject.SetActive(false);
+            }
         }
 
         NumberDrawer number = GetChildComponent<NumberDrawer>("StageTarget");

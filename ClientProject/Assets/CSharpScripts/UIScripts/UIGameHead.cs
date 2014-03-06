@@ -27,35 +27,52 @@ public class UIGameHead : UIWindow
         m_scoreBoard = UIToolkits.FindChild(mUIObject.transform, "ScoreBoard").gameObject;
         m_collectBoard = UIToolkits.FindChild(mUIObject.transform, "CollectBoard").gameObject;
 
-        m_items[0] = PurchasedItem.ItemInGame_Resort;
-        m_items[1] = PurchasedItem.ItemInGame_Hammer;
-        if (GlobalVars.CurStageData.TimeLimit > 0 && !GameLogic.Singleton.IsStoppingTime)
-        {
-            m_items[2] = PurchasedItem.ItemInGame_TimeStoper;
-        }
-        else if (GlobalVars.CurStageData.ChocolateCount > 0 && !GameLogic.Singleton.IsStopingChocoGrow)
-        {
-            m_items[2] = PurchasedItem.ItemInGame_ChocoStoper;
-        }
-
         for (int i = 0; i < 3; ++i )
         {
             m_collectSprite[i] = GetChildComponent<UISprite>("Collect" + i);
             m_collectLabel[i] = GetChildComponent<UILabel>("CollectLabel" + i);
             m_lockItemSprite[i] = GetChildComponent<UISprite>("LockItem" + (i + 1).ToString());
-
             m_itemBtn[i] = GetChildComponent<UIButton>("UseItem" + (i+1).ToString() + "Btn");
-            UIToolkits.AddChildComponentMouseClick(m_itemBtn[i].gameObject, delegate()
-            {
-                UserOrBuyItem(m_items[i]);
-            });
         }
+		
+		UIToolkits.AddChildComponentMouseClick(m_itemBtn[0].gameObject, delegate()
+        {
+			UserOrBuyItem(PurchasedItem.ItemInGame_Resort);
+        });
+		UIToolkits.AddChildComponentMouseClick(m_itemBtn[1].gameObject, delegate()
+        {
+			UserOrBuyItem(PurchasedItem.ItemInGame_Hammer);
+        });
+		UIToolkits.AddChildComponentMouseClick(m_itemBtn[2].gameObject, delegate()
+        {
+			if (GlobalVars.CurStageData.TimeLimit > 0 && !GameLogic.Singleton.IsStoppingTime)
+            {
+				UserOrBuyItem(PurchasedItem.ItemInGame_TimeStoper);
+            }
+            else if (GlobalVars.CurStageData.ChocolateCount > 0 && !GameLogic.Singleton.IsStopingChocoGrow)
+            {
+				UserOrBuyItem(PurchasedItem.ItemInGame_ChocoStoper);
+            }
+        });
 
         m_showCoinTweener = mUIObject.GetComponent<TweenPosition>();
     }
+
     public override void OnShow()
     {
         base.OnShow();
+		
+		m_items[0] = PurchasedItem.ItemInGame_Resort;
+        m_items[1] = PurchasedItem.ItemInGame_Hammer;
+        if (GlobalVars.CurStageData.TimeLimit > 0)
+        {
+            m_items[2] = PurchasedItem.ItemInGame_TimeStoper;
+        }
+        else if (GlobalVars.CurStageData.ChocolateCount > 0)
+        {
+            m_items[2] = PurchasedItem.ItemInGame_ChocoStoper;
+        }
+		
         if (GlobalVars.CurStageData.Target == GameTarget.BringFruitDown)
         {
             m_fruitBoard.SetActive(true);
@@ -174,7 +191,7 @@ public class UIGameHead : UIWindow
 
         for (int i = 0; i < 3; ++i )
         {
-            if (CapsConfig.ItemUnLockLevelArray[(int)m_items[i]] <= GlobalVars.AvailabeStageCount)       //判断道具是否已经解锁?
+            if (CapsConfig.ItemUnLockLevelArray[(int)m_items[i]] <= GlobalVars.AvailabeStageCount || GlobalVars.DeveloperMode)       //判断道具是否已经解锁?
             {
                 m_lockItemSprite[i].gameObject.SetActive(false);
                 m_itemBtn[i].enabled = true;
@@ -249,6 +266,10 @@ public class UIGameHead : UIWindow
             uiWindow.OnPurchaseFunc = delegate()
             {
                 UserOrBuyItem(item);
+            };
+            uiWindow.OnCancelFunc = delegate()
+            {
+                GlobalVars.UsingItem = PurchasedItem.None;
             };
             uiWindow.OnCancelFunc = null;                                               //取消时什么都不做，直接回到游戏
             return;

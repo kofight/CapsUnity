@@ -242,6 +242,7 @@ public class UIGameEnd : UIWindow
                         uiWindow.OnCancelFunc = delegate()              //若取消，还显示GameEnd窗口
                         {
                             ShowWindow();
+                            GlobalVars.UsingItem = PurchasedItem.None;
                         };
                         uiWindow.OnPurchaseFunc = delegate()            //若成功，显示使用道具窗口
                         {

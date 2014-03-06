@@ -32,7 +32,7 @@ public class UIPurchaseTarget : UIWindow
             for (int j = 0; j < GameLogic.BlockCountY; ++j)
             {
                 CapBlock pBlock = GameLogic.Singleton.GetBlock(new Position(i, j));
-                if (pBlock != null)
+                if (pBlock != null && pBlock.color < TBlockColor.EColor_Nut1 && pBlock.CurState == BlockState.Normal)
                 {
                     GlobalVars.UsingItemTarget = new Position(i, j);
                     SetTarget(GlobalVars.UsingItemTarget);

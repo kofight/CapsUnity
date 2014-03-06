@@ -137,7 +137,7 @@ public class UIStageInfo : UIWindow
             m_itemCostLabels[i].text = CapsConfig.GetItemPrice(m_items[i]).ToString();
             m_itemToggles[i].SetWithoutTrigger(false);
 
-            if (CapsConfig.ItemUnLockLevelArray[(int)m_items[i]] <= GlobalVars.AvailabeStageCount)       //判断道具是否已经解锁?
+            if (CapsConfig.ItemUnLockLevelArray[(int)m_items[i]] <= GlobalVars.AvailabeStageCount || GlobalVars.DeveloperMode)       //判断道具是否已经解锁?
             {
                 m_lockItemSprite[i].gameObject.SetActive(false);
                 m_itemToggles[i].enabled = true;

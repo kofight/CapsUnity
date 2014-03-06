@@ -93,6 +93,7 @@ struct ShowingNumberEffect
     UILabel label;
     TweenAlpha tweenAlpha;
     TweenPosition tweenPos;
+    TweenScale tweenScale;
     Transform trans;
     //UISprite[] sprites;     //最多6位
     Position position;                           //位置
@@ -117,6 +118,7 @@ struct ShowingNumberEffect
         label = trans.GetComponent<UILabel>();
         tweenAlpha = trans.GetComponent<TweenAlpha>();
         tweenPos = trans.GetComponent<TweenPosition>();
+        tweenScale = trans.GetComponent<TweenScale>();
     }
 
     public void SetNumber(int num, int x, int y)
@@ -126,8 +128,10 @@ struct ShowingNumberEffect
         tweenPos.to = new Vector3(x, -(y - 30));
 		tweenPos.ResetToBeginning();
 		tweenAlpha.ResetToBeginning();
+        tweenScale.ResetToBeginning();
         tweenPos.Play(true);
         tweenAlpha.Play(true);
+        tweenScale.Play(true);
         //numberCount = 0;
         //while (num > 0)
         //{

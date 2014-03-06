@@ -152,12 +152,12 @@ struct ShowingNumberEffect
                 } break;
             case TBlockColor.EColor_Orange:
                 {
-                    label.color = new Color(0.160784314f, 0.815686275f, 0.823529412f);
+                    label.color = new Color(0.937254902f, 0.57254902f, 0.125490196f);
 
                 } break;
             case TBlockColor.EColor_Cyan:
                 {
-                    label.color = new Color(1.0f, 1.0f, 1.0f);
+                    label.color = new Color(0.160784314f, 0.815686275f, 0.823529412f);
 
                 } break;
             case TBlockColor.EColor_None:

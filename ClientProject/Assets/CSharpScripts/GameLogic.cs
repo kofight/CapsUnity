@@ -121,8 +121,53 @@ struct ShowingNumberEffect
         tweenScale = trans.GetComponent<TweenScale>();
     }
 
-    public void SetNumber(int num, int x, int y)
+    public void SetNumber(int num, int x, int y, TBlockColor color)
     {
+        switch (color)
+        {
+            case TBlockColor.EColor_Purple:
+                {
+                    label.color = new Color(0.850980392f, 0.180392157f, 0.82745098f);
+                    
+                }break;
+            case TBlockColor.EColor_Green:
+                {
+                    label.color = new Color(0.02745098f, 0.858823529f, 0.247058824f);
+
+                } break;
+            case TBlockColor.EColor_Blue:
+                {
+                    label.color = new Color(0.011764706f, 0.360784314f, 0.901960784f);
+
+                } break;
+            case TBlockColor.EColor_Yellow:
+                {
+                    label.color = new Color(0.952941176f, 0.890196078f, 0.266666667f);
+
+                } break;
+            case TBlockColor.EColor_Red:
+                {
+                    label.color = new Color(0.901960784f, 0.223529412f, 0.305882353f);
+
+                } break;
+            case TBlockColor.EColor_Orange:
+                {
+                    label.color = new Color(0.160784314f, 0.815686275f, 0.823529412f);
+
+                } break;
+            case TBlockColor.EColor_Cyan:
+                {
+                    label.color = new Color(1.0f, 1.0f, 1.0f);
+
+                } break;
+            case TBlockColor.EColor_None:
+            case TBlockColor.EColor_Nut1:
+            case TBlockColor.EColor_Nut2:
+                {
+                    label.color = new Color(1.0f, 1.0f, 1.0f);
+
+                } break;
+        }
         trans.gameObject.SetActive(true);
         tweenPos.from = new Vector3(x, -y);
         tweenPos.to = new Vector3(x, -(y - 30));
@@ -501,7 +546,12 @@ public class GameLogic
         }
         m_progress += progress;
         m_gameBottomUI.OnChangeProgress(m_progress);
-        AddNumber(progress, GetXPos(x), GetYPos(x, y));
+        TBlockColor color = TBlockColor.EColor_None;
+        if (m_blocks[x, y] != null)
+        {
+            color = m_blocks[x, y].color;
+        }
+        AddNumber(progress, GetXPos(x), GetYPos(x, y), color);
     }
 
     public void AddGameTime(int seconds)
@@ -528,7 +578,7 @@ public class GameLogic
         CapsConfig.Instance.GameSpeed = 1.0f;
     }
 
-    void AddNumber(int number, int x, int y)                //添加一个数字特效
+    void AddNumber(int number, int x, int y, TBlockColor color)                //添加一个数字特效
     {
         ShowingNumberEffect numEffect;
         if (m_freeNumberList.Count == 0)
@@ -541,8 +591,8 @@ public class GameLogic
             numEffect = m_freeNumberList.Last.Value;
             m_freeNumberList.RemoveLast();
         }
-        
-        numEffect.SetNumber(number, x, y);
+
+        numEffect.SetNumber(number, x, y, color);
         m_showingNumberEffectList.AddLast(numEffect);
     }
 

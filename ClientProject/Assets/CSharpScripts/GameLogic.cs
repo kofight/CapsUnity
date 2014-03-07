@@ -348,6 +348,8 @@ public class GameLogic
     LinkedList<DelayProceedGrid> m_delayProcessGrid = new LinkedList<DelayProceedGrid>();           //延迟处理消除对场景的影响
 
     Position [] m_saveHelpBlocks = new Position[3];        //用来保存帮助找到的可消块
+    TDirection m_saveHelpBlockDir;
+    GameObject m_helpPointerObj;
 
     ///特殊游戏状态///////////////////////////////////////////////////////////////////////
     bool m_gettingExtraScore = false;                                           //特殊状态，获得额外的分数
@@ -616,7 +618,7 @@ public class GameLogic
         m_angle3Instance = GameObject.Find("Angle3");
         m_numInstance = GameObject.Find("NumberInstance");
         m_shadowSpriteInstance = GameObject.Find("ShadowSprite");
-
+        m_helpPointerObj = GameObject.Find("HelpPointer");
         m_gameBottomUI = UIWindowManager.Singleton.GetUIWindow<UIGameBottom>();
 
         //初始化瓶盖图片池
@@ -956,6 +958,7 @@ public class GameLogic
                         m_saveHelpBlocks[0] = position;
                         if (IsHaveLine(curPos, true))
                         {
+                            m_saveHelpBlockDir = dir;
                             ExchangeBlock(curPos, position);        //换回
                             return true;
                         }
@@ -963,6 +966,7 @@ public class GameLogic
 						m_saveHelpBlocks[0] = curPos;
 						if (IsHaveLine(position, true))
 						{
+                            m_saveHelpBlockDir = dir;
 							ExchangeBlock(curPos, position);        //换回
                             return true;
 						}
@@ -2087,6 +2091,13 @@ public class GameLogic
                     m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_dropDownStartTime = 0;
                     m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.enabled = true;
                 }
+            }
+
+            if (GlobalVars.CurStageNum <= 5)
+            {
+                m_helpPointerObj.SetActive(true);
+                m_helpPointerObj.transform.localPosition = new Vector3(GetXPos(m_saveHelpBlocks[0].x), -GetYPos(m_saveHelpBlocks[0].x, m_saveHelpBlocks[0].y), -100);
+                m_helpPointerObj.transform.localRotation = Quaternion.AngleAxis(((int)(m_saveHelpBlockDir - TDirection.EDir_Up)) * 60 - 90, new Vector3(0, 0, -1));
             }
         }
     }
@@ -3231,6 +3242,12 @@ public class GameLogic
             {
                 m_saveHelpBlocks[i].MakeItUnAvailable();
             }
+
+            if (GlobalVars.CurStageNum <= 5)
+            {
+                m_helpPointerObj.SetActive(false);
+            }
+
             m_lastHelpTime = Timer.GetRealTimeSinceStartUp();
         }
     }

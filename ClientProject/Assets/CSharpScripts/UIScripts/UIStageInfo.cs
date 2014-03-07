@@ -10,6 +10,8 @@ public class UIStageInfo : UIWindow
     UIToggle [] m_itemToggles = new UIToggle [3];
     PurchasedItem [] m_items = new PurchasedItem [3];
     UISprite[] m_lockItemSprite = new UISprite[3];
+    UISprite[] m_background = new UISprite[3];
+    UISprite[] m_backgroundFrame = new UISprite[3];
 
     int m_moneyCost = 0;
 
@@ -28,6 +30,10 @@ public class UIStageInfo : UIWindow
             m_itemToggles[i] = GetChildComponent<UIToggle>("Item" + (i + 1).ToString() + "Btn");
 			m_itemToggles[i].SetWithoutTrigger(false);
             m_lockItemSprite[i] = GetChildComponent<UISprite>("LockItem" + (i + 1).ToString());
+
+            m_background[i] = GetChildComponent<UISprite>("Background" + (i + 1).ToString());
+            m_backgroundFrame[i] = GetChildComponent<UISprite>("BackgroundFrame" + (i + 1).ToString());
+
             EventDelegate.Set(m_itemToggles[i].onChange, OnToggle);
         }
 
@@ -142,12 +148,16 @@ public class UIStageInfo : UIWindow
                 m_lockItemSprite[i].gameObject.SetActive(false);
                 m_itemToggles[i].enabled = true;
                 m_itemCostLabels[i].gameObject.SetActive(true);
+                m_background[i].spriteName = "Item_Large";
+                m_backgroundFrame[i].spriteName = "ItemBoard_Large";
             }
             else
             {
 				m_lockItemSprite[i].gameObject.SetActive(true);
                 m_itemToggles[i].enabled = false;
                 m_itemCostLabels[i].gameObject.SetActive(false);
+                m_background[i].spriteName = "LockItemBtn";
+                m_backgroundFrame[i].spriteName = "LockedItemBoard";
             }
         }
 

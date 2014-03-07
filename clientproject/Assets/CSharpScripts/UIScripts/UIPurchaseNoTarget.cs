@@ -83,7 +83,6 @@ public class UIPurchaseNoTarget : UIWindow
 
     public void OnCancelClicked()
     {
-        GlobalVars.UsingItem = PurchasedItem.None;
         HideWindow(delegate()
         {
             //GameLogic.Singleton.ResumeGame();
@@ -92,6 +91,7 @@ public class UIPurchaseNoTarget : UIWindow
             {
                 UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
             }
+            GlobalVars.UsingItem = PurchasedItem.None;
         });
     }
 }

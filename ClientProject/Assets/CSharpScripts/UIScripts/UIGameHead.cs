@@ -16,6 +16,8 @@ public class UIGameHead : UIWindow
     UIButton[] m_itemBtn = new UIButton[3];
     PurchasedItem[] m_items = new PurchasedItem[3];
 
+    UISprite[] m_background = new UISprite[3];
+
     public override void OnCreate()
     {
         base.OnCreate();
@@ -33,6 +35,8 @@ public class UIGameHead : UIWindow
             m_collectLabel[i] = GetChildComponent<UILabel>("CollectLabel" + i);
             m_lockItemSprite[i] = GetChildComponent<UISprite>("LockItem" + (i + 1).ToString());
             m_itemBtn[i] = GetChildComponent<UIButton>("UseItem" + (i+1).ToString() + "Btn");
+
+            m_background[i] = GetChildComponent<UISprite>("Background" + (i + 1).ToString());
         }
 		
 		UIToolkits.AddChildComponentMouseClick(m_itemBtn[0].gameObject, delegate()
@@ -189,21 +193,39 @@ public class UIGameHead : UIWindow
             item3Icon.transform.parent.gameObject.SetActive(false);
         }
 
-        for (int i = 0; i < 3; ++i )
+        UpdateItemButtons();
+
+        RefreshTarget();
+    }
+
+    public void UpdateItemButtons()
+    {
+        for (int i = 0; i < 3; ++i)
         {
             if (CapsConfig.ItemUnLockLevelArray[(int)m_items[i]] <= GlobalVars.AvailabeStageCount || GlobalVars.DeveloperMode)       //判断道具是否已经解锁?
             {
-                m_lockItemSprite[i].gameObject.SetActive(false);
-                m_itemBtn[i].enabled = true;
+                if (i == 2 && (GameLogic.Singleton.IsStoppingTime || GameLogic.Singleton.IsStopingChocoGrow))       //临时锁定状态
+                {
+                    m_lockItemSprite[i].gameObject.SetActive(true);
+                    m_lockItemSprite[i].spriteName = "LockItem";
+                    m_itemBtn[i].enabled = false;
+                    m_background[i].spriteName = "LockItemBtn";
+                }
+                else
+                {
+                    m_lockItemSprite[i].gameObject.SetActive(false);
+                    m_itemBtn[i].enabled = true;
+                    m_background[i].spriteName = "Item_Large";
+                }
             }
             else
             {
                 m_lockItemSprite[i].gameObject.SetActive(true);
+                m_lockItemSprite[i].spriteName = "LockItemFront";
                 m_itemBtn[i].enabled = false;
+                m_background[i].spriteName = "LockItemBtn";
             }
         }
-
-        RefreshTarget();
     }
 
     public void ShowCoin(bool bShow)
@@ -259,6 +281,7 @@ public class UIGameHead : UIWindow
 
         GlobalVars.UsingItem = item;
 
+        //先判断是否够钱
         if (Unibiller.GetCurrencyBalance("gold") < CapsConfig.GetItemPrice(item))       //若钱不够，购买窗口
         {
             UIPurchaseNotEnoughMoney uiWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>();
@@ -271,11 +294,9 @@ public class UIGameHead : UIWindow
             {
                 GlobalVars.UsingItem = PurchasedItem.None;
             };
-            uiWindow.OnCancelFunc = null;                                               //取消时什么都不做，直接回到游戏
             return;
         }
-		
-        //先判断是否够钱
+        
         if (item == PurchasedItem.ItemInGame_Hammer)
         {
             UIWindow uiWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseTarget>();

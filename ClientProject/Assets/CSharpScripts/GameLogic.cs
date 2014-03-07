@@ -980,12 +980,14 @@ public class GameLogic
     {
         IsStoppingTime = true;
         m_stoppingTimeStepLeft = 7;
+        UIWindowManager.Singleton.GetUIWindow<UIGameHead>().UpdateItemButtons();
     }
 
     public void UseStopChocoItem()
     {
         IsStopingChocoGrow = true;
         m_stoppingChocoGrowStepLeft = 7;
+        UIWindowManager.Singleton.GetUIWindow<UIGameHead>().UpdateItemButtons();
     }
 
     public void AutoResort()           //自动重排功能 Todo 没处理交换后形成消除的情况，不确定要不要处理
@@ -3771,6 +3773,7 @@ public class GameLogic
             if (m_stoppingChocoGrowStepLeft == 0)
             {
                 IsStopingChocoGrow = false;
+                UIWindowManager.Singleton.GetUIWindow<UIGameHead>().UpdateItemButtons();
             }
         }
 
@@ -3784,6 +3787,7 @@ public class GameLogic
             if (m_stoppingTimeStepLeft == 0)
             {
                 IsStoppingTime = false;
+                UIWindowManager.Singleton.GetUIWindow<UIGameHead>().UpdateItemButtons();
             }
         }
 

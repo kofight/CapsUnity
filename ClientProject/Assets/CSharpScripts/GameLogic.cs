@@ -966,7 +966,7 @@ public class GameLogic
 						m_saveHelpBlocks[0] = curPos;
 						if (IsHaveLine(position, true))
 						{
-                            m_saveHelpBlockDir = dir;
+                            m_saveHelpBlockDir = GetOtherDirection(dir);		//
 							ExchangeBlock(curPos, position);        //换回
                             return true;
 						}

@@ -410,6 +410,8 @@ public class GameLogic
     Position touchBeginPos;                                 //触控开始的位置
 	Position touchBeginGrid;                                 //触控开始的位置
 
+    public Vector3[] CollectTargetUIPos = new Vector3[3];   //搜集目标的位置（用来飞特效）
+
     //物件池
     LinkedList<CapBlock> m_capBlockFreeList = new LinkedList<CapBlock>();				//用来存放可用的Sprite
     LinkedList<UISprite> m_freeShadowSpriteList = new LinkedList<UISprite>();           //用来存放可用的ShadowSprite
@@ -822,6 +824,9 @@ public class GameLogic
             {
                 PlayingStageData.CollectCount[i] = 0;           //先把已搜集数量清零
             }
+            CollectTargetUIPos[0] = new Vector3(-59.63453f + CapsApplication.Singleton.Width / 2, 1.562183f - 38.568f, 0);
+            CollectTargetUIPos[1] = new Vector3(128.3198f - 59.63453f + CapsApplication.Singleton.Width / 2, 1.562183f - 38.5681f, 0);
+            CollectTargetUIPos[2] = new Vector3(251.7358f - 56.44527f + CapsApplication.Singleton.Width / 2, 1.562183f - 38.5681f, 0);
         }
     }
 
@@ -2351,13 +2356,11 @@ public class GameLogic
                     {
                         if (!m_blocks[i, j].EatEffectPlayed)
                         {
-                            m_blocks[i, j].EatEffectPlayed = true;
-                            m_blocks[i, j].m_animation.enabled = true;
-                            m_blocks[i, j].m_animation.Play(m_blocks[i, j].EatAnimationName);                             //播放吃块动画
-
+                            bool bCollect = false;                                  //是否为搜集块
+                            int k = 0;                                              //记录是搜集的第几个目标
                             if (PlayingStageData.Target == GameTarget.Collect)      //搜集关处理吃块
                             {
-                                for (int k = 0; k < 3; ++k)
+                                for (; k < 3; ++k)
                                 {
                                     if (GlobalVars.CurStageData.CollectCount[k] > 0)
                                     {
@@ -2367,17 +2370,47 @@ public class GameLogic
                                             {
                                                 ++PlayingStageData.CollectCount[k];                             //增加一个搜集数量
                                                 bNeedRefreshTarget = true;
+                                                bCollect = true;
+                                                break;
                                             }
                                         }
                                     }
                                 }
                             }
 
-                            AddPartile(m_blocks[i, j].EatEffectName, m_blocks[i, j].EatAudio, i, j);     //添加吃块特效
+                            m_blocks[i, j].EatEffectPlayed = true;                                                        //记录下吃块特效状态，避免重复播放
+
+                            if (bCollect)           //若为收集块，播收集块特效
+                            {
+                                TweenPosition tweenPos = m_blocks[i, j].m_blockTransform.GetComponent<TweenPosition>();
+                                tweenPos.from = m_blocks[i, j].m_blockTransform.localPosition;             //从当前位置开始
+                                tweenPos.to = CollectTargetUIPos[k];                                       //目标位置
+                                tweenPos.enabled = true;
+                                tweenPos.ResetToBeginning();
+                                tweenPos.Play(true);
+                                m_blocks[i, j].EatDuration = tweenPos.duration;
+
+                                TweenScale tweenScale = m_blocks[i, j].m_blockTransform.GetComponent<TweenScale>();
+                                tweenScale.enabled = true;
+                                tweenScale.ResetToBeginning();
+                                tweenScale.Play(true);
+
+                                TweenAlpha tweenAlpha = m_blocks[i, j].m_blockSprite.GetComponent<TweenAlpha>();
+                                tweenAlpha.enabled = true;
+                                tweenAlpha.ResetToBeginning();
+                                tweenAlpha.Play(true);
+                            }
+                            else
+                            {
+                                m_blocks[i, j].EatDuration = EATBLOCK_TIME;
+                                m_blocks[i, j].m_animation.enabled = true;
+                                m_blocks[i, j].m_animation.Play(m_blocks[i, j].EatAnimationName);                             //播放吃块动画
+                                AddPartile(m_blocks[i, j].EatEffectName, m_blocks[i, j].EatAudio, i, j);     //添加吃块特效
+                            }
                         }
                     }
 
-                    if (m_blocks[i, j].IsEating() && Timer.GetRealTimeSinceStartUp() - m_blocks[i, j].m_eatStartTime > EATBLOCK_TIME)       //若消块时间到了
+                    if (m_blocks[i, j].IsEating() && Timer.GetRealTimeSinceStartUp() - m_blocks[i, j].m_eatStartTime > m_blocks[i, j].EatDuration)       //若消块时间到了
                     {
                         --CapBlock.EatingBlockCount;
                         //清空block信息

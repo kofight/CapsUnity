@@ -127,9 +127,9 @@ public class StageData
     public int[]    StarScore = new int[3];          //获得星星的分数
     public int [, ] GridData = new int[GameLogic.BlockCountX, GameLogic.BlockCountY];                        //关卡初始地块数据
 
-    public TSpecialBlock[] CollectSpecial = new TSpecialBlock[3];
-    public TBlockColor[] CollectColors = new TBlockColor[3];
-    public int [] CollectCount = new int[3];
+    public TSpecialBlock[] CollectSpecial = new TSpecialBlock[3];                                            //搜集目标的块类型
+    public TBlockColor[] CollectColors = new TBlockColor[3];                                                 //搜集目标的块颜色
+    public int [] CollectCount = new int[3];                                                                 //每个搜集项的数量
 
     public Dictionary<int, List<FTUEData>> FTUEMap = new Dictionary<int, List<FTUEData>>();                             //FTUE地图
 

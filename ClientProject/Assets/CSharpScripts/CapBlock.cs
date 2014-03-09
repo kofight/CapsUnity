@@ -108,6 +108,7 @@ public class CapBlock
     public string EatAnimationName;             //消块的动画名称
     public string EatEffectName;             //消块的动画名称
     public AudioEnum EatAudio;               //消块的声音
+    public float EatDuration;                   //消块的时长
 
     public float m_dropDownStartTime;                  //下落开始时间，用来停止下落动画
 

@@ -130,7 +130,7 @@ public class UIGameBottom : UIWindow
             m_minNumber.SetNumber(min);
             m_secNumber.SetNumber(second);
 
-            if (GameLogic.Singleton.GetTimeRemain() <= 15)       //小于15秒播粒子
+            if (GameLogic.Singleton.GetTimeRemain() > 0.01 && GameLogic.Singleton.GetTimeRemain() <= 15 && GameLogic.Singleton.GetGameFlow() == TGameFlow.EGameState_Playing)       //小于15秒播粒子
             {
                 if (!m_hurryParticle.activeSelf)
                 {
@@ -159,7 +159,7 @@ public class UIGameBottom : UIWindow
         m_stepDrawer.SetNumber(curStep);
         m_stepChangeAnim.Play();
 
-        if (curStep <= 5)       //5步时播粒子
+        if (curStep <= 5 && GameLogic.Singleton.GetGameFlow() == TGameFlow.EGameState_Playing)       //5步时播粒子
         {
             if (!m_hurryParticle.activeSelf)
             {

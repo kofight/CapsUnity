@@ -2136,7 +2136,7 @@ public class GameLogic
         }
 
         //剩15秒的特效
-        if (!m_bHurryAnimPlayed && GetTimeRemain() < 15)
+        if (!m_bHurryAnimPlayed && m_gameFlow == TGameFlow.EGameState_Playing && GlobalVars.CurStageData.TimeLimit > 0 && GetTimeRemain() < 15)
         {
             m_bHurryAnimPlayed = true;
             AddPartile("Only15SecLeftAnim", AudioEnum.Audio_Only15SecLeft, 0, 0, false);
@@ -3939,7 +3939,7 @@ public class GameLogic
         }
 
         //若只剩5步了，调用提示效果
-        if (!m_bHurryAnimPlayed && PlayingStageData.StepLimit == 5)                    
+        if (!m_bHurryAnimPlayed && m_gameFlow == TGameFlow.EGameState_Playing && PlayingStageData.StepLimit == 5)                    
         {
             m_bHurryAnimPlayed = true;
             AddPartile("Only5StepLeftAnim", AudioEnum.Audio_Only5StepLeft, 0, 0, false);

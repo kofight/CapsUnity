@@ -678,6 +678,15 @@ public class GameLogic
             PlayingStageData.Seed = seed;
         }
 
+        if (PlayingStageData.Seed > 0)
+        {
+            m_random = new System.Random(PlayingStageData.Seed);
+        }
+        else
+        {
+            m_random = new System.Random((int)Time.timeSinceLevelLoad * 1000);
+        }
+
         //计算游戏区位置////////////////////////////////////////////////////////////////////////
         int BlockXStart = 999;
         int BlockXEnd = -1;
@@ -735,15 +744,6 @@ public class GameLogic
         EasyTouch.On_Swipe += OnTouchMove;
         EasyTouch.On_TouchStart += OnTouchBegin;
         EasyTouch.On_TouchUp += OnTouchEnd;
-
-        if (PlayingStageData.Seed > 0)
-        {
-            m_random = new System.Random(PlayingStageData.Seed);
-        }
-        else
-        {
-            m_random = new System.Random((int)Time.timeSinceLevelLoad * 1000);
-        }
 
         //初始化坚果数量
         if (PlayingStageData.Target == GameTarget.BringFruitDown)

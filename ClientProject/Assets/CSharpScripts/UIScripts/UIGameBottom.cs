@@ -130,6 +130,20 @@ public class UIGameBottom : UIWindow
             m_minNumber.SetNumber(min);
             m_secNumber.SetNumber(second);
 
+            if (GameLogic.Singleton.GetTimeRemain() <= 15)       //小于15秒播粒子
+            {
+                if (!m_hurryParticle.activeSelf)
+                {
+                    m_hurryParticle.SetActive(true);
+                }
+            }
+            else                    //大于15秒关闭粒子
+            {
+                if (m_hurryParticle.activeSelf)
+                {
+                    m_hurryParticle.SetActive(false);
+                }
+            }
             m_timeBar.fillAmount = GameLogic.Singleton.GetTimeRemain() / GlobalVars.CurStageData.TimeLimit;
         }
     }
@@ -147,11 +161,17 @@ public class UIGameBottom : UIWindow
 
         if (curStep <= 5)       //5步时播粒子
         {
-            m_hurryParticle.SetActive(true);
+            if (!m_hurryParticle.activeSelf)
+            {
+                m_hurryParticle.SetActive(true);
+            }
         }
         else                    //大于5步时关闭粒子
         {
-            m_hurryParticle.SetActive(false);
+            if (m_hurryParticle.activeSelf)
+            {
+                m_hurryParticle.SetActive(false);
+            }
         }
     }
 

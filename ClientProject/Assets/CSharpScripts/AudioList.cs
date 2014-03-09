@@ -20,6 +20,7 @@ public class AudioList : MonoBehaviour {
     public AudioClip MapMusic;
     public AudioClip GameMusic;
     public AudioClip Only5StepLeftClip;
+    public AudioClip Only15SecLeftClip;
 
     public AudioClip GetStarClip;
 

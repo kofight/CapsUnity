@@ -279,6 +279,7 @@ public enum AudioEnum
     Audio_Cage,
     Audio_Chocolate,
     Audio_Only5StepLeft,
+    Audio_Only15SecLeft,
 
     Audio_Combo1,
     Audio_Combo2,
@@ -403,6 +404,8 @@ public class GameLogic
     public int m_chocolateCount = 0;                        //当前关卡里巧克力块的数量（用来优化性能）
     public int m_stoneCount = 0;                            //当前关卡里石头块的数量（用来优化性能）
 
+    bool m_bHurryAnimPlayed = false;                        //用来记录Hurry动画是否已经播放完毕了
+
     //计时器
     Timer timerMoveBlock = new Timer();
 
@@ -525,6 +528,11 @@ public class GameLogic
                 case AudioEnum.Audio_Only5StepLeft:
                     {
                         clip = CapsConfig.CurAudioList.Only5StepLeftClip;
+                    }
+                    break;
+                case AudioEnum.Audio_Only15SecLeft:
+                    {
+                        clip = CapsConfig.CurAudioList.Only15SecLeftClip;
                     }
                     break;
             }
@@ -1297,6 +1305,7 @@ public class GameLogic
         m_gettingExtraScore = false;
         IsStopingChocoGrow = false;
         IsStoppingTime = false;
+        m_bHurryAnimPlayed = false;
 
         CapBlock.DropingBlockCount = 0;
         CapBlock.EatingBlockCount = 0;
@@ -2086,6 +2095,13 @@ public class GameLogic
             {
                 Time.timeScale = 1.4f;
             }
+        }
+
+        //剩15秒的特效
+        if (!m_bHurryAnimPlayed && GetTimeRemain() < 15)
+        {
+            m_bHurryAnimPlayed = true;
+            AddPartile("Only15SecLeftAnim", AudioEnum.Audio_Only15SecLeft, 0, 0, false);
         }
     }
 
@@ -3881,8 +3897,9 @@ public class GameLogic
         }
 
         //若只剩5步了，调用提示效果
-        if (PlayingStageData.StepLimit == 5)                    
+        if (!m_bHurryAnimPlayed && PlayingStageData.StepLimit == 5)                    
         {
+            m_bHurryAnimPlayed = true;
             AddPartile("Only5StepLeftAnim", AudioEnum.Audio_Only5StepLeft, 0, 0, false);
         }
     }

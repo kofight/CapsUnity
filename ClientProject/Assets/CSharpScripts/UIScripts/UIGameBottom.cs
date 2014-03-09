@@ -24,6 +24,8 @@ public class UIGameBottom : UIWindow
     Animation m_stepChangeAnim;
     Animation m_scoreChangeAnim;
 
+    GameObject m_hurryParticle;
+
     int m_startCount = 0;
 
     public override void OnCreate()
@@ -54,6 +56,9 @@ public class UIGameBottom : UIWindow
 
         m_stepChangeAnim = m_stepDrawer.GetComponent<Animation>();
         m_scoreChangeAnim = m_scoreDrawer.GetComponent<Animation>();
+
+        m_hurryParticle = mUIObject.transform.FindChild("Effect_Hurry").gameObject;
+        m_hurryParticle.SetActive(false);
     }
     public override void OnShow()
     {
@@ -75,6 +80,8 @@ public class UIGameBottom : UIWindow
             m_stepDrawer.gameObject.SetActive(true);
             m_stepTextSprite.gameObject.SetActive(true);
             m_timeNumber.SetActive(false);
+
+            OnChangeStep(GameLogic.Singleton.PlayingStageData.StepLimit);
         }
 
         if (GlobalVars.DeveloperMode)
@@ -90,7 +97,6 @@ public class UIGameBottom : UIWindow
             m_speedLabel.gameObject.SetActive(false);
         }
 
-        OnChangeStep(GameLogic.Singleton.PlayingStageData.StepLimit);
         OnChangeProgress(GameLogic.Singleton.GetProgress());
     }
 	
@@ -138,6 +144,15 @@ public class UIGameBottom : UIWindow
     {
         m_stepDrawer.SetNumber(curStep);
         m_stepChangeAnim.Play();
+
+        if (curStep <= 5)       //5步时播粒子
+        {
+            m_hurryParticle.SetActive(true);
+        }
+        else                    //大于5步时关闭粒子
+        {
+            m_hurryParticle.SetActive(false);
+        }
     }
 
     public void OnChangeProgress(int progress)

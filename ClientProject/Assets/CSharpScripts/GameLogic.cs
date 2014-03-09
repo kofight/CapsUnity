@@ -278,6 +278,7 @@ public enum AudioEnum
     Audio_Stone,
     Audio_Cage,
     Audio_Chocolate,
+    Audio_Only5StepLeft,
 
     Audio_Combo1,
     Audio_Combo2,
@@ -519,6 +520,11 @@ public class GameLogic
                 case AudioEnum.Audio_Chocolate:
                     {
                         clip = CapsConfig.CurAudioList.ChocolateClip;
+                    }
+                    break;
+                case AudioEnum.Audio_Only5StepLeft:
+                    {
+                        clip = CapsConfig.CurAudioList.Only5StepLeftClip;
                     }
                     break;
             }
@@ -3872,6 +3878,12 @@ public class GameLogic
         if (m_chocolateNeedGrow && !IsStopingChocoGrow)        //若需要巧克力生长
         {
             ChocolateGrow();
+        }
+
+        //若只剩5步了，调用提示效果
+        if (PlayingStageData.StepLimit == 5)                    
+        {
+            AddPartile("Only5StepLeftAnim", AudioEnum.Audio_Only5StepLeft, 0, 0, false);
         }
     }
 

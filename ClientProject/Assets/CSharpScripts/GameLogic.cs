@@ -26,6 +26,7 @@ public enum TSpecialEffect
     EEatAllColor,
     EBigBomb,
     EEatAColorNDBomb,
+    EResortEffect,
 }
 
 enum TDirection
@@ -867,7 +868,7 @@ public class GameLogic
         }
         else if (PlayingStageData.CheckFlag(x, y, GridFlag.JellyDouble))
         {
-            m_gridBackImage[x, y].layer0.spriteName = "JellyDouble" + ((y + (x % 2)) % 3); ;
+            m_gridBackImage[x, y].layer0.spriteName = "JellyDouble" + ((y + (x % 2)) % 3);
             bJelly = true;
         }
         else
@@ -878,6 +879,8 @@ public class GameLogic
         if (bJelly)
         {
             m_gridBackImage[x, y].IcePartile = GameObject.Instantiate(m_iceParticle) as GameObject;
+            ParticleSystem par = m_gridBackImage[x, y].IcePartile.GetComponent<ParticleSystem>();
+            par.startDelay = (float)m_random.NextDouble();
             m_gridBackImage[x, y].IcePartile.SetActive(true);
 			m_gridBackImage[x, y].IcePartile.transform.parent = m_gridBackImage[x, y].layer0.transform;
             m_gridBackImage[x, y].IcePartile.transform.localPosition = Vector3.zero;
@@ -1035,6 +1038,15 @@ public class GameLogic
         IsStopingChocoGrow = true;
         m_stoppingChocoGrowStepLeft = 7;
         UIWindowManager.Singleton.GetUIWindow<UIGameHead>().UpdateItemButtons();
+    }
+
+    public void PlayAutoResortEffect()
+    {
+        m_gameFlow = TGameFlow.EGameState_EffectTime;                           //切换游戏状态到特效演出时间，等待特效演出
+        m_curSpecialEffect = TSpecialEffect.EResortEffect;                      //全方向消除特效
+        m_curStateStartTime = Timer.millisecondNow();                           //保存下切状态的时间
+        m_effectStateDuration = CapsConfig.EffectResortTime;                    //2秒的演出时间
+        m_effectStep = 0;
     }
 
     public void AutoResort()           //自动重排功能 Todo 没处理交换后形成消除的情况，不确定要不要处理
@@ -1593,6 +1605,32 @@ public class GameLogic
                     	m_gameFlow = TGameFlow.EGameState_Playing;                           //恢复状态游戏
 						DropDown();                                               			 //尝试进行一次下落
                     }                    
+                }
+                else if (m_curSpecialEffect == TSpecialEffect.EResortEffect)                //重拍特效
+                {
+                    if (m_effectStep == 0)                                                  //消失特效
+                    {
+                        for (int i = 0; i < BlockCountX; ++i )
+                        {
+                            for (int j = 0; j < BlockCountY; ++j )
+                            {
+                                
+                            }
+                        }
+                        if (timePast > m_effectStateDuration * 0.45)                         //到时间了
+                        {
+                            m_effectStep = 1;
+                        }
+                    }
+                    else if (m_effectStep == 1)
+                    {
+                        AutoResort();
+                        m_effectStep = 2;
+                    }
+                    else if (m_effectStep == 2 && timePast > m_effectStateDuration * 0.55)  //出现特效
+                    {
+
+                    }
                 }
             }
         }
@@ -2515,6 +2553,7 @@ public class GameLogic
     void ProcessEatChanges(DelayProceedGrid processGrid, bool showProgress, bool addBlockProgress = false)                //处理吃了某位置后对场景的影响
     {
         bool jellyChanged = false;
+		bool removeJelly = false;
         bool needEatBlock = false;          //是否还需要吃块本身?因为若要处理的位置是笼子等，就不需要吃块本身了
 
         int flag = PlayingStageData.GridData[processGrid.x, processGrid.y];
@@ -2577,6 +2616,7 @@ public class GameLogic
                     m_gridBackImage[processGrid.x, processGrid.y].layer0.spriteName = "Grid" + ((processGrid.y + 1) % 3);
                 }
                 jellyChanged = true;
+				removeJelly = true;
             }
         }
 
@@ -2592,6 +2632,8 @@ public class GameLogic
 
         if (jellyChanged)
         {
+			if(removeJelly && m_gridBackImage[processGrid.x, processGrid.y].IcePartile != null)
+	            GameObject.Destroy(m_gridBackImage[processGrid.x, processGrid.y].IcePartile);
             UIWindowManager.Singleton.GetUIWindow<UIGameHead>().RefreshTarget();
         }
 

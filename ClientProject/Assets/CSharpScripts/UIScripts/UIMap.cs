@@ -85,10 +85,28 @@ public class UIMap : UIWindow
         UIPanel panel = mUIObject.GetComponent<UIPanel>();
         //panel.baseClipRegion = new Vector4(0, 0, CapsApplication.Singleton.Width, CapsApplication.Singleton.Height);
 
+        //心面板
         m_timeNumber = UIToolkits.FindChild(m_heartUI.mUIObject.transform, "TimeNumber").gameObject;
         m_fullText = UIToolkits.FindChild(m_heartUI.mUIObject.transform, "HeartFull").gameObject;
         m_minNumber = m_heartUI.GetChildComponent<NumberDrawer>("MinNumber");
         m_secNumber = m_heartUI.GetChildComponent<NumberDrawer>("SecNumber");
+        UIButton heartBtn = m_heartUI.GetChildComponent<UIButton>("HeartBtn");
+        EventDelegate.Set(heartBtn.onClick, delegate()
+        {
+            if (GlobalVars.HeartCount == 5)
+            {
+                return;
+            }
+            UINoMoreHearts noMoreHeartUI = UIWindowManager.Singleton.GetUIWindow<UINoMoreHearts>();
+            UIStageInfo stageInfoUI = UIWindowManager.Singleton.GetUIWindow<UIStageInfo>();
+
+            if (stageInfoUI.Visible)
+            {
+                stageInfoUI.HideWindow();
+            }
+
+            noMoreHeartUI.ShowWindow();
+        });
 
         //金币面板
         m_coinNumber = m_heartUI.GetChildComponent<NumberDrawer>("MoneyNumber");

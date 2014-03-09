@@ -71,7 +71,22 @@ public class UIMainMenu : UIWindow
             {
                 UIWindowManager.Singleton.GetUIWindow<UIStageEditor>().HideWindow();
             }
-            UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();   
+
+            //若非时间关且没消耗步数，不用弹GameEnd界面，直接返回并恢复心
+            if (GlobalVars.CurStageData.StepLimit > 0 && GameLogic.Singleton.PlayingStageData.StepLimit == GlobalVars.CurStageData.StepLimit)
+            {
+                GlobalVars.AddHeart(1);
+
+                GameLogic.Singleton.PlayEndGameAnim();
+                GameLogic.Singleton.ClearGame();
+                CapsApplication.Singleton.ChangeState((int)StateEnum.Login);        //返回地图界面
+                UIWindowManager.Singleton.GetUIWindow<UIMap>().ShowWindow();
+                LoginState.Instance.CurFlow = TLoginFlow.LoginFlow_Map;         //切换流程到显示地图
+            }
+            else
+            {
+                UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();   
+            }
         }
         else if (UIWindowManager.Singleton.GetUIWindow<UIMap>().Visible)
         {

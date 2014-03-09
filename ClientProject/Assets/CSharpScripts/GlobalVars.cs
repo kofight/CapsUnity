@@ -121,8 +121,10 @@ public class GlobalVars {
         if (GlobalVars.HeartCount == 5)     //若还没用过心
         {
             GlobalVars.GetHeartTime = System.DateTime.Now;          //初始化获得心的时间
+            PlayerPrefs.SetString("GetHeartTime", Convert.ToString(GlobalVars.GetHeartTime));
         }
         --GlobalVars.HeartCount;
+		PlayerPrefs.SetInt("HeartCount", GlobalVars.HeartCount);
     }
 
     //编辑模式的变量

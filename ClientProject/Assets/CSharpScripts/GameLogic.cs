@@ -85,6 +85,7 @@ public class GridSprites
     public UISprite layer1;            //石头/笼子/巧克力
     public UISprite layer2;            //出生点
     public UISprite layer3;            //结束点
+    public GameObject IcePartile;      //冰的粒子
     public bool hasProcessAngle = false;       //是否已经处理了角(用来处理角的中间变量)
 }
 
@@ -426,6 +427,7 @@ public class GameLogic
     GameObject TopLeftAnchor;               //左上角
     GameObject CenterAnchor;               //中心
     GameObject m_gridInstance;              //把Grid的实例存起来，用来优化性能
+    GameObject m_iceParticle;              //把Particle的实例存起来，用来优化性能
     GameObject m_numInstance;              //把数字的实例存起来，用来优化性能
     GameObject m_shadowSpriteInstance;      //影子图片的实例
 
@@ -621,6 +623,10 @@ public class GameLogic
         m_numInstance = GameObject.Find("NumberInstance");
         m_shadowSpriteInstance = GameObject.Find("ShadowSprite");
         m_helpPointerObj = GameObject.Find("HelpPointer");
+
+        Object obj = Resources.Load("IcePartile");
+        m_iceParticle = GameObject.Instantiate(obj) as GameObject;
+        m_iceParticle.SetActive(false);
         m_gameBottomUI = UIWindowManager.Singleton.GetUIWindow<UIGameBottom>();
 
         //初始化瓶盖图片池
@@ -837,17 +843,35 @@ public class GameLogic
         m_gridBackImage[x, y].layer0 = newObj.GetComponent<UISprite>();
         m_gridBackImage[x, y].layer0.transform.parent = m_gridInstance.transform.parent;
         m_gridBackImage[x, y].layer0.transform.localScale = m_gridInstance.transform.localScale;
+
+        bool bJelly = false;
+
         if (PlayingStageData.CheckFlag(x, y, GridFlag.Jelly))
         {
             m_gridBackImage[x, y].layer0.spriteName = "Jelly" + ((y + (x % 2)) % 3);
+            bJelly = true;
         }
         else if (PlayingStageData.CheckFlag(x, y, GridFlag.JellyDouble))
         {
             m_gridBackImage[x, y].layer0.spriteName = "JellyDouble" + ((y + (x % 2)) % 3); ;
+            bJelly = true;
         }
         else
         {
             m_gridBackImage[x, y].layer0.spriteName = "Grid" + ((y + (x % 2)) % 3);
+        }
+
+        if (bJelly)
+        {
+            m_gridBackImage[x, y].IcePartile = GameObject.Instantiate(m_iceParticle) as GameObject;
+            m_gridBackImage[x, y].IcePartile.SetActive(true);
+			m_gridBackImage[x, y].IcePartile.transform.parent = m_gridBackImage[x, y].layer0.transform;
+            m_gridBackImage[x, y].IcePartile.transform.localPosition = Vector3.zero;
+        }
+        else
+        {
+			if(m_gridBackImage[x, y].IcePartile != null)
+            	GameObject.Destroy(m_gridBackImage[x, y].IcePartile);
         }
 
         m_gridBackImage[x, y].layer0.transform.localPosition = new Vector3(GetXPosF(x), -GetYPosF(x, y), 0);
@@ -1235,6 +1259,10 @@ public class GameLogic
                     if (m_gridBackImage[i, j].layer0 != null)
                     {
                         GameObject.Destroy(m_gridBackImage[i, j].layer0.gameObject);
+                    }
+                    if (m_gridBackImage[i, j].IcePartile != null)
+                    {
+                        GameObject.Destroy(m_gridBackImage[i, j].IcePartile);
                     }
                     if (m_gridBackImage[i, j].layer1 != null)
                     {

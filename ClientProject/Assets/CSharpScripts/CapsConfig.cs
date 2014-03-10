@@ -55,15 +55,15 @@ public class CapsConfig
     public static readonly int EffectEatAllColorTime = 2000;
     public static readonly int EffectBigBombTime = 2000;
     public static readonly int EffectEatAColorNDBombTime = 2000;
-    public static readonly int EffectResortTime = 600;                            //重拍特效停留的时间
-    public static readonly int EffectResortInterval = 30;                         //重拍特效的时间
+    public static readonly int EffectResortTime = 600;                            //重拍特效中间的时间
+    public static readonly int EffectResortInterval = 30;                         //重拍特效的时间间隔
 
     public static readonly string EatEffect = "EatEffect";                      //吃块的目标特效
     public static readonly string BombEatEffect = "BombEatEffect";              //炸弹吃块的目标特效
     public static readonly string LineEatEffect = "LineEatEffect";              //条状吃块的目标特效
     public static readonly string RainbowEatEffect = "RainbowEatEffect";        //彩虹吃块的目标特效
-    public static readonly string ResortInEffect = "EatEffect";                      //吃块的目标特效
-    public static readonly string ResortOutEffect = "EatEffect";                      //吃块的目标特效
+    public static readonly string ResortInEffect = "EatEffect";                      //重排开始特效
+    public static readonly string ResortOutEffect = "EatEffect";                      //重排结束特效
     public static readonly string AddSpecialEffect = "AddSpecialEffect";       //添加
 	
 	public static readonly string EatAnim = "EatAnim";                          //条状炸弹的动画
@@ -71,8 +71,8 @@ public class CapsConfig
     public static readonly string BombEatAnim = "BombEatAnim";                  //炸弹的动画
     public static readonly string RainbowEatAnim = "RainbowEatAnim";            //彩虹炸弹的动画
 
-    public static readonly string ResortInAnim = "ResortInAnim";                  //炸弹的动画
-    public static readonly string ResortOutAnim = "ResortOutAnim";                  //炸弹的动画
+    public static readonly string ResortInAnim = "ResortInAnim";                  //重排特效开始动画
+    public static readonly string ResortOutAnim = "ResortOutAnim";                //重排特效结束动画
 
     public static readonly string Bomb_Bomb_EatAnim = "Bomb_Bomb_EatAnim";      //两条状交换的动画
     public static readonly string Line_Line_EatAnim = "Line_Line_EatAnim";      //两条状交换的动画

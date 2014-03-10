@@ -1045,14 +1045,13 @@ public class GameLogic
         m_gameFlow = TGameFlow.EGameState_EffectTime;                           //切换游戏状态到特效演出时间，等待特效演出
         m_curSpecialEffect = TSpecialEffect.EResortEffect;                      //全方向消除特效
         m_curStateStartTime = Timer.millisecondNow();                           //保存下切状态的时间
-        m_effectStateDuration = CapsConfig.EffectResortTime;                    //2秒的演出时间
+        m_effectStateDuration = 0;                    //2秒的演出时间
         m_effectStep = 0;
+        ClearHelpPoint();
     }
 
     public void AutoResort()           //自动重排功能 Todo 没处理交换后形成消除的情况，不确定要不要处理
     {
-        ClearHelpPoint();
-
         Position[] array = new Position[BlockCountX * BlockCountY];
 
         int count = 0;
@@ -1120,10 +1119,11 @@ public class GameLogic
                 break;
             }
 
-            if (sortcount > 99)
+            if (sortcount > 99)                                         //重排99次没答案
             {
                 break;
             }
+            break;
         }
         Debug.Log("Auto Resort, count = " + sortcount);
     }
@@ -1517,6 +1517,54 @@ public class GameLogic
         UIDrawer.Singleton.CurDepth = 0;
     }
 
+    void ProcessResortEffectStartTime(long curTime, long interval)      //处理重拍特效的时序
+    {
+        long timeCount = curTime;                                                  //计时
+        Position curPos;                                  //1, 0开始
+        //第一个区域，最上面4个块
+        for (int x = 1; x <= 7; x += 2)
+        {
+            curPos = new Position(x, 0);
+            for (int step = 0; step < x + 1; ++step)      //走x+1步
+            {
+                if (m_blocks[curPos.x, curPos.y] != null)
+                {
+                    m_blocks[curPos.x, curPos.y].m_resortEffectStartTime = timeCount;       //记录时间
+                    timeCount += interval;                                          //时间变化
+                }
+                curPos = GoTo(curPos, TDirection.EDir_LeftDown, 1);                 //向左下移动
+            }
+        }
+        //第二个区域，右边可以往左下走9步的5个块
+        for (int y = 0; y <= 4; ++y)
+        {
+            curPos = new Position(8, y);
+            for (int step = 0; step < 9; ++step)    //走9步
+            {
+                if (m_blocks[curPos.x, curPos.y] != null)
+                {
+                    m_blocks[curPos.x, curPos.y].m_resortEffectStartTime = timeCount;       //记录时间
+                    timeCount += interval;                                          //时间变化
+                }
+                curPos = GoTo(curPos, TDirection.EDir_LeftDown, 1);                 //向左下移动
+            }
+        }
+        //第三个区域，右边下面4个块
+        for (int y = 5; y <= 8; ++y)
+        {
+            curPos = new Position(8, y);
+            for (int step = 0; step < (8 - y) * 2 + 1; ++step)        //(8-y) * 2 + 1是这个几个块可以往左下走的步数
+            {
+                if (m_blocks[curPos.x, curPos.y] != null)
+                {
+                    m_blocks[curPos.x, curPos.y].m_resortEffectStartTime = timeCount;       //记录时间
+                    timeCount += interval;                                          //时间变化
+                }
+                curPos = GoTo(curPos, TDirection.EDir_LeftDown, 1);                 //向左下移动
+            }
+        }
+    }
+
     void ProcessState()     //处理各个状态
     {
         //特效演出
@@ -1608,28 +1656,72 @@ public class GameLogic
                 }
                 else if (m_curSpecialEffect == TSpecialEffect.EResortEffect)                //重拍特效
                 {
-                    if (m_effectStep == 0)                                                  //消失特效
+                    if (m_effectStep == 0)                                                  //初始化消失特效
                     {
+                        ProcessResortEffectStartTime(timePast + 1, CapsConfig.EffectResortInterval);
+						m_effectStep = 1;
+                    }
+                    else if (m_effectStep == 1)                             //逐个播放消失特效
+                    {
+                        bool bFoundUnplayAnim = false;
                         for (int i = 0; i < BlockCountX; ++i )
                         {
                             for (int j = 0; j < BlockCountY; ++j )
                             {
-                                
+                                if (m_blocks[i, j] != null && 
+                                    m_blocks[i, j].m_resortEffectStartTime > 0)
+                                {
+                                    if (m_blocks[i, j].m_resortEffectStartTime < timePast)        //若到达时间，播放特效
+                                    {
+                                        m_blocks[i, j].m_resortEffectStartTime = 0;               //清空时间，防止重复播放
+                                        m_blocks[i, j].m_animation.enabled = true;
+                                        m_blocks[i, j].m_animation.Play(CapsConfig.ResortInAnim);                             //播放吃块动画
+                                        AddPartile(CapsConfig.ResortInEffect, AudioEnum.Audio_None, i, j);     //添加吃块特效
+                                    }
+                                    else
+                                    {
+                                        bFoundUnplayAnim = true;
+                                    }
+                                }
                             }
                         }
-                        if (timePast > m_effectStateDuration * 0.45)                         //到时间了
+
+                        if (!bFoundUnplayAnim)      //若所有都已经播完，指定m_effectStateDuration
                         {
-                            m_effectStep = 1;
+                            m_effectStateDuration = (int)timePast * 2 + CapsConfig.EffectResortTime;
+                            m_effectStep = 2;      //切换到下一阶段
                         }
                     }
-                    else if (m_effectStep == 1)
+                    else if (m_effectStep == 2)
                     {
-                        AutoResort();
-                        m_effectStep = 2;
+                        long oneTimeCount = (m_effectStateDuration - CapsConfig.EffectResortTime) / 2;      //一次特效所用的时间
+                        if (timePast > m_effectStateDuration / 2)                                           //到中间时间，进行重排等活动
+                        {
+                            AutoResort();
+                            ProcessResortEffectStartTime(oneTimeCount + CapsConfig.EffectResortTime, CapsConfig.EffectResortInterval);    //计算特效时序
+                        }
+                        if (timePast > m_effectStateDuration - oneTimeCount)
+                        {
+                            m_effectStep = 3;
+                        }
                     }
-                    else if (m_effectStep == 2 && timePast > m_effectStateDuration * 0.55)  //出现特效
+                    else if (m_effectStep == 3)                             //逐个播放出现特效
                     {
-
+                        for (int i = 0; i < BlockCountX; ++i)
+                        {
+                            for (int j = 0; j < BlockCountY; ++j)
+                            {
+                                if (m_blocks[i, j] != null &&
+                                    m_blocks[i, j].m_resortEffectStartTime > 0 &&
+                                    m_blocks[i, j].m_resortEffectStartTime < timePast)        //若到达时间，播放特效
+                                {
+                                    m_blocks[i, j].m_resortEffectStartTime = 0;               //清空时间，防止重复播放
+                                    m_blocks[i, j].m_animation.enabled = true;
+                                    m_blocks[i, j].m_animation.Play(CapsConfig.ResortOutAnim);                             //播放吃块动画
+                                    AddPartile(CapsConfig.ResortOutEffect, AudioEnum.Audio_None, i, j);     //添加吃块特效
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -1650,8 +1742,7 @@ public class GameLogic
         {
             if (Timer.millisecondNow() - m_curStateStartTime > ShowNoPossibleExhangeTextTime)       //时间已到
             {
-                AutoResort();
-                m_gameFlow = TGameFlow.EGameState_Playing;
+                PlayAutoResortEffect();
             }
         }
 
@@ -2173,6 +2264,7 @@ public class GameLogic
 
     public void ShowHelpAnim()
     {
+        Debug.Log("Show Help Anim");
         if (m_saveHelpBlocks[2].IsAvailable() && m_blocks[m_saveHelpBlocks[2].x, m_saveHelpBlocks[2].y] != null && !m_blocks[m_saveHelpBlocks[2].x, m_saveHelpBlocks[2].y].m_animation.isPlaying)
         {
             m_bHidingHelp = false;
@@ -3422,8 +3514,6 @@ public class GameLogic
         {
             block.EatEffectName = eatEffectName;         //消除特效名字，用传进来的
             block.Eat(delay);                             //在这里提前给Block的状态赋值，是为了防止重复EatBlock
-
-            bool hasBeenCollected = false;               //消除关中用来记录是否已被收集
 
             //处理特殊块
             switch (block.special)

@@ -111,6 +111,7 @@ public class CapBlock
     public float EatDuration;                   //消块的时长
 
     public float m_dropDownStartTime;                  //下落开始时间，用来停止下落动画
+    public long m_resortEffectStartTime;              //重排特效开始时间
 
     public Animation m_animation;
     public UISprite m_blockSprite;		//精灵动画

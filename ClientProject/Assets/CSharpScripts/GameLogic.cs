@@ -1042,6 +1042,7 @@ public class GameLogic
 
     public void PlayAutoResortEffect()
     {
+        Debug.Log("PlayAutoResortEffect");
         m_gameFlow = TGameFlow.EGameState_EffectTime;                           //切换游戏状态到特效演出时间，等待特效演出
         m_curSpecialEffect = TSpecialEffect.EResortEffect;                      //全方向消除特效
         m_curStateStartTime = Timer.millisecondNow();                           //保存下切状态的时间

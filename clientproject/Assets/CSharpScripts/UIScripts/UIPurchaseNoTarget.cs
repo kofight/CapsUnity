@@ -64,7 +64,7 @@ public class UIPurchaseNoTarget : UIWindow
                 
                 if (GlobalVars.UsingItem == PurchasedItem.ItemInGame_Resort)            //重排道具
                 {
-                    GameLogic.Singleton.AutoResort();           //自动重排
+                    GameLogic.Singleton.PlayAutoResortEffect();           //自动重排
                 }
 
                 if (GlobalVars.UsingItem == PurchasedItem.ItemInGame_ChocoStoper)       //停止巧克力

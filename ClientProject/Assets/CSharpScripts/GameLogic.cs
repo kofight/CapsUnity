@@ -392,6 +392,7 @@ public class GameLogic
 	
     bool m_changeBack;		//在交换方块动画中标志是否为换回动画
     System.Random m_random;
+    System.Random m_random2;
     long m_gameStartTime = 0;                              //游戏开始时间
 	float m_gameStartTimeReal = 0;						   //the game start time to calculate stage duration
     long m_lastStepRewardTime = 0;                         //上次生成StepReward的时间
@@ -687,6 +688,8 @@ public class GameLogic
             m_random = new System.Random((int)Time.timeSinceLevelLoad * 1000);
         }
 
+        m_random2 = new System.Random((int)Time.timeSinceLevelLoad * 1000); 
+
         //计算游戏区位置////////////////////////////////////////////////////////////////////////
         int BlockXStart = 999;
         int BlockXEnd = -1;
@@ -880,7 +883,9 @@ public class GameLogic
         {
             m_gridBackImage[x, y].IcePartile = GameObject.Instantiate(m_iceParticle) as GameObject;
             ParticleSystem par = m_gridBackImage[x, y].IcePartile.GetComponent<ParticleSystem>();
-            par.startDelay = (float)m_random.NextDouble();
+            par.startDelay = (float)m_random2.NextDouble();
+            ParticleSystem parChild = UIToolkits.FindComponent<ParticleSystem>(m_gridBackImage[x, y].IcePartile.transform);
+            parChild.startDelay = (float)m_random2.NextDouble();
             m_gridBackImage[x, y].IcePartile.SetActive(true);
 			m_gridBackImage[x, y].IcePartile.transform.parent = m_gridBackImage[x, y].layer0.transform;
             m_gridBackImage[x, y].IcePartile.transform.localPosition = Vector3.zero;

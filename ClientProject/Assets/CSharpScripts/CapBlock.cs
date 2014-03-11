@@ -157,6 +157,7 @@ public class CapBlock
 
     public void Reset()
 	{
+        m_blockTransform.localScale = Vector3.one;
         m_blockSprite.transform.localScale = Vector3.one;
         m_blockSprite.color = new Color(1.0f, 1.0f, 1.0f, 1.0f);
 		x_move = 0;

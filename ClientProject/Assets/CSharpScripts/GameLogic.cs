@@ -1328,6 +1328,8 @@ public class GameLogic
 			m_slopeDropLock[i] = 10;         //初始化成不加锁
         }
 
+        m_helpPointerObj.SetActive(false);
+
         EasyTouch.On_SimpleTap -= OnTap;
         EasyTouch.On_Swipe -= OnTouchMove;
         EasyTouch.On_TouchStart -= OnTouchBegin;

@@ -65,7 +65,7 @@ public class UIGameEnd : UIWindow
         base.OnShow();
         UILabel label = GetChildComponent<UILabel>("FailedReason");
 
-        if (GameLogic.Singleton.CheckLimit())
+        if (GameLogic.Singleton.CheckLimit() && GameLogic.Singleton.GetGameFlow() == TGameFlow.EGameState_Playing)
         {
             if (GlobalVars.CurStageData.StepLimit > 0)
             {

@@ -885,7 +885,7 @@ public class GameLogic
             ParticleSystem par = m_gridBackImage[x, y].IcePartile.GetComponent<ParticleSystem>();
             par.startDelay = (float)m_random2.NextDouble();
             ParticleSystem parChild = UIToolkits.FindComponent<ParticleSystem>(m_gridBackImage[x, y].IcePartile.transform);
-            parChild.startDelay = (float)m_random2.NextDouble();
+            parChild.startDelay = 0.3f + (float)m_random2.NextDouble() * 3.33f;
             m_gridBackImage[x, y].IcePartile.SetActive(true);
 			m_gridBackImage[x, y].IcePartile.transform.parent = m_gridBackImage[x, y].layer0.transform;
             m_gridBackImage[x, y].IcePartile.transform.localPosition = Vector3.zero;

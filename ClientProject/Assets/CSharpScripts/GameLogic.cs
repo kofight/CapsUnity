@@ -1527,11 +1527,14 @@ public class GameLogic
             curPos = new Position(x, 0);
             for (int step = 0; step < x + 1; ++step)      //走x+1步
             {
-                if (m_blocks[curPos.x, curPos.y] != null)
+                if (m_blocks[curPos.x, curPos.y] != null 
+                    && m_blocks[curPos.x, curPos.y].CurState == BlockState.Normal
+                    && m_blocks[curPos.x, curPos.y].color <= TBlockColor.EColor_Cyan)                     
                 {
                     m_blocks[curPos.x, curPos.y].m_resortEffectStartTime = timeCount;       //记录时间
-                    timeCount += interval;                                          //时间变化
+                    timeCount += interval;                                                  //时间变化
                 }
+
                 curPos = GoTo(curPos, TDirection.EDir_LeftDown, 1);                 //向左下移动
             }
         }
@@ -1541,7 +1544,9 @@ public class GameLogic
             curPos = new Position(8, y);
             for (int step = 0; step < 9; ++step)    //走9步
             {
-                if (m_blocks[curPos.x, curPos.y] != null)
+                if (m_blocks[curPos.x, curPos.y] != null
+                    && m_blocks[curPos.x, curPos.y].CurState == BlockState.Normal
+                    && m_blocks[curPos.x, curPos.y].color <= TBlockColor.EColor_Cyan)
                 {
                     m_blocks[curPos.x, curPos.y].m_resortEffectStartTime = timeCount;       //记录时间
                     timeCount += interval;                                          //时间变化
@@ -1555,7 +1560,9 @@ public class GameLogic
             curPos = new Position(8, y);
             for (int step = 0; step < (8 - y) * 2 + 1; ++step)        //(8-y) * 2 + 1是这个几个块可以往左下走的步数
             {
-                if (m_blocks[curPos.x, curPos.y] != null)
+                if (m_blocks[curPos.x, curPos.y] != null
+                    && m_blocks[curPos.x, curPos.y].CurState == BlockState.Normal
+                    && m_blocks[curPos.x, curPos.y].color <= TBlockColor.EColor_Cyan)
                 {
                     m_blocks[curPos.x, curPos.y].m_resortEffectStartTime = timeCount;       //记录时间
                     timeCount += interval;                                          //时间变化

@@ -15,6 +15,12 @@ public class NumberDrawer : MonoBehaviour {
     public string SurName;
     public int NumberInterval = 20;
 	public NumberAlign Align = NumberAlign.Center;
+
+    int m_targetNumber;             //动画特效的目标值
+    int m_startNumber;
+    float m_duration;
+    float m_curMotionStartTime;     //当前特效的开始时间
+
     // Use this for initialization
     void Start()
     {
@@ -22,7 +28,39 @@ public class NumberDrawer : MonoBehaviour {
 		Number = -1;
     }
 
-    public void SetNumber(int number)
+    void Update()           //这里看看是否可以优化掉，因为大部分数字是不需要Update的
+    {
+        if (m_curMotionStartTime > 0)
+        {
+            if (Timer.GetRealTimeSinceStartUp() < m_curMotionStartTime + m_duration)     //还没到时间
+            {
+                int num = (int)Mathf.Lerp(Number, m_targetNumber, (Time.deltaTime / m_duration));
+				SetNumberRapid(num);
+            }
+            else
+            {
+                m_curMotionStartTime = 0;       //结束
+				SetNumberRapid(m_targetNumber);
+            }
+        }
+    }
+
+    public void SetNumber(int number, float duration = 1)
+    {
+        if (duration == 0)
+        {
+            SetNumberRapid(number);
+        }
+        else
+        {
+			if(m_targetNumber == number)return;
+            m_targetNumber = number;
+            m_duration = duration;
+            m_curMotionStartTime = Timer.GetRealTimeSinceStartUp();
+        }
+    }
+
+    void SetNumberRapid(int number)
     {
         if (Number == number)
         {

@@ -1428,6 +1428,7 @@ public class GameLogic
                         {
                             m_blocks[i, j].m_animation.Stop();
                             m_blocks[i, j].m_animation.enabled = false;
+                            m_blocks[i, j].m_dropDownStartTime = 0;
                         }
                     }
 
@@ -1703,7 +1704,7 @@ public class GameLogic
 
                         if (!bFoundUnplayAnim)      //若所有都已经播完，指定m_effectStateDuration
                         {
-                            m_effectStateDuration = (int)timePast * 2 + CapsConfig.EffectResortTime;
+                            m_effectStateDuration = (int)(timePast + CapsConfig.EffectResortInterval * 2) * 2 + CapsConfig.EffectResortTime;        //这里额外加CapsConfig.EffectResortInterval * 2的时间，是为了确保所有动画可以播出来
                             m_effectStep = 2;      //切换到下一阶段
                         }
                     }
@@ -1714,13 +1715,18 @@ public class GameLogic
                         {
                             AutoResort();
                             ProcessResortEffectStartTime(oneTimeCount + CapsConfig.EffectResortTime, CapsConfig.EffectResortInterval);    //计算特效时序
-                        }
-                        if (timePast > m_effectStateDuration - oneTimeCount)
-                        {
                             m_effectStep = 3;
                         }
                     }
-                    else if (m_effectStep == 3)                             //逐个播放出现特效
+                    if (m_effectStep == 3)
+                    {
+                        long oneTimeCount = (m_effectStateDuration - CapsConfig.EffectResortTime) / 2;      //一次特效所用的时间
+                        if (timePast > m_effectStateDuration - oneTimeCount)
+                        {
+                            m_effectStep = 4;
+                        }
+                    }
+                    else if (m_effectStep == 4)                             //逐个播放出现特效
                     {
                         for (int i = 0; i < BlockCountX; ++i)
                         {

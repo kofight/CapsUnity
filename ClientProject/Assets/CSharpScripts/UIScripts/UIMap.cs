@@ -41,6 +41,9 @@ public class UIMap : UIWindow
     readonly static float HeadMoveTime = 3.0f;  //开启新关卡时头像的移动时间
     readonly static float HeadYOffset = 110.0f; //头像相对于按钮位置的位移
 
+    float m_lastClickStageTime = 0;                 //上次点击关卡的时间
+    GameObject m_helpParticle;                      //帮助特效
+
     public override void OnCreate()
     {
         base.OnCreate();
@@ -243,6 +246,7 @@ public class UIMap : UIWindow
 
         m_cloud2Sprite.gameObject.SetActive(true);
         m_cloudSprite.gameObject.SetActive(true);
+		m_lastClickStageTime = Timer.GetRealTimeSinceStartUp();     //更新关卡点击时间
     }
 
     public override void OnShowEffectPlayOver()
@@ -347,6 +351,41 @@ public class UIMap : UIWindow
 		{
             m_cloud2Sprite.transform.LocalPositionY(m_cloudSprite.transform.localPosition.y + 1135);
 		}
+
+        if (stageUI.Visible)
+        {
+            m_lastClickStageTime = Timer.GetRealTimeSinceStartUp();     //更新关卡点击时间
+        }
+        else if (Timer.GetRealTimeSinceStartUp() - m_lastClickStageTime > 5.0f)      //5秒没有有效操作
+        {
+            SetStageHelp(true);
+        }
+    }
+
+    void SetStageHelp(bool vis)
+    {
+        if (m_helpParticle == null)
+        {
+			Object obj = Resources.Load("LevelHelpEffect");
+	        m_helpParticle = GameObject.Instantiate(obj) as GameObject;	
+			m_helpParticle.SetActive(false);
+        }
+
+		if(m_helpParticle.activeSelf == vis) return;
+		
+        if (vis)
+        {
+            m_helpParticle.SetActive(true);
+            m_helpParticle.transform.parent = m_stageBtns[GlobalVars.AvailabeStageCount - 1];
+            m_helpParticle.transform.localPosition = Vector3.zero;
+            m_helpParticle.transform.localScale = new Vector3(580.0f, 580.0f, 200.0f);                 //指定位置
+            m_helpParticle.GetComponent<ParticleSystem>().Play(true);
+        }
+        else
+        {
+            m_helpParticle.GetComponent<ParticleSystem>().Stop();
+            m_helpParticle.SetActive(false);
+        }
     }
 
     void AddStagePartile(int stageNumber)
@@ -363,6 +402,9 @@ public class UIMap : UIWindow
 
     private void OnStageClicked()
     {
+        m_lastClickStageTime = Timer.GetRealTimeSinceStartUp();     //更新关卡点击时间
+        SetStageHelp(false);
+
         NGUITools.PlaySound(CapsConfig.CurAudioList.ButtonClip);
         string stageNum = UIButton.current.name.Substring(5);
         GlobalVars.CurStageNum = System.Convert.ToInt32(stageNum);

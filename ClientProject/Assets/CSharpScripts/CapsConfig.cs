@@ -56,7 +56,7 @@ public class CapsConfig
     public static readonly int EffectBigBombTime = 2000;
     public static readonly int EffectEatAColorNDBombTime = 2000;
     public static readonly int EffectResortTime = 600;                            //重拍特效中间的时间
-    public static readonly int EffectResortInterval = 30;                         //重拍特效的时间间隔
+    public static readonly int EffectResortInterval = 15;                         //重拍特效的时间间隔
 
     public static readonly string EatEffect = "EatEffect";                      //吃块的目标特效
     public static readonly string BombEatEffect = "BombEatEffect";              //炸弹吃块的目标特效

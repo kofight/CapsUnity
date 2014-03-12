@@ -88,6 +88,13 @@ public class UIStageInfo : UIWindow
                 UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>().ShowWindow();
             });
         }
+        else
+        {
+            if (UIToggle.current.value)
+            {
+                NGUITools.PlaySound(CapsConfig.CurAudioList.PurchaseClip);
+            }
+        }
         RefreshTotalMoney();
     }
 

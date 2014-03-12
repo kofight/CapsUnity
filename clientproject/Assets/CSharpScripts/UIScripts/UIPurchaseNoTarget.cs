@@ -77,6 +77,7 @@ public class UIPurchaseNoTarget : UIWindow
                     GameLogic.Singleton.UserStopTimeItem();
                 }
                 GlobalVars.UsingItem = PurchasedItem.None;
+                NGUITools.PlaySound(CapsConfig.CurAudioList.PurchaseClip);
             }
         });
     }

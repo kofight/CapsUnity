@@ -89,6 +89,7 @@ public class UIPurchaseTarget : UIWindow
                     GameLogic.Singleton.EatBlock(GlobalVars.UsingItemTarget, CapsConfig.EatEffect);                  //使用锤子
                     GlobalVars.UsingItem = PurchasedItem.None;
                     GameLogic.Singleton.ProcessTempBlocks();
+                    NGUITools.PlaySound(CapsConfig.CurAudioList.PurchaseClip);
                 }
                 m_target.SetActive(false);
             }

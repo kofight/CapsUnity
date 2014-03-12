@@ -231,8 +231,8 @@ public class UIGameHead : UIWindow
     public void ShowCoin(bool bShow)
     {
         m_showCoinTweener.Play(bShow);
-        UILabel coinLabel = GetChildComponent<UILabel>("CoinCount");
-        coinLabel.text = ((int)Unibiller.GetCurrencyBalance("gold")).ToString();
+        NumberDrawer coinLabel = GetChildComponent<NumberDrawer>("CoinCount");
+        coinLabel.SetNumber((int)Unibiller.GetCurrencyBalance("gold"));
     }
 	
 	public void RefreshTarget()

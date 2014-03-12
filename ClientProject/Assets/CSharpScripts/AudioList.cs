@@ -21,7 +21,7 @@ public class AudioList : MonoBehaviour {
     public AudioClip GameMusic;
     public AudioClip Only5StepLeftClip;
     public AudioClip Only15SecLeftClip;
-
+    public AudioClip PurchaseClip;
     public AudioClip GetStarClip;
 
     public List<AudioClip> ComboClip;

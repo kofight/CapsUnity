@@ -1129,7 +1129,6 @@ public class GameLogic
             {
                 break;
             }
-            break;
         }
         Debug.Log("Auto Resort, count = " + sortcount);
     }

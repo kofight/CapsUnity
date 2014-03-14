@@ -33,10 +33,10 @@ public class NumberDrawer : MonoBehaviour {
     {
         if (m_curMotionStartTime > 0)
         {
-                int number = (int)((m_targetNumber - m_curNumber) * (Timer.GetRealTimeSinceStartUp() - m_lastChangeTime) / m_duration + m_curNumber);
+                int number = (int)((m_targetNumber - m_curNumber) * (Time.realtimeSinceStartup - m_lastChangeTime) / m_duration + m_curNumber);
                 if (number != m_curNumber)
                 {
-                    m_lastChangeTime = Timer.GetRealTimeSinceStartUp();
+                    m_lastChangeTime = Time.realtimeSinceStartup;
                     SetNumberRapid(number);
                 }
 				
@@ -61,7 +61,7 @@ public class NumberDrawer : MonoBehaviour {
             m_targetNumber = number;
             m_startNumber = m_curNumber;
             m_duration = duration;
-            m_curMotionStartTime = Timer.GetRealTimeSinceStartUp();
+            m_curMotionStartTime = Time.realtimeSinceStartup;
             m_lastChangeTime = m_curMotionStartTime;
         }
     }

@@ -261,6 +261,7 @@ public class UIMap : UIWindow
         base.OnHide();
         m_cloud2Sprite.gameObject.SetActive(false);
         m_cloudSprite.gameObject.SetActive(false);
+        SetStageHelp(false);
         m_heartUI.HideWindow();
         m_newStageNumber = -1;          //停止头像移动...
     }

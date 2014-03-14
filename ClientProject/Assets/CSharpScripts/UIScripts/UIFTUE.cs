@@ -6,7 +6,8 @@ public class UIFTUE : UIWindow
 {
     AocTypewriterEffect m_dialogText;
     UISprite m_dialogBoardSprite;
-	UISprite m_headSprite;
+	UISprite m_leftHeadSprite;
+	UISprite m_rightHeadSprite;
     UISprite m_backPic;
     UISprite [] m_pic = new UISprite [9];             //配的图片
 
@@ -165,15 +166,6 @@ public class UIFTUE : UIWindow
     public void ShowText(string head, string pic, string content, WindowEffectFinished func)
 	{
 		ShowWindow();
-		if(head != "None")
-		{
-            m_headSprite.gameObject.SetActive(true);
-            m_headSprite.spriteName = head;
-		}
-		else
-		{
-            m_headSprite.gameObject.SetActive(false);
-		}
 
         if (pic != "None")
         {
@@ -198,20 +190,54 @@ public class UIFTUE : UIWindow
             }
         }
 
-        if (m_ftueData[m_FTUEIndex].dialogPos == 0)
+        if (m_ftueData[m_FTUEIndex].dialogPos == 0)     //左上
         {
             m_dialogBoardSprite.spriteName = "TextBox";
-            m_dialogTrans.LocalPositionY(334);
-            m_dialogText.transform.LocalPositionX(-204.0f);
-            m_clickLabel.transform.LocalPositionY(-80.0f);
+            m_dialogTrans.localPosition = new Vector3(8, 306, -1);
+            m_dialogText.transform.localPosition = new Vector3(-177, 147, 1);
+            m_clickLabel.transform.localPosition = new Vector3(178, -76, 1);
         }
-        else
+        else if (m_ftueData[m_FTUEIndex].dialogPos == 1)    //左下
         {
             m_dialogBoardSprite.spriteName = "TextBox3";
-            m_dialogTrans.LocalPositionY(-311);
-            m_dialogText.transform.LocalPositionX(-172.1245f);
-            m_clickLabel.transform.LocalPositionY(-131.1079f);
+            m_dialogTrans.localPosition = new Vector3(72, -317, -1);
+            m_dialogText.transform.localPosition = new Vector3(-147, 135, 1);
+            m_clickLabel.transform.localPosition = new Vector3(174, -133, 1);
         }
+        else if (m_ftueData[m_FTUEIndex].dialogPos == 2)     //右上
+        {
+            m_dialogBoardSprite.spriteName = "TextBoxMir";
+            m_dialogTrans.localPosition = new Vector3(8, 306, -1);
+            m_dialogText.transform.localPosition = new Vector3(-177, 147, 1);
+            m_clickLabel.transform.localPosition = new Vector3(178, -76, 1);
+        }
+		
+		if(m_ftueData[m_FTUEIndex].dialogPos == 0 || m_ftueData[m_FTUEIndex].dialogPos == 1)
+		{
+			if(head != "None")
+			{
+	            m_leftHeadSprite.gameObject.SetActive(true);
+	            m_leftHeadSprite.spriteName = head;
+			}
+			else
+			{
+	            m_leftHeadSprite.gameObject.SetActive(false);
+			}
+			m_rightHeadSprite.gameObject.SetActive(false);
+		}
+		else
+		{
+			if(head != "None")
+			{
+	            m_rightHeadSprite.gameObject.SetActive(true);
+	            m_rightHeadSprite.spriteName = head;
+			}
+			else
+			{
+	            m_rightHeadSprite.gameObject.SetActive(false);
+			}
+			m_leftHeadSprite.gameObject.SetActive(false);
+		}
 		
 		m_dialogContents = content.Split('@');
 		m_curDialogIndex = 0;
@@ -230,7 +256,8 @@ public class UIFTUE : UIWindow
     {
         base.OnCreate();
 		m_dialogText = GetChildComponent<AocTypewriterEffect>("DialogText");
-		m_headSprite = GetChildComponent<UISprite>("Head");
+		m_leftHeadSprite = GetChildComponent<UISprite>("LeftHead");
+		m_rightHeadSprite = GetChildComponent<UISprite>("RightHead");
         m_dialogBoardSprite = GetChildComponent<UISprite>("DialogBoard");
         m_dialogEffectPlayer = m_dialogBoardSprite.GetComponent<UIEffectPlayer>();
         m_pointer = GameObject.Find("FTUEPointer");

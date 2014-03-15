@@ -98,6 +98,14 @@
 },
 "TextBox3.png":
 {
+	"frame": {"x":1238,"y":685,"w":283,"h":216},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":283,"h":216},
+	"sourceSize": {"w":283,"h":216}
+},
+"TextBox3Mir.png":
+{
 	"frame": {"x":1056,"y":467,"w":283,"h":216},
 	"rotated": false,
 	"trimmed": false,
@@ -119,6 +127,6 @@
 	"format": "RGBA8888",
 	"size": {"w":2048,"h":1024},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:50b3edc5db3afd2c9c990e520b99d169$"
+	"smartupdate": "$TexturePacker:SmartUpdate:310dacbb86e8efb6ca62cfe690ea459c$"
 }
 }

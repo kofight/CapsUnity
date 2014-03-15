@@ -77,7 +77,7 @@ public class FTUEData
     public bool bHighLightBackground;               //是否高亮背景
     public bool bHighLightBlock;                    //是否高亮前景
     public List<Position> highLightPosList;
-    public int dialogPos = 0;                           //对话框位置0,1(上下)
+    public int dialogPos = 0;                           //对话框位置0,1,2(左上左下右下)
     public int picturePos = 9;                          //图片位置
 }
 

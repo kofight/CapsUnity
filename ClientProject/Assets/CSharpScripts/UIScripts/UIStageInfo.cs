@@ -169,7 +169,7 @@ public class UIStageInfo : UIWindow
         }
 
         NumberDrawer number = GetChildComponent<NumberDrawer>("StageTarget");
-        number.SetNumber(GlobalVars.CurStageData.StarScore[2]);
+        number.SetNumber(GlobalVars.CurStageData.StarScore[2], 0.0f);
 
         UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().HideWindow();
 

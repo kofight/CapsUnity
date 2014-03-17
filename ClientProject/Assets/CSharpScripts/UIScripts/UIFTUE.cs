@@ -102,6 +102,11 @@ public class UIFTUE : UIWindow
 		return true;
     }
 
+    public void PushFTUEData(FTUEData data)
+    {
+        m_ftueData.Add(data);
+    }
+
     public bool CheckMoveTo(Position to)
     {
         if (to.x == m_ftueData[m_FTUEIndex].to.x && to.y == m_ftueData[m_FTUEIndex].to.y)
@@ -319,7 +324,10 @@ public class UIFTUE : UIWindow
                         m_clickLabel.text = Localization.instance.Get("Click");
                         m_pointer.SetActive(false);
                     }
-                    m_afterDialogFunc();
+                    if (m_afterDialogFunc != null)
+                    {
+                        m_afterDialogFunc();
+                    }
                 }
                 ++m_curDialogIndex;
             });
@@ -342,12 +350,34 @@ public class UIFTUE : UIWindow
         {
             if (m_FTUEIndex < m_ftueData.Count - 1)         //检测FTUE有多条的情况
             {
-				HideHighLight();
-				++m_FTUEIndex;
+                ++m_FTUEIndex;
                 m_bLock = true;
+
+                
+				HideHighLight();
+				
                 m_dialogEffectPlayer.HideEffect(delegate()      //关闭当前窗口
                 {
-                    ShowFTUE(m_curStep);                         //若有步数，循环调用
+                    if (m_curStep == -1)                         //在大地图的情况
+                    {
+                        ShowText(m_ftueData[m_FTUEIndex].headImage, m_ftueData[m_FTUEIndex].pic, m_ftueData[m_FTUEIndex].dialog, delegate()
+                        {
+                            if (m_ftueData[m_FTUEIndex].pointToGameObject != string.Empty)      //若有指向的物件
+                            {
+                                GameObject obj = GameObject.Find(m_ftueData[m_FTUEIndex].pointToGameObject) as GameObject;      //先找到物件
+
+                                m_pointer.transform.parent = obj.transform;                 //把手指绑在找到的物件上
+                                m_pointer.transform.localPosition = new Vector3(0, 0, 0);
+
+                                m_pointer.SetActive(true);
+                                m_pointerStartTime = Timer.millisecondNow();
+                            }
+                        });     //显示下一句话
+                    }
+                    else
+                    {
+                        ShowFTUE(m_curStep);                         //若有步数，循环调用
+                    }
                 });
             }
             else                                            //若没有

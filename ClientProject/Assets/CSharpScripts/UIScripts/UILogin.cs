@@ -93,8 +93,8 @@ public class UILogin : UIWindow
     {
         HideWindow();
 		GlobalVars.DeveloperMode = m_developerMode.value;
-		
-        if (GlobalVars.AvailabeStageCount == 1)
+
+        if (GlobalVars.AvailabeStageCount == 1 && !GlobalVars.DeveloperMode)
         {
             GlobalVars.UseHeart();      //使用一颗心
             GlobalVars.CurStageNum = 1;

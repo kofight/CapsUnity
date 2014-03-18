@@ -1199,7 +1199,7 @@ public class GameLogic
                 ftue = UIWindowManager.Singleton.CreateWindow<UIFTUE>();
             }
 
-            if (ftue.ShowFTUE(FTUEStepCount))
+            if (ftue.ShowFTUE(FTUEStepCount, data))
 				m_gameFlow = TGameFlow.EGameState_FTUE;
         }
     }

@@ -13,6 +13,8 @@ public class UIStageInfo : UIWindow
     UISprite[] m_background = new UISprite[3];
     UISprite[] m_backgroundFrame = new UISprite[3];
 
+    GameObject m_pointer;
+
     int m_moneyCost = 0;
 
     public int GetCurCost() { return m_moneyCost; }
@@ -174,6 +176,23 @@ public class UIStageInfo : UIWindow
         UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().HideWindow();
 
         RefreshTotalMoney();
+
+        if (GlobalVars.AvailabeStageCount == GlobalVars.CurStageNum && GlobalVars.AvailabeStageCount == 2)      //若在第二关，显示手指
+        {
+            Transform gameAreaTrans = GameObject.Find("GameArea").transform;
+            if (UIWindowManager.Singleton.GetUIWindow<UIFTUE>() == null)        //若已经出FTUE了
+            {
+                UIWindowManager.Singleton.CreateWindow<UIFTUE>();
+            }
+            m_pointer = UIWindowManager.Singleton.GetUIWindow<UIFTUE>().m_pointer;
+            GameObject playBtn = GameObject.Find("PlayBtn");
+            m_pointer.transform.parent = playBtn.transform;
+            m_pointer.transform.localPosition = new Vector3(0, 0, 0);
+            //m_pointer.transform.parent = gameAreaTrans;                     //恢复父窗口
+            m_pointer.SetActive(false);
+            m_pointer.SetActive(true);
+            m_pointer.GetComponent<TweenScale>().enabled = true;
+        }
     }
 
     public void OnCloseClicked()
@@ -193,6 +212,8 @@ public class UIStageInfo : UIWindow
         }
 
         ClearToggles();
+
+        m_pointer.SetActive(false);
     }
 
     public void ClearToggles()

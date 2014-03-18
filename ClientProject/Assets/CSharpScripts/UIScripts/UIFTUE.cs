@@ -100,6 +100,7 @@ public class UIFTUE : UIWindow
                         bShowPointer = true;
                         m_pointer.transform.parent = m_gameAreaTrans;
                         m_pointer.SetActive(true);
+                        RefreshPointer();
                         m_pointer.GetComponent<TweenScale>().enabled = false;
                         m_pointerStartTime = Timer.millisecondNow();
                         GameLogic.Singleton.SetHighLight(true, m_ftueData[m_FTUEIndex].from);
@@ -118,6 +119,7 @@ public class UIFTUE : UIWindow
                     m_pointer.transform.localPosition = new Vector3(0, 0, 0);       
                     m_pointer.transform.parent = m_gameAreaTrans;               //把父结点设回来
                     m_pointer.SetActive(true);
+                    RefreshPointer();
                     m_pointer.GetComponent<TweenScale>().enabled = true;
                     m_pointerStartTime = Timer.millisecondNow();
                 }
@@ -162,9 +164,8 @@ public class UIFTUE : UIWindow
         return false;
     }
 
-    public override void OnUpdate()
+    void RefreshPointer()
     {
-        base.OnUpdate();
         if (m_pointer.activeSelf)        //若箭头可见
         {
             if (CapsApplication.Singleton.CurStateEnum == StateEnum.Game)
@@ -208,6 +209,12 @@ public class UIFTUE : UIWindow
 
             }
         }
+    }
+
+    public override void OnUpdate()
+    {
+        base.OnUpdate();
+        RefreshPointer();
     }
 
     public void ShowText(string head, string pic, string content, WindowEffectFinished func)

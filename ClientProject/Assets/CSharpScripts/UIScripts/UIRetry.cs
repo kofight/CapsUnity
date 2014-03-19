@@ -142,7 +142,7 @@ public class UIRetry : UIWindow
             if (GlobalVars.AvailabeStageCount == GlobalVars.CurStageNum)
             {
                 ++GlobalVars.AvailabeStageCount;        //开启下一关
-                UIWindowManager.Singleton.GetUIWindow<UIMap>().OpenNewButton(GlobalVars.AvailabeStageCount);
+                //UIWindowManager.Singleton.GetUIWindow<UIMap>().OpenNewButton(GlobalVars.AvailabeStageCount);
             }
 
             for (int i = 2; i >= 0;--i )

@@ -410,14 +410,13 @@ public class UIFTUE : UIWindow
         {
             if (m_FTUEIndex < m_ftueData.Count - 1)         //检测FTUE有多条的情况
             {
-                ++m_FTUEIndex;
-                m_bLock = true;
-
-
                 if (!GlobalVars.InMapFTUE)
                 {
                     HideHighLight();
                 }
+				
+				++m_FTUEIndex;
+                m_bLock = true;
 				
                 m_dialogEffectPlayer.HideEffect(delegate()      //关闭当前窗口
                 {

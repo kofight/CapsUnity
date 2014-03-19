@@ -4426,15 +4426,15 @@ public class GameLogic
         {
             return;
         }
-        if (bVal)
+        if (bVal)           //若进入高亮状态
         {
-            if (bLightBackground)
+            if (bLightBackground)               //若要高亮背景
             {
 				m_blocks[x, y].m_addColorSprite.alpha = 0.0f;
-                m_blocks[x, y].m_blockSprite.depth = 5;
+                m_blocks[x, y].m_blockSprite.depth = 5;             //前景块的深度是5
                 if (m_gridBackImage[x, y].layer0 != null)
                 {
-                    m_gridBackImage[x, y].layer0.depth = 4;
+                    m_gridBackImage[x, y].layer0.depth = 4;         //背景块深度是4
 
 
                     if (PlayingStageData.CheckFlag(x, y, GridFlag.Jelly))
@@ -4452,7 +4452,7 @@ public class GameLogic
                 }
                 if (m_gridBackImage[x, y].layer1 != null)
                 {
-                    m_gridBackImage[x, y].layer1.depth = 6;
+                    m_gridBackImage[x, y].layer1.depth = 6;         //背景前景块深度是6
                 }
             }
             if (bLightBlock)
@@ -4460,19 +4460,19 @@ public class GameLogic
                 m_blocks[x, y].m_addColorSprite.alpha = 1.0f;
 			}
         }
-        else
+        else                    //去掉高亮
         {
             if (bLightBlock)
             {
                 m_blocks[x, y].m_addColorSprite.alpha = 0.0f;
             }
 
-            if (bLightBackground)
+            if (bLightBackground)                       //若要取消背景高亮
             {
-                m_blocks[x, y].m_blockSprite.depth = 2;
+                m_blocks[x, y].m_blockSprite.depth = 2;         //前景恢复成2
                 if (m_gridBackImage[x, y].layer0 != null)
                 {
-                    m_gridBackImage[x, y].layer0.depth = 0;
+                    m_gridBackImage[x, y].layer0.depth = 0;     //背景恢复成0
 
                     if (PlayingStageData.CheckFlag(x, y, GridFlag.Jelly))
                     {
@@ -4489,7 +4489,7 @@ public class GameLogic
                 }
                 if (m_gridBackImage[x, y].layer1 != null)
                 {
-                    m_gridBackImage[x, y].layer1.depth = 3;
+                    m_gridBackImage[x, y].layer1.depth = 3;     //背景前景恢复成3
                 }
             }
         }

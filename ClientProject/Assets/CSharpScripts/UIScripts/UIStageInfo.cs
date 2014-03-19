@@ -213,7 +213,10 @@ public class UIStageInfo : UIWindow
 
         ClearToggles();
 
-        m_pointer.SetActive(false);
+        if (m_pointer != null)
+        {
+            m_pointer.SetActive(false);
+        }
     }
 
     public void ClearToggles()

@@ -281,10 +281,6 @@ public class UIMap : UIWindow
         m_heartUI.ShowWindow();
         m_coinNumber.SetNumber((int)Unibiller.GetCurrencyBalance("gold"));
         UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
-        if (GlobalVars.HeadStagePos < GlobalVars.AvailabeStageCount || GlobalVars.DeveloperMode)        //若有新开的关卡，先用头像去开启关卡
-        {
-            OpenNewButton(GlobalVars.AvailabeStageCount);
-        }
 
         m_cloud2Sprite.gameObject.SetActive(true);
         m_cloudSprite.gameObject.SetActive(true);
@@ -294,6 +290,10 @@ public class UIMap : UIWindow
     public override void OnShowEffectPlayOver()
     {
 		base.OnShowEffectPlayOver();
+        if (GlobalVars.HeadStagePos < GlobalVars.AvailabeStageCount || GlobalVars.DeveloperMode)        //若有新开的关卡，先用头像去开启关卡
+        {
+            OpenNewButton(GlobalVars.AvailabeStageCount);
+        }
 		Transform curStageTrans = UIToolkits.FindChild(mUIObject.transform, "Stage" + GlobalVars.LastStage);      //找到对象
         MoveTo(new Vector2(curStageTrans.localPosition.x, curStageTrans.localPosition.y));
     }
@@ -311,6 +311,11 @@ public class UIMap : UIWindow
     public override void OnUpdate()
     {
         base.OnUpdate();
+
+        if (uiWindowState != UIWindowStateEnum.Show)
+        {
+            return;
+        }
 
         GlobalVars.RefreshHeart();
 

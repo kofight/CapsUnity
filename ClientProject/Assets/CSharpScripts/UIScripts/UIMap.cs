@@ -37,12 +37,16 @@ public class UIMap : UIWindow
     GameObject m_fullText;
 
     int m_newStageNumber;                       //开启的新关卡的编号
-    float m_newStageStartTime;                  //开启新关卡的时间
+    float m_newStageMoveTime;                  //开启新关卡的时间
     readonly static float HeadMoveTime = 3.0f;  //开启新关卡时头像的移动时间
     readonly static float HeadYOffset = 110.0f; //头像相对于按钮位置的位移
 
     float m_lastClickStageTime = 0;                 //上次点击关卡的时间
     GameObject m_helpParticle;                      //帮助特效
+
+    UIStageInfo m_stageUI;
+
+    bool m_bInFTUE;                                 //是否在FTUE中
 
     public override void OnCreate()
     {
@@ -147,12 +151,50 @@ public class UIMap : UIWindow
         obj = GameObject.Find("Cloud2");
         m_cloud2Sprite = obj.GetComponent<UISprite>();
         m_cloud2Sprite.gameObject.SetActive(false);
+
+        m_stageUI = UIWindowManager.Singleton.GetUIWindow<UIStageInfo>();
     }
 
     public void OpenNewButton(int stageNum)
     {
         m_newStageNumber = stageNum;
-        m_newStageStartTime = Time.realtimeSinceStartup;
+        m_newStageMoveTime = HeadMoveTime;
+        if (m_newStageNumber == 2 || GlobalVars.DeveloperMode)
+        {
+            GlobalVars.InMapFTUE = true;
+            m_heartUI.HideWindow();
+            //进入FTUE状态
+            UIFTUE ftue = UIWindowManager.Singleton.GetUIWindow<UIFTUE>();
+            if (ftue == null)
+            {
+                ftue = UIWindowManager.Singleton.CreateWindow<UIFTUE>();
+            }
+
+            ftue.ResetFTUEStep();
+
+            System.Collections.Generic.List<FTUEData> ftueData = new System.Collections.Generic.List<FTUEData>();
+            FTUEData data = new FTUEData();
+            data.dialog = Localization.instance.Get("FTUEStep0");
+            data.headImage = "Dog";
+            data.from = new Position();
+            data.from.MakeItUnAvailable();
+            ftueData.Add(data);             //第1句话
+            data = new FTUEData();
+            data.dialog = Localization.instance.Get("FTUEStep1");
+            data.headImage = "Dog";
+            data.pointToGameObject = "Stage1";
+            data.from = new Position();
+            data.from.MakeItUnAvailable();
+            ftueData.Add(data);             //第2句话
+            data = new FTUEData();
+            data.dialog = Localization.instance.Get("FTUEStep2");
+            data.headImage = "Dog";
+            data.from = new Position();
+            data.from.MakeItUnAvailable();
+            ftueData.Add(data);             //第3句话
+
+            ftue.ShowFTUE(0, ftueData);
+        }
     }
 
     public void RefreshButton(int stageNum)
@@ -239,10 +281,6 @@ public class UIMap : UIWindow
         m_heartUI.ShowWindow();
         m_coinNumber.SetNumber((int)Unibiller.GetCurrencyBalance("gold"));
         UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
-        if (GlobalVars.HeadStagePos < GlobalVars.AvailabeStageCount)        //若有新开的关卡，先用头像去开启关卡
-        {
-            OpenNewButton(GlobalVars.AvailabeStageCount);
-        }
 
         m_cloud2Sprite.gameObject.SetActive(true);
         m_cloudSprite.gameObject.SetActive(true);
@@ -252,6 +290,10 @@ public class UIMap : UIWindow
     public override void OnShowEffectPlayOver()
     {
 		base.OnShowEffectPlayOver();
+        if (GlobalVars.HeadStagePos < GlobalVars.AvailabeStageCount || GlobalVars.DeveloperMode)        //若有新开的关卡，先用头像去开启关卡
+        {
+            OpenNewButton(GlobalVars.AvailabeStageCount);
+        }
 		Transform curStageTrans = UIToolkits.FindChild(mUIObject.transform, "Stage" + GlobalVars.LastStage);      //找到对象
         MoveTo(new Vector2(curStageTrans.localPosition.x, curStageTrans.localPosition.y));
     }
@@ -270,51 +312,68 @@ public class UIMap : UIWindow
     {
         base.OnUpdate();
 
+        if (uiWindowState != UIWindowStateEnum.Show)
+        {
+            return;
+        }
+
         GlobalVars.RefreshHeart();
 
         //显示心数和时间////////////////////////////////////////////////////////////////////////
-        UISprite heartNum = m_heartUI.GetChildComponent<UISprite>("HeartNum");
-        heartNum.spriteName = "Large_" + GlobalVars.HeartCount;
-
-        UIStageInfo stageUI = UIWindowManager.Singleton.GetUIWindow<UIStageInfo>();
-
-        m_coinNumber.SetNumber((int)(Unibiller.GetCurrencyBalance("gold") - stageUI.GetCurCost()));
-		
-		if(GlobalVars.HeartCount < 5)               //若心没满，要显示时间
-		{
-            if (!m_timeNumber.activeSelf)
+        if (!m_heartUI.Visible)
+        {
+            if (!GlobalVars.InMapFTUE)
             {
-                m_timeNumber.SetActive(true);
+                m_heartUI.ShowWindow();
             }
-            if (m_fullText.activeSelf)
-            {
-                m_fullText.SetActive(false);
-            }
-            
-			int ticks = (int)((System.DateTime.Now.Ticks - GlobalVars.GetHeartTime.Ticks) / 10000);
-			int ticksToGetHeart = CapsConfig.Instance.GetHeartInterval * 1000 - ticks;
-			int min = ticksToGetHeart / 1000 / 60;
-			int second = ticksToGetHeart / 1000 % 60;
-            m_minNumber.SetNumber(min);
-            m_secNumber.SetNumber(second);
-		}
+        }
         else
         {
-            if (m_timeNumber.activeSelf)
+            UISprite heartNum = m_heartUI.GetChildComponent<UISprite>("HeartNum");
+            heartNum.spriteName = "Large_" + GlobalVars.HeartCount;
+            m_coinNumber.SetNumber((int)(Unibiller.GetCurrencyBalance("gold") - m_stageUI.GetCurCost()));
+
+            if (GlobalVars.HeartCount < 5)               //若心没满，要显示时间
             {
-                m_timeNumber.SetActive(false);
+                if (!m_timeNumber.activeSelf)
+                {
+                    m_timeNumber.SetActive(true);
+                }
+                if (m_fullText.activeSelf)
+                {
+                    m_fullText.SetActive(false);
+                }
+
+                int ticks = (int)((System.DateTime.Now.Ticks - GlobalVars.GetHeartTime.Ticks) / 10000);
+                int ticksToGetHeart = CapsConfig.Instance.GetHeartInterval * 1000 - ticks;
+                int min = ticksToGetHeart / 1000 / 60;
+                int second = ticksToGetHeart / 1000 % 60;
+                m_minNumber.SetNumber(min);
+                m_secNumber.SetNumber(second);
             }
-            if (!m_fullText.activeSelf)
+            else
             {
-                m_fullText.SetActive(true);
+                if (m_timeNumber.activeSelf)
+                {
+                    m_timeNumber.SetActive(false);
+                }
+                if (!m_fullText.activeSelf)
+                {
+                    m_fullText.SetActive(true);
+                }
             }
+        }
+
+        if (GlobalVars.InMapFTUE)
+        {
+            return;
         }
 
         //处理头像在地图上移动
         if (m_newStageNumber > -1)          //若正在移动
         {
-            float passTime = Time.realtimeSinceStartup - m_newStageStartTime;
-            if (passTime >= HeadMoveTime)     //若移动到了
+            m_newStageMoveTime -= Time.deltaTime;
+            if (m_newStageMoveTime < 0)     //若移动到了
             {
                 RefreshButton(m_newStageNumber);
                 AddStagePartile(m_newStageNumber);
@@ -322,19 +381,52 @@ public class UIMap : UIWindow
                 GlobalVars.HeadStagePos = GlobalVars.AvailabeStageCount;        //记录头像移动
                 PlayerPrefs.SetInt("HeadStagePos", GlobalVars.HeadStagePos);    //记录
 
-                int tempNum = m_newStageNumber;
-                Timer.AddDelayFunc(1.0f, delegate()
+                if (m_newStageNumber == 2)                                      //需要出FTUE的情况
                 {
-                    UIButton.current = m_stageBtns[tempNum - 1].GetComponent<UIButton>();
-                    OnStageClicked();
-                });
+                    GlobalVars.InMapFTUE = true;
+                    m_heartUI.HideWindow();
+                    //进入FTUE状态
+                    UIFTUE ftue = UIWindowManager.Singleton.GetUIWindow<UIFTUE>();
+                    if (ftue == null)
+                    {
+                        ftue = UIWindowManager.Singleton.CreateWindow<UIFTUE>();
+                    }
+
+                    ftue.ResetFTUEStep();
+                    System.Collections.Generic.List<FTUEData> ftueData = new System.Collections.Generic.List<FTUEData>();
+                    FTUEData data = new FTUEData();
+                    data.dialog = Localization.instance.Get("FTUEStep3");
+                    data.headImage = "Dog";
+                    data.pointToGameObject = "Stage2";
+                    data.from = new Position();
+                    data.from.MakeItUnAvailable();
+                    ftueData.Add(data);             //第4句话
+                    data = new FTUEData();
+                    data.dialog = Localization.instance.Get("FTUEStep4");
+                    data.pointToGameObject = "Stage2";
+                    data.headImage = "Dog";
+                    data.from = new Position();
+                    data.from.MakeItUnAvailable();
+                    ftueData.Add(data);             //第5句话
+
+                    ftue.ShowFTUE(0, ftueData);
+                }
+                else                                                            //不需要出FTUE，自动点关卡按钮
+                {
+                    int tempNum = m_newStageNumber;
+                    Timer.AddDelayFunc(1.0f, delegate()
+                    {
+                        UIButton.current = m_stageBtns[tempNum - 1].GetComponent<UIButton>();
+                        OnStageClicked();
+                    });
+                }
 
                 m_newStageNumber = -1;
             }
             else
             {
                 Vector3 target = new Vector3(m_stageBtns[m_newStageNumber - 1].localPosition.x, m_stageBtns[m_newStageNumber - 1].localPosition.y + HeadYOffset, m_stageBtns[m_newStageNumber - 1].localPosition.z);
-                m_headSprite.gameObject.transform.localPosition = Vector3.Lerp(m_stageBtns[m_newStageNumber - 2].localPosition, target, passTime / HeadMoveTime);
+                m_headSprite.gameObject.transform.localPosition = Vector3.Lerp(m_stageBtns[m_newStageNumber - 2].localPosition, target, (1 - m_newStageMoveTime / HeadMoveTime));
             }
         }
         //5105 - 2045 = 3060
@@ -353,7 +445,7 @@ public class UIMap : UIWindow
             m_cloud2Sprite.transform.LocalPositionY(m_cloudSprite.transform.localPosition.y + 1135);
 		}
 
-        if (stageUI.Visible)
+        if (m_stageUI.Visible)
         {
             m_lastClickStageTime = Timer.GetRealTimeSinceStartUp();     //更新关卡点击时间
         }

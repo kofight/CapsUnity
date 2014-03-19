@@ -72,3 +72,9 @@ NotEnoughMoney = 金币不足
 Get140Coins = 购买140个金币
 QuitConfirm = 确定离开游戏？
 TotalCost = 总共:
+
+FTUEStep0 = 这个是整个梦境世界的地图。
+FTUEStep1 = 我们刚刚通过的是这一扇门。
+FTUEStep2 = 每当我们通过一扇门以后，都会开启一扇新的门。
+FTUEStep3 = 这就是新的门。
+FTUEStep4 = 点击它，接受下一个挑战吧？

@@ -86,15 +86,18 @@ public class UIGameEnd : UIWindow
             {
                 m_planOnItemIcon.spriteName = PurchasedItem.ItemAfterGame_PlusTime.ToString();
             }
+
+            m_curScore.SetNumber(GameLogic.Singleton.GetProgress());
+            m_targetScore.SetNumber(GlobalVars.CurStageData.StarScore[0]);
         }
         else
         {
             m_planOnItemIcon.gameObject.SetActive(false);
             label.text = Localization.instance.Get("GamePaused");
-        }
 
-		m_curScore.SetNumber(GameLogic.Singleton.GetProgress());
-		m_targetScore.SetNumber(GlobalVars.CurStageData.StarScore[0]);
+            m_curScore.SetNumber(GameLogic.Singleton.GetProgress(), 0.0f);
+            m_targetScore.SetNumber(GlobalVars.CurStageData.StarScore[0], 0.0f);
+        }
 
         m_scoreCheck.SetWithoutTrigger((GameLogic.Singleton.GetProgress() >= GlobalVars.CurStageData.StarScore[0]));
         

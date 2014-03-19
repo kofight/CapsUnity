@@ -45,6 +45,8 @@ public class GlobalVars {
 	
     public static int HeartCount = 5;                   //爱心数量
     public static System.DateTime GetHeartTime;         //获得爱心的时间
+
+    public static bool InMapFTUE = false;               //在大地图里FTUE的状态
 	
     ///当前正在使用的道具//////////////////////////////////////////////////////////////
 	public static PurchasedItem UsingItem = PurchasedItem.None;

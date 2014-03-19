@@ -15,7 +15,8 @@ public class UIFTUE : UIWindow
 
     UILabel m_clickLabel;
 
-    GameObject m_pointer;
+    public GameObject m_pointer;
+    Transform m_gameAreaTrans;
     UISprite m_pointerSprite;
     long m_pointerStartTime;                         //开始播放箭头的时间
 
@@ -56,10 +57,12 @@ public class UIFTUE : UIWindow
     public override void OnHide()
     {
         base.OnHide();
-		
-		HideHighLight ();
 
-        GameLogic.Singleton.ShowUI();
+        if (!GlobalVars.InMapFTUE)
+        {
+            HideHighLight();
+            GameLogic.Singleton.ShowUI();
+        }
     }
 	
 	public void ResetFTUEStep()
@@ -68,7 +71,7 @@ public class UIFTUE : UIWindow
 		m_finishedStep = -1;
 	}
 
-    public bool ShowFTUE(int step)
+    public bool ShowFTUE(int step, List<FTUEData> ftueData)
     {
 		if(step <= m_finishedStep)
 		{
@@ -76,30 +79,69 @@ public class UIFTUE : UIWindow
 		}
 		
 		m_curStep = step;
+        if (ftueData != null)
+        {
+            m_ftueData = ftueData;
+        }
 
-        if (GameLogic.Singleton.PlayingStageData.FTUEMap.TryGetValue(step, out m_ftueData))
+        //if (GameLogic.Singleton.PlayingStageData.FTUEMap.TryGetValue(step, out m_ftueData))
         {
             BoxCollider collider = m_dialogBoardSprite.GetComponent<BoxCollider>();
 
             ShowText(m_ftueData[m_FTUEIndex].headImage, m_ftueData[m_FTUEIndex].pic, m_ftueData[m_FTUEIndex].dialog, delegate()
             {
-                if (m_ftueData[m_FTUEIndex].from.IsAvailable())
+                bool bShowPointer = false;                  //是否显示了手指
+
+                if (!GlobalVars.InMapFTUE)        //若游戏存在
                 {
-					m_bLock =  true;
-					m_pointer.SetActive(true);
-                    m_pointerStartTime = Timer.millisecondNow();
-                    GameLogic.Singleton.SetHighLight(true, m_ftueData[m_FTUEIndex].from);
+                    if (m_ftueData[m_FTUEIndex].from.IsAvailable())
+                    {
+                        m_bLock = true;
+                        bShowPointer = true;
+                        m_pointer.transform.parent = m_gameAreaTrans;
+                        m_pointer.SetActive(true);
+                        RefreshPointer();
+                        m_pointer.GetComponent<TweenScale>().enabled = false;
+                        m_pointerStartTime = Timer.millisecondNow();
+                        GameLogic.Singleton.SetHighLight(true, m_ftueData[m_FTUEIndex].from);
+                    }
+                    foreach (Position highLightPos in m_ftueData[m_FTUEIndex].highLightPosList)
+                    {
+                        GameLogic.Singleton.SetHighLight(true, highLightPos, m_ftueData[m_FTUEIndex].bHighLightBackground, m_ftueData[m_FTUEIndex].bHighLightBlock);
+                    }
                 }
-                foreach (Position highLightPos in m_ftueData[m_FTUEIndex].highLightPosList)
+
+                if (m_ftueData[m_FTUEIndex].pointToGameObject != null)      //若有指向的物件
                 {
-                    GameLogic.Singleton.SetHighLight(true, highLightPos, m_ftueData[m_FTUEIndex].bHighLightBackground, m_ftueData[m_FTUEIndex].bHighLightBlock);
+                    GameObject obj = GameObject.Find(m_ftueData[m_FTUEIndex].pointToGameObject) as GameObject;      //先找到物件
+                    bShowPointer = true;
+                    m_pointer.transform.parent = obj.transform;                 //把手指绑在找到的物件上
+                    m_pointer.transform.localPosition = new Vector3(0, 0, 0);       
+                    m_pointer.transform.parent = m_gameAreaTrans;               //把父结点设回来
+                    m_pointer.SetActive(true);
+                    RefreshPointer();
+                    m_pointer.GetComponent<TweenScale>().enabled = true;
+                    m_pointerStartTime = Timer.millisecondNow();
+                }
+
+                if (!bShowPointer)
+                {
+                    m_pointer.SetActive(false);
                 }
             });
         }
 
-        GameLogic.Singleton.HideUI();
+        if (!GlobalVars.InMapFTUE)
+        {
+            GameLogic.Singleton.HideUI();
+        }
 		
 		return true;
+    }
+
+    public void PushFTUEData(FTUEData data)
+    {
+        m_ftueData.Add(data);
     }
 
     public bool CheckMoveTo(Position to)
@@ -122,45 +164,57 @@ public class UIFTUE : UIWindow
         return false;
     }
 
-    public override void OnUpdate()
+    void RefreshPointer()
     {
-        base.OnUpdate();
         if (m_pointer.activeSelf)        //若箭头可见
         {
-            Vector2 fromXY = new Vector2(GameLogic.Singleton.GetXPos(m_ftueData[m_FTUEIndex].from.x), GameLogic.Singleton.GetYPos(m_ftueData[m_FTUEIndex].from.x, m_ftueData[m_FTUEIndex].from.y));
-            Vector2 toXY = new Vector2(GameLogic.Singleton.GetXPos(m_ftueData[m_FTUEIndex].to.x), GameLogic.Singleton.GetYPos(m_ftueData[m_FTUEIndex].to.x, m_ftueData[m_FTUEIndex].to.y));
+            if (CapsApplication.Singleton.CurStateEnum == StateEnum.Game)
+            {
+                Vector2 fromXY = new Vector2(GameLogic.Singleton.GetXPos(m_ftueData[m_FTUEIndex].from.x), GameLogic.Singleton.GetYPos(m_ftueData[m_FTUEIndex].from.x, m_ftueData[m_FTUEIndex].from.y));
+                Vector2 toXY = new Vector2(GameLogic.Singleton.GetXPos(m_ftueData[m_FTUEIndex].to.x), GameLogic.Singleton.GetYPos(m_ftueData[m_FTUEIndex].to.x, m_ftueData[m_FTUEIndex].to.y));
 
-            long curLoopTime = (Timer.millisecondNow() - m_pointerStartTime) % 2500;     //当前循环的时间
+                long curLoopTime = (Timer.millisecondNow() - m_pointerStartTime) % 2500;     //当前循环的时间
 
-            if (curLoopTime <= 300)                  //前0.3秒原地Alpha
-            {
-                m_pointerSprite.alpha = curLoopTime / 300.0f;
-				m_pointer.transform.localPosition = new Vector3(fromXY.x, -fromXY.y);
-            }
-            else if (curLoopTime <= 500)            //停一下
-            {
+                if (curLoopTime <= 300)                  //前0.3秒原地Alpha
+                {
+                    m_pointerSprite.alpha = curLoopTime / 300.0f;
+                    m_pointer.transform.localPosition = new Vector3(fromXY.x, -fromXY.y);
+                }
+                else if (curLoopTime <= 500)            //停一下
+                {
 
-            }
-            else if (curLoopTime <= 1500)           //移动
-            {
-                Vector2 pos = Vector2.Lerp(fromXY, toXY, ((curLoopTime - 500) % 1000) / 1000.0f);
-                m_pointer.transform.localPosition = new Vector3(pos.x, -pos.y);
-            }
-            else if (curLoopTime <= 1700)
-            {
+                }
+                else if (curLoopTime <= 1500)           //移动
+                {
+                    Vector2 pos = Vector2.Lerp(fromXY, toXY, ((curLoopTime - 500) % 1000) / 1000.0f);
+                    m_pointer.transform.localPosition = new Vector3(pos.x, -pos.y);
+                }
+                else if (curLoopTime <= 1700)
+                {
 
-            }
-            else if (curLoopTime <= 2000)
-            {
-                m_pointerSprite.alpha = 1.0f - (curLoopTime - 1700) / 300.0f;
-				m_pointer.transform.localPosition = new Vector3(toXY.x, -toXY.y);
+                }
+                else if (curLoopTime <= 2000)
+                {
+                    m_pointerSprite.alpha = 1.0f - (curLoopTime - 1700) / 300.0f;
+                    m_pointer.transform.localPosition = new Vector3(toXY.x, -toXY.y);
+                }
+                else
+                {
+                    m_pointerSprite.alpha = 0.0f;
+                    m_pointer.transform.localPosition = new Vector3(toXY.x, -toXY.y);
+                }
             }
             else
             {
-                m_pointerSprite.alpha = 0.0f;
-                m_pointer.transform.localPosition = new Vector3(toXY.x, -toXY.y);
+
             }
         }
+    }
+
+    public override void OnUpdate()
+    {
+        base.OnUpdate();
+        RefreshPointer();
     }
 
     public void ShowText(string head, string pic, string content, WindowEffectFinished func)
@@ -263,6 +317,7 @@ public class UIFTUE : UIWindow
         m_pointer = GameObject.Find("FTUEPointer");
         m_pointerSprite = m_pointer.GetComponent<UISprite>();
         m_pointer.SetActive(false);
+        m_gameAreaTrans = GameObject.Find("GameArea").transform;
         m_clickLabel = GetChildComponent<UILabel>("ClickLabel");
 
         m_dialogTrans = mUIObject.transform.FindChild("DialogBoard");
@@ -280,8 +335,18 @@ public class UIFTUE : UIWindow
         Debug.Log("EndFTUE");
 		m_finishedStep = m_curStep;
 		m_FTUEIndex = 0;
-        HideWindow();                               //隐藏窗体
-        GameLogic.Singleton.SetGameFlow(TGameFlow.EGameState_Playing);
+        m_pointer.SetActive(false);
+        HideWindow(delegate()
+		{
+			if (!GlobalVars.InMapFTUE)
+	        {
+	            GameLogic.Singleton.SetGameFlow(TGameFlow.EGameState_Playing);
+	        }
+	        if (GlobalVars.InMapFTUE)
+	        {
+	            GlobalVars.InMapFTUE = false;
+	        }
+		});                               //隐藏窗体
     }
 
     public void NextDialog()
@@ -306,12 +371,12 @@ public class UIFTUE : UIWindow
                 }
                 else                                                                    //若已经播到了最后一条
                 {
-                    
                     if (m_ftueData[m_FTUEIndex].from.IsAvailable())     //看看是否需要操作，需要的话显示划动提示
                     {
                         m_clickLabel.text = Localization.instance.Get("MoveBlock");
                         collider.size = new Vector3(300, 200, 1);
                         m_pointer.SetActive(true);
+                        m_pointer.GetComponent<TweenScale>().enabled = false;
                         m_pointerStartTime = Timer.millisecondNow();
                     }
                     else                                                //不需要操作的话显示点击提示
@@ -319,7 +384,10 @@ public class UIFTUE : UIWindow
                         m_clickLabel.text = Localization.instance.Get("Click");
                         m_pointer.SetActive(false);
                     }
-                    m_afterDialogFunc();
+                    if (m_afterDialogFunc != null)
+                    {
+                        m_afterDialogFunc();
+                    }
                 }
                 ++m_curDialogIndex;
             });
@@ -342,12 +410,17 @@ public class UIFTUE : UIWindow
         {
             if (m_FTUEIndex < m_ftueData.Count - 1)         //检测FTUE有多条的情况
             {
-				HideHighLight();
+                if (!GlobalVars.InMapFTUE)
+                {
+                    HideHighLight();
+                }
+				
 				++m_FTUEIndex;
                 m_bLock = true;
+				
                 m_dialogEffectPlayer.HideEffect(delegate()      //关闭当前窗口
                 {
-                    ShowFTUE(m_curStep);                         //若有步数，循环调用
+                     ShowFTUE(m_curStep, null);                         //若有步数，循环调用
                 });
             }
             else                                            //若没有

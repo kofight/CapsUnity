@@ -230,6 +230,14 @@ public class UIGameHead : UIWindow
 
     public void ShowCoin(bool bShow)
     {
+        if (bShow)
+        {
+            m_showCoinTweener.delay = 0;
+        }
+        else
+        {
+            m_showCoinTweener.delay = 1;
+        }
         m_showCoinTweener.Play(bShow);
         NumberDrawer coinLabel = GetChildComponent<NumberDrawer>("CoinCount");
         coinLabel.SetNumber((int)Unibiller.GetCurrencyBalance("gold"));

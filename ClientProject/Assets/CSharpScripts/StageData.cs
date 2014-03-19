@@ -79,6 +79,7 @@ public class FTUEData
     public List<Position> highLightPosList;
     public int dialogPos = 0;                           //对话框位置0,1,2(左上左下右下)
     public int picturePos = 9;                          //图片位置
+    public string pointToGameObject;                    //指向某个物件，指定物件名字
 }
 
 public class Portal

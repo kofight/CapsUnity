@@ -87,9 +87,10 @@ public class UIMap : UIWindow
 		}
 		
 		GlobalVars.PurchasedItemArray = PlayerPrefsExtend.GetIntArray("PurchasedItemArray", 0, 2);
-		
-		springPanel = mUIObject.AddComponent<SpringPanel>();
-        UIPanel panel = mUIObject.GetComponent<UIPanel>();
+
+        GameObject mapObj = mUIObject.transform.FindChild("MapObj").gameObject;
+        springPanel = mapObj.AddComponent<SpringPanel>();
+        UIPanel panel = mapObj.GetComponent<UIPanel>();
         //panel.baseClipRegion = new Vector4(0, 0, CapsApplication.Singleton.Width, CapsApplication.Singleton.Height);
 
         //心面板
@@ -159,7 +160,7 @@ public class UIMap : UIWindow
     {
         m_newStageNumber = stageNum;
         m_newStageMoveTime = HeadMoveTime;
-        if (m_newStageNumber == 2 || GlobalVars.DeveloperMode)
+        if (m_newStageNumber == 2)
         {
             GlobalVars.InMapFTUE = true;
             m_heartUI.HideWindow();

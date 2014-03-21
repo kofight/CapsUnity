@@ -173,6 +173,14 @@ public class UIGameEnd : UIWindow
                             break;
                     }
                     m_collectLabel[i].text = GameLogic.Singleton.PlayingStageData.CollectCount[i].ToString() + "/" + GlobalVars.CurStageData.CollectCount[i].ToString();
+                    if (GameLogic.Singleton.PlayingStageData.CollectCount[i] >= GlobalVars.CurStageData.CollectCount[i])
+                    {
+                        m_collectLabel[i].color = new Color(0, 1, 0);
+                    }
+                    else
+                    {
+                        m_collectLabel[i].color = new Color(0, 0, 0);
+                    }
                 }
                 else
                 {

@@ -2049,6 +2049,15 @@ public class GameLogic
             }
         }
 
+        if (bFoundMoveEnd)
+        {
+            DropDown();                     //再处理一次下落, DropDown里已经处理了UpdateSlopeLock
+        }
+        else
+        {
+            UpdateSlopeLock();              //否则更新SlopeLock
+        }
+
         {
             //处理延迟消除
             LinkedListNode<DelayProceedGrid> node = m_delayProcessGrid.First;
@@ -2201,17 +2210,6 @@ public class GameLogic
             PlaySound(audio);
         }
         m_playSoundNextFrame.Clear();
-
-        
-
-        if (bFoundMoveEnd)
-        {
-            DropDown();                     //再处理一次下落, DropDown里已经处理了UpdateSlopeLock
-        }
-        else
-        {
-            UpdateSlopeLock();              //否则更新SlopeLock
-        }
 
         //处理飞行特效
         foreach (FlyParticle flyParticle in m_flyParticleList)

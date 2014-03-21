@@ -122,6 +122,10 @@ public class CapBlock
     public static int EatingBlockCount = 0;     //正在消除的块的数量
     public static int DropingBlockCount = 0;    //下落中的块的数量
 
+    public TweenScale m_tweenScale;
+    public TweenPosition m_tweenPosition;
+    public TweenAlpha m_tweenAlpha;
+
     public void Eat(float delay = 0)							//吃掉这个块
 	{
         if (CurState == BlockState.Eating)
@@ -160,6 +164,12 @@ public class CapBlock
         m_blockTransform.localScale = Vector3.one;
         m_blockSprite.transform.localScale = Vector3.one;
         m_blockSprite.color = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+        if (m_tweenPosition.enabled)
+        {
+            m_tweenPosition.enabled = false;
+            m_tweenScale.enabled = false;
+            m_tweenAlpha.enabled = false;
+        }
 		x_move = 0;
 		y_move = 0;
 		special = TSpecialBlock.ESpecial_Normal;
@@ -197,5 +207,9 @@ public class CapBlock
 
         m_blockSprite.transform.localScale = Vector3.one;
         m_blockSprite.transform.localPosition = Vector3.zero;
+
+        m_tweenPosition = m_blockTransform.GetComponent<TweenPosition>();
+        m_tweenScale = m_blockTransform.GetComponent<TweenScale>();
+        m_tweenAlpha = m_blockSprite.transform.GetComponent<TweenAlpha>();
     }
 }

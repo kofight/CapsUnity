@@ -2592,23 +2592,20 @@ public class GameLogic
 
                             if (bCollect)           //若为收集块，播收集块特效
                             {
-                                TweenPosition tweenPos = m_blocks[i, j].m_blockTransform.GetComponent<TweenPosition>();
-                                tweenPos.from = m_blocks[i, j].m_blockTransform.localPosition;             //从当前位置开始
-                                tweenPos.to = CollectTargetUIPos[k];                                       //目标位置
-                                tweenPos.enabled = true;
-                                tweenPos.ResetToBeginning();
-                                tweenPos.Play(true);
-                                m_blocks[i, j].EatDuration = tweenPos.duration;
+                                m_blocks[i, j].m_tweenPosition.from = m_blocks[i, j].m_blockTransform.localPosition;             //从当前位置开始
+                                m_blocks[i, j].m_tweenPosition.to = CollectTargetUIPos[k];                                       //目标位置
+                                m_blocks[i, j].m_tweenPosition.enabled = true;
+                                m_blocks[i, j].m_tweenPosition.ResetToBeginning();
+                                m_blocks[i, j].m_tweenPosition.Play(true);
+                                m_blocks[i, j].EatDuration = m_blocks[i, j].m_tweenPosition.duration;
 
-                                TweenScale tweenScale = m_blocks[i, j].m_blockTransform.GetComponent<TweenScale>();
-                                tweenScale.enabled = true;
-                                tweenScale.ResetToBeginning();
-                                tweenScale.Play(true);
+                                m_blocks[i, j].m_tweenScale.enabled = true;
+                                m_blocks[i, j].m_tweenScale.ResetToBeginning();
+                                m_blocks[i, j].m_tweenScale.Play(true);
 
-                                TweenAlpha tweenAlpha = m_blocks[i, j].m_blockSprite.GetComponent<TweenAlpha>();
-                                tweenAlpha.enabled = true;
-                                tweenAlpha.ResetToBeginning();
-                                tweenAlpha.Play(true);
+                                m_blocks[i, j].m_tweenAlpha.enabled = true;
+                                m_blocks[i, j].m_tweenAlpha.ResetToBeginning();
+                                m_blocks[i, j].m_tweenAlpha.Play(true);
                             }
                             else
                             {

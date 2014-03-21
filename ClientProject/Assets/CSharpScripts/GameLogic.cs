@@ -2028,22 +2028,23 @@ public class GameLogic
 
         ProcessState();
 
+        bool bFoundMoveEnd = false;
+
         if (CapBlock.DropingBlockCount > 0)
         {
-            bool bFound = false;
+            
             for (int i = 0; i < BlockCountX; ++i )
             {
                 for (int j = 0; j < BlockCountY; ++j )
                 {
                     if (m_blocks[i, j] != null && m_blocks[i, j].CurState == BlockState.MovingEnd)
                     {
-                        bFound = true;
+                        bFoundMoveEnd = true;
                     }
                 }
             }
-            if (bFound)     //若找到了MovingEnd的块
+            if (bFoundMoveEnd)     //若找到了MovingEnd的块
             {
-                DropDown();                     //再处理一次下落
                 ProcessMoveEnd();        //处理下落结束的块（消块）
             }
         }
@@ -2201,7 +2202,16 @@ public class GameLogic
         }
         m_playSoundNextFrame.Clear();
 
-        UpdateSlopeLock();
+        
+
+        if (bFoundMoveEnd)
+        {
+            DropDown();                     //再处理一次下落, DropDown里已经处理了UpdateSlopeLock
+        }
+        else
+        {
+            UpdateSlopeLock();              //否则更新SlopeLock
+        }
 
         //处理飞行特效
         foreach (FlyParticle flyParticle in m_flyParticleList)

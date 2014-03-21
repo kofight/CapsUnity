@@ -18,7 +18,7 @@
 },
 "MapPic0_Blur.png":
 {
-	"frame": {"x":2161,"y":1,"w":360,"h":1023},
+	"frame": {"x":2522,"y":1,"w":360,"h":1023},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":360,"h":1023},
@@ -34,7 +34,7 @@
 },
 "MapPic1_Blur.png":
 {
-	"frame": {"x":2522,"y":1,"w":360,"h":1023},
+	"frame": {"x":2161,"y":1,"w":360,"h":1023},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":360,"h":1023},
@@ -63,6 +63,6 @@
 	"format": "RGBA8888",
 	"size": {"w":4096,"h":2048},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:270c92cf24750d7233b76d3275ffb922$"
+	"smartupdate": "$TexturePacker:SmartUpdate:041bf842a789b15f2d42c47530a039f6$"
 }
 }

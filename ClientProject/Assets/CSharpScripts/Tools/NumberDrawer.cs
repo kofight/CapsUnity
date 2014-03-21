@@ -66,7 +66,7 @@ public class NumberDrawer : MonoBehaviour {
         }
     }
 
-    void SetNumberRapid(int number)
+    public void SetNumberRapid(int number)
     {
         if (m_curNumber == number)
         {

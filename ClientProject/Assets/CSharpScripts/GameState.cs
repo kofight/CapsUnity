@@ -159,7 +159,10 @@ public class GameState : State
             LoginState.Instance.CurFlow = TLoginFlow.LoginFlow_Map;         //切换流程到显示地图
             return;
         }
-        UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
+        if (UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().Visible)
+        {
+            UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
+        }
     }
 
 }

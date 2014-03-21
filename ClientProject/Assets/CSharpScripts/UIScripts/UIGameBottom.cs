@@ -194,8 +194,15 @@ public class UIGameBottom : UIWindow
                 }
             }
         }
-        m_scoreChangeAnim.Play();
-        m_scoreDrawer.SetNumber(progress);
+		if(progress == 0)
+		{
+			m_scoreDrawer.SetNumberRapid(progress);
+		}
+		else
+		{
+			m_scoreChangeAnim.Play();
+        	m_scoreDrawer.SetNumber(progress);
+		}
 
         float completeRatio = 0.0f;
         if (GlobalVars.CurStageData.StarScore[2] > 0)

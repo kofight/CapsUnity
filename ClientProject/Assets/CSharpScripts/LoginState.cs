@@ -113,6 +113,11 @@ public class LoginState : State
                 UIWindowManager.Singleton.GetUIWindow<UIOption>().CloseWindow();
                 return;
             }
+            if (UIWindowManager.Singleton.GetUIWindow<UIHowToPlay>().Visible)
+            {
+                UIWindowManager.Singleton.GetUIWindow<UIHowToPlay>().HideWindow();
+                return;
+            }
             UIWindowManager.Singleton.GetUIWindow<UIQuitConfirm>().ShowWindow();
         }
     }

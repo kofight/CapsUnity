@@ -44,6 +44,8 @@ public class UIMap : UIWindow
     float m_lastClickStageTime = 0;                 //上次点击关卡的时间
     GameObject m_helpParticle;                      //帮助特效
 
+    GameObject[] m_blurSprites = new GameObject[3];
+
     UIStageInfo m_stageUI;
 
     bool m_bInFTUE;                                 //是否在FTUE中
@@ -154,6 +156,12 @@ public class UIMap : UIWindow
         m_cloud2Sprite.gameObject.SetActive(false);
 
         m_stageUI = UIWindowManager.Singleton.GetUIWindow<UIStageInfo>();
+
+        for (int i=0; i<3; ++i)
+        {
+            m_blurSprites[i] = UIToolkits.FindChild( mUIObject.transform, "MapPicBlur" + i).gameObject;
+            m_blurSprites[i].SetActive(false);
+        }
     }
 
     public void OpenNewButton(int stageNum)
@@ -453,6 +461,36 @@ public class UIMap : UIWindow
         else if (Timer.GetRealTimeSinceStartUp() - m_lastClickStageTime > 5.0f)      //5秒没有有效操作
         {
             SetStageHelp(true);
+        }
+
+        if (m_stageUI.Visible)      //若关卡UI显示了
+        {
+            if (!m_blurSprites[0].activeInHierarchy)        //若模糊层没显示
+            {
+                for (int i = 0; i < 3;++i )
+                {
+                    m_blurSprites[i].SetActive(true);
+                    m_blurSprites[i].GetComponent<TweenAlpha>().Play(true);
+                }
+                EventDelegate.Set(m_blurSprites[0].GetComponent<TweenAlpha>().onFinished, null);
+            }
+        }
+        else
+        {
+            if (m_blurSprites[0].activeInHierarchy)
+            {
+                for (int i = 0; i < 3; ++i)
+                {
+                    m_blurSprites[i].GetComponent<TweenAlpha>().Play(false);
+                }
+                EventDelegate.Set(m_blurSprites[0].GetComponent<TweenAlpha>().onFinished, delegate()
+                {
+                    for (int i = 0; i < 3; ++i)
+                    {
+                        m_blurSprites[i].SetActive(false);
+                    }
+                });
+            }
         }
     }
 

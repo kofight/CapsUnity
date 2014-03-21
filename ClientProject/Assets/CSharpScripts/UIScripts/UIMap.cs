@@ -299,7 +299,7 @@ public class UIMap : UIWindow
     public override void OnShowEffectPlayOver()
     {
 		base.OnShowEffectPlayOver();
-        if (GlobalVars.HeadStagePos < GlobalVars.AvailabeStageCount || GlobalVars.DeveloperMode)        //若有新开的关卡，先用头像去开启关卡
+        if (GlobalVars.HeadStagePos < GlobalVars.AvailabeStageCount)        //若有新开的关卡，先用头像去开启关卡
         {
             OpenNewButton(GlobalVars.AvailabeStageCount);
         }

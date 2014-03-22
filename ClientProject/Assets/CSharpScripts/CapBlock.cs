@@ -166,6 +166,7 @@ public class CapBlock
         m_blockSprite.color = new Color(1.0f, 1.0f, 1.0f, 1.0f);
         if (m_tweenPosition.enabled)
         {
+            m_blockSprite.depth = 2;
             m_tweenPosition.enabled = false;
             m_tweenScale.enabled = false;
             m_tweenAlpha.enabled = false;

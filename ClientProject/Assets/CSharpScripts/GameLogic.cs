@@ -2604,6 +2604,7 @@ public class GameLogic
                                 m_blocks[i, j].m_tweenAlpha.enabled = true;
                                 m_blocks[i, j].m_tweenAlpha.ResetToBeginning();
                                 m_blocks[i, j].m_tweenAlpha.Play(true);
+                                m_blocks[i, j].m_blockSprite.depth = 3;
                             }
                             else
                             {

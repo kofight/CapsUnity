@@ -30,6 +30,8 @@ public class UIMap : UIWindow
 
     UIWindow m_heartUI;
 
+    GameObject m_inputBlocker;
+
     GameObject m_timeNumber;
     NumberDrawer m_minNumber;
     NumberDrawer m_secNumber;
@@ -154,6 +156,8 @@ public class UIMap : UIWindow
         obj = GameObject.Find("Cloud2");
         m_cloud2Sprite = obj.GetComponent<UISprite>();
         m_cloud2Sprite.gameObject.SetActive(false);
+
+        m_inputBlocker = mUIObject.transform.Find("Blocker").gameObject;
 
         m_stageUI = UIWindowManager.Singleton.GetUIWindow<UIStageInfo>();
 
@@ -294,6 +298,7 @@ public class UIMap : UIWindow
         m_cloud2Sprite.gameObject.SetActive(true);
         m_cloudSprite.gameObject.SetActive(true);
 		m_lastClickStageTime = Timer.GetRealTimeSinceStartUp();     //更新关卡点击时间
+        m_inputBlocker.SetActive(false);
     }
 
     public override void OnShowEffectPlayOver()
@@ -315,6 +320,15 @@ public class UIMap : UIWindow
         SetStageHelp(false);
         m_heartUI.HideWindow();
         m_newStageNumber = -1;          //停止头像移动...
+    }
+
+    public override void OnHideEffectPlayOver()
+    {
+        base.OnHideEffectPlayOver();
+        for (int i = 0; i < 3; ++i)
+        {
+            m_blurSprites[i].SetActive(false);
+        }
     }
 
     public override void OnUpdate()
@@ -431,9 +445,15 @@ public class UIMap : UIWindow
                 }
 
                 m_newStageNumber = -1;
+
+                m_inputBlocker.SetActive(false);
             }
             else
             {
+                if (!m_inputBlocker.activeInHierarchy)
+                {
+                    m_inputBlocker.SetActive(true);
+                }
                 Vector3 target = new Vector3(m_stageBtns[m_newStageNumber - 1].localPosition.x, m_stageBtns[m_newStageNumber - 1].localPosition.y + HeadYOffset, m_stageBtns[m_newStageNumber - 1].localPosition.z);
                 m_headSprite.gameObject.transform.localPosition = Vector3.Lerp(m_stageBtns[m_newStageNumber - 2].localPosition, target, (1 - m_newStageMoveTime / HeadMoveTime));
             }

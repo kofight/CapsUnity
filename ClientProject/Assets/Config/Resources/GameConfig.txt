@@ -1,4 +1,4 @@
-﻿TotalStageCount			81				
+﻿TotalStageCount			100				
 DropAccelarate			5				
 SlideSpeed			3.5				
 DropSpeed			3.5				

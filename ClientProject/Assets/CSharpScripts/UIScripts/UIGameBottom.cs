@@ -57,7 +57,7 @@ public class UIGameBottom : UIWindow
         m_stepChangeAnim = m_stepDrawer.GetComponent<Animation>();
         m_scoreChangeAnim = m_scoreDrawer.GetComponent<Animation>();
 
-        m_hurryParticle = mUIObject.transform.FindChild("Effect_Hurry").gameObject;
+        m_hurryParticle = UIToolkits.FindChild(mUIObject.transform, "Effect_Hurry").gameObject;
         m_hurryParticle.SetActive(false);
     }
     public override void OnShow()
@@ -159,7 +159,7 @@ public class UIGameBottom : UIWindow
         m_stepDrawer.SetNumber(curStep);
         m_stepChangeAnim.Play();
 
-        if (curStep <= 5 && GameLogic.Singleton.GetGameFlow() == TGameFlow.EGameState_Playing)       //5步时播粒子
+        if (curStep <= 5 && curStep >0 && GameLogic.Singleton.GetGameFlow() == TGameFlow.EGameState_Playing)       //1到5步时播粒子
         {
             if (!m_hurryParticle.activeSelf)
             {

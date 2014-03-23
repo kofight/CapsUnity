@@ -1,5 +1,5 @@
 ﻿Target			3				
-StepLimit			8				
+StepLimit			12				
 TimeLimit			0				
 ColorCount			5				
 Nut1Count			3				

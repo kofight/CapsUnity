@@ -15,10 +15,10 @@ PlusStepMin			5
 PlusStepMax			10				
 Seed			0				
 NewFormat			1				
-StarScore			25000,37500,50000,				
-CollectColors			2,4,6,				
-CollectSpecial			0,0,0,				
-CollectCount			25,25,25,				
+StarScore			1000,2000,3000,				
+CollectColors			1,0,0,				
+CollectSpecial			2,0,0,				
+CollectCount			1,0,0,				
 GridDataArray			0,9,9,9,9,9,9,9,0,0,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,				
 PortalArray							
 SpecialArray							

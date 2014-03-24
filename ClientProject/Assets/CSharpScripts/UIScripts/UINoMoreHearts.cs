@@ -42,6 +42,10 @@ public class UINoMoreHearts : UIWindow
                     GlobalVars.HeartCount = 5;
                     ContinuePlay();
                 };
+				UIWindowManager.Singleton.GetUIWindow<UIStore>().OnCancelFunc = delegate()
+                {
+                    Close();
+                };
             }
         });
     }

@@ -86,6 +86,23 @@ public class CapBlock
 		{
             m_addColorSprite.spriteName = m_blockSprite.spriteName + "Additive";
 		}
+
+        int k = 0;
+        CollectIndex = -1;
+        for (; k < 3; ++k)
+        {
+            if (GlobalVars.CurStageData.CollectCount[k] > 0)
+            {
+                if (GlobalVars.CurStageData.CollectSpecial[k] == special)
+                {
+                    if (special == TSpecialBlock.ESpecial_EatAColor || GlobalVars.CurStageData.CollectColors[k] == color)
+                    {
+                        CollectIndex = k;
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     public TBlockColor color;							//颜色
@@ -125,6 +142,8 @@ public class CapBlock
     public TweenScale m_tweenScale;
     public TweenPosition m_tweenPosition;
     public TweenAlpha m_tweenAlpha;
+
+    public int CollectIndex = -1;               //改块是搜集的第几个目标
 
     public void Eat(float delay = 0)							//吃掉这个块
 	{

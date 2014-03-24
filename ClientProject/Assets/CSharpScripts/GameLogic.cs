@@ -1586,7 +1586,7 @@ public class GameLogic
         if (m_gameFlow == TGameFlow.EGameState_EffectTime)
         {
             long timePast = Timer.millisecondNow() - m_curStateStartTime;
-            if (m_effectStateDuration > 0 && timePast > m_effectStateDuration)
+            if (m_effectStateDuration > 0 && timePast > m_effectStateDuration)       //若到时间，不继续处理
             {
                 m_gameFlow = TGameFlow.EGameState_Playing;                           //开始游戏
                 DropDown();                                                          //开始先尝试进行一次下落
@@ -2413,7 +2413,9 @@ public class GameLogic
                 AddDelayProceedGrid(m_selectedPos[0].x, m_selectedPos[0].y, 0, m_blocks[m_selectedPos[0].x, m_selectedPos[0].y]);       ////自己消失
 
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].EatAnimationName = CapsConfig.Line_Rainbow_EatAnim;                 //彩虹条状合成动画
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].EatDuration = CapsConfig.EatAllDirBigAnimTime / 1000.0f;
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
+
                 AddDelayProceedGrid(m_selectedPos[1].x, m_selectedPos[1].y, 0, m_blocks[m_selectedPos[1].x, m_selectedPos[1].y]);       ////自己消失
 
 
@@ -2437,6 +2439,7 @@ public class GameLogic
                 AddDelayProceedGrid(m_selectedPos[0].x, m_selectedPos[0].y, 0, m_blocks[m_selectedPos[0].x, m_selectedPos[0].y]);       ////自己消失
 
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].EatAnimationName = CapsConfig.Line_Rainbow_EatAnim;                 //彩虹条状合成动画
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].EatDuration = CapsConfig.EatAllDirBigAnimTime / 1000.0f;
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
                 AddDelayProceedGrid(m_selectedPos[1].x, m_selectedPos[1].y, 0, m_blocks[m_selectedPos[1].x, m_selectedPos[1].y]);       ////自己消失
                 //EatALLDirLine(m_selectedPos[1], true);
@@ -2459,6 +2462,7 @@ public class GameLogic
                 AddDelayProceedGrid(m_selectedPos[0].x, m_selectedPos[0].y, 0, m_blocks[m_selectedPos[0].x, m_selectedPos[0].y]);       ////自己消失
 
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].EatAnimationName = CapsConfig.Line_Rainbow_EatAnim;                 //条状合成动画
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].EatDuration = EATBLOCK_TIME;
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
                 AddDelayProceedGrid(m_selectedPos[1].x, m_selectedPos[1].y, 0, m_blocks[m_selectedPos[1].x, m_selectedPos[1].y]);       ////自己消失
 
@@ -2473,6 +2477,7 @@ public class GameLogic
                 AddDelayProceedGrid(m_selectedPos[0].x, m_selectedPos[0].y, 0, m_blocks[m_selectedPos[0].x, m_selectedPos[0].y]);       ////自己消失
 
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].EatAnimationName = CapsConfig.Line_Bomb_EatAnim;                 //条状合成动画
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].EatDuration = EATBLOCK_TIME;
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
                 AddDelayProceedGrid(m_selectedPos[1].x, m_selectedPos[1].y, 0, m_blocks[m_selectedPos[1].x, m_selectedPos[1].y]);       ////自己消失
                 EatALLDirLine(m_selectedPos[1], true, (int)special1);
@@ -2564,34 +2569,13 @@ public class GameLogic
                     {
                         if (!m_blocks[i, j].EatEffectPlayed)
                         {
-                            bool bCollect = false;                                  //是否为搜集块
-                            int k = 0;                                              //记录是搜集的第几个目标
-                            if (PlayingStageData.Target == GameTarget.Collect)      //搜集关处理吃块
-                            {
-                                for (; k < 3; ++k)
-                                {
-                                    if (GlobalVars.CurStageData.CollectCount[k] > 0)
-                                    {
-                                        if (GlobalVars.CurStageData.CollectSpecial[k] == m_blocks[i, j].special)
-                                        {
-                                            if (m_blocks[i, j].special == TSpecialBlock.ESpecial_EatAColor || GlobalVars.CurStageData.CollectColors[k] == m_blocks[i, j].color)
-                                            {
-                                                ++PlayingStageData.CollectCount[k];                             //增加一个搜集数量
-                                                bNeedRefreshTarget = true;
-                                                bCollect = true;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
                             m_blocks[i, j].EatEffectPlayed = true;                                                        //记录下吃块特效状态，避免重复播放
 
-                            if (bCollect)           //若为收集块，播收集块特效
+                            if (PlayingStageData.Target == GameTarget.Collect && m_blocks[i, j].CollectIndex > -1)           //若为收集块，播收集块特效
                             {
+                                bNeedRefreshTarget = true;
                                 m_blocks[i, j].m_tweenPosition.from = m_blocks[i, j].m_blockTransform.localPosition;             //从当前位置开始
-                                m_blocks[i, j].m_tweenPosition.to = CollectTargetUIPos[k];                                       //目标位置
+                                m_blocks[i, j].m_tweenPosition.to = CollectTargetUIPos[m_blocks[i, j].CollectIndex];                                       //目标位置
                                 m_blocks[i, j].m_tweenPosition.enabled = true;
                                 m_blocks[i, j].m_tweenPosition.ResetToBeginning();
                                 m_blocks[i, j].m_tweenPosition.Play(true);
@@ -2605,10 +2589,14 @@ public class GameLogic
                                 m_blocks[i, j].m_tweenAlpha.ResetToBeginning();
                                 m_blocks[i, j].m_tweenAlpha.Play(true);
                                 m_blocks[i, j].m_blockSprite.depth = 3;
+                                ++PlayingStageData.CollectCount[m_blocks[i, j].CollectIndex];                             //增加一个搜集数量
                             }
                             else
                             {
-                                m_blocks[i, j].EatDuration = EATBLOCK_TIME;
+                                if (m_blocks[i, j].EatDuration == 0)
+                                {
+                                    m_blocks[i, j].EatDuration = EATBLOCK_TIME;
+                                }
                                 m_blocks[i, j].m_animation.enabled = true;
                                 m_blocks[i, j].m_animation.Play(m_blocks[i, j].EatAnimationName);                             //播放吃块动画
                                 AddPartile(m_blocks[i, j].EatEffectName, m_blocks[i, j].EatAudio, i, j);     //添加吃块特效
@@ -2763,7 +2751,11 @@ public class GameLogic
                 if (addBlockProgress && !processGrid.block.EatProgressAdded)
                 {
                     processGrid.block.EatProgressAdded = true;
-                    m_scoreToShow[processGrid.x, processGrid.y] += 50;                                                  //加分
+                    m_scoreToShow[processGrid.x, processGrid.y] += 50;                                                  //加基础的50分
+                    if (processGrid.block.CollectIndex > -1)
+                    {
+                        m_scoreToShow[processGrid.x, processGrid.y] += 300;                                             //加搜集的300分
+                    }
                 }
                 processGrid.block.m_dropDownStartTime = 0;
             }
@@ -3264,6 +3256,10 @@ public class GameLogic
             if (p.x != availablePos.x || p.y != availablePos.y)
             {
                 EatBlock(p, "EatEffect");
+            }
+            if (m_blocks[p.x, p.y].CollectIndex > -1)
+            {
+                m_scoreToShow[p.x, p.y] += 300;                                             //加搜集的300分
             }
         }
 

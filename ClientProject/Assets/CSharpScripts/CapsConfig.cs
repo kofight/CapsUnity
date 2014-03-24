@@ -52,7 +52,7 @@ public class CapsConfig
     public static readonly int EffectAllDirTime = 1500;
     public static readonly int EffectAllDirBigTime = 3000;
     public static readonly int EffectEatAColorTime = 2000;
-    public static readonly int EffectEatAllColorTime = 2000;
+    public static readonly int EffectEatAllColorTime = 2200;
     public static readonly int EffectBigBombTime = 2000;
     public static readonly int EffectEatAColorNDBombTime = 2000;
     public static readonly int EffectResortTime = 600;                            //重拍特效中间的时间

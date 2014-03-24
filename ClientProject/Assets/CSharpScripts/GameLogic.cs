@@ -1779,6 +1779,7 @@ public class GameLogic
         //游戏结束后自动吃特殊块的状态，且当前没在消块或下落状态
         if (m_gameFlow == TGameFlow.EGameState_EndEatingSpecial && CapBlock.EatingBlockCount == 0 && CapBlock.DropingBlockCount == 0)
         {
+            bool bFoundSpecial = false;
             for (int i = 0; i < BlockCountX; ++i)
             {
                 for (int j = 0; j < BlockCountY; ++j)
@@ -1786,9 +1787,13 @@ public class GameLogic
                     if (m_blocks[i, j] != null && m_blocks[i, j].special != TSpecialBlock.ESpecial_Normal)
                     {
                         EatBlock(new Position(i, j), CapsConfig.EatEffect);
-                        return;         //消一个特殊块就返回
+                        bFoundSpecial = true;
                     }
                 }
+            }
+            if (bFoundSpecial)
+            {
+                return;
             }
 
             //若执行到这里证明已经没特殊块可以消了
@@ -1801,7 +1806,7 @@ public class GameLogic
             {
                 m_gameStartTime = 0;
                 m_gameFlow = TGameFlow.EGameState_End;
-                Time.timeScale = 1.0f;                                                        //恢复正常的时间比例
+                //Time.timeScale = 1.0f;                                                        //恢复正常的时间比例
                 m_endingAccelarateStartTime = 0;
 
                 //若达成过关条件，触发关卡结束对话，并在对话结束后出游戏结束窗口
@@ -2246,13 +2251,13 @@ public class GameLogic
             m_gameStartTime += (long)(Time.deltaTime * 1000);
         }
 
-        if (m_endingAccelarateStartTime > 0 && Timer.GetRealTimeSinceStartUp() > m_endingAccelarateStartTime)
-        {
-            if (Timer.GetRealTimeSinceStartUp() - m_endingAccelarateStartTime >10)
-            {
-                Time.timeScale = 1.4f;
-            }
-        }
+        //if (m_endingAccelarateStartTime > 0 && Timer.GetRealTimeSinceStartUp() > m_endingAccelarateStartTime)
+        //{
+        //    if (Timer.GetRealTimeSinceStartUp() - m_endingAccelarateStartTime >10)
+        //    {
+        //        Time.timeScale = 1.4f;
+        //    }
+        //}
 
         //剩15秒的特效
         if (!m_bHurryAnimPlayed && m_gameFlow == TGameFlow.EGameState_Playing && GlobalVars.CurStageData.TimeLimit > 0 && GetTimeRemain() < 15)
@@ -2599,8 +2604,8 @@ public class GameLogic
                                 }
                                 m_blocks[i, j].m_animation.enabled = true;
                                 m_blocks[i, j].m_animation.Play(m_blocks[i, j].EatAnimationName);                             //播放吃块动画
-                                AddPartile(m_blocks[i, j].EatEffectName, m_blocks[i, j].EatAudio, i, j);     //添加吃块特效
                             }
+                            AddPartile(m_blocks[i, j].EatEffectName, m_blocks[i, j].EatAudio, i, j);     //添加吃块特效
                         }
                     }
 
@@ -3839,7 +3844,7 @@ public class GameLogic
             {
                 m_gameFlow = TGameFlow.EGameState_SugarCrushAnim;
                 m_endingAccelarateStartTime = Timer.GetRealTimeSinceStartUp();
-                Time.timeScale = 1.2f;                                                        //临时加快时间
+                //Time.timeScale = 1.2f;                                                        //临时加快时间
                 AddPartile("SugarCrushAnim", AudioEnum.Audio_None, 0, 0, false);
                 ClearHelpPoint();
                 m_curStateStartTime = Timer.millisecondNow();
@@ -3909,7 +3914,7 @@ public class GameLogic
             //否则直接结束游戏
             m_gameStartTime = 0;
             m_gameFlow = TGameFlow.EGameState_End;
-            Time.timeScale = 1.0f;                                                        //恢复正常的时间比例
+            //Time.timeScale = 1.0f;                                                        //恢复正常的时间比例
             m_endingAccelarateStartTime = 0;
 
             if (CapsConfig.EnableGA)        //游戏结束的数据

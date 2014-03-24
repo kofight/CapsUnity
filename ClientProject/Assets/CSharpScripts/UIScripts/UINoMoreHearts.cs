@@ -29,7 +29,7 @@ public class UINoMoreHearts : UIWindow
                 UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetString(Localization.instance.Get("PurchaseSucceed"));
                 UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(delegate()
                 {
-                    GlobalVars.HeartCount += 1;
+                    GlobalVars.AddHeart(1);
                     ContinuePlay();
                 });
                 UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().ShowWindow();
@@ -44,7 +44,7 @@ public class UINoMoreHearts : UIWindow
                     UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(delegate()
                     {
                         Unibiller.DebitBalance("gold", 25);
-                        GlobalVars.HeartCount += 1;
+                        GlobalVars.AddHeart(1);
                         ContinuePlay();
                     });
                     UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().ShowWindow();
@@ -63,7 +63,7 @@ public class UINoMoreHearts : UIWindow
                 UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetString(Localization.instance.Get("PurchaseSucceed"));
                 UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(delegate()
                 {
-                    GlobalVars.HeartCount = 5;
+                    GlobalVars.AddHeart(5);
                     ContinuePlay();
                 });
                 UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().ShowWindow();
@@ -78,7 +78,7 @@ public class UINoMoreHearts : UIWindow
                     UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetString(Localization.instance.Get("PurchaseSucceed"));
                     UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(delegate()
                     {
-                        GlobalVars.HeartCount = 5;
+                        GlobalVars.AddHeart(5);
                         ContinuePlay();
                     });
                     UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().ShowWindow();

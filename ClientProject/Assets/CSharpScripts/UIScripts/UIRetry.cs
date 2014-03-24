@@ -310,6 +310,7 @@ public class UIRetry : UIWindow
         {
             HideWindow();
             GameLogic.Singleton.ClearGame();
+            UIWindowManager.Singleton.GetUIWindow<UINoMoreHearts>().NeedOpenStageInfoAfterClose = true;           //显示买心界面
             UIWindowManager.Singleton.GetUIWindow<UINoMoreHearts>().ShowWindow();           //显示买心界面
             return;
         }

@@ -117,6 +117,7 @@ public class UIMap : UIWindow
                 stageInfoUI.HideWindow();
             }
 
+            noMoreHeartUI.NeedOpenStageInfoAfterClose = false;
             noMoreHeartUI.ShowWindow();
         });
 
@@ -565,6 +566,7 @@ public class UIMap : UIWindow
 
         if (GlobalVars.HeartCount == 0)         //若没有心了
         {
+            UIWindowManager.Singleton.GetUIWindow<UINoMoreHearts>().NeedOpenStageInfoAfterClose = true;
             UIWindowManager.Singleton.GetUIWindow<UINoMoreHearts>().ShowWindow();
             return;
         }

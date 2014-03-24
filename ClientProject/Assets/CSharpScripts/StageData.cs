@@ -331,6 +331,7 @@ public class StageData
             }
         }
 
+        SpecialBlock.Clear();           //清理已有内容
         //Portals
         _config.GetValue<string>("SpecialArray", out temp);
         if (temp != null)

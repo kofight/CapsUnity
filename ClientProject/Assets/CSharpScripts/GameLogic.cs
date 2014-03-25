@@ -4966,6 +4966,7 @@ public class GameLogic
 		block.EatAnimationName = CapsConfig.EatAnim;           //消除动画名字，先用默认的
 		block.EatEffectName = CapsConfig.EatEffect;
         block.EatAudio = AudioEnum.Audio_Eat;
+        block.EatDuration = EATBLOCK_TIME;
         m_capBlockFreeList.RemoveLast();
         return block;
     }
@@ -4980,6 +4981,7 @@ public class GameLogic
         m_blocks[x, y] = GetFreeCapBlock(color);            //创建新的块 Todo 变成用缓存
         m_blocks[x, y].color = color;               //设置颜色
         m_blocks[x, y].m_animation.enabled = false;
+        m_blocks[x, y].EatDuration = EATBLOCK_TIME;
 
         if (PlayingStageData.TimeLimit > 0 && Timer.millisecondNow() - m_gameStartTime > PlayingStageData.PlusStartTime * 1000)       //若超过了开始掉+5的时间
         {

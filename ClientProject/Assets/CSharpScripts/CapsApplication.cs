@@ -53,6 +53,7 @@ public class CapsApplication : S5Application
         {
             CapsConfig.EnableGA = true;
             CapsConfig.EnableTalkingData = true;
+            Resources.Load("GA_SystemTracker");
         }
         else
         {

@@ -331,7 +331,7 @@ public class GameLogic
     public static float CheckAvailableTimeInterval = 1.0f;       //1秒钟后尝试找是否有可消块
     public static float ShowHelpTimeInterval = 5.0f;       //5秒钟后显示可消块
     public static float ShowNoPossibleExhangeTextTime = 1.0f;      //没有可交换的块显示，持续1秒钟
-    public static int StepRewardInterval = 300;             //步数奖励的时间间隔
+    public static int StepRewardInterval = 210;             //步数奖励的时间间隔
     public static int SugarCrushAnimTime = 1200;            //SugarCrush动画的时间长度
     public static int StartAnimTime = 1200;            //开始动画的时间长度
 
@@ -391,7 +391,7 @@ public class GameLogic
 	float m_comboSoundPlayTime;		//
 	
     bool m_changeBack;		//在交换方块动画中标志是否为换回动画
-    System.Random m_random;
+    MyRandom m_random;
     System.Random m_random2;
     long m_gameStartTime = 0;                              //游戏开始时间
 	float m_gameStartTimeReal = 0;						   //the game start time to calculate stage duration
@@ -681,11 +681,12 @@ public class GameLogic
 
         if (PlayingStageData.Seed > 0)
         {
-            m_random = new System.Random(PlayingStageData.Seed);
+            m_random = new MyRandom(PlayingStageData.Seed);
+            UnityEngine.Random.seed = PlayingStageData.Seed;
         }
         else
         {
-            m_random = new System.Random((int)Time.timeSinceLevelLoad * 1000);
+            m_random = new MyRandom((int)Time.timeSinceLevelLoad * 1000);
         }
 
         m_random2 = new System.Random((int)Time.timeSinceLevelLoad * 1000); 
@@ -2205,7 +2206,7 @@ public class GameLogic
 
         if (m_lastGCTime > 0 && Timer.GetRealTimeSinceStartUp() - m_lastGCTime > 0.5f)      //落完0.5秒后进行GC
         {
-            System.GC.Collect();
+            //System.GC.Collect();
             m_lastGCTime = 0;
         }
 
@@ -5029,7 +5030,8 @@ public class GameLogic
         m_blocks[x, y].m_animation.Stop();
         m_blocks[x, y].m_animation.enabled = false;
         m_capBlockFreeList.AddLast(m_blocks[x, y]);
-        m_blocks[x, y].m_blockTransform.gameObject.SetActive(false);
+        //m_blocks[x, y].m_blockTransform.gameObject.SetActive(false);
+        m_blocks[x, y].m_blockTransform.localPosition = Vector3.zero;
         m_blocks[x, y].Reset();
         m_blocks[x, y] = null;
     }

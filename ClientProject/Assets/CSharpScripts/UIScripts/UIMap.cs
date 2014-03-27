@@ -37,6 +37,7 @@ public class UIMap : UIWindow
     NumberDrawer m_secNumber;
     NumberDrawer m_coinNumber;
     GameObject m_fullText;
+    GameObject m_mapObj;
 
     int m_newStageNumber;                       //开启的新关卡的编号
     float m_newStageMoveTime;                  //开启新关卡的时间
@@ -92,9 +93,9 @@ public class UIMap : UIWindow
 		
 		GlobalVars.PurchasedItemArray = PlayerPrefsExtend.GetIntArray("PurchasedItemArray", 0, 2);
 
-        GameObject mapObj = mUIObject.transform.FindChild("MapObj").gameObject;
-        springPanel = mapObj.AddComponent<SpringPanel>();
-        UIPanel panel = mapObj.GetComponent<UIPanel>();
+        m_mapObj = mUIObject.transform.FindChild("MapObj").gameObject;
+        springPanel = m_mapObj.AddComponent<SpringPanel>();
+        UIPanel panel = m_mapObj.GetComponent<UIPanel>();
         //panel.baseClipRegion = new Vector4(0, 0, CapsApplication.Singleton.Width, CapsApplication.Singleton.Height);
 
         //心面板
@@ -464,7 +465,7 @@ public class UIMap : UIWindow
         //float y = (mUIObject.transform.localPosition.y - (454.0f)) * 3054 / 3964.0f;
         //m_cloudSprite.transform.LocalPositionY(-y);
 
-        m_cloudSprite.LocalPositionY((mUIObject.transform.localPosition.y * 2) % 1135);
+        m_cloudSprite.LocalPositionY((m_mapObj.transform.localPosition.y * 2) % 1135);
 		
 		if(m_cloudSprite.transform.localPosition.y > 0)
 		{

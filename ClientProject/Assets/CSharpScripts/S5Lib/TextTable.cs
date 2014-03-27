@@ -14,12 +14,7 @@ public class TextTable
 
     public string GetString(string key)
     {
-        string value;
-        if (!_textConfig.GetValue<string>(key, out value))
-        {
-            value = "key not found!";
-        }
-        return value;
+        return _textConfig.GetStringValue(key);
     }
 
     public List<string[]> GetList(string fileName)

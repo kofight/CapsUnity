@@ -391,7 +391,7 @@ public class GameLogic
 	float m_comboSoundPlayTime;		//
 	
     bool m_changeBack;		//在交换方块动画中标志是否为换回动画
-    System.Random m_random;
+    MyRandom m_random;
     System.Random m_random2;
     long m_gameStartTime = 0;                              //游戏开始时间
 	float m_gameStartTimeReal = 0;						   //the game start time to calculate stage duration
@@ -681,11 +681,12 @@ public class GameLogic
 
         if (PlayingStageData.Seed > 0)
         {
-            m_random = new System.Random(PlayingStageData.Seed);
+            m_random = new MyRandom(PlayingStageData.Seed);
+            UnityEngine.Random.seed = PlayingStageData.Seed;
         }
         else
         {
-            m_random = new System.Random((int)Time.timeSinceLevelLoad * 1000);
+            m_random = new MyRandom((int)Time.timeSinceLevelLoad * 1000);
         }
 
         m_random2 = new System.Random((int)Time.timeSinceLevelLoad * 1000); 

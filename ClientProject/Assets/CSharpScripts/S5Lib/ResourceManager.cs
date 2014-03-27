@@ -49,6 +49,7 @@ public class ResourceManager
         {
             case RuntimePlatform.IPhonePlayer:
             case RuntimePlatform.Android:
+            case RuntimePlatform.WP8Player:
             case RuntimePlatform.OSXWebPlayer:
             case RuntimePlatform.WindowsWebPlayer:
             case RuntimePlatform.WindowsEditor:

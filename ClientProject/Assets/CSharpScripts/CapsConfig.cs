@@ -150,19 +150,18 @@ public class CapsConfig
     private void InitData()
     {
         _config.Read();
-        _config.GetValue<int>("TotalStageCount", out TotalStageCount);
-        _config.GetValue<float>("DropAccelarate", out DropAcc);
-        _config.GetValue<float>("DropSpeed", out DropSpeed);
-        _config.GetValue<float>("SlideSpeed", out SlideSpeed);
-        _config.GetValue<float>("GameSpeed", out GameSpeed);
-        _config.GetValue<float>("EatTime", out EatTime);
-        _config.GetValue<int>("MoveTime", out MoveTime);
-        _config.GetValue<int>("GetHeartInterval", out GetHeartInterval);
-        _config.GetValue<string>("version", out version);
+        TotalStageCount = _config.GetIntValue("TotalStageCount");
+        DropAcc = _config.GetFloatValue("DropAccelarate");
+        DropSpeed = _config.GetFloatValue("DropSpeed");
+        SlideSpeed = _config.GetFloatValue("SlideSpeed");
+        GameSpeed = _config.GetFloatValue("GameSpeed");
+        EatTime = _config.GetFloatValue("EatTime");
+        MoveTime = _config.GetIntValue("MoveTime");
+        GetHeartInterval = _config.GetIntValue("GetHeartInterval");
+        version = _config.GetStringValue("version");
 
         ///读取StageTypeArray///////////////////////////////////////////////////////////////////////
-        string stageTypeStr;
-        _config.GetValue<string>("StageTypeArray", out stageTypeStr);
+        string stageTypeStr = _config.GetStringValue("StageTypeArray");
         if (stageTypeStr != null)
         {
             string[] stringArray = stageTypeStr.Split("|"[0]);
@@ -175,8 +174,7 @@ public class CapsConfig
             StageTypeArray = new int[50];
         }
 
-        string itemPriceArrayStr;
-        _config.GetValue<string>("ItemPriceArray", out itemPriceArrayStr);
+        string itemPriceArrayStr = _config.GetStringValue("ItemPriceArray");
         if (itemPriceArrayStr != null)
         {
             string[] stringArray = itemPriceArrayStr.Split("|"[0]);
@@ -189,8 +187,7 @@ public class CapsConfig
             ItemPriceArray = new int[10];
         }
 
-        string itemUnLockArrayStr;
-        _config.GetValue<string>("ItemUnLockArray", out itemUnLockArrayStr);
+        string itemUnLockArrayStr = _config.GetStringValue("ItemUnLockArray");
         if (itemUnLockArrayStr != null)
         {
             string[] stringArray = itemUnLockArrayStr.Split("|"[0]);
@@ -203,8 +200,8 @@ public class CapsConfig
             ItemUnLockLevelArray = new int[10];
         }
 
-        _config.GetValue<float>("BLOCKWIDTH", out GameLogic.BLOCKWIDTH);
-        _config.GetValue<float>("BLOCKHEIGHT", out GameLogic.BLOCKHEIGHT);
+        GameLogic.BLOCKWIDTH = _config.GetFloatValue("BLOCKWIDTH");
+        GameLogic.BLOCKHEIGHT = _config.GetFloatValue("BLOCKHEIGHT");
 		
 		GameLogic.gameAreaWidth = GameLogic.BLOCKWIDTH * GameLogic.BlockCountX;	//游戏区域宽度
      	GameLogic.gameAreaHeight = GameLogic.BLOCKHEIGHT * GameLogic.BlockCountY + GameLogic.BLOCKHEIGHT / 2;//游戏区域高度

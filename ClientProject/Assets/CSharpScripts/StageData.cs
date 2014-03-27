@@ -227,29 +227,29 @@ public class StageData
         _config.Read();
 		
         int targetInt = 0;
-        _config.GetValue<int>("Target", out targetInt);
+        _config.GetIntValue("Target", out targetInt);
         Target = (GameTarget)targetInt;
-        _config.GetValue<int>("StepLimit", out StepLimit);
-        _config.GetValue<int>("TimeLimit", out TimeLimit);
-        _config.GetValue<int>("ColorCount", out ColorCount);
-        _config.GetValue<int>("Nut1Count", out Nut1Count);
-        _config.GetValue<int>("Nut2Count", out Nut2Count);
-        _config.GetValue<int>("NutInitCount", out NutInitCount);
-        _config.GetValue<int>("NutMaxCount", out NutMaxCount);
-        _config.GetValue<int>("NutMinCount", out NutMinCount);
-        _config.GetValue<int>("NutStep", out NutStep);
-        _config.GetValue<int>("PlusInitCount", out PlusInitCount);
-        _config.GetValue<int>("PlusMaxCount", out PlusMaxCount);
-        _config.GetValue<int>("PlusStartTime", out PlusStartTime);
-        if (!_config.GetValue<int>("PlusStepMin", out PlusStepMin))
+        _config.GetIntValue("StepLimit", out StepLimit);
+        _config.GetIntValue("TimeLimit", out TimeLimit);
+        _config.GetIntValue("ColorCount", out ColorCount);
+        _config.GetIntValue("Nut1Count", out Nut1Count);
+        _config.GetIntValue("Nut2Count", out Nut2Count);
+        _config.GetIntValue("NutInitCount", out NutInitCount);
+        _config.GetIntValue("NutMaxCount", out NutMaxCount);
+        _config.GetIntValue("NutMinCount", out NutMinCount);
+        _config.GetIntValue("NutStep", out NutStep);
+        _config.GetIntValue("PlusInitCount", out PlusInitCount);
+        _config.GetIntValue("PlusMaxCount", out PlusMaxCount);
+        _config.GetIntValue("PlusStartTime", out PlusStartTime);
+        if (!_config.GetIntValue("PlusStepMin", out PlusStepMin))
         {
             PlusStepMin = 5;
         }
-        if (!_config.GetValue<int>("PlusStepMax", out PlusStepMax))
+        if (!_config.GetIntValue("PlusStepMax", out PlusStepMax))
         {
             PlusStepMax = 10;
         }
-        _config.GetValue<int>("Seed", out Seed);
+        _config.GetIntValue("Seed", out Seed);
 
         if (ColorCount == 0)
         {
@@ -257,14 +257,14 @@ public class StageData
         }
 
         string temp;
-        _config.GetValue<string>("StarScore", out temp);
+        _config.GetStringValue("StarScore", out temp);
         string [] scoreTokens = temp.Split(',');
         for (int i = 0; i < 3; ++i)
         {
             StarScore[i] = (int)System.Convert.ChangeType(scoreTokens[i], typeof(int));
         }
 
-        if (_config.GetValue<string>("CollectCount", out temp))
+        if (_config.GetStringValue("CollectCount", out temp))
         {
             string[] collectCountTokens = temp.Split(',');
             for (int i = 0; i < 3; ++i)
@@ -273,7 +273,7 @@ public class StageData
             }
         }
 
-        if (_config.GetValue<string>("CollectColors", out temp))
+        if (_config.GetStringValue("CollectColors", out temp))
         {
             string[] collectColorTokens = temp.Split(',');
             for (int i = 0; i < 3; ++i)
@@ -282,7 +282,7 @@ public class StageData
             }
         }
 
-        if (_config.GetValue<string>("CollectSpecial", out temp))
+        if (_config.GetStringValue("CollectSpecial", out temp))
         {
             string[] collectSpecialTokens = temp.Split(',');
             for (int i = 0; i < 3; ++i)
@@ -293,7 +293,7 @@ public class StageData
 
         //GridData
 
-        _config.GetValue<string>("GridDataArray", out temp);
+        _config.GetStringValue("GridDataArray", out temp);
 
         string[] gridDataTokens = temp.Split(',');
         for (int i = 0; i < GameLogic.BlockCountX; ++i )
@@ -316,7 +316,7 @@ public class StageData
         PortalToMap.Clear();
         PortalFromMap.Clear();
         //Portals
-        _config.GetValue<string>("PortalArray", out temp);
+        _config.GetStringValue("PortalArray", out temp);
         if (temp != null)
         {
             string[] portalDataTokens = temp.Split(',');
@@ -333,7 +333,7 @@ public class StageData
 
         SpecialBlock.Clear();           //清理已有内容
         //Portals
-        _config.GetValue<string>("SpecialArray", out temp);
+        _config.GetStringValue("SpecialArray", out temp);
         if (temp != null)
         {
             string[] specialDataTokens = temp.Split(',');

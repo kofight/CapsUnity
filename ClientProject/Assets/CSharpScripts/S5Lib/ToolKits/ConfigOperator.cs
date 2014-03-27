@@ -150,21 +150,99 @@ namespace Webgame.Utility
             sr.Close();
         }
 
-        public bool GetValue<T>(string key, out T value) where T : IConvertible
+        public int GetIntValue(string key)
         {
-
             ConfigItem item = null;
             _dictValues.TryGetValue(key, out item);
             if (item == null)
             {
-                value = default(T);
-                if (!string.IsNullOrEmpty(_path))
-                {
-                    Write(key, value);
-                }
+                return 0;
+            }
+            return Convert.ToInt32(item.Value); ;
+        }
+
+        public string GetStringValue(string key)
+        {
+            ConfigItem item = null;
+            _dictValues.TryGetValue(key, out item);
+            if (item == null)
+            {
+                return string.Empty;
+            }
+            return item.Value; ;
+        }
+
+        public float GetFloatValue(string key)
+        {
+            ConfigItem item = null;
+            _dictValues.TryGetValue(key, out item);
+            if (item == null)
+            {
+                return 0;
+            }
+            return Convert.ToSingle(item.Value);
+        }
+
+        public bool GetBoolValue(string key)
+        {
+            ConfigItem item = null;
+            _dictValues.TryGetValue(key, out item);
+            if (item == null)
+            {
                 return false;
             }
-            value = (T)Convert.ChangeType(item.Value, typeof(T));
+            return Convert.ToBoolean(item.Value);
+        }
+
+        public bool GetIntValue(string key, out int value)
+        {
+            ConfigItem item = null;
+            _dictValues.TryGetValue(key, out item);
+            if (item == null)
+            {
+                value = 0;
+                return false;
+            }
+            value = Convert.ToInt32(item.Value);
+            return true;
+        }
+
+        public bool GetStringValue(string key, out string value)
+        {
+            ConfigItem item = null;
+            _dictValues.TryGetValue(key, out item);
+            if (item == null)
+            {
+                value =string.Empty;
+                return false;
+            }
+            value = item.Value;
+            return true;
+        }
+
+        public bool GetFloatValue(string key, out float value)
+        {
+            ConfigItem item = null;
+            _dictValues.TryGetValue(key, out item);
+            if (item == null)
+            {
+                value = 0;
+                return false;
+            }
+            value = Convert.ToSingle(item.Value);
+            return true;
+        }
+
+        public bool GetBoolValue(string key, out bool value)
+        {
+            ConfigItem item = null;
+            _dictValues.TryGetValue(key, out item);
+            if (item == null)
+            {
+                value = false;
+                return false;
+            }
+            value = Convert.ToBoolean(item.Value);
             return true;
         }
 

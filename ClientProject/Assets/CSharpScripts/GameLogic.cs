@@ -5037,7 +5037,7 @@ public class GameLogic
         m_blocks[x, y].m_animation.enabled = false;
         m_capBlockFreeList.AddLast(m_blocks[x, y]);
         //m_blocks[x, y].m_blockTransform.gameObject.SetActive(false);
-        m_blocks[x, y].m_blockTransform.localPosition = Vector3.zero;
+        m_blocks[x, y].m_blockTransform.localPosition = new Vector3(1000,1000);
         m_blocks[x, y].Reset();
         m_blocks[x, y] = null;
     }

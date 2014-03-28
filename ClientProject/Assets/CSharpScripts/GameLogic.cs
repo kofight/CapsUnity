@@ -682,7 +682,13 @@ public class GameLogic
         if (PlayingStageData.Seed > 0)
         {
             m_random = new MyRandom(PlayingStageData.Seed);
-            UnityEngine.Random.seed = PlayingStageData.Seed;
+            Debug.Log("Seed = " + PlayingStageData.Seed);
+            Debug.Log(m_random.Next());
+            Debug.Log(m_random.Next());
+            Debug.Log(m_random.Next());
+            Debug.Log(m_random.Next());
+            Debug.Log(m_random.Next());
+            Debug.Log(m_random.Next());
         }
         else
         {

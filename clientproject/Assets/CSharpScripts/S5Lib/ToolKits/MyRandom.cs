@@ -7,21 +7,25 @@ public class MyRandom
 	public MyRandom(){}
 	public MyRandom(int aSeed)
 	{
+        UnityEngine.Random.seed = aSeed;
 		m_Value = aSeed;
 	}
 	public int Next()
 	{
-		m_Value = (m_Value * 2317 + 1) % 1000;
-		return m_Value;
+        return UnityEngine.Random.Range(0, 10000);
+		//m_Value = (m_Value * 2317 + 1) % 1000;
+		//return m_Value;
 	}
 
     public int Next(int aMin, int aMax)
     {
-        return Range(aMin, aMax);
+        return UnityEngine.Random.Range(aMin, aMax);
+        //return Range(aMin, aMax);
     }
 
 	public int Range(int aMin, int aMax)
 	{
-		return aMin + Next() % (aMax-aMin);
+        return UnityEngine.Random.Range(aMin, aMax);
+		//return aMin + Next() % (aMax-aMin);
 	}
 }

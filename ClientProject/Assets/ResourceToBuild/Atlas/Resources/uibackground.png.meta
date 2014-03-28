@@ -20,7 +20,7 @@ TextureImporter:
   grayScaleToAlpha: 0
   generateCubemap: 0
   seamlessCubemap: 0
-  textureFormat: -1
+  textureFormat: -3
   maxTextureSize: 4096
   textureSettings:
     filterMode: 2
@@ -32,5 +32,9 @@ TextureImporter:
   compressionQuality: 50
   alphaIsTransparency: 1
   textureType: 2
-  buildTargetSettings: []
+  buildTargetSettings:
+  - buildTarget: WP8
+    maxTextureSize: 4096
+    textureFormat: -1
+    compressionQuality: 50
   userData: 

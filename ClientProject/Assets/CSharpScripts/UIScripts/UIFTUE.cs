@@ -98,9 +98,12 @@ public class UIFTUE : UIWindow
 			GameLogic.Singleton.SetHighLight(false, m_ftueData[m_FTUEIndex].from);
 		}
 		
-		foreach (Position highLightPos in m_ftueData[m_FTUEIndex].highLightPosList)
+		if(m_ftueData[m_FTUEIndex].highLightPosList != null)
 		{
-            GameLogic.Singleton.SetHighLight(false, highLightPos, m_ftueData[m_FTUEIndex].bHighLightBackground, m_ftueData[m_FTUEIndex].bHighLightBlock);
+			foreach (Position highLightPos in m_ftueData[m_FTUEIndex].highLightPosList)
+			{
+	            GameLogic.Singleton.SetHighLight(false, highLightPos, m_ftueData[m_FTUEIndex].bHighLightBackground, m_ftueData[m_FTUEIndex].bHighLightBlock);
+			}
 		}
 		
 		m_pointer.SetActive(false);
@@ -377,6 +380,7 @@ public class UIFTUE : UIWindow
 		m_finishedStep = m_curStep;
         m_pointer.SetActive(false);
 		HideHighLight();
+		m_FTUEIndex = 0;
         HideWindow(delegate()
 		{
 			if (!GlobalVars.InMapFTUE)

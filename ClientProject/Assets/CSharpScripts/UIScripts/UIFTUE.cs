@@ -60,7 +60,6 @@ public class UIFTUE : UIWindow
 
         if (!GlobalVars.InMapFTUE)
         {
-            HideHighLight();
             GameLogic.Singleton.ShowUI();
         }
     }
@@ -335,6 +334,7 @@ public class UIFTUE : UIWindow
         Debug.Log("EndFTUE");
 		m_finishedStep = m_curStep;
         m_pointer.SetActive(false);
+		HideHighLight();
         HideWindow(delegate()
 		{
 			if (!GlobalVars.InMapFTUE)
@@ -345,7 +345,7 @@ public class UIFTUE : UIWindow
 	        {
 	            GlobalVars.InMapFTUE = false;
 	        }
-			m_FTUEIndex = 0;
+			
 		});                               //隐藏窗体
     }
 

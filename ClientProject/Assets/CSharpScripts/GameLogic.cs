@@ -4396,16 +4396,16 @@ public class GameLogic
 
     public void SetHighLight(bool bVal, int x, int y, bool bLightBackground = false, bool bLightBlock = true)         //设置某块高亮
     {
-        if (m_blocks[x, y] == null)
-        {
-            return;
-        }
         if (bVal)           //若进入高亮状态
         {
             if (bLightBackground)               //若要高亮背景
             {
-				m_blocks[x, y].m_addColorSprite.alpha = 0.0f;
-                m_blocks[x, y].m_blockSprite.depth = 5;             //前景块的深度是5
+                if (m_blocks[x, y] != null)
+                {
+                    m_blocks[x, y].m_addColorSprite.alpha = 0.0f;
+                    m_blocks[x, y].m_blockSprite.depth = 5;             //前景块的深度是5
+                }
+				
                 if (m_gridBackImage[x, y].layer0 != null)
                 {
                     m_gridBackImage[x, y].layer0.depth = 4;         //背景块深度是4
@@ -4431,19 +4431,29 @@ public class GameLogic
             }
             if (bLightBlock)
 			{
-                m_blocks[x, y].m_addColorSprite.alpha = 1.0f;
+                if (m_blocks[x, y] != null)
+                {
+                    m_blocks[x, y].m_addColorSprite.alpha = 1.0f;
+                }
 			}
         }
         else                    //去掉高亮
         {
             if (bLightBlock)
             {
-                m_blocks[x, y].m_addColorSprite.alpha = 0.0f;
+                if (m_blocks[x, y] != null)
+                {
+                    m_blocks[x, y].m_addColorSprite.alpha = 0.0f;
+                }
             }
 
             if (bLightBackground)                       //若要取消背景高亮
             {
-                m_blocks[x, y].m_blockSprite.depth = 2;         //前景恢复成2
+                if (m_blocks[x, y] != null)
+                {
+                    m_blocks[x, y].m_blockSprite.depth = 2;         //前景恢复成2
+                }
+
                 if (m_gridBackImage[x, y].layer0 != null)
                 {
                     m_gridBackImage[x, y].layer0.depth = 0;     //背景恢复成0

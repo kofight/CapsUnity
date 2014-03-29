@@ -62,8 +62,18 @@ public class LoginState : State
     public override void OnBackKey()
     {
         base.OnBackKey();
+        if (UIWindowManager.Singleton.GetUIWindow<UIHowToPlay>().Visible)
+        {
+            UIWindowManager.Singleton.GetUIWindow<UIHowToPlay>().OnClose();
+            return;
+        }
         if (CurFlow == TLoginFlow.LoginFlow_Map)
         {
+            if (GlobalVars.InMapFTUE)
+            {
+                return;
+            }
+
             if (UIWindowManager.Singleton.GetUIWindow<UIWait>().Visible)
             {
                 return;
@@ -86,12 +96,6 @@ public class LoginState : State
 	            UIWindowManager.Singleton.GetUIWindow<UINoMoreHearts>().Close();
 	            return;
 	        }
-
-            if (UIWindowManager.Singleton.GetUIWindow<UIHowToPlay>().Visible)
-            {
-                UIWindowManager.Singleton.GetUIWindow<UIHowToPlay>().OnClose();
-                return;
-            }
 			
 			if(UIWindowManager.Singleton.GetUIWindow<UIStageInfo>().Visible)
 			{
@@ -99,6 +103,12 @@ public class LoginState : State
 				UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
 				return;
 			}
+
+            if (UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().Visible)
+            {
+                return;
+            }
+
             UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().HideWindow();
             UIWindowManager.Singleton.GetUIWindow<UIMap>().HideWindow();
             UIWindowManager.Singleton.GetUIWindow<UILogin>().ShowWindow();
@@ -111,9 +121,9 @@ public class LoginState : State
                 UIWindowManager.Singleton.GetUIWindow<UIOption>().CloseWindow();
                 return;
             }
-            if (UIWindowManager.Singleton.GetUIWindow<UIHowToPlay>().Visible)
+            if (UIWindowManager.Singleton.GetUIWindow<UIQuitConfirm>().Visible)
             {
-                UIWindowManager.Singleton.GetUIWindow<UIHowToPlay>().HideWindow();
+                UIWindowManager.Singleton.GetUIWindow<UIQuitConfirm>().HideWindow();
                 return;
             }
             UIWindowManager.Singleton.GetUIWindow<UIQuitConfirm>().ShowWindow();

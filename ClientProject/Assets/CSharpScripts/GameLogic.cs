@@ -335,9 +335,7 @@ public class GameLogic
     public static int SugarCrushAnimTime = 1200;            //SugarCrush动画的时间长度
     public static int StartAnimTime = 1200;            //开始动画的时间长度
 
-    public PurchasedItem UsingItem = PurchasedItem.None;                         //当前正在使用的道具
     UIGameBottom m_gameBottomUI;
-
 
     ///游戏逻辑变量/////////////////////////////////////////////////////////////////
     TDirection m_moveDirection;							                //选择的块1向块2移动的方向
@@ -2245,8 +2243,8 @@ public class GameLogic
             }
         }
 
-        //时间暂停但仍可继续游戏的状态
-        if (IsStoppingTime)
+        //时间暂停但仍可继续游戏的状态 或 FTUE状态时间停止
+        if (IsStoppingTime || m_gameFlow == TGameFlow.EGameState_FTUE)
         {
             m_gameStartTime += (long)(Time.deltaTime * 1000);
         }

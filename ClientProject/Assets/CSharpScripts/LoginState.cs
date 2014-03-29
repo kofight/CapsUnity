@@ -47,8 +47,6 @@ public class LoginState : State
             UIWindowManager.Singleton.CreateWindow<UIMessageBox>();
             UIWindowManager.Singleton.GetUIWindow<UIMap>().RefreshButtons();
         }
-        
-        //UIWindowManager.Singleton.GetUIWindow<UISplash>().ShowWindow();
 
         if (GlobalVars.UseMusic)
         {

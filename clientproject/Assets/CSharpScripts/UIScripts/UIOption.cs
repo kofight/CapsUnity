@@ -39,7 +39,10 @@ public class UIOption : UIWindow
             }
             else                                    //播放音乐
             {
-                UIToolkits.PlayMusic(CapsConfig.CurAudioList.MapMusic);
+                if (!UIToolkits.IsPlayingMusic())
+                {
+                    UIToolkits.PlayMusic(CapsConfig.CurAudioList.MapMusic);
+                }
             }
         });
 

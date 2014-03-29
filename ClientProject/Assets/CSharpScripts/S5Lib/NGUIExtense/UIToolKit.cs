@@ -299,7 +299,6 @@ public class UIToolkits
     }
 
     ///模仿NGUI写个PlaySound，主要是为了播放音乐
-    static AudioListener mListener;
     static AudioSource mCurMusic;
 
     static public void PlayMusic(AudioClip clip)
@@ -323,5 +322,10 @@ public class UIToolkits
             mCurMusic = GameObject.Find("MusicSource").GetComponent<AudioSource>();
         }
         mCurMusic.Stop();
+    }
+
+    static public bool IsPlayingMusic()
+    {
+        return mCurMusic.isPlaying();
     }
 }

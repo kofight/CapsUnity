@@ -3594,6 +3594,11 @@ public class GameLogic
                         m_blocks[position.x, position.y].EatAnimationName = CapsConfig.LineEatAnim;
                     }
                     break;
+                case TSpecialBlock.ESpecial_EatAColor:
+                    {
+                        EatAColor(GetRandomColor(false), position, false, delay);
+                    }
+                    break;
             }
             AddDelayProceedGrid(position.x, position.y, delay, block);     //添加延迟处理，处理Block和Grid
         }
@@ -4674,22 +4679,22 @@ public class GameLogic
             {
                 Position extarStartPos = new Position(startPos.x, startPos.y + 1);
                 EatBlock(extarStartPos, CapsConfig.LineEatEffect, 0.0f);
-                EatDirLine(startPos, startDelay, intervalTime, TDirection.EDir_UpRight);
-                EatDirLine(startPos, startDelay, intervalTime, TDirection.EDir_LeftDown);
+                EatDirLine(extarStartPos, startDelay, intervalTime, TDirection.EDir_UpRight);
+                EatDirLine(extarStartPos, startDelay, intervalTime, TDirection.EDir_LeftDown);
 
                 extarStartPos = new Position(startPos.x, startPos.y - 1);
                 EatBlock(extarStartPos, CapsConfig.LineEatEffect, 0.0f);
-                EatDirLine(startPos, startDelay, intervalTime, TDirection.EDir_UpRight);
-                EatDirLine(startPos, startDelay, intervalTime, TDirection.EDir_LeftDown);
+                EatDirLine(extarStartPos, startDelay, intervalTime, TDirection.EDir_UpRight);
+                EatDirLine(extarStartPos, startDelay, intervalTime, TDirection.EDir_LeftDown);
             }
 
 			if (extraEat)
 			{
-                AddPartile("Dir1BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y);
+                AddPartile("Dir1BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true, startDelay);
 			}
 			else
 			{
-                AddPartile("Dir1Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y);
+                AddPartile("Dir1Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true, startDelay);
 			}
         }
         if (dir == -1 || dir == (int)TSpecialBlock.ESpecial_EatLineDir0)
@@ -4701,22 +4706,22 @@ public class GameLogic
             {
                 Position extarStartPos = new Position(startPos.x + 1, startPos.y);
                 EatBlock(extarStartPos, CapsConfig.LineEatEffect, 0.0f);
-                EatDirLine(startPos, startDelay, intervalTime, TDirection.EDir_Up);
-                EatDirLine(startPos, startDelay, intervalTime, TDirection.EDir_Down);
+                EatDirLine(extarStartPos, startDelay, intervalTime, TDirection.EDir_Up);
+                EatDirLine(extarStartPos, startDelay, intervalTime, TDirection.EDir_Down);
 
                 extarStartPos = new Position(startPos.x - 1, startPos.y);
                 EatBlock(extarStartPos, CapsConfig.LineEatEffect, 0.0f);
-                EatDirLine(startPos, startDelay, intervalTime, TDirection.EDir_Up);
-                EatDirLine(startPos, startDelay, intervalTime, TDirection.EDir_Down);
+                EatDirLine(extarStartPos, startDelay, intervalTime, TDirection.EDir_Up);
+                EatDirLine(extarStartPos, startDelay, intervalTime, TDirection.EDir_Down);
             }
 
             if (extraEat)
             {
-                AddPartile("Dir0BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y);
+                AddPartile("Dir0BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true, startDelay);
             }
             else
             {
-                AddPartile("Dir0Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y);
+                AddPartile("Dir0Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true, startDelay);
             }
         }
         if (dir == -1 || dir == (int)TSpecialBlock.ESpecial_EatLineDir2)
@@ -4728,21 +4733,21 @@ public class GameLogic
             {
                 Position extarStartPos = new Position(startPos.x + 1, startPos.y);
                 EatBlock(extarStartPos, CapsConfig.LineEatEffect, 0.0f);
-                EatDirLine(startPos, startDelay, intervalTime, TDirection.EDir_LeftUp);
-                EatDirLine(startPos, startDelay, intervalTime, TDirection.EDir_DownRight);
+                EatDirLine(extarStartPos, startDelay, intervalTime, TDirection.EDir_LeftUp);
+                EatDirLine(extarStartPos, startDelay, intervalTime, TDirection.EDir_DownRight);
 
                 extarStartPos = new Position(startPos.x - 1, startPos.y);
                 EatBlock(extarStartPos, CapsConfig.LineEatEffect, 0.0f);
-                EatDirLine(startPos, startDelay, intervalTime, TDirection.EDir_LeftUp);
-                EatDirLine(startPos, startDelay, intervalTime, TDirection.EDir_DownRight);
+                EatDirLine(extarStartPos, startDelay, intervalTime, TDirection.EDir_LeftUp);
+                EatDirLine(extarStartPos, startDelay, intervalTime, TDirection.EDir_DownRight);
             }
             if (extraEat)
             {
-                AddPartile("Dir2BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y);
+                AddPartile("Dir2BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true, startDelay);
             }
             else
             {
-                AddPartile("Dir2Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y);
+                AddPartile("Dir2Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true, startDelay);
             }
         }
     }

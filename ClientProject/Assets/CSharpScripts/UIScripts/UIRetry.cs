@@ -130,6 +130,10 @@ public class UIRetry : UIWindow
             {
                 m_infoLabel.text = Localization.instance.Get("DidNotCollectEnough");
             }
+            else
+            {
+                m_infoLabel.text = Localization.instance.Get("EndGameByHimSelf");
+            }
         }
 
         if (m_bWin)

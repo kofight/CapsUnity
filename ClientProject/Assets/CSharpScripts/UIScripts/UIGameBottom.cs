@@ -127,8 +127,8 @@ public class UIGameBottom : UIWindow
         {
             int min = (int)GameLogic.Singleton.GetTimeRemain() / 60;
             int second = (int)GameLogic.Singleton.GetTimeRemain() % 60;
-            m_minNumber.SetNumber(min);
-            m_secNumber.SetNumber(second);
+            m_minNumber.SetNumberRapid(min);
+            m_secNumber.SetNumberRapid(second);
 
             if (GameLogic.Singleton.GetTimeRemain() > 0.01 && GameLogic.Singleton.GetTimeRemain() <= 15 && GameLogic.Singleton.GetGameFlow() == TGameFlow.EGameState_Playing)       //小于15秒播粒子
             {
@@ -156,7 +156,7 @@ public class UIGameBottom : UIWindow
 
     public void OnChangeStep(int curStep)
     {
-        m_stepDrawer.SetNumber(curStep);
+        m_stepDrawer.SetNumberRapid(curStep);
         m_stepChangeAnim.Play();
 
         if (curStep <= 5 && curStep >0 && GameLogic.Singleton.GetGameFlow() == TGameFlow.EGameState_Playing)       //1到5步时播粒子

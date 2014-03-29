@@ -23,6 +23,8 @@ public class UIFTUE : UIWindow
     UIEffectPlayer m_dialogEffectPlayer;
     WindowEffectFinished m_afterDialogFunc;
 	
+	PressReceiver m_pressReceiver;
+	
 	string [] m_dialogContents;
 	int m_curDialogIndex;
 	
@@ -36,8 +38,58 @@ public class UIFTUE : UIWindow
 	
 	public override void OnShow()
 	{
-		base.OnShow();	
+		base.OnShow();
+		m_pressReceiver.OnPressFunc = OnTouchBegin;
 	}
+
+    public override void OnHide()
+    {
+        base.OnHide();
+
+        if (!GlobalVars.InMapFTUE)
+        {
+            GameLogic.Singleton.ShowUI();
+        }
+		
+		m_pressReceiver.OnPressFunc = null;
+    }
+
+    public void OnTouchBegin()
+    {
+        if (m_bLock)
+            return;
+
+        if (m_curDialogIndex < m_dialogContents.Length)      //若不是最后一段文字
+        {
+            m_bLock = true;
+            m_dialogEffectPlayer.HideEffect(delegate()      //关闭当前窗口
+            {
+                NextDialog();
+            });
+        }
+        else        //若是最后一段文字,且可以通过点击结束，则进到这里
+        {
+            if (m_FTUEIndex < m_ftueData.Count - 1)         //检测FTUE有多条的情况
+            {
+                if (!GlobalVars.InMapFTUE)
+                {
+                    HideHighLight();
+                }
+
+                ++m_FTUEIndex;
+                m_bLock = true;
+
+                m_dialogEffectPlayer.HideEffect(delegate()      //关闭当前窗口
+                {
+                    ShowFTUE(m_curStep, null);                         //若有步数，循环调用
+                });
+            }
+            else                                            //若没有
+            {
+                EndFTUE();                                  //结束当前这个FTUE
+            }
+        }
+    }
 
 	public void HideHighLight()
 	{
@@ -53,16 +105,6 @@ public class UIFTUE : UIWindow
 		
 		m_pointer.SetActive(false);
 	}
-
-    public override void OnHide()
-    {
-        base.OnHide();
-
-        if (!GlobalVars.InMapFTUE)
-        {
-            GameLogic.Singleton.ShowUI();
-        }
-    }
 	
 	public void ResetFTUEStep()
 	{
@@ -320,8 +362,8 @@ public class UIFTUE : UIWindow
         m_clickLabel = GetChildComponent<UILabel>("ClickLabel");
 
         m_dialogTrans = mUIObject.transform.FindChild("DialogBoard");
-
-		AddChildComponentMouseClick("DialogBoard", OnClick);
+		
+		m_pressReceiver = m_dialogTrans.GetComponent<PressReceiver>();
 
         for (int i=0; i<9; ++i)
         {
@@ -392,41 +434,4 @@ public class UIFTUE : UIWindow
                 ++m_curDialogIndex;
             });
     }
-	
-	public void OnClick()
-	{
-		if(m_bLock)
-			return;
-
-        if (m_curDialogIndex < m_dialogContents.Length)      //若不是最后一段文字
-        {
-            m_bLock = true;
-            m_dialogEffectPlayer.HideEffect(delegate()      //关闭当前窗口
-            {
-                NextDialog();
-            });
-        }
-        else        //若是最后一段文字,且可以通过点击结束，则进到这里
-        {
-            if (m_FTUEIndex < m_ftueData.Count - 1)         //检测FTUE有多条的情况
-            {
-                if (!GlobalVars.InMapFTUE)
-                {
-                    HideHighLight();
-                }
-				
-				++m_FTUEIndex;
-                m_bLock = true;
-				
-                m_dialogEffectPlayer.HideEffect(delegate()      //关闭当前窗口
-                {
-                     ShowFTUE(m_curStep, null);                         //若有步数，循环调用
-                });
-            }
-            else                                            //若没有
-            {
-				EndFTUE();                                  //结束当前这个FTUE
-            }
-        }
-	}
 }

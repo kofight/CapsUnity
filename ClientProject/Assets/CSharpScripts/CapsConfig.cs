@@ -50,7 +50,7 @@ public class CapsConfig
     public static readonly int EatChocolate = 400;
 
     public static readonly int EffectAllDirTime = 1500;
-    public static readonly int EffectAllDirBigTime = 3000;
+    public static readonly int EffectAllDirBigTime = 1800;
     public static readonly int EffectEatAColorTime = 2000;
     public static readonly int EffectEatAllColorTime = 2200;
     public static readonly int EffectBigBombTime = 2000;
@@ -81,18 +81,18 @@ public class CapsConfig
     public static readonly string Rainbow_Bomb_EatAnim = "Rainbow_Bomb_EatAnim";   //彩虹和炸弹交换的动画
     public static readonly string Rainbow_Rainbow_EatAnim = "Rainbow_Rainbow_EatAnim";   //彩虹和彩虹交换的动画
 
-    public static readonly int EatAllDirBigAnimTime = 2000;                         //条状和彩虹交换的动画的时长
+    public static readonly int EatAllDirBigAnimTime = 1800;                         //条状和彩虹交换的动画的时长
 
     public static float EatLineEffectInterval = 0.05f;               //消行特效 吃块的间隔
     public static float EatLineEffectStartInterval = 0.17f;          //消行特效 吃块的开始时间
 
-    public static float Line_Line_EffectStartDelay = 0.17f;          //消行合消行 吃块的开始时间
+    public static float Line_Line_EffectStartDelay = 0.0f;          //消行合消行 吃块的开始时间
     public static float Line_Line_EffectInterval = 0.05f;            //消行合消行 吃块的间隔
 
-    public static float Line_Bomb_EffectStartDelay = 0.3f;          //消行合炸弹 吃块的开始时间
+    public static float Line_Bomb_EffectStartDelay = 0.0f;          //消行合炸弹 吃块的开始时间
     public static float Line_Bomb_EffectInterval = 0.05f;            //消行合炸弹 吃块的间隔
 
-    public static float Line_Rainbow_EffectStartDelay = 0.5f;       //消行合彩虹 吃块的开始时间
+    public static float Line_Rainbow_EffectStartDelay = 0.0f;       //消行合彩虹 吃块的开始时间
     public static float Line_Rainbow_EffectInterval = 0.05f;         //消行合彩虹 吃块的间隔
 
     public static float BombEffectInterval = 0.0f;                   //炸弹特效 吃块的间隔

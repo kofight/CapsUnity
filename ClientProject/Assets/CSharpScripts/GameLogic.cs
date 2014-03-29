@@ -3592,6 +3592,7 @@ public class GameLogic
                     {
                         EatALLDirLine(position, false, CapsConfig.EatLineEffectStartInterval + delay, CapsConfig.EatLineEffectInterval, (int)block.special);
                         m_blocks[position.x, position.y].EatAnimationName = CapsConfig.LineEatAnim;
+                        m_blocks[position.x, position.y].EatEffectName = "Dir" + (int)(block.special - TSpecialBlock.ESpecial_EatLineDir0) + "Effect";
                     }
                     break;
                 case TSpecialBlock.ESpecial_EatAColor:
@@ -4692,7 +4693,7 @@ public class GameLogic
 			{
                 AddPartile("Dir1BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true, startDelay);
 			}
-			else
+            else if (dir == -1)
 			{
                 AddPartile("Dir1Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true, startDelay);
 			}
@@ -4719,7 +4720,7 @@ public class GameLogic
             {
                 AddPartile("Dir0BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true, startDelay);
             }
-            else
+            else if (dir == -1)
             {
                 AddPartile("Dir0Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true, startDelay);
             }
@@ -4731,12 +4732,12 @@ public class GameLogic
 
             if (extraEat)
             {
-                Position extarStartPos = new Position(startPos.x + 1, startPos.y);
+                Position extarStartPos = new Position(startPos.x, startPos.y + 1);
                 EatBlock(extarStartPos, CapsConfig.LineEatEffect, 0.0f);
                 EatDirLine(extarStartPos, startDelay, intervalTime, TDirection.EDir_LeftUp);
                 EatDirLine(extarStartPos, startDelay, intervalTime, TDirection.EDir_DownRight);
 
-                extarStartPos = new Position(startPos.x - 1, startPos.y);
+                extarStartPos = new Position(startPos.x, startPos.y - 1);
                 EatBlock(extarStartPos, CapsConfig.LineEatEffect, 0.0f);
                 EatDirLine(extarStartPos, startDelay, intervalTime, TDirection.EDir_LeftUp);
                 EatDirLine(extarStartPos, startDelay, intervalTime, TDirection.EDir_DownRight);
@@ -4745,7 +4746,7 @@ public class GameLogic
             {
                 AddPartile("Dir2BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true, startDelay);
             }
-            else
+            else if (dir == -1)
             {
                 AddPartile("Dir2Effect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true, startDelay);
             }

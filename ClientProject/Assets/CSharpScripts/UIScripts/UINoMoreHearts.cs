@@ -16,7 +16,6 @@ public class UINoMoreHearts : UIWindow
     {
         base.OnCreate();
         AddChildComponentMouseClick("CloseBtn", Close);
-		AddChildComponentMouseClick("OKBtn", Close);
 		
 		m_minNumber = GetChildComponent<NumberDrawer>("MinNumber");
         m_secNumber = GetChildComponent<NumberDrawer>("SecNumber");

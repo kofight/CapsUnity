@@ -117,7 +117,7 @@ public class UIStageInfo : UIWindow
     {
         base.OnShow();
 
-        m_levelLabel.text = System.String.Format(Localization.instance.Get("LevelName"), GlobalVars.CurStageNum);
+        m_levelLabel.text = GlobalVars.CurStageNum.ToString();
 
         for (int i = 0; i < 3; ++i )
         {
@@ -128,7 +128,7 @@ public class UIStageInfo : UIWindow
             }
             else
             {
-				star.spriteName = "Grey_Star_Large";
+				star.spriteName = "Star_Dark";
             }
         }
 

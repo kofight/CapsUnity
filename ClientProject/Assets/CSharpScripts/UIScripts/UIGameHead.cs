@@ -215,7 +215,7 @@ public class UIGameHead : UIWindow
                 {
                     m_lockItemSprite[i].gameObject.SetActive(false);
                     m_itemBtn[i].enabled = true;
-                    m_background[i].spriteName = "Item_Large";
+                    m_background[i].spriteName = "Item";
                 }
             }
             else

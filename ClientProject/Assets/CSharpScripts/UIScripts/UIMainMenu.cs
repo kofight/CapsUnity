@@ -6,15 +6,17 @@ public class UIMainMenu : UIWindow
     UIWindow m_mainMenuExtend;
 
     UIButton m_quitBtn;
-    UIButton m_optionBtn;
+    UIButton m_soundBtn;
+    UIButton m_musicBtn;
 
     public override void OnCreate()
     {
         base.OnCreate();
-        m_mainMenuExtend = UIWindowManager.Singleton.CreateWindow<UIWindow>("UIMainMenuExtend", UIWindowManager.Anchor.BottomLeft);
+        m_mainMenuExtend = UIWindowManager.Singleton.CreateWindow<UIWindow>("UIMainMenuExtend", UIWindowManager.Anchor.Left);
 
         m_quitBtn = m_mainMenuExtend.GetChildComponent<UIButton>("QuitBtn");
-        m_optionBtn = m_mainMenuExtend.GetChildComponent<UIButton>("OptionBtn");
+        m_soundBtn = m_mainMenuExtend.GetChildComponent<UIButton>("SoundBtn");
+        m_musicBtn = m_mainMenuExtend.GetChildComponent<UIButton>("MusicBtn");
 
         m_mainMenuExtend.AddChildComponentMouseClick("QuitBtn", OnQuitClicked);
         m_mainMenuExtend.AddChildComponentMouseClick("HelpBtn", delegate()
@@ -23,10 +25,27 @@ public class UIMainMenu : UIWindow
             m_mainMenuExtend.HideWindow();
         });
 
-        m_mainMenuExtend.AddChildComponentMouseClick("OptionBtn", delegate()
+        m_mainMenuExtend.AddChildComponentMouseClick("SoundBtn", delegate()
         {
-            UIWindowManager.Singleton.GetUIWindow<UIOption>().ShowWindow();
-            m_mainMenuExtend.HideWindow();
+            GlobalVars.UseSFX = !GlobalVars.UseSFX;
+            PlayerPrefs.SetInt("SFX", GlobalVars.UseSFX == true ? 1 : 0);
+        });
+
+        m_mainMenuExtend.AddChildComponentMouseClick("MusicBtn", delegate()
+        {
+            GlobalVars.UseMusic = !GlobalVars.UseMusic;
+            PlayerPrefs.SetInt("Music", GlobalVars.UseMusic == true ? 1 : 0);
+            if (GlobalVars.UseMusic == false)       //关闭音乐
+            {
+                UIToolkits.StopMusic();
+            }
+            else                                    //播放音乐
+            {
+                if (!UIToolkits.IsPlayingMusic())
+                {
+                    UIToolkits.PlayMusic(CapsConfig.CurAudioList.MapMusic);
+                }
+            }
         });
 
         m_mainMenuExtend.AddChildComponentMouseClick("HideBtn", delegate()
@@ -43,12 +62,10 @@ public class UIMainMenu : UIWindow
             if (CapsApplication.Singleton.CurStateEnum != StateEnum.Game && !UIWindowManager.Singleton.GetUIWindow<UIMap>().Visible)        //Login画面
             {
                 m_quitBtn.gameObject.SetActive(false);
-                m_optionBtn.gameObject.SetActive(true);
             }
             else
             {
                 m_quitBtn.gameObject.SetActive(true);
-                m_optionBtn.gameObject.SetActive(false);
             }
             HideWindow();
         });

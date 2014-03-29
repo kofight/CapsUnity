@@ -100,7 +100,6 @@ public class UIMap : UIWindow
 
         //心面板
         m_timeNumber = UIToolkits.FindChild(m_heartUI.mUIObject.transform, "TimeNumber").gameObject;
-        m_fullText = UIToolkits.FindChild(m_heartUI.mUIObject.transform, "HeartFull").gameObject;
         m_minNumber = m_heartUI.GetChildComponent<NumberDrawer>("MinNumber");
         m_secNumber = m_heartUI.GetChildComponent<NumberDrawer>("SecNumber");
         UIButton heartBtn = m_heartUI.GetChildComponent<UIButton>("HeartBtn");
@@ -364,10 +363,6 @@ public class UIMap : UIWindow
                 {
                     m_timeNumber.SetActive(true);
                 }
-                if (m_fullText.activeSelf)
-                {
-                    m_fullText.SetActive(false);
-                }
 
                 int ticks = (int)((System.DateTime.Now.Ticks - GlobalVars.GetHeartTime.Ticks) / 10000);
                 int ticksToGetHeart = CapsConfig.Instance.GetHeartInterval * 1000 - ticks;
@@ -381,10 +376,6 @@ public class UIMap : UIWindow
                 if (m_timeNumber.activeSelf)
                 {
                     m_timeNumber.SetActive(false);
-                }
-                if (!m_fullText.activeSelf)
-                {
-                    m_fullText.SetActive(true);
                 }
             }
         }

@@ -334,7 +334,6 @@ public class UIFTUE : UIWindow
     {
         Debug.Log("EndFTUE");
 		m_finishedStep = m_curStep;
-		m_FTUEIndex = 0;
         m_pointer.SetActive(false);
         HideWindow(delegate()
 		{
@@ -346,6 +345,7 @@ public class UIFTUE : UIWindow
 	        {
 	            GlobalVars.InMapFTUE = false;
 	        }
+			m_FTUEIndex = 0;
 		});                               //隐藏窗体
     }
 

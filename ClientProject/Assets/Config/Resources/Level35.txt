@@ -13,7 +13,7 @@ PlusMaxCount			0
 PlusStartTime			0				
 PlusStepMin			5				
 PlusStepMax			10				
-Seed			254				
+Seed			450				
 NewFormat			1				
 StarScore			27000,33500,42300,				
 CollectColors			0,0,0,				

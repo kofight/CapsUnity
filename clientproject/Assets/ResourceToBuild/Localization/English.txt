@@ -17,6 +17,8 @@ NotEnoughScore = Did not get any star
 DidNotClearIce = Did not clear all ice block
 DidNotBringNuts = Didn't brought all nuts down
 DidNotCollectEnough = Didn't finish the collect target
+EndGameByHimSelf = Quit game
+
 OutOfMove = Out of move!
 OutOfTime = Out of time!
 GamePaused = Game paused

@@ -75,14 +75,8 @@ public class UINoMoreHearts : UIWindow
                 UIWindowManager.Singleton.GetUIWindow<UIStore>().OnPurchaseFunc = delegate()
                 {
                     Unibiller.DebitBalance("gold", 100);
-                    UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetString(Localization.instance.Get("PurchaseSucceed"));
-                    UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(delegate()
-                    {
-                        GlobalVars.AddHeart(5);
-                        ContinuePlay();
-                    });
-                    UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().ShowWindow();
-                    
+                    GlobalVars.AddHeart(5);
+                    ContinuePlay();
                 };
 				UIWindowManager.Singleton.GetUIWindow<UIStore>().OnCancelFunc = delegate()
                 {

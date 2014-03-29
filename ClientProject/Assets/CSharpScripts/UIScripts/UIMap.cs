@@ -427,12 +427,6 @@ public class UIMap : UIWindow
                     data.from.MakeItUnAvailable();
                     ftueData.Add(data);             //第4句话
                     data = new FTUEData();
-                    data.dialog = Localization.instance.Get("FTUEStep4");
-                    data.pointToGameObject = "Stage2";
-                    data.headImage = "Dog";
-                    data.from = new Position();
-                    data.from.MakeItUnAvailable();
-                    ftueData.Add(data);             //第5句话
 
                     ftue.ShowFTUE(0, ftueData);
                 }

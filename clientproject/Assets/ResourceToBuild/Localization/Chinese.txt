@@ -17,6 +17,7 @@ NotEnoughScore = 没有得到星星
 DidNotClearIce = 没有清除冰块
 DidNotBringNuts = 没有获得所有水果
 DidNotCollectEnough = 没有完成收集目标
+EndGameByHimSelf = 主动结束
 
 OutOfMove = 没有步数了!
 OutOfTime = 没有时间了!

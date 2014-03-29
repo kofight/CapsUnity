@@ -44,6 +44,8 @@ public class UIDialog : UIWindow
     int m_curDialogGroupNum;
     int m_curDialogIndex;
 
+    PressReceiver m_pressReceiver;
+
     WindowEffectFinished m_afterDialogFunc;
 
     Dictionary<int, List<DialogData> > m_dialogGroupMap = new Dictionary<int, List<DialogData> >();
@@ -111,6 +113,7 @@ public class UIDialog : UIWindow
         m_curDialogGroupNum = number;
         m_curDialogIndex = 0;
         ShowText(m_curDialogIndex);
+        m_pressReceiver.OnPressFunc = OnTouchBegin;
 	}
 
     void ShowText(int indexNum)
@@ -192,32 +195,13 @@ public class UIDialog : UIWindow
             m_clickSprite.gameObject.SetActive(true);
         });
 	}
-	
-	public void OnClick()
-	{
-		if(m_bLock)return;
-		if(m_curDialogIndex < m_dialogGroupMap[m_curDialogGroupNum].Count-1)
-        {
-			++m_curDialogIndex;
-            m_dialogEffectPlayer.HideEffect(delegate()
-            {
-                m_dialogEffectPlayer.ShowEffect();
-                ShowText(m_curDialogIndex);
-            });
-            
-		}
-		else
-		{
-            m_curDialogGroupNum = -1;
-			HideWindow(m_afterDialogFunc);
-		}
-	}
 
     public void EndDialog()
     {
         m_curDialogGroupNum = -1;
         HideWindow(m_afterDialogFunc);
 		m_bLock = false;
+        m_pressReceiver.OnPressFunc = null;
     }
 	
     public override void OnCreate()
@@ -232,6 +216,8 @@ public class UIDialog : UIWindow
         m_backPic = GetChildComponent<UISprite>("Background");
 		m_itemBoard = GetChildComponent<UISprite>("ItemBoard");
         m_clickSprite = GetChildComponent<UISprite>("ClickSprite");
+
+        m_pressReceiver = m_dialogBoardSprite.transform.GetComponent<PressReceiver>();
 
         AddChildComponentMouseClick("SkipBtn", delegate()
         {
@@ -323,12 +309,30 @@ public class UIDialog : UIWindow
             line = sr.ReadLine();
         }
         sr.Close();
-		
-		AddChildComponentMouseClick("DialogBoard", OnClick);
-        
     }
+
     public override void OnShow()
     {
         base.OnShow();
+    }
+
+    public void OnTouchBegin()
+    {
+        if (m_bLock) return;
+        if (m_curDialogIndex < m_dialogGroupMap[m_curDialogGroupNum].Count - 1)
+        {
+            ++m_curDialogIndex;
+            m_dialogEffectPlayer.HideEffect(delegate()
+            {
+                m_dialogEffectPlayer.ShowEffect();
+                ShowText(m_curDialogIndex);
+            });
+
+        }
+        else
+        {
+            m_curDialogGroupNum = -1;
+            HideWindow(m_afterDialogFunc);
+        }
     }
 }

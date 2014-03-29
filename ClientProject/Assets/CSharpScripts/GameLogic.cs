@@ -4689,6 +4689,7 @@ public class GameLogic
                 EatDirLine(extarStartPos, startDelay, intervalTime, TDirection.EDir_LeftDown);
             }
 
+            //只有特殊块交换才当场释放特效
 			if (extraEat)
 			{
                 AddPartile("Dir1BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true, startDelay);
@@ -4716,6 +4717,7 @@ public class GameLogic
                 EatDirLine(extarStartPos, startDelay, intervalTime, TDirection.EDir_Down);
             }
 
+            //只有特殊块交换才当场释放特效
             if (extraEat)
             {
                 AddPartile("Dir0BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true, startDelay);
@@ -4742,6 +4744,7 @@ public class GameLogic
                 EatDirLine(extarStartPos, startDelay, intervalTime, TDirection.EDir_LeftUp);
                 EatDirLine(extarStartPos, startDelay, intervalTime, TDirection.EDir_DownRight);
             }
+            //只有特殊块交换才当场释放特效
             if (extraEat)
             {
                 AddPartile("Dir2BigEffect", AudioEnum.Audio_Line1, startPos.x, startPos.y, true, startDelay);

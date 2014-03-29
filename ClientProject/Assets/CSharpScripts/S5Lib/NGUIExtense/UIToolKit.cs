@@ -326,6 +326,6 @@ public class UIToolkits
 
     static public bool IsPlayingMusic()
     {
-        return mCurMusic.isPlaying();
+        return mCurMusic.isPlaying;
     }
 }

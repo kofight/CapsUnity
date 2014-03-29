@@ -92,6 +92,7 @@ public class UIMainMenu : UIWindow
         {
             UIWindowManager.Singleton.GetUIWindow<UIMap>().HideWindow();
             UIWindowManager.Singleton.GetUIWindow<UILogin>().ShowWindow();
+            LoginState.Instance.CurFlow = TLoginFlow.LoginFlow_LoginScreen;
         }
         else
         {

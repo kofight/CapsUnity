@@ -680,6 +680,13 @@ public class GameLogic
         if (PlayingStageData.Seed > 0)
         {
             m_random = new MyRandom(PlayingStageData.Seed);
+            //这六次是开发期测试代码，因为关卡已经编辑完了，只能保留这部分代码，否则就需要重新编辑关卡
+            m_random.Next();
+            m_random.Next();
+            m_random.Next();
+            m_random.Next();
+            m_random.Next();
+            m_random.Next();
         }
         else
         {

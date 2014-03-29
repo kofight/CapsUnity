@@ -2471,7 +2471,7 @@ public class GameLogic
                 m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].Eat();                 //自己消失
                 AddDelayProceedGrid(m_selectedPos[0].x, m_selectedPos[0].y, 0, m_blocks[m_selectedPos[0].x, m_selectedPos[0].y]);       ////自己消失
 
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].EatAnimationName = CapsConfig.Line_Rainbow_EatAnim;                 //条状合成动画
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].EatAnimationName = CapsConfig.Line_Line_EatAnim;                 //条状合成动画
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].EatDuration = EATBLOCK_TIME;
                 m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].Eat();                 //自己消失
                 AddDelayProceedGrid(m_selectedPos[1].x, m_selectedPos[1].y, 0, m_blocks[m_selectedPos[1].x, m_selectedPos[1].y]);       ////自己消失

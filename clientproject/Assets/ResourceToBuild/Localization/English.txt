@@ -12,7 +12,6 @@ Get5Hearts = Get 5 Hearts
 OK = OK
 NoMoreHearts = No more hearts!
 Failed = Failed!
-LevelName = Level{0}
 NotEnoughScore = Did not get any star
 DidNotClearIce = Did not clear all ice block
 DidNotBringNuts = Didn't brought all nuts down

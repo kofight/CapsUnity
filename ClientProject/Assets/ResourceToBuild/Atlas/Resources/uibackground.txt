@@ -1,5 +1,13 @@
 {"frames": {
 
+"MainMenu_Background.jpg":
+{
+	"frame": {"x":2161,"y":1,"w":640,"h":1136},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":640,"h":1136},
+	"sourceSize": {"w":640,"h":1136}
+},
 "MapCloud.png":
 {
 	"frame": {"x":1441,"y":1,"w":719,"h":1136},
@@ -16,9 +24,9 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":719,"h":2045},
 	"sourceSize": {"w":719,"h":2045}
 },
-"MapPic0_Blur.png":
+"MapPic0_blur.png":
 {
-	"frame": {"x":2522,"y":1,"w":360,"h":1023},
+	"frame": {"x":3163,"y":1017,"w":360,"h":1023},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":360,"h":1023},
@@ -34,7 +42,7 @@
 },
 "MapPic1_Blur.png":
 {
-	"frame": {"x":2161,"y":1,"w":360,"h":1023},
+	"frame": {"x":2802,"y":1017,"w":360,"h":1023},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":360,"h":1023},
@@ -42,7 +50,7 @@
 },
 "MapPic2.png":
 {
-	"frame": {"x":2161,"y":1025,"w":719,"h":1015},
+	"frame": {"x":2802,"y":1,"w":719,"h":1015},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":719,"h":1015},
@@ -55,6 +63,46 @@
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":360,"h":508},
 	"sourceSize": {"w":360,"h":508}
+},
+"Sale1.png":
+{
+	"frame": {"x":1441,"y":1647,"w":511,"h":260},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":4,"y":4,"w":511,"h":260},
+	"sourceSize": {"w":521,"h":270}
+},
+"Sale2.png":
+{
+	"frame": {"x":1953,"y":1771,"w":250,"h":210},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":4,"y":4,"w":250,"h":210},
+	"sourceSize": {"w":260,"h":220}
+},
+"Sale3.png":
+{
+	"frame": {"x":1953,"y":1560,"w":250,"h":210},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":4,"y":4,"w":250,"h":210},
+	"sourceSize": {"w":260,"h":220}
+},
+"Sale4.png":
+{
+	"frame": {"x":1802,"y":1349,"w":250,"h":210},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":4,"y":4,"w":250,"h":210},
+	"sourceSize": {"w":260,"h":220}
+},
+"Sale5.png":
+{
+	"frame": {"x":1802,"y":1138,"w":250,"h":210},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":4,"y":4,"w":250,"h":210},
+	"sourceSize": {"w":260,"h":220}
 }},
 "meta": {
 	"app": "http://www.texturepacker.com",
@@ -63,6 +111,6 @@
 	"format": "RGBA8888",
 	"size": {"w":4096,"h":2048},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:041bf842a789b15f2d42c47530a039f6$"
+	"smartupdate": "$TexturePacker:SmartUpdate:a887d3e0c187905e6a31d0acbafae8d1$"
 }
 }

@@ -43,8 +43,6 @@ public class UIGameBottom : UIWindow
         m_speedSlider = GetChildComponent<UISlider>("SpeedSlider");
         m_speedLabel = GetChildComponent<UILabel>("SpeedLabel");
 
-        m_stepTextSprite = GetChildComponent<UISprite>("StepLabel");
-
         m_timeBar = GetChildComponent<UISprite>("TimeBar");
 
         m_scoreDrawer = GetChildComponent<NumberDrawer>("ScoreDrawer");
@@ -70,7 +68,6 @@ public class UIGameBottom : UIWindow
 
             m_stepDrawer.gameObject.SetActive(false);
             m_timeNumber.SetActive(true);
-            m_stepTextSprite.gameObject.SetActive(false);
         }
         else
         {
@@ -78,7 +75,6 @@ public class UIGameBottom : UIWindow
             m_timeBar.gameObject.SetActive(false);
 
             m_stepDrawer.gameObject.SetActive(true);
-            m_stepTextSprite.gameObject.SetActive(true);
             m_timeNumber.SetActive(false);
 
             OnChangeStep(GameLogic.Singleton.PlayingStageData.StepLimit);
@@ -213,7 +209,7 @@ public class UIGameBottom : UIWindow
         if (completeRatio != 0.0f)
         {
             m_progressSprite.gameObject.SetActive(true);
-            m_progressSprite.width = (int)(ProgressLenth * completeRatio);
+            m_progressSprite.fillAmount = completeRatio;
         }
     }
 }

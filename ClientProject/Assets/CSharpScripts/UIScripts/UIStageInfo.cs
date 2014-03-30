@@ -3,7 +3,7 @@ using System.Collections;
 
 public class UIStageInfo : UIWindow 
 {
-    UILabel m_levelLabel;
+    NumberDrawer m_levelNumber;
     UILabel m_totalCostLabel;
 
     UILabel[] m_itemCostLabels = new UILabel[3];
@@ -11,7 +11,6 @@ public class UIStageInfo : UIWindow
     PurchasedItem [] m_items = new PurchasedItem [3];
     UISprite[] m_lockItemSprite = new UISprite[3];
     UISprite[] m_background = new UISprite[3];
-    UISprite[] m_backgroundFrame = new UISprite[3];
 
     GameObject m_pointer;
 
@@ -23,7 +22,7 @@ public class UIStageInfo : UIWindow
     {
         base.OnCreate();
 
-        m_levelLabel = GetChildComponent<UILabel>("LevelLabel");
+        m_levelNumber = GetChildComponent<NumberDrawer>("LevelNumber");
         m_totalCostLabel = GetChildComponent<UILabel>("ItemTotalCost");
 
         for (int i = 0; i < 3; ++i )
@@ -34,7 +33,6 @@ public class UIStageInfo : UIWindow
             m_lockItemSprite[i] = GetChildComponent<UISprite>("LockItem" + (i + 1).ToString());
 
             m_background[i] = GetChildComponent<UISprite>("Background" + (i + 1).ToString());
-            m_backgroundFrame[i] = GetChildComponent<UISprite>("BackgroundFrame" + (i + 1).ToString());
 
             EventDelegate.Set(m_itemToggles[i].onChange, OnToggle);
         }
@@ -117,7 +115,7 @@ public class UIStageInfo : UIWindow
     {
         base.OnShow();
 
-        m_levelLabel.text = GlobalVars.CurStageNum.ToString();
+        m_levelNumber.SetNumberRapid(GlobalVars.CurStageNum);
 
         for (int i = 0; i < 3; ++i )
         {
@@ -158,7 +156,6 @@ public class UIStageInfo : UIWindow
                 m_itemToggles[i].enabled = true;
                 m_itemCostLabels[i].gameObject.SetActive(true);
                 m_background[i].spriteName = "Item_Large";
-                m_backgroundFrame[i].spriteName = "ItemBoard_Large";
             }
             else
             {
@@ -166,7 +163,6 @@ public class UIStageInfo : UIWindow
                 m_itemToggles[i].enabled = false;
                 m_itemCostLabels[i].gameObject.SetActive(false);
                 m_background[i].spriteName = "LockItemBtn";
-                m_backgroundFrame[i].spriteName = "LockedItemBoard";
             }
         }
 

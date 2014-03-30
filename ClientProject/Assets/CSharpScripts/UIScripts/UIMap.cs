@@ -368,8 +368,8 @@ public class UIMap : UIWindow
                 int ticksToGetHeart = CapsConfig.Instance.GetHeartInterval * 1000 - ticks;
                 int min = ticksToGetHeart / 1000 / 60;
                 int second = ticksToGetHeart / 1000 % 60;
-                m_minNumber.SetNumber(min);
-                m_secNumber.SetNumber(second);
+                m_minNumber.SetNumberRapid(min);
+                m_secNumber.SetNumberRapid(second);
             }
             else
             {

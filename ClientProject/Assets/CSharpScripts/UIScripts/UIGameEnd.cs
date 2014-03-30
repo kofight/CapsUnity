@@ -21,6 +21,8 @@ public class UIGameEnd : UIWindow
     UIToggle m_nutsCheck;
     UIToggle m_collectCheck;
 
+    NumberDrawer m_levelLabel;
+
     UISprite[] m_collectSprite = new UISprite[3];
     UILabel[] m_collectLabel = new UILabel[3];
 
@@ -53,6 +55,8 @@ public class UIGameEnd : UIWindow
 		
         AddChildComponentMouseClick("EndGameBtn", OnEndGameClicked);
         AddChildComponentMouseClick("PlayOnBtn", OnPlayOnClicked);
+
+        m_levelLabel = GetChildComponent<NumberDrawer>("LevelNumber");
 
         for (int i = 0; i < 3; ++i)
         {
@@ -104,9 +108,9 @@ public class UIGameEnd : UIWindow
 
         if (GlobalVars.CurStageData.Target == GameTarget.ClearJelly)
         {
-            m_jellyCheck.gameObject.SetActive(true);
-            m_nutsCheck.gameObject.SetActive(false);
-            m_collectCheck.gameObject.SetActive(false);
+            m_jellyCheck.transform.parent.gameObject.SetActive(true);
+            m_nutsCheck.transform.parent.gameObject.SetActive(false);
+            m_collectCheck.transform.parent.gameObject.SetActive(false);
 
             int totalJellyCount = GlobalVars.CurStageData.GetSingleJellyCount() + GlobalVars.CurStageData.GetDoubleJellyCount() * 2;
             int curJellyCount = GameLogic.Singleton.PlayingStageData.GetSingleJellyCount() + GameLogic.Singleton.PlayingStageData.GetDoubleJellyCount() * 2;
@@ -123,17 +127,17 @@ public class UIGameEnd : UIWindow
             m_curNut2.SetNumber(GameLogic.Singleton.PlayingStageData.Nut2Count);
             m_targetNut2.SetNumber(GlobalVars.CurStageData.Nut2Count);
 
-            m_nutsCheck.gameObject.SetActive(true);
-            m_jellyCheck.gameObject.SetActive(false);
-            m_collectCheck.gameObject.SetActive(false);
+            m_nutsCheck.transform.parent.gameObject.SetActive(true);
+            m_jellyCheck.transform.parent.gameObject.SetActive(false);
+            m_collectCheck.transform.parent.gameObject.SetActive(false);
 
             m_nutsCheck.value = (GameLogic.Singleton.PlayingStageData.Nut1Count == GlobalVars.CurStageData.Nut1Count && GameLogic.Singleton.PlayingStageData.Nut2Count == GlobalVars.CurStageData.Nut2Count);
         }
         else if (GlobalVars.CurStageData.Target == GameTarget.Collect)      //处理搜集关的显示
         {
-            m_nutsCheck.gameObject.SetActive(false);
-            m_jellyCheck.gameObject.SetActive(false);
-            m_collectCheck.gameObject.SetActive(true);
+            m_nutsCheck.transform.parent.gameObject.SetActive(false);
+            m_jellyCheck.transform.parent.gameObject.SetActive(false);
+            m_collectCheck.transform.parent.gameObject.SetActive(true);
 
             for (int i = 0; i < 3; ++i)
             {
@@ -190,10 +194,12 @@ public class UIGameEnd : UIWindow
         }
         else
         {
-            m_nutsCheck.gameObject.SetActive(false);
-            m_jellyCheck.gameObject.SetActive(false);
-            m_collectCheck.gameObject.SetActive(false);
+            m_nutsCheck.transform.parent.gameObject.SetActive(false);
+            m_jellyCheck.transform.parent.gameObject.SetActive(false);
+            m_collectCheck.transform.parent.gameObject.SetActive(false);
         }
+
+        m_levelLabel.SetNumberRapid(GlobalVars.CurStageNum);        //显示关卡编号
 
         GameLogic.Singleton.PauseGame();
     }

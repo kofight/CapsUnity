@@ -11,7 +11,7 @@ public class UIRetry : UIWindow
     int m_starCount;
     UISprite[] m_starsSprites = new UISprite[3];
 	ParticleSystem[] m_starParticles = new ParticleSystem[3];
-    UILabel m_levelLabel;
+    NumberDrawer m_levelLabel;
 
     Transform m_winBoard;
     Transform m_failedBoard;
@@ -25,7 +25,7 @@ public class UIRetry : UIWindow
         //m_resultLabel = UIToolkits.FindComponent<UILabel>(mUIObject.transform, "ResultLabel");
         m_infoLabel = UIToolkits.FindComponent<UILabel>(mUIObject.transform, "EndInfomation");
 
-        m_levelLabel = GetChildComponent<UILabel>("LevelLabel");
+        m_levelLabel = GetChildComponent<NumberDrawer>("LevelLabel");
 
         m_winBoard = UIToolkits.FindChild(mUIObject.transform, "WinBoard");
         m_failedBoard = UIToolkits.FindChild(mUIObject.transform, "FailedBoard");
@@ -272,7 +272,7 @@ public class UIRetry : UIWindow
 			PlayerPrefsExtend.SetIntArray("StageFailed", GlobalVars.StageFailedArray);
         }
 
-        m_levelLabel.text = String.Format(Localization.instance.Get("LevelName"), GlobalVars.CurStageNum);
+        m_levelLabel.SetNumberRapid(GlobalVars.CurStageNum);
 	}
 	
     public override void OnUpdate()

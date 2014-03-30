@@ -9,6 +9,9 @@ public class UIMainMenu : UIWindow
     UIButton m_soundBtn;
     UIButton m_musicBtn;
 
+    UISprite m_soundIcon;
+    UISprite m_musicIcon;
+
     public override void OnCreate()
     {
         base.OnCreate();
@@ -17,6 +20,9 @@ public class UIMainMenu : UIWindow
         m_quitBtn = m_mainMenuExtend.GetChildComponent<UIButton>("QuitBtn");
         m_soundBtn = m_mainMenuExtend.GetChildComponent<UIButton>("SoundBtn");
         m_musicBtn = m_mainMenuExtend.GetChildComponent<UIButton>("MusicBtn");
+
+        m_soundIcon = m_mainMenuExtend.GetChildComponent<UISprite>("SoundIcon");
+        m_musicIcon = m_mainMenuExtend.GetChildComponent<UISprite>("MusicIcon");
 
         m_mainMenuExtend.AddChildComponentMouseClick("QuitBtn", OnQuitClicked);
         m_mainMenuExtend.AddChildComponentMouseClick("HelpBtn", delegate()
@@ -29,6 +35,7 @@ public class UIMainMenu : UIWindow
         {
             GlobalVars.UseSFX = !GlobalVars.UseSFX;
             PlayerPrefs.SetInt("SFX", GlobalVars.UseSFX == true ? 1 : 0);
+            RefreshIcons();
         });
 
         m_mainMenuExtend.AddChildComponentMouseClick("MusicBtn", delegate()
@@ -46,6 +53,7 @@ public class UIMainMenu : UIWindow
                     UIToolkits.PlayMusic(CapsConfig.CurAudioList.MapMusic);
                 }
             }
+            RefreshIcons();
         });
 
         m_mainMenuExtend.AddChildComponentMouseClick("HideBtn", delegate()
@@ -70,13 +78,32 @@ public class UIMainMenu : UIWindow
             HideWindow();
         });
     }
+
+    void RefreshIcons()
+    {
+        if (GlobalVars.UseMusic)
+        {
+            m_musicIcon.spriteName = "Button_MusicOn_MainMenu";
+        }
+        else
+        {
+            m_musicIcon.spriteName = "Button_MusicOff_MainMenu";
+        }
+
+        if (GlobalVars.UseSFX)
+        {
+            m_soundIcon.spriteName = "Button_SoundOn_MainMenu";
+        }
+        else
+        {
+            m_soundIcon.spriteName = "Button_SoundOff_MainMenu";
+        }
+    }
+
     public override void OnShow()
     {
         base.OnShow();
-    }
-    public override void OnUpdate()
-    {
-        base.OnUpdate();
+        RefreshIcons();
     }
 
     private void OnQuitClicked()

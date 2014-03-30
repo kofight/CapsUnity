@@ -249,23 +249,23 @@ public class UIGameHead : UIWindow
         {
             if (GlobalVars.CurStageData.Nut1Count > 0)
             {
-                UIToolkits.FindComponent<UISprite>(m_fruitBoard.transform, "FruitNumCur1").spriteName = GameLogic.Singleton.PlayingStageData.Nut1Count.ToString();
+                UIToolkits.FindComponent<UISprite>(m_fruitBoard.transform, "FruitNumCur1").spriteName = "BaseNum" + GameLogic.Singleton.PlayingStageData.Nut1Count.ToString();
             }
             if (GlobalVars.CurStageData.Nut2Count > 0)
             {
-                UIToolkits.FindComponent<UISprite>(m_fruitBoard.transform, "FruitNumCur2").spriteName = GameLogic.Singleton.PlayingStageData.Nut2Count.ToString();
+                UIToolkits.FindComponent<UISprite>(m_fruitBoard.transform, "FruitNumCur2").spriteName = "BaseNum" + GameLogic.Singleton.PlayingStageData.Nut2Count.ToString();
             }
         }
         else if (GlobalVars.CurStageData.Target == GameTarget.ClearJelly)
         {
             if (GlobalVars.CurStageData.GetJellyCount() > 0)
             {
-                UIToolkits.FindComponent<NumberDrawer>(m_jellyBoard.transform, "JellyNum").SetNumber(GameLogic.Singleton.PlayingStageData.GetSingleJellyCount());
+                UIToolkits.FindComponent<NumberDrawer>(m_jellyBoard.transform, "JellyNum").SetNumberRapid(GameLogic.Singleton.PlayingStageData.GetSingleJellyCount());
             }
 
             if (GlobalVars.CurStageData.GetDoubleJellyCount() > 0)
             {
-                UIToolkits.FindComponent<NumberDrawer>(m_jellyBoard.transform, "DoubleJellyNum").SetNumber(GameLogic.Singleton.PlayingStageData.GetDoubleJellyCount());
+                UIToolkits.FindComponent<NumberDrawer>(m_jellyBoard.transform, "DoubleJellyNum").SetNumberRapid(GameLogic.Singleton.PlayingStageData.GetDoubleJellyCount());
             }
         }
         else if (GlobalVars.CurStageData.Target == GameTarget.Collect)          //处理搜集关的显示

@@ -111,14 +111,14 @@ public class UINoMoreHearts : UIWindow
 	{
 		base.OnUpdate ();
 
-        if (GlobalVars.HeartCount == 0)
+        if (GlobalVars.HeartCount < 5)
         {
             int ticks = (int)((System.DateTime.Now.Ticks - GlobalVars.GetHeartTime.Ticks) / 10000);
             int ticksToGetHeart = CapsConfig.Instance.GetHeartInterval * 1000 - ticks;
             int min = ticksToGetHeart / 1000 / 60;
             int second = ticksToGetHeart / 1000 % 60;
-            m_minNumber.SetNumber(min);
-            m_secNumber.SetNumber(second);
+            m_minNumber.SetNumberRapid(min);
+            m_secNumber.SetNumberRapid(second);
 
             m_heartSprite.fillAmount = 1.0f - (ticksToGetHeart / 1000.0f) / CapsConfig.Instance.GetHeartInterval;
         }

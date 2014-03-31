@@ -16,6 +16,11 @@ public class UIGameEnd : UIWindow
     NumberDrawer m_curNut2;
     NumberDrawer m_targetNut2;
 
+    UISprite m_continueTipBoard;
+    UISprite m_pauseTipBoard;
+    UILabel m_itemIntro;            //使用道具继续游戏的提示文字
+
+
     UIToggle m_scoreCheck;
     UIToggle m_jellyCheck;
     UIToggle m_nutsCheck;
@@ -51,7 +56,11 @@ public class UIGameEnd : UIWindow
         m_nutsCheck = GetChildComponent<UIToggle>("CheckBoxNuts");
         m_collectCheck = GetChildComponent<UIToggle>("CheckCollect");
 
+        m_continueTipBoard = GetChildComponent<UISprite>("ContinueTipBoard");
+        m_pauseTipBoard = GetChildComponent<UISprite>("PauseTipBoard");
+
         m_planOnItemIcon = GetChildComponent<UISprite>("ItemIcon");
+        m_itemIntro = GetChildComponent<UILabel>("ItemIntro");
 		
         AddChildComponentMouseClick("EndGameBtn", OnEndGameClicked);
         AddChildComponentMouseClick("PlayOnBtn", OnPlayOnClicked);
@@ -67,28 +76,33 @@ public class UIGameEnd : UIWindow
     public override void OnShow()
     {
         base.OnShow();
-        UILabel label = GetChildComponent<UILabel>("FailedReason");
+        UISprite sprite = GetChildComponent<UISprite>("FailedReason");
 
-        if (GameLogic.Singleton.CheckLimit() && GameLogic.Singleton.GetGameFlow() == TGameFlow.EGameState_Playing)
+        if (GameLogic.Singleton.CheckLimit() && GameLogic.Singleton.GetGameFlow() == TGameFlow.EGameState_End)
         {
             if (GlobalVars.CurStageData.StepLimit > 0)
             {
-                label.text = Localization.instance.Get("OutOfMove");
+                sprite.spriteName = "NoMoves";
             }
             else if (GlobalVars.CurStageData.TimeLimit > 0)
             {
-                label.text = Localization.instance.Get("OutOfTime");
+                sprite.spriteName = "NoTime";
             }
+
+            m_continueTipBoard.gameObject.SetActive(true);
+            m_pauseTipBoard.gameObject.SetActive(false);
 
             m_planOnItemIcon.gameObject.SetActive(true);
 
             if (GlobalVars.CurStageData.StepLimit > 0)
             {
                 m_planOnItemIcon.spriteName = PurchasedItem.ItemAfterGame_PlusStep.ToString();
+                m_itemIntro.text = Localization.instance.Get("Intro_" + PurchasedItem.ItemAfterGame_PlusStep.ToString());
             }
             else if (GlobalVars.CurStageData.TimeLimit > 0)
             {
                 m_planOnItemIcon.spriteName = PurchasedItem.ItemAfterGame_PlusTime.ToString();
+                m_itemIntro.text = Localization.instance.Get("Intro_" + PurchasedItem.ItemAfterGame_PlusTime.ToString());
             }
 
             m_curScore.SetNumber(GameLogic.Singleton.GetProgress());
@@ -97,7 +111,10 @@ public class UIGameEnd : UIWindow
         else
         {
             m_planOnItemIcon.gameObject.SetActive(false);
-            label.text = Localization.instance.Get("GamePaused");
+            sprite.spriteName = "GamePauseText";
+
+            m_continueTipBoard.gameObject.SetActive(false);
+            m_pauseTipBoard.gameObject.SetActive(true);
 
             m_curScore.SetNumber(GameLogic.Singleton.GetProgress(), 0.0f);
             m_targetScore.SetNumber(GlobalVars.CurStageData.StarScore[0], 0.0f);

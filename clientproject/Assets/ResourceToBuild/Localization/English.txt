@@ -17,6 +17,8 @@ DidNotClearIce = Did not clear all ice block
 DidNotBringNuts = Didn't brought all nuts down
 DidNotCollectEnough = Didn't finish the collect target
 EndGameByHimSelf = Quit game
+YouCanContinue = You Can Continue
+QuitCostHeartTip = Quit game will cost a heart
 
 OutOfMove = Out of move!
 OutOfTime = Out of time!

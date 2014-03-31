@@ -162,7 +162,7 @@ public class UIStageInfo : UIWindow
 				m_lockItemSprite[i].gameObject.SetActive(true);
                 m_itemToggles[i].enabled = false;
                 m_itemCostLabels[i].gameObject.SetActive(false);
-                m_background[i].spriteName = "LockItemBtn";
+                m_background[i].spriteName = "Item_Large_Disable";
             }
         }
 

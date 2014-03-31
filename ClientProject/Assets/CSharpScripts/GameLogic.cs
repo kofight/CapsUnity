@@ -4005,6 +4005,7 @@ public class GameLogic
             if (m_stoppingChocoGrowStepLeft > 0)
             {
                 --m_stoppingChocoGrowStepLeft;
+				UIWindowManager.Singleton.GetUIWindow<UIGameHead>().UpdateCoolDown((float)m_stoppingChocoGrowStepLeft / 7.0f);
             }
 
             if (m_stoppingChocoGrowStepLeft == 0)
@@ -4019,6 +4020,7 @@ public class GameLogic
             if (m_stoppingTimeStepLeft > 0)
             {
                 --m_stoppingTimeStepLeft;
+                UIWindowManager.Singleton.GetUIWindow<UIGameHead>().UpdateCoolDown((float)m_stoppingTimeStepLeft / 7.0f);
             }
 
             if (m_stoppingTimeStepLeft == 0)

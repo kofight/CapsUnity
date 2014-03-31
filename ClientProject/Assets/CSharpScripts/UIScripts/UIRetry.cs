@@ -13,6 +13,8 @@ public class UIRetry : UIWindow
 	ParticleSystem[] m_starParticles = new ParticleSystem[3];
     NumberDrawer m_levelLabel;
 
+    UIButton m_retryBtn;
+
     Transform m_winBoard;
     Transform m_failedBoard;
 	
@@ -29,6 +31,8 @@ public class UIRetry : UIWindow
 
         m_winBoard = UIToolkits.FindChild(mUIObject.transform, "WinBoard");
         m_failedBoard = UIToolkits.FindChild(mUIObject.transform, "FailedBoard");
+
+        m_retryBtn = GetChildComponent<UIButton>("RetryBtn");
 
         AddChildComponentMouseClick("CloseBtn", OnCloseClicked);
         AddChildComponentMouseClick("RetryBtn", OnRetryClicked);
@@ -96,12 +100,15 @@ public class UIRetry : UIWindow
                 }
 				
             }
+
+            m_retryBtn.transform.LocalPositionX(-105);
         }
         else
         {
 			nextBtn.gameObject.SetActive(false);
             m_winBoard.gameObject.SetActive(false);
             m_failedBoard.gameObject.SetActive(true);
+            m_retryBtn.transform.LocalPositionX(0);
         }
 	}
 	

@@ -11,7 +11,6 @@ Get1Hearts = 获得 1 颗心
 Get5Hearts = 获得 5 颗心
 OK = 好 的
 NoMoreHearts = 没 有 心 了 !
-Failed = 挑 战 失 败 !
 NotEnoughScore = 没有得到星星
 DidNotClearIce = 没有清除冰块
 DidNotBringNuts = 没有获得所有水果

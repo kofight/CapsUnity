@@ -18,6 +18,7 @@ DidNotCollectEnough = Didn't finish the collect target
 EndGameByHimSelf = Quit game
 YouCanContinue = You Can Continue
 QuitCostHeartTip = Quit game will cost a heart
+LoseAHeart = You lose a heart
 
 OutOfMove = Out of move!
 OutOfTime = Out of time!

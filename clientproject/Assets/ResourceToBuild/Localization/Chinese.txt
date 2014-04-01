@@ -20,6 +20,8 @@ EndGameByHimSelf = 主动结束
 YouCanContinue = 您可以选择继续游戏
 QuitCostHeartTip = 选择退出关卡，会消耗一颗心
 
+LoseAHeart = 您失去了一颗心。
+
 
 OutOfMove = 没有步数了!
 OutOfTime = 没有时间了!

@@ -12,7 +12,7 @@ public class UIGameHead : UIWindow
 
     UISprite[] m_collectSprite = new UISprite[3];
     UILabel[] m_collectLabel = new UILabel[3];
-    UISprite[] m_lockItemSprite = new UISprite[3];
+    UISprite[] m_coolDownSprite = new UISprite[3];
     UIButton[] m_itemBtn = new UIButton[3];
     PurchasedItem[] m_items = new PurchasedItem[3];
 
@@ -33,7 +33,10 @@ public class UIGameHead : UIWindow
         {
             m_collectSprite[i] = GetChildComponent<UISprite>("Collect" + i);
             m_collectLabel[i] = GetChildComponent<UILabel>("CollectLabel" + i);
-            m_lockItemSprite[i] = GetChildComponent<UISprite>("LockItem" + (i + 1).ToString());
+            m_coolDownSprite[i] = GetChildComponent<UISprite>("CoolDown" + (i + 1).ToString());
+			
+			m_coolDownSprite[i].gameObject.SetActive(false);
+			
             m_itemBtn[i] = GetChildComponent<UIButton>("UseItem" + (i+1).ToString() + "Btn");
 
             m_background[i] = GetChildComponent<UISprite>("Background" + (i + 1).ToString());
@@ -178,52 +181,65 @@ public class UIGameHead : UIWindow
 
         UISprite item3Icon = GetChildComponent<UISprite>("Item3Icon");
 
-        if (GlobalVars.CurStageData.TimeLimit > 0)
+        for (int i = 0; i < 3; ++i)
         {
-            item3Icon.spriteName = PurchasedItem.ItemInGame_TimeStoper.ToString();
-            item3Icon.transform.parent.gameObject.SetActive(true);
+            if (CapsConfig.ItemUnLockLevelArray[(int)m_items[i]] <= GlobalVars.AvailabeStageCount || GlobalVars.DeveloperMode)
+            {
+                if (i == 2)
+                {
+                    if (GlobalVars.CurStageData.TimeLimit > 0)
+                    {
+                        item3Icon.spriteName = PurchasedItem.ItemInGame_TimeStoper.ToString();
+                        m_itemBtn[2].gameObject.SetActive(true);
+                    }
+                    else if (GlobalVars.CurStageData.ChocolateCount > 0)
+                    {
+                        item3Icon.spriteName = PurchasedItem.ItemInGame_ChocoStoper.ToString();
+                        m_itemBtn[2].gameObject.SetActive(true);
+                    }
+                    else
+                    {
+                        m_itemBtn[2].gameObject.SetActive(false);
+                    }
+                }
+                else
+                {
+                    m_itemBtn[i].gameObject.SetActive(true);
+                }
+            }
+            else
+            {
+                m_itemBtn[i].gameObject.SetActive(false);
+            }
         }
-        else if (GlobalVars.CurStageData.ChocolateCount > 0)
-        {
-            item3Icon.spriteName = PurchasedItem.ItemInGame_ChocoStoper.ToString();
-            item3Icon.transform.parent.gameObject.SetActive(true);
-        }
-        else
-        {
-            item3Icon.transform.parent.gameObject.SetActive(false);
-        }
+
 
         UpdateItemButtons();
 
         RefreshTarget();
     }
 
+    public void UpdateCoolDown(float val)       //更新coolDown的值
+    {
+        m_coolDownSprite[2].fillAmount = val;
+    }
+
     public void UpdateItemButtons()
     {
         for (int i = 0; i < 3; ++i)
         {
-            if (CapsConfig.ItemUnLockLevelArray[(int)m_items[i]] <= GlobalVars.AvailabeStageCount || GlobalVars.DeveloperMode)       //判断道具是否已经解锁?
+            if (m_itemBtn[i].gameObject.activeSelf)       //判断道具是否已经解锁?
             {
                 if (i == 2 && (GameLogic.Singleton.IsStoppingTime || GameLogic.Singleton.IsStopingChocoGrow))       //临时锁定状态
                 {
-                    m_lockItemSprite[i].gameObject.SetActive(true);
-                    m_lockItemSprite[i].spriteName = "LockItem";
                     m_itemBtn[i].enabled = false;
-                    m_background[i].spriteName = "LockItemBtn";
+                    m_coolDownSprite[i].gameObject.SetActive(true);
                 }
                 else
                 {
-                    m_lockItemSprite[i].gameObject.SetActive(false);
+                    m_coolDownSprite[i].gameObject.SetActive(false);
                     m_itemBtn[i].enabled = true;
-                    m_background[i].spriteName = "Item";
                 }
-            }
-            else
-            {
-                m_lockItemSprite[i].gameObject.SetActive(true);
-                m_lockItemSprite[i].spriteName = "LockItemFront";
-                m_itemBtn[i].enabled = false;
-                m_background[i].spriteName = "LockItemBtn";
             }
         }
     }

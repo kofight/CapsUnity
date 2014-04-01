@@ -104,6 +104,20 @@ public class UIGameHead : UIWindow
             {
                 UIToolkits.FindChild(m_fruitBoard.transform, "Fruit2Board").gameObject.SetActive(false);
             }
+            //居中对齐
+            if (GlobalVars.CurStageData.Nut1Count > 0 && GlobalVars.CurStageData.Nut2Count > 0)     //若两个水果都有
+            {
+                UIToolkits.FindChild(m_fruitBoard.transform, "Fruit1Board").LocalPositionX(10);
+                UIToolkits.FindChild(m_fruitBoard.transform, "Fruit1Board").LocalPositionX(201);
+            }
+            else if (GlobalVars.CurStageData.Nut1Count > 0)
+            {
+                UIToolkits.FindChild(m_fruitBoard.transform, "Fruit1Board").LocalPositionX(111);
+            }
+            else if (GlobalVars.CurStageData.Nut2Count > 0)
+            {
+                UIToolkits.FindChild(m_fruitBoard.transform, "Fruit2Board").LocalPositionX(111);
+            }
         }
         else if (GlobalVars.CurStageData.Target == GameTarget.ClearJelly)
         {
@@ -119,6 +133,16 @@ public class UIGameHead : UIWindow
             {
                 UIToolkits.FindChild(m_jellyBoard.transform, "DoubleJellyBoard").gameObject.SetActive(false);
             }
+
+            if (GlobalVars.CurStageData.GetDoubleJellyCount() > 0)
+            {
+                UIToolkits.FindChild(m_jellyBoard.transform, "JellyBoard").LocalPositionX(27);
+                UIToolkits.FindChild(m_jellyBoard.transform, "DoubleJellyBoard").LocalPositionX(187);
+            }
+            else
+            {
+                UIToolkits.FindChild(m_jellyBoard.transform, "JellyBoard").LocalPositionX(123);
+            }
         }
         else if (GlobalVars.CurStageData.Target == GameTarget.Collect)          //处理搜集关的显示
         {
@@ -126,11 +150,13 @@ public class UIGameHead : UIWindow
             m_jellyBoard.SetActive(false);
             m_scoreBoard.SetActive(false);
             m_collectBoard.SetActive(true);
+            int collectTypeCount = 0;
             for (int i = 0; i < 3;++i )
             {
                 if (GlobalVars.CurStageData.CollectCount[i] > 0)
                 {
                     m_collectLabel[i].gameObject.SetActive(true);
+                    ++collectTypeCount;
 
                     switch (GlobalVars.CurStageData.CollectSpecial[i])
                     {
@@ -167,6 +193,39 @@ public class UIGameHead : UIWindow
                 else
                 {
                     m_collectLabel[i].gameObject.SetActive(false);
+                }
+            }
+
+            if (collectTypeCount == 3)
+            {
+                int interval = 130;
+                for (int i = 0; i < 3; ++i )
+                {
+                    m_collectLabel[i].transform.LocalPositionX(i * interval);
+                }
+            }
+            else if (collectTypeCount == 2)
+            {
+                int interval = 150;
+                int curPosX = 30;
+                for (int i = 0; i < 3; ++i)
+                {
+                    if (GlobalVars.CurStageData.CollectCount[i] > 0)
+                    {
+                        m_collectLabel[i].transform.LocalPositionX(curPosX);
+                        curPosX += interval;
+                    }
+                }
+            }
+            else if (collectTypeCount == 1)
+            {
+                for (int i = 0; i < 3; ++i)
+                {
+                    if (GlobalVars.CurStageData.CollectCount[i] > 0)
+                    {
+                        m_collectLabel[i].transform.LocalPositionX(144);
+                        break;
+                    }
                 }
             }
         }

@@ -12,6 +12,8 @@ public class UIMainMenu : UIWindow
     UISprite m_soundIcon;
     UISprite m_musicIcon;
 
+    UISprite m_mainMenuBtnText;
+
     public override void OnCreate()
     {
         base.OnCreate();
@@ -23,6 +25,8 @@ public class UIMainMenu : UIWindow
 
         m_soundIcon = m_mainMenuExtend.GetChildComponent<UISprite>("SoundIcon");
         m_musicIcon = m_mainMenuExtend.GetChildComponent<UISprite>("MusicIcon");
+
+        m_mainMenuBtnText = m_mainMenuExtend.GetChildComponent<UISprite>("QuitBtnText");
 
         m_mainMenuExtend.AddChildComponentMouseClick("QuitBtn", OnQuitClicked);
         m_mainMenuExtend.AddChildComponentMouseClick("HelpBtn", delegate()
@@ -67,6 +71,7 @@ public class UIMainMenu : UIWindow
         AddChildComponentMouseClick("MainBtn", delegate()
         {
             m_mainMenuExtend.ShowWindow();
+			RefreshIcons();
             if (CapsApplication.Singleton.CurStateEnum != StateEnum.Game && !UIWindowManager.Singleton.GetUIWindow<UIMap>().Visible)        //Login画面
             {
                 m_quitBtn.gameObject.SetActive(false);
@@ -98,12 +103,19 @@ public class UIMainMenu : UIWindow
         {
             m_soundIcon.spriteName = "Button_SoundOff_MainMenu";
         }
-    }
 
-    public override void OnShow()
-    {
-        base.OnShow();
-        RefreshIcons();
+        if (CapsApplication.Singleton.CurStateEnum != StateEnum.Game)
+        {
+            m_mainMenuBtnText.spriteName = "Button_MainMenu";
+            m_mainMenuBtnText.width = 203;
+            m_mainMenuBtnText.height = 60;
+        }
+        else
+        {
+            m_mainMenuBtnText.spriteName = "Button_Quit";
+            m_mainMenuBtnText.width = 136;
+            m_mainMenuBtnText.height = 60;
+        }
     }
 
     private void OnQuitClicked()

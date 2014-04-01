@@ -49,16 +49,16 @@ public class UILogin : UIWindow
     public override void OnShow()
     {
         base.OnShow();
-        if (CapsApplication.Singleton.GetPlayTime() > 20 * 3600)            //如果游戏时间超过20小时
-        {
-            UIButton button = GetChildComponent<UIButton>("PlayBtn");
-            button.gameObject.SetActive(false);                                       //让按钮无效化
-            m_testLabel.gameObject.SetActive(true);
-        }
-        else
-        {
-            m_testLabel.gameObject.SetActive(false);
-        }
+        //if (CapsApplication.Singleton.GetPlayTime() > 20 * 3600)            //如果游戏时间超过20小时
+        //{
+        //    UIButton button = GetChildComponent<UIButton>("PlayBtn");
+        //    button.gameObject.SetActive(false);                                       //让按钮无效化
+        //    m_testLabel.gameObject.SetActive(true);
+        //}
+        //else
+        //{
+        //    m_testLabel.gameObject.SetActive(false);
+        //}
 
         if (m_clickDebugCount >= 3)
         {

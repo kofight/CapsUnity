@@ -89,7 +89,7 @@ public class UIGameHead : UIWindow
             if (GlobalVars.CurStageData.Nut1Count > 0)
             {
                 UIToolkits.FindChild(m_fruitBoard.transform, "Fruit1Board").gameObject.SetActive(true);
-                UIToolkits.FindComponent<UISprite>(m_fruitBoard.transform, "FruitNumTotal1").spriteName = GlobalVars.CurStageData.Nut1Count.ToString();
+                UIToolkits.FindComponent<UISprite>(m_fruitBoard.transform, "FruitNumTotal1").spriteName = "BaseNum" + GlobalVars.CurStageData.Nut1Count.ToString();
             }
             else
             {
@@ -98,7 +98,7 @@ public class UIGameHead : UIWindow
             if (GlobalVars.CurStageData.Nut2Count > 0)
             {
                 UIToolkits.FindChild(m_fruitBoard.transform, "Fruit2Board").gameObject.SetActive(true);
-                UIToolkits.FindComponent<UISprite>(m_fruitBoard.transform, "FruitNumTotal2").spriteName = GlobalVars.CurStageData.Nut2Count.ToString();
+                UIToolkits.FindComponent<UISprite>(m_fruitBoard.transform, "FruitNumTotal2").spriteName = "BaseNum" + GlobalVars.CurStageData.Nut2Count.ToString();
             }
             else
             {

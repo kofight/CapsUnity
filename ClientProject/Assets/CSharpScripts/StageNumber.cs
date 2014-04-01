@@ -10,7 +10,7 @@ public class StageNumber : MonoBehaviour {
 	public int NumberInterval = 20;
 	// Use this for initialization
 	void Awake () {
-		StageNum = System.Convert.ToInt32(transform.name.Substring(5));
+		StageNum = System.Convert.ToInt32(transform.parent.name.Substring(5));
 		
 		int posX = 0;
 		if(StageNum > 99)

@@ -42,7 +42,7 @@ public class UIMap : UIWindow
     int m_newStageNumber;                       //开启的新关卡的编号
     float m_newStageMoveTime;                  //开启新关卡的时间
     readonly static float HeadMoveTime = 3.0f;  //开启新关卡时头像的移动时间
-    readonly static float HeadYOffset = 110.0f; //头像相对于按钮位置的位移
+    readonly static float HeadYOffset = 90.0f; //头像相对于按钮位置的位移
 
     float m_lastClickStageTime = 0;                 //上次点击关卡的时间
     GameObject m_helpParticle;                      //帮助特效
@@ -238,6 +238,7 @@ public class UIMap : UIWindow
 
     public void RefreshButtons()
     {
+        int numberCount = 1;
         for (int i = 0; i < GlobalVars.TotalStageCount; ++i)
         {
             Transform transform = UIToolkits.FindChild(mUIObject.transform, "Stage" + (i + 1));      //找到对象
@@ -246,6 +247,15 @@ public class UIMap : UIWindow
             {
                 Debug.LogError("There's no " + "Stage" + (i + 1).ToString() + " Button");
                 continue;
+            }
+
+            if (i >= 9)
+            {
+                numberCount = 2;
+            }
+            if (i >= 99)
+            {
+                numberCount = 3;
             }
 			
 			m_stageBtns[i] = transform;
@@ -280,7 +290,7 @@ public class UIMap : UIWindow
             }
 
             UISprite sprite = transform.FindChild("BtnBackground").GetComponent<UISprite>();
-            sprite.spriteName = "StageType" + CapsConfig.StageTypeArray[i];
+            sprite.spriteName = "MapPoint_Type" + CapsConfig.StageTypeArray[i] + "Num" + numberCount;
 
             UIButton button = m_stageBtns[i].GetComponent<UIButton>();
             EventDelegate.Set(button.onClick, OnStageClicked);

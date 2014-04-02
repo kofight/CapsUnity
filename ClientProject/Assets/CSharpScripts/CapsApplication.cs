@@ -133,6 +133,8 @@ public class CapsApplication : S5Application
 
             });
         });
+
+        Localization.instance.currentLanguage = "Chinese";      //中文版
     }
 
     protected override void DoUpdate()

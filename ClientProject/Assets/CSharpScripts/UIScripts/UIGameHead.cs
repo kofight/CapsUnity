@@ -11,7 +11,7 @@ public class UIGameHead : UIWindow
     TweenPosition m_showCoinTweener;
 
     UISprite[] m_collectSprite = new UISprite[3];
-    UILabel[] m_collectLabel = new UILabel[3];
+    public UILabel[] m_collectLabel = new UILabel[3];
     UISprite[] m_coolDownSprite = new UISprite[3];
     UIButton[] m_itemBtn = new UIButton[3];
     PurchasedItem[] m_items = new PurchasedItem[3];
@@ -108,7 +108,7 @@ public class UIGameHead : UIWindow
             if (GlobalVars.CurStageData.Nut1Count > 0 && GlobalVars.CurStageData.Nut2Count > 0)     //若两个水果都有
             {
                 UIToolkits.FindChild(m_fruitBoard.transform, "Fruit1Board").LocalPositionX(10);
-                UIToolkits.FindChild(m_fruitBoard.transform, "Fruit1Board").LocalPositionX(201);
+                UIToolkits.FindChild(m_fruitBoard.transform, "Fruit2Board").LocalPositionX(201);
             }
             else if (GlobalVars.CurStageData.Nut1Count > 0)
             {

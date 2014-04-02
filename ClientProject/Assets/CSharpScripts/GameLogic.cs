@@ -853,10 +853,6 @@ public class GameLogic
             {
                 PlayingStageData.CollectCount[i] = 0;           //先把已搜集数量清零
             }
-            UIGameHead headUI = UIWindowManager.Singleton.GetUIWindow<UIGameHead>();
-            CollectTargetUIPos[0] = new Vector3(-59.63453f + CapsApplication.Singleton.Width / 2 + headUI.m_collectLabel[0].transform.localPosition.x, 1.562183f - 38.568f, 0);
-            CollectTargetUIPos[1] = new Vector3(-59.63453f + CapsApplication.Singleton.Width / 2 + headUI.m_collectLabel[1].transform.localPosition.x, 1.562183f - 38.5681f, 0);
-            CollectTargetUIPos[2] = new Vector3(-59.63453f + CapsApplication.Singleton.Width / 2 + headUI.m_collectLabel[2].transform.localPosition.x, 1.562183f - 38.5681f, 0);
         }
     }
 

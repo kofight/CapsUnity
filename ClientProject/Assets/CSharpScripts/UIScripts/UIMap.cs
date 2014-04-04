@@ -41,7 +41,7 @@ public class UIMap : UIWindow
 
     int m_newStageNumber;                       //开启的新关卡的编号
     float m_newStageMoveTime;                  //开启新关卡的时间
-    readonly static float HeadMoveTime = 3.0f;  //开启新关卡时头像的移动时间
+    readonly static float HeadMoveTime = 1.5f;  //开启新关卡时头像的移动时间
     readonly static float HeadYOffset = 90.0f; //头像相对于按钮位置的位移
 
     float m_lastClickStageTime = 0;                 //上次点击关卡的时间
@@ -260,13 +260,17 @@ public class UIMap : UIWindow
 			
 			m_stageBtns[i] = transform;
 
+            bool bAvailable = false;
+
             if (!GlobalVars.DeveloperMode && i >= GlobalVars.HeadStagePos)     //隐藏超出范围的按钮
             {
-                transform.gameObject.SetActive(false);
+                bAvailable = false;
+                //transform.gameObject.SetActive(false);
             }
 			else
 			{
-				transform.gameObject.SetActive(true);                                                    //显示对象	
+                bAvailable = true;
+				//transform.gameObject.SetActive(true);                                                    //显示对象	
 			}
 
             for (int j = 1; j <= 3; ++j)
@@ -290,9 +294,20 @@ public class UIMap : UIWindow
             }
 
             UISprite sprite = transform.FindChild("BtnBackground").GetComponent<UISprite>();
-            sprite.spriteName = "MapPoint_Type" + CapsConfig.StageTypeArray[i] + "Num" + numberCount;
+            if (bAvailable)
+            {
+                sprite.spriteName = "MapPoint_Type" + CapsConfig.StageTypeArray[i] + "Num" + numberCount;
+            }
+            else
+            {
+                sprite.spriteName = "MapPoint_NotOpen_Type" + CapsConfig.StageTypeArray[i];
+            }
 
             UIButton button = m_stageBtns[i].GetComponent<UIButton>();
+            if (!bAvailable)
+            {
+                button.enabled = false;
+            }
             EventDelegate.Set(button.onClick, OnStageClicked);
         }
 

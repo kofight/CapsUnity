@@ -184,7 +184,7 @@
 	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
 	"sourceSize": {"w":121,"h":112}
 },
-"MapPoint_NotOpen_Collect.png":
+"MapPoint_NotOpen_Type0.png":
 {
 	"frame": {"x":2249,"y":1834,"w":73,"h":60},
 	"rotated": false,
@@ -192,7 +192,7 @@
 	"spriteSourceSize": {"x":0,"y":6,"w":73,"h":60},
 	"sourceSize": {"w":73,"h":74}
 },
-"MapPoint_NotOpen_Diamond.png":
+"MapPoint_NotOpen_Type1.png":
 {
 	"frame": {"x":2175,"y":1844,"w":73,"h":60},
 	"rotated": false,
@@ -200,7 +200,7 @@
 	"spriteSourceSize": {"x":0,"y":6,"w":73,"h":60},
 	"sourceSize": {"w":73,"h":74}
 },
-"MapPoint_NotOpen_Ice.png":
+"MapPoint_NotOpen_Type2.png":
 {
 	"frame": {"x":2101,"y":1844,"w":73,"h":60},
 	"rotated": false,
@@ -208,7 +208,7 @@
 	"spriteSourceSize": {"x":0,"y":6,"w":73,"h":60},
 	"sourceSize": {"w":73,"h":74}
 },
-"MapPoint_NotOpen_Star.png":
+"MapPoint_NotOpen_Type3.png":
 {
 	"frame": {"x":2027,"y":1844,"w":73,"h":60},
 	"rotated": false,
@@ -216,7 +216,7 @@
 	"spriteSourceSize": {"x":0,"y":6,"w":73,"h":60},
 	"sourceSize": {"w":73,"h":74}
 },
-"MapPoint_NotOpen_Time.png":
+"MapPoint_NotOpen_Type4.png":
 {
 	"frame": {"x":1953,"y":1844,"w":73,"h":60},
 	"rotated": false,
@@ -511,6 +511,6 @@
 	"format": "RGBA8888",
 	"size": {"w":4096,"h":2048},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:9789b4da7e158f3c58a2a1ad5359a266$"
+	"smartupdate": "$TexturePacker:SmartUpdate:dad4c4c5562c98b3c19435f435e8cbc8$"
 }
 }

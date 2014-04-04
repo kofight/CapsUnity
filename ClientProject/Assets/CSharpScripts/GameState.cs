@@ -161,7 +161,7 @@ public class GameState : State
         }
         if (UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().Visible)
         {
-            UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();
+            UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().OnQuitClicked();
         }
     }
 

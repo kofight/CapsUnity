@@ -118,7 +118,7 @@ public class UIMainMenu : UIWindow
         }
     }
 
-    private void OnQuitClicked()
+    public void OnQuitClicked()
     {
         m_mainMenuExtend.HideWindow();
         if (CapsApplication.Singleton.CurStateEnum == StateEnum.Game)

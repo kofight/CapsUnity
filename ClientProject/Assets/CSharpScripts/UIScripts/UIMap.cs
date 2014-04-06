@@ -308,6 +308,10 @@ public class UIMap : UIWindow
             {
                 button.enabled = false;
             }
+			else
+			{
+				button.enabled = true;
+			}
             EventDelegate.Set(button.onClick, OnStageClicked);
         }
 

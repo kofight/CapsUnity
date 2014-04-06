@@ -1,9 +1,9 @@
 ﻿TotalStageCount			95				
-DropAccelarate			5				
-SlideSpeed			3.5				
-DropSpeed			3.5				
+DropAccelarate			5.5				
+SlideSpeed			3.8				
+DropSpeed			4				
 GameSpeed			1				
-EatTime			0.33				
+EatTime			0.37				
 MoveTime			200				
 Version			Pre-Alpha-0.1				
 GetHeartInterval			1800				

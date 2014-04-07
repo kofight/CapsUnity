@@ -301,13 +301,33 @@ public class UIMap : UIWindow
 			UIButton button = m_stageBtns[i].GetComponent<UIButton>();
             if (bAvailable)
             {
-                sprite.spriteName = "MapPoint_Type" + CapsConfig.StageTypeArray[i] + "Num" + numberCount;
+                if (i == GlobalVars.HeadStagePos - 1)       //当前关卡
+                {
+                    sprite.spriteName = "CurMapPoint_Type" + CapsConfig.StageTypeArray[i] + "Num" + numberCount;
+                    sprite.width = 122;
+                    sprite.height = 112;
+                    sprite.LocalPositionX(2);
+                    sprite.LocalPositionY(25);
+                }
+                else
+                {
+                    sprite.spriteName = "MapPoint_Type" + CapsConfig.StageTypeArray[i] + "Num" + numberCount;
+                    sprite.width = 74;
+                    sprite.height = 74;
+                    sprite.LocalPositionX(4);
+                    sprite.LocalPositionY(18);
+                }
+                
 				m_stageNumbers[i].gameObject.SetActive(true);
 				button.enabled = true;
             }
             else
             {
                 sprite.spriteName = "MapPoint_NotOpen_Type" + CapsConfig.StageTypeArray[i];
+                sprite.width = 74;
+                sprite.height = 74;
+                sprite.LocalPositionX(4);
+                sprite.LocalPositionY(18);
 				m_stageNumbers[i].gameObject.SetActive(false);
 				button.enabled = false;
             }

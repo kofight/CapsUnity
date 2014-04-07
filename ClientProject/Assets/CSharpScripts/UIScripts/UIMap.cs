@@ -111,6 +111,12 @@ public class UIMap : UIWindow
             {
                 return;
             }
+
+            if (GlobalVars.UseSFX)
+            {
+                NGUITools.PlaySound(CapsConfig.CurAudioList.ButtonClip);
+            }
+
             UINoMoreHearts noMoreHeartUI = UIWindowManager.Singleton.GetUIWindow<UINoMoreHearts>();
             UIStageInfo stageInfoUI = UIWindowManager.Singleton.GetUIWindow<UIStageInfo>();
 
@@ -128,6 +134,11 @@ public class UIMap : UIWindow
         UIButton button = m_heartUI.GetChildComponent<UIButton>("StoreBtn");
         EventDelegate.Set(button.onClick, delegate()
         {
+            if (GlobalVars.UseSFX)
+            {
+                NGUITools.PlaySound(CapsConfig.CurAudioList.ButtonClip);
+            }
+
             UIStore storeUI = UIWindowManager.Singleton.GetUIWindow<UIStore>();
             UIStageInfo stageInfoUI = UIWindowManager.Singleton.GetUIWindow<UIStageInfo>();
 
@@ -592,7 +603,11 @@ public class UIMap : UIWindow
         m_lastClickStageTime = Timer.GetRealTimeSinceStartUp();     //更新关卡点击时间
         SetStageHelp(false);
 
-        NGUITools.PlaySound(CapsConfig.CurAudioList.ButtonClip);
+        if (GlobalVars.UseSFX)
+        {
+            NGUITools.PlaySound(CapsConfig.CurAudioList.ButtonClip);
+        }
+        
         string stageNum = UIButton.current.name.Substring(5);
         GlobalVars.CurStageNum = System.Convert.ToInt32(stageNum);
         GlobalVars.CurStageData = StageData.CreateStageData();

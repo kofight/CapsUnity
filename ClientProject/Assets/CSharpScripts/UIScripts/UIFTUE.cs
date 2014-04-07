@@ -219,27 +219,34 @@ public class UIFTUE : UIWindow
 
                 long curLoopTime = (Timer.millisecondNow() - m_pointerStartTime) % 2500;     //当前循环的时间
 
-                if (curLoopTime <= 300)                  //前0.3秒原地Alpha
+                if (curLoopTime <= 300)                  //前0.3秒 边移动边Alpha
                 {
+                    m_pointerSprite.spriteName = "Point1";
                     m_pointerSprite.alpha = curLoopTime / 300.0f;
-                    m_pointer.transform.localPosition = new Vector3(fromXY.x, -fromXY.y);
+                    m_pointer.transform.localPosition = new Vector3(fromXY.x + 20 * (1 - curLoopTime / 300.0f), -fromXY.y + 20 * (1 - curLoopTime / 300.0f));
                 }
-                else if (curLoopTime <= 500)            //停一下
+                else if (curLoopTime <= 500)            //切到第二张停一下
                 {
-
+                    m_pointer.transform.localPosition = new Vector3(fromXY.x, -fromXY.y);
+                    m_pointerSprite.spriteName = "Point";
                 }
                 else if (curLoopTime <= 1500)           //移动
                 {
-                    Vector2 pos = Vector2.Lerp(fromXY, toXY, ((curLoopTime - 500) % 1000) / 1000.0f);
+                    Vector2 pos = Vector2.Lerp(fromXY, toXY, (curLoopTime - 500) / 1000.0f);
                     m_pointer.transform.localPosition = new Vector3(pos.x, -pos.y);
                 }
-                else if (curLoopTime <= 1700)
+                else if (curLoopTime <= 1700)           //停留
                 {
-
+                    m_pointer.transform.localPosition = new Vector3(toXY.x, -toXY.y);
                 }
-                else if (curLoopTime <= 2000)
+                else if (curLoopTime <= 1800)           //切到第一张
                 {
-                    m_pointerSprite.alpha = 1.0f - (curLoopTime - 1700) / 300.0f;
+                    m_pointerSprite.spriteName = "Point1";
+                    m_pointer.transform.localPosition = new Vector3(toXY.x, -toXY.y);
+                }
+                else if (curLoopTime <= 2100)           //原地消失
+                {
+                    m_pointerSprite.alpha = 1.0f - (curLoopTime - 1800) / 300.0f;
                     m_pointer.transform.localPosition = new Vector3(toXY.x, -toXY.y);
                 }
                 else

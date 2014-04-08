@@ -1,5 +1,125 @@
 {"frames": {
 
+"CurMapPoint_Type0Num1.png":
+{
+	"frame": {"x":2318,"y":1628,"w":113,"h":102},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
+	"sourceSize": {"w":121,"h":112}
+},
+"CurMapPoint_Type0Num2.png":
+{
+	"frame": {"x":2204,"y":1731,"w":113,"h":102},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
+	"sourceSize": {"w":121,"h":112}
+},
+"CurMapPoint_Type0Num3.png":
+{
+	"frame": {"x":2204,"y":1628,"w":113,"h":102},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
+	"sourceSize": {"w":121,"h":112}
+},
+"CurMapPoint_Type1Num1.png":
+{
+	"frame": {"x":2167,"y":1452,"w":113,"h":102},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
+	"sourceSize": {"w":121,"h":112}
+},
+"CurMapPoint_Type1Num2.png":
+{
+	"frame": {"x":2167,"y":1349,"w":113,"h":102},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
+	"sourceSize": {"w":121,"h":112}
+},
+"CurMapPoint_Type1Num3.png":
+{
+	"frame": {"x":2053,"y":1452,"w":113,"h":102},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
+	"sourceSize": {"w":121,"h":112}
+},
+"CurMapPoint_Type2Num1.png":
+{
+	"frame": {"x":2053,"y":1349,"w":113,"h":102},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
+	"sourceSize": {"w":121,"h":112}
+},
+"CurMapPoint_Type2Num2.png":
+{
+	"frame": {"x":2239,"y":1905,"w":113,"h":102},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
+	"sourceSize": {"w":121,"h":112}
+},
+"CurMapPoint_Type2Num3.png":
+{
+	"frame": {"x":2125,"y":1905,"w":113,"h":102},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
+	"sourceSize": {"w":121,"h":112}
+},
+"CurMapPoint_Type3Num1.png":
+{
+	"frame": {"x":2011,"y":1905,"w":113,"h":102},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
+	"sourceSize": {"w":121,"h":112}
+},
+"CurMapPoint_Type3Num2.png":
+{
+	"frame": {"x":1897,"y":1908,"w":113,"h":102},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
+	"sourceSize": {"w":121,"h":112}
+},
+"CurMapPoint_Type3Num3.png":
+{
+	"frame": {"x":1783,"y":1908,"w":113,"h":102},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
+	"sourceSize": {"w":121,"h":112}
+},
+"CurMapPoint_Type4Num1.png":
+{
+	"frame": {"x":1669,"y":1908,"w":113,"h":102},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
+	"sourceSize": {"w":121,"h":112}
+},
+"CurMapPoint_Type4Num2.png":
+{
+	"frame": {"x":1555,"y":1908,"w":113,"h":102},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
+	"sourceSize": {"w":121,"h":112}
+},
+"CurMapPoint_Type4Num3.png":
+{
+	"frame": {"x":1441,"y":1908,"w":113,"h":102},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
+	"sourceSize": {"w":121,"h":112}
+},
 "MainMenu_Background.jpg":
 {
 	"frame": {"x":2082,"y":1,"w":640,"h":1136},
@@ -63,126 +183,6 @@
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":360,"h":508},
 	"sourceSize": {"w":360,"h":508}
-},
-"MapPoint_LatestCheckpoint_Collect_Digi1.png":
-{
-	"frame": {"x":2318,"y":1628,"w":113,"h":102},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
-	"sourceSize": {"w":121,"h":112}
-},
-"MapPoint_LatestCheckpoint_Collect_Digi2.png":
-{
-	"frame": {"x":2204,"y":1731,"w":113,"h":102},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
-	"sourceSize": {"w":121,"h":112}
-},
-"MapPoint_LatestCheckpoint_Collect_Digi3.png":
-{
-	"frame": {"x":2204,"y":1628,"w":113,"h":102},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
-	"sourceSize": {"w":121,"h":112}
-},
-"MapPoint_LatestCheckpoint_Diamond_Digi1.png":
-{
-	"frame": {"x":2167,"y":1452,"w":113,"h":102},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
-	"sourceSize": {"w":121,"h":112}
-},
-"MapPoint_LatestCheckpoint_Diamond_Digi2.png":
-{
-	"frame": {"x":2167,"y":1349,"w":113,"h":102},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
-	"sourceSize": {"w":121,"h":112}
-},
-"MapPoint_LatestCheckpoint_Diamond_Digi3.png":
-{
-	"frame": {"x":2053,"y":1452,"w":113,"h":102},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
-	"sourceSize": {"w":121,"h":112}
-},
-"MapPoint_LatestCheckpoint_Ice_Digi1.png":
-{
-	"frame": {"x":2053,"y":1349,"w":113,"h":102},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
-	"sourceSize": {"w":121,"h":112}
-},
-"MapPoint_LatestCheckpoint_Ice_Digi2.png":
-{
-	"frame": {"x":2239,"y":1905,"w":113,"h":102},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
-	"sourceSize": {"w":121,"h":112}
-},
-"MapPoint_LatestCheckpoint_Ice_Digi3.png":
-{
-	"frame": {"x":2125,"y":1905,"w":113,"h":102},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
-	"sourceSize": {"w":121,"h":112}
-},
-"MapPoint_LatestCheckpoint_Star_Digi1.png":
-{
-	"frame": {"x":2011,"y":1905,"w":113,"h":102},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
-	"sourceSize": {"w":121,"h":112}
-},
-"MapPoint_LatestCheckpoint_Star_Digi2.png":
-{
-	"frame": {"x":1897,"y":1908,"w":113,"h":102},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
-	"sourceSize": {"w":121,"h":112}
-},
-"MapPoint_LatestCheckpoint_Star_Digi3.png":
-{
-	"frame": {"x":1783,"y":1908,"w":113,"h":102},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
-	"sourceSize": {"w":121,"h":112}
-},
-"MapPoint_LatestCheckpoint_Time_Digi1.png":
-{
-	"frame": {"x":1669,"y":1908,"w":113,"h":102},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
-	"sourceSize": {"w":121,"h":112}
-},
-"MapPoint_LatestCheckpoint_Time_Digi2.png":
-{
-	"frame": {"x":1555,"y":1908,"w":113,"h":102},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
-	"sourceSize": {"w":121,"h":112}
-},
-"MapPoint_LatestCheckpoint_Time_Digi3.png":
-{
-	"frame": {"x":1441,"y":1908,"w":113,"h":102},
-	"rotated": false,
-	"trimmed": true,
-	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
-	"sourceSize": {"w":121,"h":112}
 },
 "MapPoint_NotOpen_Type0.png":
 {
@@ -511,6 +511,6 @@
 	"format": "RGBA8888",
 	"size": {"w":4096,"h":2048},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:dad4c4c5562c98b3c19435f435e8cbc8$"
+	"smartupdate": "$TexturePacker:SmartUpdate:d038bfd48d4c38abbf0d1f38317f1eb6$"
 }
 }

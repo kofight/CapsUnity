@@ -11,6 +11,7 @@ public enum NumberAlign
 public class NumberDrawer : MonoBehaviour {
     public int maxIntLenth = 3;
     public UISprite[] m_numbers;
+    public bool FilledWithZero = false;         //是否填0占位
     int m_curNumber = -1;
     public string SurName;
     public int NumberInterval = 20;
@@ -75,7 +76,7 @@ public class NumberDrawer : MonoBehaviour {
 		
 		m_curNumber = number;
 		
-		if(number == 0)		//0特殊处理一下
+		if(number == 0 && !FilledWithZero)		//0特殊处理一下
 		{
             for (int i = 0; i < maxIntLenth; ++i)
             {
@@ -92,18 +93,21 @@ public class NumberDrawer : MonoBehaviour {
             }
             return;
 		}
-		
+
+        int curNumStartIndex = 0;
         int factor = 10;									//用来取某个位的数字的因子
-        //第一遍找到开始的数字位置
-        int curNumStartIndex = maxIntLenth - 1;
-        for (int i = 0; i < maxIntLenth; ++i)		//处理整数部分
+        if (!FilledWithZero)
         {
-            int tempNumber = (number % factor) / (factor / 10);		//取出正在处理的位的数字
-            if (tempNumber != 0)
+            //第一遍找到开始的数字位置
+            for (int i = 0; i < maxIntLenth; ++i)		//处理整数部分
             {
-                curNumStartIndex = maxIntLenth - 1 - i;
+                int tempNumber = (number % factor) / (factor / 10);		//取出正在处理的位的数字
+                if (tempNumber != 0)
+                {
+                    curNumStartIndex = maxIntLenth - 1 - i;
+                }
+                factor *= 10;
             }
-            factor *= 10;
         }
 
         factor = 10;

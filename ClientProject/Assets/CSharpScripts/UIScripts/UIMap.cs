@@ -27,6 +27,7 @@ public class UIMap : UIWindow
 	UISprite m_cloud2Sprite;                     //云的图片
 
     Transform[] m_stageBtns;
+	Transform [] m_stageNumbers;
 
     UIWindow m_heartUI;
 
@@ -64,6 +65,7 @@ public class UIMap : UIWindow
         m_backGroundTrans = mUIObject.transform;
         
         m_stageBtns = new Transform[GlobalVars.TotalStageCount];
+		m_stageNumbers = new Transform[GlobalVars.TotalStageCount];
 
         GlobalVars.AvailabeStageCount = PlayerPrefs.GetInt("StageAvailableCount");
         GlobalVars.HeadStagePos = PlayerPrefs.GetInt("HeadStagePos");
@@ -109,6 +111,12 @@ public class UIMap : UIWindow
             {
                 return;
             }
+
+            if (GlobalVars.UseSFX)
+            {
+                NGUITools.PlaySound(CapsConfig.CurAudioList.ButtonClip);
+            }
+
             UINoMoreHearts noMoreHeartUI = UIWindowManager.Singleton.GetUIWindow<UINoMoreHearts>();
             UIStageInfo stageInfoUI = UIWindowManager.Singleton.GetUIWindow<UIStageInfo>();
 
@@ -126,6 +134,11 @@ public class UIMap : UIWindow
         UIButton button = m_heartUI.GetChildComponent<UIButton>("StoreBtn");
         EventDelegate.Set(button.onClick, delegate()
         {
+            if (GlobalVars.UseSFX)
+            {
+                NGUITools.PlaySound(CapsConfig.CurAudioList.ButtonClip);
+            }
+
             UIStore storeUI = UIWindowManager.Singleton.GetUIWindow<UIStore>();
             UIStageInfo stageInfoUI = UIWindowManager.Singleton.GetUIWindow<UIStageInfo>();
 
@@ -167,6 +180,20 @@ public class UIMap : UIWindow
             m_blurSprites[i] = UIToolkits.FindChild( mUIObject.transform, "MapPicBlur" + i).gameObject;
             m_blurSprites[i].SetActive(false);
         }
+		
+		for (int i = 0; i < GlobalVars.TotalStageCount; ++i)
+        {
+			Transform transform = UIToolkits.FindChild(mUIObject.transform, "Stage" + (i + 1));      //找到对象
+
+            if (transform == null)
+            {
+                Debug.LogError("There's no " + "Stage" + (i + 1).ToString() + " Button");
+                continue;
+            }
+			
+			m_stageBtns[i] = transform;
+			m_stageNumbers[i] = transform.FindChild("StageNumber");
+		}
     }
 
     public void OpenNewButton(int stageNum)
@@ -241,15 +268,7 @@ public class UIMap : UIWindow
         int numberCount = 1;
         for (int i = 0; i < GlobalVars.TotalStageCount; ++i)
         {
-            Transform transform = UIToolkits.FindChild(mUIObject.transform, "Stage" + (i + 1));      //找到对象
-
-            if (transform == null)
-            {
-                Debug.LogError("There's no " + "Stage" + (i + 1).ToString() + " Button");
-                continue;
-            }
-
-            if (i >= 9)
+			if (i >= 9)
             {
                 numberCount = 2;
             }
@@ -257,27 +276,23 @@ public class UIMap : UIWindow
             {
                 numberCount = 3;
             }
-			
-			m_stageBtns[i] = transform;
 
             bool bAvailable = false;
 
             if (!GlobalVars.DeveloperMode && i >= GlobalVars.HeadStagePos)     //隐藏超出范围的按钮
             {
                 bAvailable = false;
-                //transform.gameObject.SetActive(false);
             }
 			else
 			{
-                bAvailable = true;
-				//transform.gameObject.SetActive(true);                                                    //显示对象	
+                bAvailable = true;                                                //显示对象	
 			}
 
             for (int j = 1; j <= 3; ++j)
             {
                 if (GlobalVars.StageStarArray[i] >= j)       //若得到了星星
                 {
-                    Transform starTrans = UIToolkits.FindChild(transform, "Star" + j);
+                    Transform starTrans = UIToolkits.FindChild(m_stageBtns[i], "Star" + j);
                     if (starTrans)
                     {
                         starTrans.gameObject.SetActive(true);
@@ -285,7 +300,7 @@ public class UIMap : UIWindow
                 }
                 else
                 {
-                    Transform starTrans = UIToolkits.FindChild(transform, "Star" + j);
+                    Transform starTrans = UIToolkits.FindChild(m_stageBtns[i], "Star" + j);
                     if (starTrans)
                     {
                         starTrans.gameObject.SetActive(false);
@@ -293,25 +308,40 @@ public class UIMap : UIWindow
                 }
             }
 
-            UISprite sprite = transform.FindChild("BtnBackground").GetComponent<UISprite>();
+            UISprite sprite = m_stageBtns[i].FindChild("BtnBackground").GetComponent<UISprite>();
+			UIButton button = m_stageBtns[i].GetComponent<UIButton>();
             if (bAvailable)
             {
-                sprite.spriteName = "MapPoint_Type" + CapsConfig.StageTypeArray[i] + "Num" + numberCount;
+                if (i == GlobalVars.HeadStagePos - 1)       //当前关卡
+                {
+                    sprite.spriteName = "CurMapPoint_Type" + CapsConfig.StageTypeArray[i] + "Num" + numberCount;
+                    sprite.width = 122;
+                    sprite.height = 112;
+                    sprite.LocalPositionX(2);
+                    sprite.LocalPositionY(25);
+                }
+                else
+                {
+                    sprite.spriteName = "MapPoint_Type" + CapsConfig.StageTypeArray[i] + "Num" + numberCount;
+                    sprite.width = 74;
+                    sprite.height = 74;
+                    sprite.LocalPositionX(4);
+                    sprite.LocalPositionY(18);
+                }
+                
+				m_stageNumbers[i].gameObject.SetActive(true);
+				button.enabled = true;
             }
             else
             {
                 sprite.spriteName = "MapPoint_NotOpen_Type" + CapsConfig.StageTypeArray[i];
+                sprite.width = 74;
+                sprite.height = 74;
+                sprite.LocalPositionX(4);
+                sprite.LocalPositionY(18);
+				m_stageNumbers[i].gameObject.SetActive(false);
+				button.enabled = false;
             }
-
-            UIButton button = m_stageBtns[i].GetComponent<UIButton>();
-            if (!bAvailable)
-            {
-                button.enabled = false;
-            }
-			else
-			{
-				button.enabled = true;
-			}
             EventDelegate.Set(button.onClick, OnStageClicked);
         }
 
@@ -573,7 +603,11 @@ public class UIMap : UIWindow
         m_lastClickStageTime = Timer.GetRealTimeSinceStartUp();     //更新关卡点击时间
         SetStageHelp(false);
 
-        NGUITools.PlaySound(CapsConfig.CurAudioList.ButtonClip);
+        if (GlobalVars.UseSFX)
+        {
+            NGUITools.PlaySound(CapsConfig.CurAudioList.ButtonClip);
+        }
+        
         string stageNum = UIButton.current.name.Substring(5);
         GlobalVars.CurStageNum = System.Convert.ToInt32(stageNum);
         GlobalVars.CurStageData = StageData.CreateStageData();

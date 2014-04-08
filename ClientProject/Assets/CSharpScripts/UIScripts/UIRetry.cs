@@ -271,8 +271,9 @@ public class UIRetry : UIWindow
                 PlayerPrefsExtend.SetIntArray("StageScores", GlobalVars.StageScoreArray);
             }
 
-            UIWindowManager.Singleton.GetUIWindow<UIMap>().RefreshButton(GlobalVars.CurStageNum);       //刷新当前关卡的星星
-        }
+            UIWindowManager.Singleton.GetUIWindow<UIMap>().RefreshButtonStar(GlobalVars.CurStageNum);       //刷新当前关卡的星星
+			UIWindowManager.Singleton.GetUIWindow<UIMap>().RefreshButton(GlobalVars.CurStageNum - 1);       //刷新当前关卡的星星
+		}
         else
         {
 			GlobalVars.StageFailedArray[GlobalVars.CurStageNum]++;

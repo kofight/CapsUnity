@@ -160,7 +160,7 @@ public class UIFTUE : UIWindow
                     GameObject obj = GameObject.Find(m_ftueData[m_FTUEIndex].pointToGameObject) as GameObject;      //先找到物件
                     bShowPointer = true;
                     m_pointer.transform.parent = obj.transform;                 //把手指绑在找到的物件上
-                    m_pointer.transform.localPosition = new Vector3(0, 0, 0);       
+                    m_pointer.transform.localPosition = new Vector3(-16, 75, 0);       
                     m_pointer.transform.parent = m_gameAreaTrans;               //把父结点设回来
                     m_pointer.SetActive(true);
                     RefreshPointer();

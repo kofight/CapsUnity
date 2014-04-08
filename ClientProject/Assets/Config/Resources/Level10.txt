@@ -11,9 +11,14 @@ NutStep			5
 PlusInitCount			0				
 PlusMaxCount			0				
 PlusStartTime			0				
-PlusStep			0				
+PlusStepMin			5				
+PlusStepMax			10				
 Seed			0				
 NewFormat			1				
 StarScore			6000,10000,14000,				
+CollectColors			0,0,0,				
+CollectSpecial			0,0,0,				
+CollectCount			0,0,0,				
 GridDataArray			0,0,0,9,9,9,0,0,0,0,0,0,1,1,1,0,0,0,0,0,1,1,1,1,1,0,0,0,0,1,1,1,1,1,0,0,0,0,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,0,0,257,257,257,257,257,257,257,0,0,0,0,0,0,0,0,0,0,				
 PortalArray							
+SpecialArray							

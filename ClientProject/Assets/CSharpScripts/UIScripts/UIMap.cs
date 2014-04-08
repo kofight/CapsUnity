@@ -460,6 +460,10 @@ public class UIMap : UIWindow
                 GlobalVars.HeadStagePos = GlobalVars.AvailabeStageCount;        //记录头像移动
                 PlayerPrefs.SetInt("HeadStagePos", GlobalVars.HeadStagePos);    //记录
 				RefreshButton(m_newStageNumber - 1);
+                if (m_newStageNumber >= 2)
+                {
+                    RefreshButton(m_newStageNumber - 2);
+                }
 
                 if (m_newStageNumber == 2)                                      //需要出FTUE的情况
                 {

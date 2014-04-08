@@ -60,13 +60,16 @@ public class UILogin : UIWindow
         //    m_testLabel.gameObject.SetActive(false);
         //}
 
-        if (m_clickDebugCount >= 3)
+        if (Application.platform == RuntimePlatform.WindowsEditor)
         {
-            m_debugBoard.SetActive(true);
-        }
-        else
-        {
-            m_debugBoard.SetActive(false);
+            if (m_clickDebugCount >= 3)
+            {
+                m_debugBoard.SetActive(true);
+            }
+            else
+            {
+                m_debugBoard.SetActive(false);
+            }
         }
     }
 
@@ -76,17 +79,6 @@ public class UILogin : UIWindow
 		UIButton playBtn = GetChildComponent<UIButton>("PlayBtn");
 		playBtn.GetComponent<UIEffectPlayer>().Delay = 0;
         UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
-    }
-
-    public override void OnUpdate()
-    {
-        base.OnUpdate();
-        UILabel timeLabel = GetChildComponent<UILabel>("UsedTimeLabel");
-        if (timeLabel != null)
-        {
-            int playSecond = (int)CapsApplication.Singleton.GetPlayTime();
-            timeLabel.text = string.Format("{0}:{1}:{2}", playSecond / 3600, (playSecond % 3600) / 60, playSecond % 60);
-        }
     }
 
     private void OnPlayBtnClick()

@@ -238,10 +238,8 @@ public class UIMap : UIWindow
         }
     }
 
-    public void RefreshButton(int stageNum)
+    public void RefreshButtonStar(int stageNum)
     {
-        m_stageBtns[stageNum - 1].gameObject.SetActive(true);                                                    //显示对象
-
         for (int j = 1; j <= 3; ++j)
         {
             if (GlobalVars.StageStarArray[stageNum - 1] >= j)       //若得到了星星
@@ -263,86 +261,92 @@ public class UIMap : UIWindow
         }
     }
 
-    public void RefreshButtons()
-    {
-        int numberCount = 1;
-        for (int i = 0; i < GlobalVars.TotalStageCount; ++i)
-        {
-			if (i >= 9)
-            {
-                numberCount = 2;
-            }
-            if (i >= 99)
-            {
-                numberCount = 3;
-            }
+	public void RefreshButton(int i)
+	{
+		int numberCount = 1;
 
-            bool bAvailable = false;
-
-            if (!GlobalVars.DeveloperMode && i >= GlobalVars.HeadStagePos)     //隐藏超出范围的按钮
-            {
-                bAvailable = false;
-            }
+		if (i >= 9)
+		{
+			numberCount = 2;
+		}
+		if (i >= 99)
+		{
+			numberCount = 3;
+		}
+		
+		bool bAvailable = false;
+		
+		if (!GlobalVars.DeveloperMode && i >= GlobalVars.HeadStagePos)     //隐藏超出范围的按钮
+		{
+			bAvailable = false;
+		}
+		else
+		{
+			bAvailable = true;                                                //显示对象	
+		}
+		
+		for (int j = 1; j <= 3; ++j)
+		{
+			if (GlobalVars.StageStarArray[i] >= j)       //若得到了星星
+			{
+				Transform starTrans = UIToolkits.FindChild(m_stageBtns[i], "Star" + j);
+				if (starTrans)
+				{
+					starTrans.gameObject.SetActive(true);
+				}
+			}
 			else
 			{
-                bAvailable = true;                                                //显示对象	
+				Transform starTrans = UIToolkits.FindChild(m_stageBtns[i], "Star" + j);
+				if (starTrans)
+				{
+					starTrans.gameObject.SetActive(false);
+				}
 			}
+		}
+		
+		UISprite sprite = m_stageBtns[i].FindChild("BtnBackground").GetComponent<UISprite>();
+		UIButton button = m_stageBtns[i].GetComponent<UIButton>();
+		if (bAvailable)
+		{
+			if (i == GlobalVars.HeadStagePos - 1)       //当前关卡
+			{
+				sprite.spriteName = "CurMapPoint_Type" + CapsConfig.StageTypeArray[i] + "Num" + numberCount;
+				sprite.width = 122;
+				sprite.height = 112;
+				sprite.LocalPositionX(2);
+				sprite.LocalPositionY(25);
+			}
+			else
+			{
+				sprite.spriteName = "MapPoint_Type" + CapsConfig.StageTypeArray[i] + "Num" + numberCount;
+				sprite.width = 74;
+				sprite.height = 74;
+				sprite.LocalPositionX(4);
+				sprite.LocalPositionY(18);
+			}
+			
+			m_stageNumbers[i].gameObject.SetActive(true);
+			button.enabled = true;
+		}
+		else
+		{
+			sprite.spriteName = "MapPoint_NotOpen_Type" + CapsConfig.StageTypeArray[i];
+			sprite.width = 74;
+			sprite.height = 74;
+			sprite.LocalPositionX(4);
+			sprite.LocalPositionY(18);
+			m_stageNumbers[i].gameObject.SetActive(false);
+			button.enabled = false;
+		}
+		EventDelegate.Set(button.onClick, OnStageClicked);
+	}
 
-            for (int j = 1; j <= 3; ++j)
-            {
-                if (GlobalVars.StageStarArray[i] >= j)       //若得到了星星
-                {
-                    Transform starTrans = UIToolkits.FindChild(m_stageBtns[i], "Star" + j);
-                    if (starTrans)
-                    {
-                        starTrans.gameObject.SetActive(true);
-                    }
-                }
-                else
-                {
-                    Transform starTrans = UIToolkits.FindChild(m_stageBtns[i], "Star" + j);
-                    if (starTrans)
-                    {
-                        starTrans.gameObject.SetActive(false);
-                    }
-                }
-            }
-
-            UISprite sprite = m_stageBtns[i].FindChild("BtnBackground").GetComponent<UISprite>();
-			UIButton button = m_stageBtns[i].GetComponent<UIButton>();
-            if (bAvailable)
-            {
-                if (i == GlobalVars.HeadStagePos - 1)       //当前关卡
-                {
-                    sprite.spriteName = "CurMapPoint_Type" + CapsConfig.StageTypeArray[i] + "Num" + numberCount;
-                    sprite.width = 122;
-                    sprite.height = 112;
-                    sprite.LocalPositionX(2);
-                    sprite.LocalPositionY(25);
-                }
-                else
-                {
-                    sprite.spriteName = "MapPoint_Type" + CapsConfig.StageTypeArray[i] + "Num" + numberCount;
-                    sprite.width = 74;
-                    sprite.height = 74;
-                    sprite.LocalPositionX(4);
-                    sprite.LocalPositionY(18);
-                }
-                
-				m_stageNumbers[i].gameObject.SetActive(true);
-				button.enabled = true;
-            }
-            else
-            {
-                sprite.spriteName = "MapPoint_NotOpen_Type" + CapsConfig.StageTypeArray[i];
-                sprite.width = 74;
-                sprite.height = 74;
-                sprite.LocalPositionX(4);
-                sprite.LocalPositionY(18);
-				m_stageNumbers[i].gameObject.SetActive(false);
-				button.enabled = false;
-            }
-            EventDelegate.Set(button.onClick, OnStageClicked);
+    public void RefreshButtons()
+    {
+        for (int i = 0; i < GlobalVars.TotalStageCount; ++i)
+        {
+			RefreshButton(i);
         }
 
         m_headSprite.gameObject.transform.localPosition = new Vector3(m_stageBtns[GlobalVars.AvailabeStageCount - 1].localPosition.x, m_stageBtns[GlobalVars.AvailabeStageCount - 1].localPosition.y + HeadYOffset, m_stageBtns[GlobalVars.AvailabeStageCount - 1].localPosition.z);            //移到目标点
@@ -450,11 +454,12 @@ public class UIMap : UIWindow
             m_newStageMoveTime -= Time.deltaTime;
             if (m_newStageMoveTime < 0)     //若移动到了
             {
-                RefreshButton(m_newStageNumber);
+                RefreshButtonStar(m_newStageNumber);
                 AddStagePartile(m_newStageNumber);
                 m_headSprite.gameObject.transform.localPosition = new Vector3(m_stageBtns[m_newStageNumber - 1].localPosition.x, m_stageBtns[m_newStageNumber - 1].localPosition.y + HeadYOffset, m_stageBtns[m_newStageNumber - 1].localPosition.z);            ////移到目标点     
                 GlobalVars.HeadStagePos = GlobalVars.AvailabeStageCount;        //记录头像移动
                 PlayerPrefs.SetInt("HeadStagePos", GlobalVars.HeadStagePos);    //记录
+				RefreshButton(m_newStageNumber - 1);
 
                 if (m_newStageNumber == 2)                                      //需要出FTUE的情况
                 {

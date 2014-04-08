@@ -117,10 +117,6 @@ public class UILogin : UIWindow
         else
         {
             UIWindowManager.Singleton.GetUIWindow<UIMap>().ShowWindow();
-            if (GlobalVars.DeveloperMode)
-            {
-                UIWindowManager.Singleton.GetUIWindow<UIMap>().RefreshButtons();
-            }
             LoginState.Instance.CurFlow = TLoginFlow.LoginFlow_Map;         //切换流程到显示地图
         }
     }

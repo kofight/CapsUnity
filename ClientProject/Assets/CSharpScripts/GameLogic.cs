@@ -1189,7 +1189,16 @@ public class GameLogic
             }
         }
 
-        int FTUEStepCount = GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit;
+        int FTUEStepCount = 0;
+
+        if (PlayingStageData.StepLimit == 0)
+        {
+            FTUEStepCount = 1000;
+        }
+        else
+        {
+            FTUEStepCount = GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit;
+        }
 
         List<FTUEData> data;
         if (PlayingStageData.FTUEMap.TryGetValue(FTUEStepCount, out data))      //查看是否有FTUE数据
@@ -3976,6 +3985,7 @@ public class GameLogic
 
             Timer.AddDelayFunc(2.0f, delegate()
             {
+                CheckFTUE();
                 UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();            //出游戏结束界面
             });
             AddPartile("EndGameFailed", AudioEnum.Audio_None, 0, 0, false);

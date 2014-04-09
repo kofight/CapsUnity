@@ -60,6 +60,12 @@ public class UIMainMenu : UIWindow
             RefreshIcons();
         });
 
+        m_mainMenuExtend.AddChildComponentMouseClick("MainBtn", delegate()
+        {
+            m_mainMenuExtend.HideWindow();
+            ShowWindow();
+        });
+
         m_mainMenuExtend.AddChildComponentMouseClick("HideBtn", delegate()
         {
             m_mainMenuExtend.HideWindow();      //隐藏窗口

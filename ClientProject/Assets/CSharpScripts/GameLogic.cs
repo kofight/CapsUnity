@@ -2596,6 +2596,25 @@ public class GameLogic
                                 m_blocks[i, j].m_blockSprite.depth = 3;
                                 ++PlayingStageData.CollectCount[m_blocks[i, j].CollectIndex];                             //增加一个搜集数量
                             }
+                            else if (PlayingStageData.Target == GameTarget.BringFruitDown && m_blocks[i, j].color >= TBlockColor.EColor_Nut1)      //落水果关
+                            {
+                                bNeedRefreshTarget = true;
+                                m_blocks[i, j].m_tweenPosition.from = m_blocks[i, j].m_blockTransform.localPosition;             //从当前位置开始
+                                m_blocks[i, j].m_tweenPosition.to = CollectTargetUIPos[m_blocks[i, j].color - TBlockColor.EColor_Nut1];    //目标位置
+                                m_blocks[i, j].m_tweenPosition.enabled = true;
+                                m_blocks[i, j].m_tweenPosition.ResetToBeginning();
+                                m_blocks[i, j].m_tweenPosition.Play(true);
+                                m_blocks[i, j].EatDuration = m_blocks[i, j].m_tweenPosition.duration;
+
+                                m_blocks[i, j].m_tweenScale.enabled = true;
+                                m_blocks[i, j].m_tweenScale.ResetToBeginning();
+                                m_blocks[i, j].m_tweenScale.Play(true);
+
+                                m_blocks[i, j].m_tweenAlpha.enabled = true;
+                                m_blocks[i, j].m_tweenAlpha.ResetToBeginning();
+                                m_blocks[i, j].m_tweenAlpha.Play(true);
+                                m_blocks[i, j].m_blockSprite.depth = 3;
+                            }
                             else
                             {
                                 if (m_blocks[i, j].EatDuration == 0)

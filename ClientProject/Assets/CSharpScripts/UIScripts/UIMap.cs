@@ -363,6 +363,10 @@ public class UIMap : UIWindow
         m_cloudSprite.gameObject.SetActive(true);
 		m_lastClickStageTime = Timer.GetRealTimeSinceStartUp();     //更新关卡点击时间
         m_inputBlocker.SetActive(false);
+        if (GlobalVars.DeveloperMode)
+        {
+            RefreshButtons();
+        }
     }
 
     public override void OnShowEffectPlayOver()

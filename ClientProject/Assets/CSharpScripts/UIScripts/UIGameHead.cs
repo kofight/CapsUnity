@@ -86,37 +86,49 @@ public class UIGameHead : UIWindow
             m_jellyBoard.SetActive(false);
             m_scoreBoard.SetActive(false);
             m_collectBoard.SetActive(false);
+
+            Transform fruit1Trans = UIToolkits.FindChild(m_fruitBoard.transform, "Fruit1Board");
+            Transform fruit2Trans = UIToolkits.FindChild(m_fruitBoard.transform, "Fruit2Board");
             if (GlobalVars.CurStageData.Nut1Count > 0)
             {
-                UIToolkits.FindChild(m_fruitBoard.transform, "Fruit1Board").gameObject.SetActive(true);
+                fruit1Trans.gameObject.SetActive(true);
                 UIToolkits.FindComponent<UISprite>(m_fruitBoard.transform, "FruitNumTotal1").spriteName = "BaseNum" + GlobalVars.CurStageData.Nut1Count.ToString();
             }
             else
             {
-                UIToolkits.FindChild(m_fruitBoard.transform, "Fruit1Board").gameObject.SetActive(false);
+                fruit1Trans.gameObject.SetActive(false);
             }
             if (GlobalVars.CurStageData.Nut2Count > 0)
             {
-                UIToolkits.FindChild(m_fruitBoard.transform, "Fruit2Board").gameObject.SetActive(true);
+                fruit2Trans.gameObject.SetActive(true);
                 UIToolkits.FindComponent<UISprite>(m_fruitBoard.transform, "FruitNumTotal2").spriteName = "BaseNum" + GlobalVars.CurStageData.Nut2Count.ToString();
             }
             else
             {
-                UIToolkits.FindChild(m_fruitBoard.transform, "Fruit2Board").gameObject.SetActive(false);
+                fruit2Trans.gameObject.SetActive(false);
             }
             //居中对齐
             if (GlobalVars.CurStageData.Nut1Count > 0 && GlobalVars.CurStageData.Nut2Count > 0)     //若两个水果都有
             {
-                UIToolkits.FindChild(m_fruitBoard.transform, "Fruit1Board").LocalPositionX(10);
-                UIToolkits.FindChild(m_fruitBoard.transform, "Fruit2Board").LocalPositionX(201);
+                fruit1Trans.LocalPositionX(10);
+                fruit2Trans.LocalPositionX(201);
             }
             else if (GlobalVars.CurStageData.Nut1Count > 0)
             {
-                UIToolkits.FindChild(m_fruitBoard.transform, "Fruit1Board").LocalPositionX(111);
+                fruit1Trans.LocalPositionX(111);
             }
             else if (GlobalVars.CurStageData.Nut2Count > 0)
             {
-                UIToolkits.FindChild(m_fruitBoard.transform, "Fruit2Board").LocalPositionX(111);
+                fruit2Trans.LocalPositionX(111);
+            }
+
+            if (GlobalVars.CurStageData.Nut1Count > 0)
+            {
+                GameLogic.Singleton.CollectTargetUIPos[0] = new Vector3(-59.63453f + CapsApplication.Singleton.Width / 2 + fruit1Trans.localPosition.x, 1.562183f - 38.568f, 0);
+            }
+            if (GlobalVars.CurStageData.Nut2Count > 0)
+            {
+                GameLogic.Singleton.CollectTargetUIPos[1] = new Vector3(-59.63453f + CapsApplication.Singleton.Width / 2 + fruit2Trans.localPosition.x, 1.562183f - 38.5681f, 0);
             }
         }
         else if (GlobalVars.CurStageData.Target == GameTarget.ClearJelly)

@@ -381,8 +381,6 @@ public class GameLogic
     TBlockColor m_colorToBomb;                          //要变成Bomb的颜色
     float m_colorToBombLastTime;                        //同颜色变炸弹，上次发生时间
 
-    float m_endingAccelarateStartTime;                  //游戏结束时的额外加速的开始时间
-
     int m_comboCount;				//记录当前连击数
 	
 	int m_comboSoundCount;			//
@@ -447,6 +445,7 @@ public class GameLogic
 
     bool m_chocolateNeedGrow;               //是否需要巧克力生长
     bool m_bStopFTUE = false;               //若在关卡中跳过了FTUE,这个就为true了，进关卡时清回false
+    bool m_bFailedFTUE = false;             //是否在失败FTUE中
 
     public void StopFTUE()
     {
@@ -1181,7 +1180,7 @@ public class GameLogic
             return;
         }
 
-        if (!GlobalVars.DeveloperMode)
+        if (!GlobalVars.DeveloperMode && !m_bFailedFTUE)
         {
             if (PlayerPrefs.GetInt("StageFTUEFinished") >= GlobalVars.CurStageNum)
             {
@@ -1189,19 +1188,10 @@ public class GameLogic
             }
         }
 
-        int FTUEStepCount = 0;
-
-        if (PlayingStageData.StepLimit == 0)
-        {
-            FTUEStepCount = 1000;
-        }
-        else
-        {
-            FTUEStepCount = GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit;
-        }
+        int FTUEStepCount = GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit;
 
         List<FTUEData> data;
-        if (PlayingStageData.FTUEMap.TryGetValue(FTUEStepCount, out data))      //查看是否有FTUE数据
+        if (PlayingStageData.FTUEMap.TryGetValue(FTUEStepCount + (m_bFailedFTUE ? 1000 : 0), out data))      //查看是否有FTUE数据
         {
             //进入FTUE状态
             UIFTUE ftue = UIWindowManager.Singleton.GetUIWindow<UIFTUE>();
@@ -1210,7 +1200,7 @@ public class GameLogic
                 ftue = UIWindowManager.Singleton.CreateWindow<UIFTUE>();
             }
 
-            if (ftue.ShowFTUE(FTUEStepCount, data))
+            if (ftue.ShowFTUE(FTUEStepCount + (m_bFailedFTUE ? 1000 : 0), data))
 				m_gameFlow = TGameFlow.EGameState_FTUE;
         }
     }
@@ -1246,6 +1236,8 @@ public class GameLogic
     public void ClearGame()
     {
         FreeAllBlocks();
+
+        m_bFailedFTUE = false;
 
         m_cageCheckList.Clear();
 		
@@ -1327,7 +1319,6 @@ public class GameLogic
         m_curStateStartTime = 0;
         m_lastStepRewardTime = 0;
         m_lastHelpTime = 0;
-        m_endingAccelarateStartTime = 0;
         m_bStopFTUE = false;
 
         m_gettingExtraScore = false;
@@ -1816,9 +1807,7 @@ public class GameLogic
             else
             {
                 m_gameStartTime = 0;
-                m_gameFlow = TGameFlow.EGameState_End;
-                //Time.timeScale = 1.0f;                                                        //恢复正常的时间比例
-                m_endingAccelarateStartTime = 0;
+                m_gameFlow = TGameFlow.EGameState_End;      //从奖励状态进入结束状态
 
                 //若达成过关条件，触发关卡结束对话，并在对话结束后出游戏结束窗口
                 if (IsStageFinish())
@@ -3805,9 +3794,9 @@ public class GameLogic
         return false;
     }
 
-    void ProcessCheckStageFinish()
+    void ProcessCheckStageFinish()          //检查关卡是否已经结束
     {
-        if (IsStageFinish())                 //检查关卡是否完成，若已经达成过关条件
+        if (IsStageFinish())                 //检查是否达成过关条件
         {
 			m_stepCountWhenReachTarget = PlayingStageData.StepLimit;		//save the step for submit data later
 
@@ -3826,9 +3815,7 @@ public class GameLogic
 
             if (foundSpecial || PlayingStageData.StepLimit > 0)     //若能进SugarCrush
             {
-                m_gameFlow = TGameFlow.EGameState_SugarCrushAnim;
-                m_endingAccelarateStartTime = Timer.GetRealTimeSinceStartUp();
-                //Time.timeScale = 1.2f;                                                        //临时加快时间
+                m_gameFlow = TGameFlow.EGameState_SugarCrushAnim;                                                       //临时加快时间
                 AddPartile("SugarCrushAnim", AudioEnum.Audio_None, 0, 0, false);
                 ClearHelpPoint();
                 m_curStateStartTime = Timer.millisecondNow();
@@ -3884,22 +3871,15 @@ public class GameLogic
                         }
                     }
                 }
-                if (foundSpecial)
+                if (foundSpecial)       //若有特殊块，进入奖励环节
                 {
-                    m_gameFlow = TGameFlow.EGameState_SugarCrushAnim;
-                    m_endingAccelarateStartTime = Timer.GetRealTimeSinceStartUp();
-                    Time.timeScale = 1.2f;                                                    //临时加快时间
+                    m_gameFlow = TGameFlow.EGameState_SugarCrushAnim;                                                 //临时加快时间
                     AddPartile("SugarCrushAnim", AudioEnum.Audio_None, 0, 0, false);
                     ClearHelpPoint();
                     m_curStateStartTime = Timer.millisecondNow();
                     return;
                 }
             }
-            //否则直接结束游戏
-            m_gameStartTime = 0;
-            m_gameFlow = TGameFlow.EGameState_End;
-            //Time.timeScale = 1.0f;                                                        //恢复正常的时间比例
-            m_endingAccelarateStartTime = 0;
 
             if (CapsConfig.EnableGA)        //游戏结束的数据
             {
@@ -3908,88 +3888,128 @@ public class GameLogic
                 {
                     GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed:JellyCount", PlayingStageData.GetDoubleJellyCount() * 2 + PlayingStageData.GetJellyCount());  //记录失败时的果冻数
                 }
-				else if(PlayingStageData.Target == GameTarget.BringFruitDown)
-				{
-					GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed:NutCount", m_nut1Count + m_nut2Count);  //记录失败时的果冻数
-				}
+                else if (PlayingStageData.Target == GameTarget.BringFruitDown)
+                {
+                    GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed:NutCount", m_nut1Count + m_nut2Count);  //记录失败时的果冻数
+                }
                 else if (PlayingStageData.Target == GameTarget.Collect)
                 {
-                    GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed:Collect", 
-                        (float)(GlobalVars.CurStageData.CollectCount[0] - PlayingStageData.CollectCount[0]), 
-                        (GlobalVars.CurStageData.CollectCount[1] - PlayingStageData.CollectCount[1]), 
+                    GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Failed:Collect",
+                        (float)(GlobalVars.CurStageData.CollectCount[0] - PlayingStageData.CollectCount[0]),
+                        (GlobalVars.CurStageData.CollectCount[1] - PlayingStageData.CollectCount[1]),
                         (GlobalVars.CurStageData.CollectCount[2] - PlayingStageData.CollectCount[2]));  //记录失败时的果冻数
                 }
             }
 
 #if UNITY_ANDROID || UNITY_IPHONE
             if (CapsConfig.EnableTalkingData)
-			{
-				Dictionary<string, object> param = new Dictionary<string, object>();
+            {
+                Dictionary<string, object> param = new Dictionary<string, object>();
 
 
-				if (PlayingStageData.Target == GameTarget.ClearJelly)
-				{
-					int jellyCount = PlayingStageData.GetDoubleJellyCount() * 2 + PlayingStageData.GetJellyCount();
-					if(jellyCount > 15)
-					{
-						param["JellyCount"] = ">15";
-					}
-					else if(jellyCount > 10)
-					{
-						param["JellyCount"] = ">10";
-					}
-					else if(jellyCount > 5)
-					{
-						param["JellyCount"] = ">5";
-					} 
-					else
-					{
-						param["JellyCount"] = jellyCount.ToString();
-					} 
-				}
-				else if(PlayingStageData.Target == GameTarget.BringFruitDown)
-				{
-					int nutCount = m_nut1Count + m_nut2Count;
-					param["NutsCount"] = nutCount.ToString();
-				}
+                if (PlayingStageData.Target == GameTarget.ClearJelly)
+                {
+                    int jellyCount = PlayingStageData.GetDoubleJellyCount() * 2 + PlayingStageData.GetJellyCount();
+                    if (jellyCount > 15)
+                    {
+                        param["JellyCount"] = ">15";
+                    }
+                    else if (jellyCount > 10)
+                    {
+                        param["JellyCount"] = ">10";
+                    }
+                    else if (jellyCount > 5)
+                    {
+                        param["JellyCount"] = ">5";
+                    }
+                    else
+                    {
+                        param["JellyCount"] = jellyCount.ToString();
+                    }
+                }
+                else if (PlayingStageData.Target == GameTarget.BringFruitDown)
+                {
+                    int nutCount = m_nut1Count + m_nut2Count;
+                    param["NutsCount"] = nutCount.ToString();
+                }
                 else if (PlayingStageData.Target == GameTarget.Collect)
                 {
 
                 }
 
-				if (m_progress > PlayingStageData.StarScore[0])
-				{
-				    param["Score"] = ">100";
-				}
-				else if (m_progress > PlayingStageData.StarScore[0] * 0.8)
-				{
-				    param["Score"] = "80-100";
-				}
-				else if (m_progress > PlayingStageData.StarScore[0] * 0.6)
-				{
-				    param["Score"] = "60-80";
-				}
-				else if (m_progress > PlayingStageData.StarScore[0] * 0.4)
-				{
-				    param["Score"] = "40-60";
-				}
-				else
-				{
-				    param["Score"] = "<40";
-				}
-				
-				TalkingDataPlugin.TrackEventWithParameters("Stage" + GlobalVars.CurStageNum + ":Failed", "", param);
-			}
+                if (m_progress > PlayingStageData.StarScore[0])
+                {
+                    param["Score"] = ">100";
+                }
+                else if (m_progress > PlayingStageData.StarScore[0] * 0.8)
+                {
+                    param["Score"] = "80-100";
+                }
+                else if (m_progress > PlayingStageData.StarScore[0] * 0.6)
+                {
+                    param["Score"] = "60-80";
+                }
+                else if (m_progress > PlayingStageData.StarScore[0] * 0.4)
+                {
+                    param["Score"] = "40-60";
+                }
+                else
+                {
+                    param["Score"] = "<40";
+                }
+
+                TalkingDataPlugin.TrackEventWithParameters("Stage" + GlobalVars.CurStageNum + ":Failed", "", param);
+            }
 
 #endif
 
-            Timer.AddDelayFunc(2.0f, delegate()
+            List<FTUEData> data;
+            if (PlayingStageData.FTUEMap.TryGetValue(1000, out data))           //若有1000号FTUE,证明这关是有失败FTUE的
             {
-                CheckFTUE();
-                UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();            //出游戏结束界面
-            });
-            AddPartile("EndGameFailed", AudioEnum.Audio_None, 0, 0, false);
+                UIFailedFTUE pWin = UIWindowManager.Singleton.GetUIWindow<UIFailedFTUE>();
+                if (pWin == null)
+                {
+                    pWin = UIWindowManager.Singleton.CreateWindow<UIFailedFTUE>();
+                }
+                pWin.ShowWindow();      //显示窗口
+                pWin.RestartFunc = delegate()
+                {
+                    ClearGame();
+                    Init();
+                    StartGame();
+                    pWin.HideWindow();
+                    m_gameBottomUI.OnChangeStep(PlayingStageData.StepLimit);
+                };
+
+                pWin.NeedHelpFunc = delegate()
+                {
+                    ClearGame();
+                    m_bFailedFTUE = true;       //开始失败FTUE
+
+                    Init();
+                    StartGame();
+                    pWin.HideWindow();
+                    m_gameBottomUI.OnChangeStep(PlayingStageData.StepLimit);
+                };
+            }
+            else
+            {
+                EndGameFailed();
+            }
         }
+    }
+
+    void EndGameFailed()
+    {
+        //否则直接结束游戏
+        m_gameStartTime = 0;
+        m_gameFlow = TGameFlow.EGameState_End;
+
+        Timer.AddDelayFunc(2.0f, delegate()
+        {
+            UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();            //出游戏结束界面
+        });
+        AddPartile("EndGameFailed", AudioEnum.Audio_None, 0, 0, false);
     }
 
     void OnDropEnd()            //所有下落和移动结束时被调用

@@ -1180,7 +1180,7 @@ public class GameLogic
             return;
         }
 
-        if (!GlobalVars.DeveloperMode && !m_bFailedFTUE)
+        if (!GlobalVars.DeveloperMode)
         {
             if (PlayerPrefs.GetInt("StageFTUEFinished") >= GlobalVars.CurStageNum)
             {
@@ -3962,9 +3962,9 @@ public class GameLogic
             }
 
 #endif
-
             List<FTUEData> data;
-            if (PlayingStageData.FTUEMap.TryGetValue(1000, out data))           //若有1000号FTUE,证明这关是有失败FTUE的
+            if (PlayerPrefs.GetInt("StageFTUEFinished") < GlobalVars.CurStageNum            //只有当前关还没完成过才能出失败FTUE
+                && PlayingStageData.FTUEMap.TryGetValue(1000, out data))                    //检查是否有失败FTUE
             {
                 UIFailedFTUE pWin = UIWindowManager.Singleton.GetUIWindow<UIFailedFTUE>();
                 if (pWin == null)

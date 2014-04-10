@@ -22,8 +22,8 @@ public class UIStageEditor : UIWindow
 
         AddChildComponentMouseClick("RestartBtn", delegate()
             {
-                GameLogic.Singleton.ClearGame();
-				GameLogic.Singleton.Init();
+                GameLogic.Singleton.ClearLogic();
+                GameLogic.Singleton.InitLogic();
                 GameLogic.Singleton.StartGame();
                 RefreshControlls();
             });

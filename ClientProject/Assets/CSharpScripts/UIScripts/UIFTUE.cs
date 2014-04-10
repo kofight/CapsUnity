@@ -214,8 +214,8 @@ public class UIFTUE : UIWindow
         {
             if (CapsApplication.Singleton.CurStateEnum == StateEnum.Game)
             {
-                Vector2 fromXY = new Vector2(GameLogic.Singleton.GetXPos(m_ftueData[m_FTUEIndex].from.x) - 16, GameLogic.Singleton.GetYPos(m_ftueData[m_FTUEIndex].from.x, m_ftueData[m_FTUEIndex].from.y) - 42);
-                Vector2 toXY = new Vector2(GameLogic.Singleton.GetXPos(m_ftueData[m_FTUEIndex].to.x) - 16, GameLogic.Singleton.GetYPos(m_ftueData[m_FTUEIndex].to.x, m_ftueData[m_FTUEIndex].to.y) - 42);
+                Vector2 fromXY = new Vector2(GameLogic.Singleton.GetXPos(m_ftueData[m_FTUEIndex].from.x) - 20, GameLogic.Singleton.GetYPos(m_ftueData[m_FTUEIndex].from.x, m_ftueData[m_FTUEIndex].from.y) - 50);
+                Vector2 toXY = new Vector2(GameLogic.Singleton.GetXPos(m_ftueData[m_FTUEIndex].to.x) - 20, GameLogic.Singleton.GetYPos(m_ftueData[m_FTUEIndex].to.x, m_ftueData[m_FTUEIndex].to.y) - 50);
 
                 long curLoopTime = (Timer.millisecondNow() - m_pointerStartTime) % 2500;     //当前循环的时间
 
@@ -223,7 +223,8 @@ public class UIFTUE : UIWindow
                 {
                     m_pointerSprite.spriteName = "Point1";
                     m_pointerSprite.alpha = curLoopTime / 300.0f;
-                    m_pointer.transform.localPosition = new Vector3(fromXY.x + 20 * (1 - curLoopTime / 300.0f), -fromXY.y + 20 * (1 - curLoopTime / 300.0f));
+                    //m_pointer.transform.localPosition = new Vector3(fromXY.x + 20 * (1 - curLoopTime / 300.0f), -fromXY.y + 20 * (1 - curLoopTime / 300.0f));
+                    m_pointer.transform.localPosition = new Vector3(fromXY.x, -fromXY.y);
                 }
                 else if (curLoopTime <= 500)            //切到第二张停一下
                 {

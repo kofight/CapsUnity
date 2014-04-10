@@ -1443,7 +1443,7 @@ public class GameLogic
                         if (curYPos < -1)                                                   //若当前块的位置比-1还小
                         {
                             m_blocks[i, j].m_blockSprite.fillAmount = 0;                    //完全不可能显示
-                            m_blocks[i, j].m_blockSprite.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+                            m_blocks[i, j].m_blockSprite.transform.localScale = new Vector3(0.7f, 1, 1);
                         }
                         else if (curYPos == -1 || PlayingStageData.GridData[i, curYPos] == 0)   //若当前块的位置为-1或当前块为空
 						{
@@ -1461,16 +1461,24 @@ public class GameLogic
                                     m_blocks[i, j].m_shadowSprite.fillAmount = 1.0f - m_blocks[i, j].m_blockSprite.fillAmount;
                                     Position from = PlayingStageData.PortalToMap[j * 10 + i].from;
                                     m_blocks[i, j].m_shadowSprite.transform.localPosition = new Vector3(GetXPos(from.x), -(m_blocks[i, j].y_move + GetYPos(from.x, from.y + 1)), 0);
+
+                                    float shadowScale = 1.0f;
+                                    if (m_blocks[i, j].m_shadowSprite.fillAmount <= 0.75f)                              //影子的缩放范围是从0.75到0(开始的0.25不缩放)
+                                    {
+                                        shadowScale = m_blocks[i, j].m_shadowSprite.fillAmount * 2.0f / 3.0f + 0.5f;    //根据填充值计算一个缩放值(缩放比例控制在1-0.5)
+                                    }
+                                    
+                                    m_blocks[i, j].m_shadowSprite.transform.localScale = new Vector3(shadowScale, 1, 1);
                                 }
 
-                                float scale = m_blocks[i, j].m_blockSprite.fillAmount * 0.5f + 0.5f;
+                                float scale = m_blocks[i, j].m_blockSprite.fillAmount * 0.3f + 0.7f;    //根据填充值计算一个缩放值，缩放比例控制在0.7-1
 
-                                m_blocks[i, j].m_blockSprite.transform.localScale = new Vector3(scale, scale, scale);
+                                m_blocks[i, j].m_blockSprite.transform.localScale = new Vector3(scale, 1, 1);
 							}
 							else                                                                //若下一位置为空
 							{
                                 m_blocks[i, j].m_blockSprite.fillAmount = 0;                    //不显示
-                                m_blocks[i, j].m_blockSprite.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+                                m_blocks[i, j].m_blockSprite.transform.localScale = new Vector3(0.7f, 1, 1);
 							}
 						}
                     }
@@ -1478,6 +1486,7 @@ public class GameLogic
                     {
                         if (m_blocks[i, j].m_shadowSprite != null)                           //已经落完的，若仍有shadowSprite, 释放
                         {
+                            m_blocks[i, j].m_shadowSprite.gameObject.SetActive(false);
                             m_freeShadowSpriteList.AddLast(m_blocks[i, j].m_shadowSprite);   //放到空闲队列里
                             //m_blocks[i, j].m_shadowSprite.gameObject.SetActive(false);       //释放
                             m_blocks[i, j].m_shadowSprite = null;

@@ -760,7 +760,31 @@ public class GameLogic
         }
 
         //从随机位置开始
-        int randomPos = m_random.Next() % BlockCountX;
+        int randNum = m_random.Next();
+        int randomPos = 0;
+
+        if (PlayingStageData.Target == GameTarget.BringFruitDown)
+        {
+            posContainer.Clear();       //先清理容器
+            //查找出生点
+            for (int i = 0; i < BlockCountX; ++i)
+            {
+                for (int j = 0; j < BlockCountY; ++j)
+                {
+                    if (PlayingStageData.CheckFlag(i, j, GridFlag.Birth) && !PlayingStageData.CheckFlag(i, j, GridFlag.Cage))
+                    {
+                        posContainer.Add(new Position(i, j));
+                    }
+                }
+            }
+            Position pos = posContainer[randNum % posContainer.Count];      //在有效点里随机选一个
+            randomPos = pos.x;
+        }
+        else
+        {
+            randomPos = randNum % BlockCountX;
+        }
+
 
         bool startOver = true;
         while (startOver)

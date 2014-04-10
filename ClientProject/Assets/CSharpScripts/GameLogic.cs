@@ -1443,23 +1443,34 @@ public class GameLogic
                         if (curYPos < -1)                                                   //若当前块的位置比-1还小
                         {
                             m_blocks[i, j].m_blockSprite.fillAmount = 0;                    //完全不可能显示
+                            m_blocks[i, j].m_blockSprite.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
                         }
                         else if (curYPos == -1 || PlayingStageData.GridData[i, curYPos] == 0)   //若当前块的位置为-1或当前块为空
 						{
                             if (PlayingStageData.GridData[i, curYPos + 1] != 0)                 //若下一位置是不为空
 							{
-                                m_blocks[i, j].m_blockSprite.fillAmount = 1.0f - (yLenth - Mathf.Floor(yLenth));  //算个裁切
-
+                                float cut = yLenth - Mathf.Floor(yLenth);
+                                if (cut > 0.01f)
+                                {
+                                    //cut += 0.2f;
+                                }
+                                m_blocks[i, j].m_blockSprite.fillAmount = 1.0f - cut;  //算个裁切
+                                
                                 if (PlayingStageData.CheckFlag(i, j, GridFlag.PortalEnd) && m_blocks[i, j].m_shadowSprite!=null)       //若为传送门的终点,需要处理传来位置的图片
                                 {
                                     m_blocks[i, j].m_shadowSprite.fillAmount = 1.0f - m_blocks[i, j].m_blockSprite.fillAmount;
                                     Position from = PlayingStageData.PortalToMap[j * 10 + i].from;
                                     m_blocks[i, j].m_shadowSprite.transform.localPosition = new Vector3(GetXPos(from.x), -(m_blocks[i, j].y_move + GetYPos(from.x, from.y + 1)), 0);
                                 }
+
+                                float scale = m_blocks[i, j].m_blockSprite.fillAmount * 0.5f + 0.5f;
+
+                                m_blocks[i, j].m_blockSprite.transform.localScale = new Vector3(scale, scale, scale);
 							}
 							else                                                                //若下一位置为空
 							{
                                 m_blocks[i, j].m_blockSprite.fillAmount = 0;                    //不显示
+                                m_blocks[i, j].m_blockSprite.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
 							}
 						}
                     }
@@ -1472,6 +1483,7 @@ public class GameLogic
                             m_blocks[i, j].m_shadowSprite = null;
                         }
                         m_blocks[i, j].m_blockSprite.fillAmount = 1.0f;                     //完全显示
+                        m_blocks[i, j].m_blockSprite.transform.localScale = new Vector3(1, 1, 1);
                     }
 
                     //处理位置变化
@@ -3982,7 +3994,7 @@ public class GameLogic
 
 #endif
             List<FTUEData> data;
-            if (PlayerPrefs.GetInt("StageFTUEFinished") < GlobalVars.CurStageNum            //只有当前关还没完成过才能出失败FTUE
+            if ((PlayerPrefs.GetInt("StageFTUEFinished") < GlobalVars.CurStageNum || GlobalVars.DeveloperMode)            //只有当前关还没完成或调试模式才能出失败FTUE
                 && PlayingStageData.FTUEMap.TryGetValue(1000, out data))                    //检查是否有失败FTUE
             {
                 UIFailedFTUE pWin = UIWindowManager.Singleton.GetUIWindow<UIFailedFTUE>();

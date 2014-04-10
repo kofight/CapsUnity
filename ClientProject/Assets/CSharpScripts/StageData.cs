@@ -221,6 +221,50 @@ public class StageData
 
     private ConfigOperator _config;
 
+    public void CopyStageData(StageData data)       //这样Copy后，原数据不能销毁或修改，因为有部分内容直接引用了原数据的
+    {
+        Target = data.Target;
+        StepLimit = data.StepLimit;
+        TimeLimit = data.TimeLimit;
+        ColorCount = data.ColorCount;
+        Nut1Count = data.Nut1Count;
+        Nut2Count = data.Nut2Count;
+        NutInitCount = data.NutInitCount;
+        NutMaxCount = data.NutMaxCount;
+        NutMinCount = data.NutMinCount;
+        NutStep = data.NutStep;
+        PlusInitCount = data.PlusInitCount;
+        PlusMaxCount = data.PlusMaxCount;
+        PlusStartTime = data.PlusStartTime;
+        PlusStepMin = data.PlusStepMin;
+        PlusStepMax = data.PlusStepMax;
+        Seed = data.Seed;
+        for (int i = 0; i < 3; ++i)
+        {
+            StarScore[i] = data.StarScore[i];
+            CollectCount[i] = data.CollectCount[i];
+            CollectColors[i] = data.CollectColors[i];
+            CollectSpecial[i] = data.CollectSpecial[i];
+        }
+
+        for (int i = 0; i < GameLogic.BlockCountX; ++i)
+        {
+            for (int j = 0; j < GameLogic.BlockCountY; ++j)
+            {
+                GridData[i, j] = data.GridData[i, j];
+            }
+        }
+
+        ChocolateCount = data.ChocolateCount;
+        StoneCount = data.StoneCount;
+
+        //这几个是只读的，就直接用源数据的就行了
+        PortalToMap = data.PortalToMap;
+        PortalFromMap = data.PortalFromMap;
+        SpecialBlock = data.SpecialBlock;
+        FTUEMap = data.FTUEMap;
+    }
+
     public void LoadStageData(int levelNum)
     {
         _config = new ConfigOperator("Level" + levelNum);

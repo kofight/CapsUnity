@@ -27,6 +27,7 @@ public enum TSpecialEffect
     EBigBomb,
     EEatAColorNDBomb,
     EResortEffect,
+    ERestartEffect,
 }
 
 enum TDirection
@@ -660,39 +661,17 @@ public class GameLogic
         }
     }
 
-    public void Init(int seed = -1)         //seed > -1时，指定seed
+    void InitRes()
     {
-        for (int i = 0; i < 81; ++i)
+        if (m_freeNumberList.Count == 0)
         {
-            ShowingNumberEffect numEffect = new ShowingNumberEffect();
-            numEffect.Init(m_numInstance);
-            m_freeNumberList.AddLast(numEffect);
+            for (int i = 0; i < 81; ++i)
+            {
+                ShowingNumberEffect numEffect = new ShowingNumberEffect();
+                numEffect.Init(m_numInstance);
+                m_freeNumberList.AddLast(numEffect);
+            }
         }
-
-        PlayingStageData = StageData.CreateStageData();
-        PlayingStageData.LoadStageData(GlobalVars.CurStageNum);
-        if (seed > -1)
-        {
-            PlayingStageData.Seed = seed;
-        }
-
-        if (PlayingStageData.Seed > 0)
-        {
-            m_random = new MyRandom(PlayingStageData.Seed);
-            //这六次是开发期测试代码，因为关卡已经编辑完了，只能保留这部分代码，否则就需要重新编辑关卡
-            m_random.Next();
-            m_random.Next();
-            m_random.Next();
-            m_random.Next();
-            m_random.Next();
-            m_random.Next();
-        }
-        else
-        {
-            m_random = new MyRandom((int)Time.timeSinceLevelLoad * 1000);
-        }
-
-        m_random2 = new System.Random((int)Time.timeSinceLevelLoad * 1000); 
 
         //计算游戏区位置////////////////////////////////////////////////////////////////////////
         int BlockXStart = 999;
@@ -703,7 +682,7 @@ public class GameLogic
         {
             for (int j = 0; j < BlockCountY; ++j)
             {
-                if (PlayingStageData.GridData[i, j] != 0)
+                if (GlobalVars.CurStageData.GridData[i, j] != 0)
                 {
                     if (i < BlockXStart)
                     {
@@ -726,7 +705,55 @@ public class GameLogic
         }
 
         gameAreaX = (int)((CapsApplication.Singleton.Width - (BlockXEnd + 1 - BlockXStart) * BLOCKWIDTH) / 2 - BlockXStart * BLOCKWIDTH);
-        gameAreaY = (int)((CapsApplication.Singleton.Height - (BlockYEnd + 1 - BlockYStart) * BLOCKHEIGHT) / 2 - BlockYStart * BLOCKHEIGHT - BLOCKHEIGHT /2) - 2;
+        gameAreaY = (int)((CapsApplication.Singleton.Height - (BlockYEnd + 1 - BlockYStart) * BLOCKHEIGHT) / 2 - BlockYStart * BLOCKHEIGHT - BLOCKHEIGHT / 2) - 2;
+
+        //创建底图对象
+        for (int i = 0; i < BlockCountX; ++i)
+        {
+            for (int j = 0; j < BlockCountY; ++j)
+            {
+                if (GlobalVars.CurStageData.GridData[i, j] == 0)
+                {
+                    continue;
+                }
+                m_gridBackImage[i, j] = new GridSprites();
+            }
+        }
+
+        EasyTouch.On_SimpleTap += OnTap;
+        EasyTouch.On_Swipe += OnTouchMove;
+        EasyTouch.On_TouchStart += OnTouchBegin;
+        EasyTouch.On_TouchUp += OnTouchEnd;
+
+        PlayingStageData = StageData.CreateStageData();
+    }
+
+    public void InitLogic(int seed = -1)
+    {
+        PlayingStageData.CopyStageData(GlobalVars.CurStageData);
+
+        if (seed > -1)
+        {
+            PlayingStageData.Seed = seed;
+        }
+
+        if (PlayingStageData.Seed > 0)
+        {
+            m_random = new MyRandom(PlayingStageData.Seed);
+            //这六次是开发期测试代码，因为关卡已经编辑完了，只能保留这部分代码，否则就需要重新编辑关卡
+            m_random.Next();
+            m_random.Next();
+            m_random.Next();
+            m_random.Next();
+            m_random.Next();
+            m_random.Next();
+        }
+        else
+        {
+            m_random = new MyRandom((int)Time.timeSinceLevelLoad * 1000);
+        }
+
+        m_random2 = new System.Random((int)Time.timeSinceLevelLoad * 1000);
 
         //绘制底图
         for (int i = 0; i < BlockCountX; ++i)
@@ -737,20 +764,14 @@ public class GameLogic
                 {
                     continue;
                 }
-                m_gridBackImage[i, j] = new GridSprites();
                 ProcessGridSprites(i, j);
             }
         }
 
-        for (int i = 0; i < 3; ++i )
+        for (int i = 0; i < 3; ++i)
         {
             m_saveHelpBlocks[i].MakeItUnAvailable();
         }
-
-        EasyTouch.On_SimpleTap += OnTap;
-        EasyTouch.On_Swipe += OnTouchMove;
-        EasyTouch.On_TouchStart += OnTouchBegin;
-        EasyTouch.On_TouchUp += OnTouchEnd;
 
         //初始化坚果数量
         if (PlayingStageData.Target == GameTarget.BringFruitDown)
@@ -784,7 +805,6 @@ public class GameLogic
         {
             randomPos = randNum % BlockCountX;
         }
-
 
         bool startOver = true;
         while (startOver)
@@ -822,28 +842,27 @@ public class GameLogic
         }
 
         UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().Reset();
-
         ClearSelected();
 
-		if (GlobalVars.StageStarArray[GlobalVars.CurStageNum] == 0)	//Only send start stage data when first time enters
-		{
-			if(CapsConfig.EnableGA)
-				GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Start");        //记录当前开始的关卡的数据
+        if (GlobalVars.StageStarArray[GlobalVars.CurStageNum] == 0)	//Only send start stage data when first time enters
+        {
+            if (CapsConfig.EnableGA)
+                GA.API.Design.NewEvent("Stage" + GlobalVars.CurStageNum + ":Start");        //记录当前开始的关卡的数据
 #if UNITY_ANDROID || UNITY_IPHONE
             if (CapsConfig.EnableTalkingData)
-				TalkingDataPlugin.TrackEvent("Stage" + GlobalVars.CurStageNum + ":Start");  //记录当前开始的关卡的数据
+                TalkingDataPlugin.TrackEvent("Stage" + GlobalVars.CurStageNum + ":Start");  //记录当前开始的关卡的数据
 #endif
-		}       
-		
-		UIFTUE ftue = UIWindowManager.Singleton.GetUIWindow<UIFTUE>();
+        }
+
+        UIFTUE ftue = UIWindowManager.Singleton.GetUIWindow<UIFTUE>();
         if (ftue == null)
         {
             ftue = UIWindowManager.Singleton.CreateWindow<UIFTUE>();
         }
-		ftue.ResetFTUEStep();
+        ftue.ResetFTUEStep();
 
         ///处理游戏开始使用的道具///////////////////////////////////////////////////////////////////////
-        for (int i = 0; i < 3; ++i )
+        for (int i = 0; i < 3; ++i)
         {
             if (GlobalVars.StartStageItem[i] == PurchasedItem.ItemPreGame_AddEatColor)
             {
@@ -879,13 +898,23 @@ public class GameLogic
         }
     }
 
+    public void Init(int seed = -1)         //seed > -1时，指定seed
+    {
+        InitRes();
+        InitLogic(seed);
+    }
+
     void ProcessGridSprites(int x, int y)
     {
+        GameObject newObj = null;
         //处理第一层////////////////////////////////////////////////////////////////////////
-        GameObject newObj = GameObject.Instantiate(m_gridInstance) as GameObject;
-        m_gridBackImage[x, y].layer0 = newObj.GetComponent<UISprite>();
-        m_gridBackImage[x, y].layer0.transform.parent = m_gridInstance.transform.parent;
-        m_gridBackImage[x, y].layer0.transform.localScale = m_gridInstance.transform.localScale;
+        if (m_gridBackImage[x, y].layer0 == null)
+        {
+            newObj = GameObject.Instantiate(m_gridInstance) as GameObject;
+            m_gridBackImage[x, y].layer0 = newObj.GetComponent<UISprite>();
+            m_gridBackImage[x, y].layer0.transform.parent = m_gridInstance.transform.parent;
+            m_gridBackImage[x, y].layer0.transform.localScale = m_gridInstance.transform.localScale;
+        }
 
         bool bJelly = false;
 
@@ -906,14 +935,18 @@ public class GameLogic
 
         if (bJelly)
         {
-            m_gridBackImage[x, y].IcePartile = GameObject.Instantiate(m_iceParticle) as GameObject;
-            ParticleSystem par = m_gridBackImage[x, y].IcePartile.GetComponent<ParticleSystem>();
-            par.startDelay = (float)m_random2.NextDouble();
-            ParticleSystem parChild = UIToolkits.FindComponent<ParticleSystem>(m_gridBackImage[x, y].IcePartile.transform);
-            parChild.startDelay = 0.3f + (float)m_random2.NextDouble() * 3.33f;
+            if (m_gridBackImage[x, y].IcePartile == null)
+            {
+                m_gridBackImage[x, y].IcePartile = GameObject.Instantiate(m_iceParticle) as GameObject;
+                ParticleSystem par = m_gridBackImage[x, y].IcePartile.GetComponent<ParticleSystem>();
+                par.startDelay = (float)m_random2.NextDouble();
+                ParticleSystem parChild = UIToolkits.FindComponent<ParticleSystem>(m_gridBackImage[x, y].IcePartile.transform);
+                parChild.startDelay = 0.3f + (float)m_random2.NextDouble() * 3.33f;
+                m_gridBackImage[x, y].IcePartile.transform.parent = m_gridBackImage[x, y].layer0.transform;
+                m_gridBackImage[x, y].IcePartile.transform.localPosition = Vector3.zero;
+            }
+
             m_gridBackImage[x, y].IcePartile.SetActive(true);
-			m_gridBackImage[x, y].IcePartile.transform.parent = m_gridBackImage[x, y].layer0.transform;
-            m_gridBackImage[x, y].IcePartile.transform.localPosition = Vector3.zero;
         }
         else
         {
@@ -927,21 +960,29 @@ public class GameLogic
         //处理第二层
         if (PlayingStageData.CheckFlag(x, y, GridFlag.Stone))
         {
-            newObj = GameObject.Instantiate(m_gridInstance) as GameObject;
-            m_gridBackImage[x, y].layer1 = newObj.GetComponent<UISprite>();
+            if (m_gridBackImage[x, y].layer1 == null)
+            {
+                newObj = GameObject.Instantiate(m_gridInstance) as GameObject;
+                m_gridBackImage[x, y].layer1 = newObj.GetComponent<UISprite>();
+            }
             m_gridBackImage[x, y].layer1.spriteName = "Stone";
         }
         else if (PlayingStageData.CheckFlag(x, y, GridFlag.Chocolate))
         {
-            newObj = GameObject.Instantiate(m_gridInstance) as GameObject;
-            m_gridBackImage[x, y].layer1 = newObj.GetComponent<UISprite>();
+            if (m_gridBackImage[x, y].layer1 == null)
+            {
+                newObj = GameObject.Instantiate(m_gridInstance) as GameObject;
+                m_gridBackImage[x, y].layer1 = newObj.GetComponent<UISprite>();
+            }
             m_gridBackImage[x, y].layer1.spriteName = "Chocolate";
-
         }
         else if (PlayingStageData.CheckFlag(x, y, GridFlag.Cage))
         {
-            newObj = GameObject.Instantiate(m_gridInstance) as GameObject;
-            m_gridBackImage[x, y].layer1 = newObj.GetComponent<UISprite>();
+            if (m_gridBackImage[x, y].layer1 == null)
+            {
+                newObj = GameObject.Instantiate(m_gridInstance) as GameObject;
+                m_gridBackImage[x, y].layer1 = newObj.GetComponent<UISprite>();
+            }
             m_gridBackImage[x, y].layer1.spriteName = "Cage";
         }
 
@@ -951,9 +992,15 @@ public class GameLogic
             m_gridBackImage[x, y].layer1.transform.localScale = m_gridInstance.transform.localScale;
             m_gridBackImage[x, y].layer1.transform.localPosition = new Vector3(GetXPos(x), -GetYPos(x, y), -110);
             m_gridBackImage[x, y].layer1.depth = 3;
+            m_gridBackImage[x, y].layer1.gameObject.SetActive(true);
         }
 
-        newObj = null;
+        ProcessAngles(x, y);
+    }
+
+    void ProcessAngles(int x, int y)
+    {
+        GameObject newObj = null;
         //判断圆角
         for (int i = 0; i <= (int)TDirection.EDir_LeftUp; ++i)       //向6个方向看
         {
@@ -963,7 +1010,7 @@ public class GameLogic
             {
                 continue;
             }
-            Position newPos2 = GoTo(new Position(x, y), (TDirection)((i + 1)%6), 1);       //下个方向走一步
+            Position newPos2 = GoTo(new Position(x, y), (TDirection)((i + 1) % 6), 1);       //下个方向走一步
             if (CheckPosAvailable(newPos2) && m_gridBackImage[newPos2.x, newPos2.y] != null && m_gridBackImage[newPos2.x, newPos2.y].hasProcessAngle)
             {
                 continue;
@@ -974,7 +1021,7 @@ public class GameLogic
                 newObj = GameObject.Instantiate(m_angleInstance) as GameObject;
                 m_gridAngles.Add(newObj);
             }
-            if ((!CheckPosAvailable(newPos) || PlayingStageData.GridData[newPos.x, newPos.y] == 0) 
+            if ((!CheckPosAvailable(newPos) || PlayingStageData.GridData[newPos.x, newPos.y] == 0)
                 &&
                 (CheckPosAvailable(newPos2) && PlayingStageData.GridData[newPos2.x, newPos2.y] != 0))             //若一个方向为空
             {
@@ -996,9 +1043,9 @@ public class GameLogic
                 newObj.transform.localPosition = Vector3.zero;
                 newObj.transform.localRotation = Quaternion.Euler(0, 0, -i * 60);       //旋转
             }
-			newObj = null;
+            newObj = null;
         }
-		m_gridBackImage[x, y].hasProcessAngle = true;
+        m_gridBackImage[x, y].hasProcessAngle = true;
     }
 
     public bool Help()                 //查找到一个可交换的位置
@@ -1074,7 +1121,18 @@ public class GameLogic
     {
         Debug.Log("PlayAutoResortEffect");
         m_gameFlow = TGameFlow.EGameState_EffectTime;                           //切换游戏状态到特效演出时间，等待特效演出
-        m_curSpecialEffect = TSpecialEffect.EResortEffect;                      //全方向消除特效
+        m_curSpecialEffect = TSpecialEffect.EResortEffect;                      //重排特效
+        m_curStateStartTime = Timer.millisecondNow();                           //保存下切状态的时间
+        m_effectStateDuration = 0;                    //2秒的演出时间
+        m_effectStep = 0;
+        ClearHelpPoint();
+    }
+
+    public void PlayRestartEffect()
+    {
+        Debug.Log("PlayAutoResortEffect");
+        m_gameFlow = TGameFlow.EGameState_EffectTime;                           //切换游戏状态到特效演出时间，等待特效演出
+        m_curSpecialEffect = TSpecialEffect.ERestartEffect;                      //重新开始特效
         m_curStateStartTime = Timer.millisecondNow();                           //保存下切状态的时间
         m_effectStateDuration = 0;                    //2秒的演出时间
         m_effectStep = 0;
@@ -1257,14 +1315,8 @@ public class GameLogic
         }
     }
 
-    public void ClearGame()
+    void ReleaseAll()
     {
-        FreeAllBlocks();
-
-        m_bFailedFTUE = false;
-
-        m_cageCheckList.Clear();
-		
         //隐藏shadowSprite
         foreach (UISprite sprite in m_freeShadowSpriteList)
         {
@@ -1279,7 +1331,6 @@ public class GameLogic
         }
         m_showingNumberEffectList.Clear();
 
-        m_progress = 0;
         //回收粒子////////////////////////////////////////////////////////////////////////
         foreach (KeyValuePair<string, LinkedList<DelayParticle>> pair in m_particleMap)
         {
@@ -1289,11 +1340,13 @@ public class GameLogic
             {
                 par.par.Stop();
                 m_freeParticleMap[pair.Key].AddLast(par.par);           //添加空闲的
-                 
+
             }
 
             list.Clear();
         }
+
+        //清理“边”的物件
 
         foreach (GameObject obj in m_gridAngles)
         {
@@ -1302,16 +1355,11 @@ public class GameLogic
 
         m_gridAngles.Clear();
 
+        //释放底图
         for (int i = 0; i < BlockCountX; ++i)
         {
             for (int j = 0; j < BlockCountY; ++j)
             {
-                if (m_blocks[i, j] != null)
-                {
-                    GameObject.Destroy(m_blocks[i, j].m_blockTransform.gameObject);
-                    m_blocks[i, j] = null;
-                }
-
                 if (m_gridBackImage[i, j] != null)
                 {
                     if (m_gridBackImage[i, j].layer0 != null)
@@ -1338,32 +1386,48 @@ public class GameLogic
                 }
             }
         }
-        m_nut1Count = 0;
-        m_nut2Count = 0;
-        m_curStateStartTime = 0;
-        m_lastStepRewardTime = 0;
-        m_lastHelpTime = 0;
-        m_bStopFTUE = false;
-
-        m_gettingExtraScore = false;
-        IsStopingChocoGrow = false;
-        IsStoppingTime = false;
-        m_bHurryAnimPlayed = false;
-
-        CapBlock.DropingBlockCount = 0;
-        CapBlock.EatingBlockCount = 0;
-
-        for (int i = 0; i < BlockCountX; ++i)
-        {
-			m_slopeDropLock[i] = 10;         //初始化成不加锁
-        }
-
-        m_helpPointerObj.SetActive(false);
 
         EasyTouch.On_SimpleTap -= OnTap;
         EasyTouch.On_Swipe -= OnTouchMove;
         EasyTouch.On_TouchStart -= OnTouchBegin;
         EasyTouch.On_TouchUp -= OnTouchEnd;
+
+        m_bFailedFTUE = false;      //这个比较特殊，因为ClearLogic会被重新开始特效调用，所以清理失败FTUE放这里一次
+    }
+
+    public void ClearLogic(bool RestartEffectClear = false)
+    {
+        FreeAllBlocks();
+        m_cageCheckList.Clear();
+        m_progress = 0;
+        m_nut1Count = 0;
+        m_nut2Count = 0;
+        if (!RestartEffectClear)
+        {
+            m_bFailedFTUE = false;
+            m_curStateStartTime = 0;
+        }
+        m_lastStepRewardTime = 0;
+        m_lastHelpTime = 0;
+        m_bStopFTUE = false;
+        m_gettingExtraScore = false;
+        IsStopingChocoGrow = false;
+        IsStoppingTime = false;
+        m_bHurryAnimPlayed = false;
+        CapBlock.DropingBlockCount = 0;
+        CapBlock.EatingBlockCount = 0;
+        for (int i = 0; i < BlockCountX; ++i)
+        {
+            m_slopeDropLock[i] = 10;         //初始化成不加锁
+        }
+        m_helpPointerObj.SetActive(false);  //隐藏帮助指针
+    }
+
+    public void ClearGame()
+    {
+        ReleaseAll();
+
+        ClearLogic();
 
         System.GC.Collect();
     }
@@ -1635,8 +1699,15 @@ public class GameLogic
             long timePast = Timer.millisecondNow() - m_curStateStartTime;
             if (m_effectStateDuration > 0 && timePast > m_effectStateDuration)       //若到时间，不继续处理
             {
-                m_gameFlow = TGameFlow.EGameState_Playing;                           //开始游戏
-                DropDown();                                                          //开始先尝试进行一次下落
+                if (m_curSpecialEffect == TSpecialEffect.ERestartEffect)            //若是重新开始特效
+                {
+                    StartGame();        //开始游戏
+                }
+                else
+                {
+                    m_gameFlow = TGameFlow.EGameState_Playing;                           //开始游戏
+                    DropDown();                                                          //开始先尝试进行一次下落
+                }
             }
             else                                                                    //这里处理各种特殊效果
             {
@@ -1716,7 +1787,7 @@ public class GameLogic
 						DropDown();                                               			 //尝试进行一次下落
                     }                    
                 }
-                else if (m_curSpecialEffect == TSpecialEffect.EResortEffect)                //重拍特效
+                else if (m_curSpecialEffect == TSpecialEffect.EResortEffect || m_curSpecialEffect == TSpecialEffect.ERestartEffect)                //重排或重新开始特效
                 {
                     if (m_effectStep == 0)                                                  //初始化消失特效
                     {
@@ -1759,7 +1830,16 @@ public class GameLogic
                         long oneTimeCount = (m_effectStateDuration - CapsConfig.EffectResortTime) / 2;      //一次特效所用的时间
                         if (timePast > m_effectStateDuration / 2)                                           //到中间时间，进行重排等活动
                         {
-                            AutoResort();
+                            if (m_curSpecialEffect == TSpecialEffect.EResortEffect)
+                            {
+                                AutoResort();
+                            }
+                            else if (m_curSpecialEffect == TSpecialEffect.ERestartEffect)
+                            {
+                                //重新开始游戏
+                                ClearLogic(true);
+                                InitLogic();
+                            }
                             ProcessResortEffectStartTime(oneTimeCount + CapsConfig.EffectResortTime, CapsConfig.EffectResortInterval);    //计算特效时序
                             m_effectStep = 3;
                         }
@@ -4019,20 +4099,14 @@ public class GameLogic
                 pWin.ShowWindow();      //显示窗口
                 pWin.RestartFunc = delegate()
                 {
-                    ClearGame();
-                    Init();
-                    StartGame();
+                    PlayRestartEffect();
                     pWin.HideWindow();
-                    m_gameBottomUI.OnChangeStep(PlayingStageData.StepLimit);
                 };
 
                 pWin.NeedHelpFunc = delegate()
                 {
-                    ClearGame();
                     m_bFailedFTUE = true;       //开始失败FTUE
-
-                    Init();
-                    StartGame();
+                    PlayRestartEffect();
                     pWin.HideWindow();
                     m_gameBottomUI.OnChangeStep(PlayingStageData.StepLimit);
                 };
@@ -5017,10 +5091,14 @@ public class GameLogic
     bool CreateBlock(int x, int y, bool avoidLine)
     {
         TBlockColor color = GetRandomColor(PlayingStageData.CheckFlag(x, y, GridFlag.Birth) && !PlayingStageData.CheckFlag(x, y, GridFlag.Cage));		//最上方获取新的方块，笼子里不能生成坚果
-        m_blocks[x, y] = GetFreeCapBlock(color);            //创建新的块 Todo 变成用缓存
+        m_blocks[x, y] = GetFreeCapBlock(color);            //创建新的块
         m_blocks[x, y].color = color;               //设置颜色
         m_blocks[x, y].m_animation.enabled = false;
         m_blocks[x, y].EatDuration = EATBLOCK_TIME;
+        if (m_gameFlow == TGameFlow.EGameState_EffectTime && m_curSpecialEffect == TSpecialEffect.ERestartEffect)              //这个是在失败FTUE时用的，播开始时的特效中创建的块都置为透明
+        {
+            m_blocks[x, y].m_blockSprite.color = new Color(1.0f, 1.0f, 1.0f, 0.0f);     //新创建出来是透明的
+        }
 
         if (PlayingStageData.TimeLimit > 0 && Timer.millisecondNow() - m_gameStartTime > PlayingStageData.PlusStartTime * 1000)       //若超过了开始掉+5的时间
         {

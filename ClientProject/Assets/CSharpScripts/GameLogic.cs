@@ -760,7 +760,31 @@ public class GameLogic
         }
 
         //从随机位置开始
-        int randomPos = m_random.Next() % BlockCountX;
+        int randNum = m_random.Next();
+        int randomPos = 0;
+
+        if (PlayingStageData.Target == GameTarget.BringFruitDown)
+        {
+            posContainer.Clear();       //先清理容器
+            //查找出生点
+            for (int i = 0; i < BlockCountX; ++i)
+            {
+                for (int j = 0; j < BlockCountY; ++j)
+                {
+                    if (PlayingStageData.CheckFlag(i, j, GridFlag.Birth) && !PlayingStageData.CheckFlag(i, j, GridFlag.Cage))
+                    {
+                        posContainer.Add(new Position(i, j));
+                    }
+                }
+            }
+            Position pos = posContainer[randNum % posContainer.Count];      //在有效点里随机选一个
+            randomPos = pos.x;
+        }
+        else
+        {
+            randomPos = randNum % BlockCountX;
+        }
+
 
         bool startOver = true;
         while (startOver)
@@ -3361,72 +3385,53 @@ public class GameLogic
         return true;
     }
 
-    Position FindRandomPos(TBlockColor excludeColor, Position[] excludePos, bool excludeSpecial = false)       //找到某个颜色的随机一个块, 简易算法，性能不好
+    List<Position> posContainer = new List<Position>();
+
+    Position FindRandomPos(TBlockColor excludeColor, Position[] excludePos, bool excludeSpecial = false)       //找到某个颜色的随机一个块
     {
-        int ranNum = m_random.Next() % (BlockCountX * BlockCountY);
-        int count = 0;
+        posContainer.Clear();       //先清理容器
+
+        int ranNum = m_random.Next();
         for (int i = 0; i < BlockCountX; i++)				//遍历一行
         {
             for (int j = 0; j < BlockCountY; j++)		//遍历一列
             {
-                if (count < ranNum)     //先找开始位置
-                {
-                    ++count;
-                    continue;
-                }
-
                 if (m_blocks[i, j] == null || m_blocks[i, j].color > TBlockColor.EColor_Cyan
                     || m_blocks[i, j].color == excludeColor || m_blocks[i, j].special == TSpecialBlock.ESpecial_EatAColor || m_blocks[i, j].CurState != BlockState.Normal)
                 {
-                    if (i == BlockCountX - 1 && j == BlockCountY - 1)//Repeat the loop till get a result
-                    {
-                        i = 0;
-                        j = 0;
-                    }
                     continue;
                 }
 
                 if (excludeSpecial && m_blocks[i, j].special != TSpecialBlock.ESpecial_Normal)      //检查不是Speical
                 {
-                    if (i == BlockCountX - 1 && j == BlockCountY - 1)//Repeat the loop till get a result
-                    {
-                        i = 0;
-                        j = 0;
-                    }
                     continue;
                 }
 
                 Position pos = new Position(i, j);
-                bool bFind = false;
+
                 if (excludePos != null)
                 {
                     for (int k = 0; k < excludePos.Length; ++k)
                     {
                         if (excludePos[k].Equals(pos))
                         {
-                            bFind = true;
-                            break;
+                            continue;
                         }
                     }
                 }
-                if (!bFind)
-                {
-                    return pos;
-                }
 
-                if (count >= ranNum + BlockCountX * BlockCountY)
-                {
-                    break;
-                }
-
-                if (i == BlockCountX - 1 && j == BlockCountY - 1)//Repeat the loop till get a result
-                {
-                    i = 0;
-                    j = 0;
-                }
+                posContainer.Add(pos);      //放到容器里
             }
         }
-        return Position.UnAvailablePos;
+
+        int lenth = posContainer.Count;
+
+        if (lenth == 0)
+        {
+            return Position.UnAvailablePos;
+        }
+
+        return posContainer[ranNum % lenth];
     }
 
     void ChangeColor(Position pos, TBlockColor color)

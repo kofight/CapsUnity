@@ -393,6 +393,7 @@ public class GameLogic
     long m_gameStartTime = 0;                              //游戏开始时间
 	float m_gameStartTimeReal = 0;						   //the game start time to calculate stage duration
     long m_lastStepRewardTime = 0;                         //上次生成StepReward的时间
+    int m_stepRewardCount = 0;                              //步数奖励计数，用来计算额外的分数
     public StageData PlayingStageData;                      //当前的关卡数据
     bool m_bDropFromLeft = true;                            //用来控制左右斜下落的开关
     bool m_bHidingHelp = false;                             //弹其他界面时隐藏Help
@@ -1273,6 +1274,11 @@ public class GameLogic
             AddPartile("StartGameAnim-Collect", AudioEnum.Audio_None, 0, 0, false);
     }
 
+    void HideStartBanner()
+    {
+
+    }
+
     public void CheckFTUE()
     {
         if (PlayingStageData.FTUEMap.Count == 0 || m_bStopFTUE)
@@ -1982,6 +1988,7 @@ public class GameLogic
             {
                 m_gameFlow = TGameFlow.EGameState_EndStepRewarding;
                 m_lastStepRewardTime = Timer.millisecondNow();
+                m_stepRewardCount = 0;
             }
             else
             {
@@ -2027,8 +2034,9 @@ public class GameLogic
                         m_blocks[pos.x, pos.y].special = TSpecialBlock.ESpecial_EatLineDir0 + (m_random.Next() % 3);
                         m_blocks[pos.x, pos.y].RefreshBlockSprite(PlayingStageData.GridData[pos.x, pos.y]);
                         AddPartile(CapsConfig.AddSpecialEffect, AudioEnum.Audio_itemBirth, pos.x, pos.y);
-                        AddProgress(CapsConfig.SugarCrushStepReward, pos.x, pos.y);
+                        AddProgress(CapsConfig.SugarCrushStepReward + CapsConfig.SugarCrushStepIncrease * m_stepRewardCount, pos.x, pos.y);
                         --PlayingStageData.StepLimit;           //步数减一
+                        ++m_stepRewardCount;
                         if (m_nextPlus5Step > 0)
                         {
                             --m_nextPlus5Step;

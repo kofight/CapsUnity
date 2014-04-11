@@ -58,7 +58,7 @@ public class GameState : State
                     UIWindowManager.Singleton.GetUIWindow<UIGameHead>().ShowWindow();
                     UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().ShowWindow();
                     UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
-                    GameLogic.Singleton.StartGame();
+                    GameLogic.Singleton.PlayStartEffect();
                     m_bGameLogicStarted = true;
                 });
             });

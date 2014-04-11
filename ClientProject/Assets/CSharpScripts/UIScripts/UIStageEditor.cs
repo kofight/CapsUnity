@@ -24,7 +24,7 @@ public class UIStageEditor : UIWindow
             {
                 GameLogic.Singleton.ClearLogic();
                 GameLogic.Singleton.InitLogic();
-                GameLogic.Singleton.StartGame();
+                GameLogic.Singleton.PlayStartEffect();
                 RefreshControlls();
             });
 
@@ -44,7 +44,7 @@ public class UIStageEditor : UIWindow
         {
             GameLogic.Singleton.ClearGame();
 			GameLogic.Singleton.Init((int)(Time.realtimeSinceStartup * 1000 % 1000));
-            GameLogic.Singleton.StartGame();
+            GameLogic.Singleton.PlayStartEffect();
             m_seedLabel.text = GameLogic.Singleton.PlayingStageData.Seed.ToString();
             RefreshControlls();
         });

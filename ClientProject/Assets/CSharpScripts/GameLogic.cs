@@ -2349,10 +2349,10 @@ public class GameLogic
         //处理延迟消除
         if (m_delayProcessGrid.Count > 0)
         {
+            //处理并移除到了时间的
             LinkedListNode<DelayProceedGrid> node = m_delayProcessGrid.First;
             LinkedListNode<DelayProceedGrid> nodeLast = m_delayProcessGrid.Last;
             LinkedListNode<DelayProceedGrid> nodeTmp;//临时结点
-
             while (node != nodeLast)
             {
                 if (Timer.GetRealTimeSinceStartUp() > node.Value.startTime)       //若到了处理时间
@@ -2397,22 +2397,26 @@ public class GameLogic
                 }
             }
 
-            DelayParticle parToDelete = null;
-            foreach (DelayParticle parPair in list)
+            //移除已经结束的粒子
+            LinkedListNode<DelayParticle> node = list.First;
+            LinkedListNode<DelayParticle> nodeLast = list.Last;
+            LinkedListNode<DelayParticle> nodeTmp;//临时结点
+            while (node != nodeLast)
             {
-                if (parPair.startTime == 0.0f && parPair.par.isStopped)
+                if (node.Value.startTime == 0.0f && node.Value.par.isStopped)       //若到了处理时间
                 {
-                    m_freeParticleMap[pair.Key].AddLast(parPair.par);           //添加空闲的
-                    parToDelete = parPair;
-                    parPair.par.Stop();
-                    parPair.par.gameObject.SetActive(false);
-                    break;                                              //每帧只处理一个
-                }
-            }
+                    m_freeParticleMap[pair.Key].AddLast(node.Value.par);           //添加到空闲列表
+                    node.Value.par.Stop();                                         //停止粒子
+                    node.Value.par.gameObject.SetActive(false);                    //隐藏粒子
 
-            if (parToDelete != null)
-            {
-                list.Remove(parToDelete);                               //在原列表中删除
+                    nodeTmp = node.Next;
+                    list.Remove(node.Value);                              //移除中间一个元素
+					node = nodeTmp;
+                }
+                else
+                {
+                    node = node.Next;
+                }
             }
         }
 
@@ -2453,34 +2457,49 @@ public class GameLogic
         }
         m_playSoundNextFrame.Clear();
 
+
         //处理飞行特效
-        foreach (FlyParticle flyParticle in m_flyParticleList)
         {
-            float passTime = Timer.GetRealTimeSinceStartUp() - flyParticle.startTime;
-            if (passTime > flyParticle.duration)        //到了结束时间
+            LinkedListNode<FlyParticle> node = m_flyParticleList.First;
+            LinkedListNode<FlyParticle> nodeLast = m_flyParticleList.Last;
+            LinkedListNode<FlyParticle> nodeTmp;//临时结点
+            while (node != nodeLast)
             {
-                m_freeParticleMap[flyParticle.name].AddLast(flyParticle.par);           //添加空闲的
-                flyParticle.par.Stop();                 //停止
-                flyParticle.par.gameObject.SetActive(false);        //隐藏
-
-                m_flyParticleList.Remove(flyParticle);      //移除
-                break;      //每次循环只结束一个
-            }
-            else if (passTime > 0)      //若已开始未结束
-            {
-                if (!flyParticle.par.gameObject.activeSelf)
+                FlyParticle flyParticle = node.Value;
+                float passTime = Timer.GetRealTimeSinceStartUp() - flyParticle.startTime;
+                if (passTime > flyParticle.duration)       //若到了处理时间
                 {
-                    flyParticle.par.gameObject.SetActive(true);
-                    flyParticle.par.Play();
-                    if (flyParticle.audio != AudioEnum.Audio_None)
-                    {
-                        PlaySoundNextFrame(flyParticle.audio);
-                    }
-                }
+                    nodeTmp = node.Next;
+                    
+                    m_freeParticleMap[flyParticle.name].AddLast(node.Value.par);
+                    flyParticle.par.Stop();                 //停止
+                    flyParticle.par.gameObject.SetActive(false);        //隐藏
 
-                flyParticle.par.transform.localPosition = Vector3.Lerp(flyParticle.start, flyParticle.end, (Timer.GetRealTimeSinceStartUp() - flyParticle.startTime) / flyParticle.duration);        //指定位置
+                    m_flyParticleList.Remove(node.Value);                              //移除中间一个元素
+
+                    node = nodeTmp;
+                }
+                else
+                {
+                    if (passTime > 0)      //若已开始未结束
+                    {
+                        if (!flyParticle.par.gameObject.activeSelf)
+                        {
+                            flyParticle.par.gameObject.SetActive(true);
+                            flyParticle.par.Play();
+                            if (flyParticle.audio != AudioEnum.Audio_None)
+                            {
+                                PlaySoundNextFrame(flyParticle.audio);
+                            }
+                        }
+
+                        flyParticle.par.transform.localPosition = Vector3.Lerp(flyParticle.start, flyParticle.end, (Timer.GetRealTimeSinceStartUp() - flyParticle.startTime) / flyParticle.duration);        //指定位置
+                    }
+                    node = node.Next;
+                }
             }
         }
+
 
         //时间暂停但仍可继续游戏的状态 或 FTUE状态时间停止
         if (IsStoppingTime || m_gameFlow == TGameFlow.EGameState_FTUE)

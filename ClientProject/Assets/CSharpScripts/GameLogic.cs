@@ -337,6 +337,7 @@ public class GameLogic
     public static int StartAnimTime = 1200;            //开始动画的时间长度
 
     UIGameBottom m_gameBottomUI;
+    UIWindow m_stageTargetUI;                               //关卡开始时显示的关卡目标
 
     ///游戏逻辑变量/////////////////////////////////////////////////////////////////
     TDirection m_moveDirection;							                //选择的块1向块2移动的方向
@@ -729,6 +730,8 @@ public class GameLogic
         EasyTouch.On_TouchUp += OnTouchEnd;
 
         PlayingStageData = StageData.CreateStageData();
+
+        m_stageTargetUI = UIWindowManager.Singleton.CreateWindow<UIWindow>("UIStageTarget", UIWindowManager.Anchor.Center);
     }
 
     public void InitLogic(int seed = -1)
@@ -1258,25 +1261,36 @@ public class GameLogic
         m_curStateStartTime = Timer.millisecondNow();
 
         m_gameFlow = TGameFlow.EGameState_Playing;                           //开始游戏
+        HideStartBanner();
         DropDown();                                                          //开始先尝试进行一次下落
         CheckFTUE();                                                         //检查是否有FTUE
     }
 
     void ShowStartBanner()      //显示开始游戏的条
     {
-        if (PlayingStageData.Target == GameTarget.GetScore)
-            AddPartile("StartGameAnim-Score", AudioEnum.Audio_None, 0, 0, false);
-        if (PlayingStageData.Target == GameTarget.ClearJelly)
-            AddPartile("StartGameAnim-Ice", AudioEnum.Audio_None, 0, 0, false);
-        if (PlayingStageData.Target == GameTarget.BringFruitDown)
-            AddPartile("StartGameAnim-Fruit", AudioEnum.Audio_None, 0, 0, false);
-        if (PlayingStageData.Target == GameTarget.Collect)
-            AddPartile("StartGameAnim-Collect", AudioEnum.Audio_None, 0, 0, false);
+        m_stageTargetUI.ShowWindow();
+        //UISprite sprite = m_stageTargetUI.GetChildComponent<UISprite>("Target");
+        //if (PlayingStageData.Target == GameTarget.GetScore)
+        //{
+        //    AddPartile("StartGameAnim-Score", AudioEnum.Audio_None, 0, 0, false);
+        //}
+        //if (PlayingStageData.Target == GameTarget.ClearJelly)
+        //{
+        //    AddPartile("StartGameAnim-Ice", AudioEnum.Audio_None, 0, 0, false);
+        //}
+        //if (PlayingStageData.Target == GameTarget.BringFruitDown)
+        //{
+        //    AddPartile("StartGameAnim-Fruit", AudioEnum.Audio_None, 0, 0, false);
+        //}
+        //if (PlayingStageData.Target == GameTarget.Collect)
+        //{
+        //    AddPartile("StartGameAnim-Collect", AudioEnum.Audio_None, 0, 0, false);
+        //}
     }
 
     void HideStartBanner()
     {
-
+        m_stageTargetUI.HideWindow();
     }
 
     public void CheckFTUE()

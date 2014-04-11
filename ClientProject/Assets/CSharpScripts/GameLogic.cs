@@ -4,7 +4,6 @@ using System.Collections.Generic;
 
 public enum TGameFlow
 {
-    EGameState_StartGameAnim,                   //开始游戏动画
     EGameState_ResortAnim,                      //重排动画
     EGameState_Playing,                         //游戏中
     EGameState_EffectTime,                      //特效时间
@@ -28,6 +27,7 @@ public enum TSpecialEffect
     EEatAColorNDBomb,
     EResortEffect,
     ERestartEffect,
+    EStartEffect,
 }
 
 enum TDirection
@@ -393,6 +393,7 @@ public class GameLogic
     long m_gameStartTime = 0;                              //游戏开始时间
 	float m_gameStartTimeReal = 0;						   //the game start time to calculate stage duration
     long m_lastStepRewardTime = 0;                         //上次生成StepReward的时间
+    int m_stepRewardCount = 0;                              //步数奖励计数，用来计算额外的分数
     public StageData PlayingStageData;                      //当前的关卡数据
     bool m_bDropFromLeft = true;                            //用来控制左右斜下落的开关
     bool m_bHidingHelp = false;                             //弹其他界面时隐藏Help
@@ -663,6 +664,8 @@ public class GameLogic
 
     void InitRes()
     {
+        m_gameFlow = TGameFlow.EGameState_Clear;
+
         if (m_freeNumberList.Count == 0)
         {
             for (int i = 0; i < 81; ++i)
@@ -1123,20 +1126,35 @@ public class GameLogic
         m_gameFlow = TGameFlow.EGameState_EffectTime;                           //切换游戏状态到特效演出时间，等待特效演出
         m_curSpecialEffect = TSpecialEffect.EResortEffect;                      //重排特效
         m_curStateStartTime = Timer.millisecondNow();                           //保存下切状态的时间
-        m_effectStateDuration = 0;                    //2秒的演出时间
+        m_effectStateDuration = 0;                                              //在过程中计算演出时间
         m_effectStep = 0;
         ClearHelpPoint();
     }
 
     public void PlayRestartEffect()
     {
-        Debug.Log("PlayAutoResortEffect");
         m_gameFlow = TGameFlow.EGameState_EffectTime;                           //切换游戏状态到特效演出时间，等待特效演出
         m_curSpecialEffect = TSpecialEffect.ERestartEffect;                      //重新开始特效
         m_curStateStartTime = Timer.millisecondNow();                           //保存下切状态的时间
-        m_effectStateDuration = 0;                    //2秒的演出时间
+        m_effectStateDuration = 0;                                              //在过程中计算演出时间
         m_effectStep = 0;
-        ClearHelpPoint();
+    }
+
+    public void PlayStartEffect()                                               //播放开始特效(百叶窗，游戏区移动，目标Banner)
+    {
+        //播放开始游戏的动画
+        TweenPosition tweenPos = m_gameArea.GetComponent<TweenPosition>();
+        tweenPos.Play(true);
+
+        m_gameFlow = TGameFlow.EGameState_EffectTime;                           //切换游戏状态到特效演出时间，等待特效演出
+        m_curSpecialEffect = TSpecialEffect.EStartEffect;                       //开始特效
+
+        m_effectStateDuration = 0;                                              //在过程中计算演出时间
+        m_effectStep = 0;
+        m_curStateStartTime = Timer.millisecondNow() + (int)tweenPos.duration * 1000 / 2;       //保存下切状态的时间
+
+        //播放开始的Banner
+        ShowStartBanner();
     }
 
     public void AutoResort()           //自动重排功能 Todo 没处理交换后形成消除的情况，不确定要不要处理
@@ -1237,22 +1255,28 @@ public class GameLogic
         m_gameStartTime = time;
 		m_gameStartTimeReal = CapsApplication.Singleton.GetPlayTime ();
         m_lastHelpTime = Timer.GetRealTimeSinceStartUp();
-
-        m_gameFlow = TGameFlow.EGameState_StartGameAnim;                //开始游戏
         m_curStateStartTime = Timer.millisecondNow();
 
-        //播放开始游戏的动画
-        TweenPosition tweenPos = m_gameArea.GetComponent<TweenPosition>();
-        tweenPos.Play(true);
-		
-		if(PlayingStageData.Target == GameTarget.GetScore)
+        m_gameFlow = TGameFlow.EGameState_Playing;                           //开始游戏
+        DropDown();                                                          //开始先尝试进行一次下落
+        CheckFTUE();                                                         //检查是否有FTUE
+    }
+
+    void ShowStartBanner()      //显示开始游戏的条
+    {
+        if (PlayingStageData.Target == GameTarget.GetScore)
             AddPartile("StartGameAnim-Score", AudioEnum.Audio_None, 0, 0, false);
-		if(PlayingStageData.Target == GameTarget.ClearJelly)
+        if (PlayingStageData.Target == GameTarget.ClearJelly)
             AddPartile("StartGameAnim-Ice", AudioEnum.Audio_None, 0, 0, false);
-		if(PlayingStageData.Target == GameTarget.BringFruitDown)
+        if (PlayingStageData.Target == GameTarget.BringFruitDown)
             AddPartile("StartGameAnim-Fruit", AudioEnum.Audio_None, 0, 0, false);
         if (PlayingStageData.Target == GameTarget.Collect)
             AddPartile("StartGameAnim-Collect", AudioEnum.Audio_None, 0, 0, false);
+    }
+
+    void HideStartBanner()
+    {
+
     }
 
     public void CheckFTUE()
@@ -1559,7 +1583,16 @@ public class GameLogic
                                     m_blocks[i, j].m_shadowSprite.transform.localScale = new Vector3(shadowScale, 1, 1);
                                 }
 
-                                float scale = m_blocks[i, j].m_blockSprite.fillAmount * 0.3f + 0.7f;    //根据填充值计算一个缩放值，缩放比例控制在0.7-1
+                                float scale = 0.7f;
+
+                                if (m_blocks[i, j].m_blockSprite.fillAmount > 0.25f)                    //开始的0.25维持0.7
+                                {
+                                    scale = (m_blocks[i, j].m_blockSprite.fillAmount - 0.25f) * 0.3f / 0.75f + 0.7f;    //根据填充值计算一个缩放值，缩放比例控制在0.7-1
+                                }
+                                else
+                                {
+                                    scale = 0.7f;
+                                }
 
                                 m_blocks[i, j].m_blockSprite.transform.localScale = new Vector3(scale, 1, 1);
 							}
@@ -1699,7 +1732,7 @@ public class GameLogic
             long timePast = Timer.millisecondNow() - m_curStateStartTime;
             if (m_effectStateDuration > 0 && timePast > m_effectStateDuration)       //若到时间，不继续处理
             {
-                if (m_curSpecialEffect == TSpecialEffect.ERestartEffect)            //若是重新开始特效
+                if (m_curSpecialEffect == TSpecialEffect.ERestartEffect)            //若是重新开始和开始特效，结束后开始游戏
                 {
                     StartGame();        //开始游戏
                 }
@@ -1786,6 +1819,44 @@ public class GameLogic
                     	m_gameFlow = TGameFlow.EGameState_Playing;                           //恢复状态游戏
 						DropDown();                                               			 //尝试进行一次下落
                     }                    
+                }
+                else if (m_curSpecialEffect == TSpecialEffect.EStartEffect)
+                {
+                    if (timePast > 0 && m_effectStep == 0)
+                    {
+                        ProcessResortEffectStartTime(timePast + 1, CapsConfig.EffectResortInterval);;      //一次特效所用的时间
+                        m_effectStep = 1;
+                    }
+                    if (m_effectStep == 1)                                                                 //逐个播放出现特效
+                    {
+                        bool bFoundUnplayAnim = false;
+                        for (int i = 0; i < BlockCountX; ++i)
+                        {
+                            for (int j = 0; j < BlockCountY; ++j)
+                            {
+                                if (m_blocks[i, j] != null &&
+                                    m_blocks[i, j].m_resortEffectStartTime > 0)
+                                {
+                                    if (m_blocks[i, j].m_resortEffectStartTime < timePast)        //若到达时间，播放特效
+                                    {
+                                        m_blocks[i, j].m_resortEffectStartTime = 0;               //清空时间，防止重复播放
+                                        m_blocks[i, j].m_animation.enabled = true;
+                                        m_blocks[i, j].m_animation.Play(CapsConfig.ResortOutAnim);                             //播放吃块动画
+                                        AddPartile(CapsConfig.ResortInEffect, AudioEnum.Audio_None, i, j);     //添加吃块特效
+                                    }
+                                    else
+                                    {
+                                        bFoundUnplayAnim = true;
+                                    }
+                                }
+                            }
+                        }
+
+                        if (!bFoundUnplayAnim)      //若所有都已经播完，指定m_effectStateDuration
+                        {
+                            StartGame();        //开始游戏
+                        }
+                    }
                 }
                 else if (m_curSpecialEffect == TSpecialEffect.EResortEffect || m_curSpecialEffect == TSpecialEffect.ERestartEffect)                //重排或重新开始特效
                 {
@@ -1874,17 +1945,6 @@ public class GameLogic
             }
         }
 
-        if (m_gameFlow == TGameFlow.EGameState_StartGameAnim)
-        {
-            if (Timer.millisecondNow() - m_curStateStartTime > StartAnimTime)        //若时间到
-            {
-                m_gameFlow = TGameFlow.EGameState_Playing;                           //开始游戏
-                DropDown();                                               //开始先尝试进行一次下落
-                CheckFTUE();                                                         //检查是否有FTUE
-                return;
-            }
-        }
-
         if (m_gameFlow == TGameFlow.EGameState_ResortAnim)        //正在显示“没有可交换块，需要重排”
         {
             if (Timer.millisecondNow() - m_curStateStartTime > ShowNoPossibleExhangeTextTime)       //时间已到
@@ -1928,6 +1988,7 @@ public class GameLogic
             {
                 m_gameFlow = TGameFlow.EGameState_EndStepRewarding;
                 m_lastStepRewardTime = Timer.millisecondNow();
+                m_stepRewardCount = 0;
             }
             else
             {
@@ -1973,8 +2034,9 @@ public class GameLogic
                         m_blocks[pos.x, pos.y].special = TSpecialBlock.ESpecial_EatLineDir0 + (m_random.Next() % 3);
                         m_blocks[pos.x, pos.y].RefreshBlockSprite(PlayingStageData.GridData[pos.x, pos.y]);
                         AddPartile(CapsConfig.AddSpecialEffect, AudioEnum.Audio_itemBirth, pos.x, pos.y);
-                        AddProgress(CapsConfig.SugarCrushStepReward, pos.x, pos.y);
+                        AddProgress(CapsConfig.SugarCrushStepReward + CapsConfig.SugarCrushStepIncrease * m_stepRewardCount, pos.x, pos.y);
                         --PlayingStageData.StepLimit;           //步数减一
+                        ++m_stepRewardCount;
                         if (m_nextPlus5Step > 0)
                         {
                             --m_nextPlus5Step;
@@ -5095,7 +5157,7 @@ public class GameLogic
         m_blocks[x, y].color = color;               //设置颜色
         m_blocks[x, y].m_animation.enabled = false;
         m_blocks[x, y].EatDuration = EATBLOCK_TIME;
-        if (m_gameFlow == TGameFlow.EGameState_EffectTime && m_curSpecialEffect == TSpecialEffect.ERestartEffect)              //这个是在失败FTUE时用的，播开始时的特效中创建的块都置为透明
+        if (m_gameFlow == TGameFlow.EGameState_EffectTime && m_curSpecialEffect == TSpecialEffect.ERestartEffect || m_gameFlow == TGameFlow.EGameState_Clear)              //这个是在失败FTUE时用的，播开始时的特效中创建的块都置为透明
         {
             m_blocks[x, y].m_blockSprite.color = new Color(1.0f, 1.0f, 1.0f, 0.0f);     //新创建出来是透明的
         }

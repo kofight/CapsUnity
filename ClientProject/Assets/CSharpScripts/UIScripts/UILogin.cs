@@ -34,7 +34,7 @@ public class UILogin : UIWindow
         AddChildComponentMouseClick("DebugBtn", delegate()
         {
             ++m_clickDebugCount;
-            if (m_clickDebugCount >= 3)
+            if (m_clickDebugCount >= 3 && Application.platform == RuntimePlatform.WindowsEditor)
             {
                 m_debugBoard.SetActive(true);
             }
@@ -60,16 +60,13 @@ public class UILogin : UIWindow
         //    m_testLabel.gameObject.SetActive(false);
         //}
 
-        if (Application.platform == RuntimePlatform.WindowsEditor)
+        if (m_clickDebugCount >= 3 && Application.platform == RuntimePlatform.WindowsEditor)
         {
-            if (m_clickDebugCount >= 3)
-            {
-                m_debugBoard.SetActive(true);
-            }
-            else
-            {
-                m_debugBoard.SetActive(false);
-            }
+            m_debugBoard.SetActive(true);
+        }
+        else
+        {
+            m_debugBoard.SetActive(false);
         }
     }
 

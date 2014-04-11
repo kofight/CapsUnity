@@ -2048,6 +2048,7 @@ public class GameLogic
                         m_blocks[pos.x, pos.y].special = TSpecialBlock.ESpecial_EatLineDir0 + (m_random.Next() % 3);
                         m_blocks[pos.x, pos.y].RefreshBlockSprite(PlayingStageData.GridData[pos.x, pos.y]);
                         AddPartile(CapsConfig.AddSpecialEffect, AudioEnum.Audio_itemBirth, pos.x, pos.y);
+                        int score = (int)Mathf.Min(4000.0f, (float)CapsConfig.SugarCrushStepReward + CapsConfig.SugarCrushStepIncrease * m_stepRewardCount);
                         AddProgress(CapsConfig.SugarCrushStepReward + CapsConfig.SugarCrushStepIncrease * m_stepRewardCount, pos.x, pos.y);
                         --PlayingStageData.StepLimit;           //步数减一
                         ++m_stepRewardCount;

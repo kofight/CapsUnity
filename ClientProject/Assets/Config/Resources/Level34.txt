@@ -1,5 +1,5 @@
 ﻿Target			0				
-StepLimit			50				
+StepLimit			40				
 TimeLimit			0				
 ColorCount			6				
 Nut1Count			3				
@@ -15,7 +15,7 @@ PlusStepMin			5
 PlusStepMax			10				
 Seed			0				
 NewFormat			1				
-StarScore			42000,50000,60000,				
+StarScore			47000,57000,68000,				
 CollectColors			0,0,0,				
 CollectSpecial			0,0,0,				
 CollectCount			0,0,0,				

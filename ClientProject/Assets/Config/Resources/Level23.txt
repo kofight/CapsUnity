@@ -1,18 +1,24 @@
 ﻿Target			0				
-StepLimit			50				
+StepLimit			35				
 TimeLimit			0				
 ColorCount			7				
 Nut1Count			3				
 Nut2Count			3				
 NutInitCount			1				
 NutMaxCount			3				
+NutMinCount			0				
 NutStep			10				
 PlusInitCount			0				
 PlusMaxCount			0				
 PlusStartTime			0				
-PlusStep			0				
+PlusStepMin			5				
+PlusStepMax			10				
 Seed			0				
 NewFormat			1				
-StarScore			30000,45000,60000,				
+StarScore			30000,40000,50000,				
+CollectColors			0,0,0,				
+CollectSpecial			0,0,0,				
+CollectCount			0,0,0,				
 GridDataArray			9,9,9,9,9,9,9,9,9,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,67,67,67,67,67,67,67,67,67,50,50,50,50,50,50,50,50,50,3,3,3,3,3,3,3,3,3,				
 PortalArray							
+SpecialArray							

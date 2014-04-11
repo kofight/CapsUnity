@@ -1683,7 +1683,7 @@ public class GameLogic
         UIDrawer.Singleton.CurDepth = 0;
     }
 
-    void ProcessResortEffectStartTime(long curTime, long interval)      //处理重拍特效的时序
+    void ProcessResortEffectStartTime(long curTime, long interval, bool bResort = true)      //处理重拍特效的时序
     {
         long timeCount = curTime;                                                  //计时
         Position curPos;                                  //1, 0开始
@@ -1695,7 +1695,7 @@ public class GameLogic
             {
                 if (m_blocks[curPos.x, curPos.y] != null 
                     && m_blocks[curPos.x, curPos.y].CurState == BlockState.Normal
-                    && m_blocks[curPos.x, curPos.y].color <= TBlockColor.EColor_Cyan)                     
+                    && (m_blocks[curPos.x, curPos.y].color <= TBlockColor.EColor_Cyan || !bResort))                     
                 {
                     m_blocks[curPos.x, curPos.y].m_resortEffectStartTime = timeCount;       //记录时间
                     timeCount += interval;                                                  //时间变化
@@ -1838,7 +1838,7 @@ public class GameLogic
                 {
                     if (timePast > 0 && m_effectStep == 0)
                     {
-                        ProcessResortEffectStartTime(timePast + 1, CapsConfig.EffectResortInterval);;      //一次特效所用的时间
+                        ProcessResortEffectStartTime(timePast + 1, CapsConfig.EffectResortInterval, false);      //一次特效所用的时间
                         m_effectStep = 1;
                     }
                     if (m_effectStep == 1)                                                                 //逐个播放出现特效
@@ -1876,7 +1876,7 @@ public class GameLogic
                 {
                     if (m_effectStep == 0)                                                  //初始化消失特效
                     {
-                        ProcessResortEffectStartTime(timePast + 1, CapsConfig.EffectResortInterval);
+                        ProcessResortEffectStartTime(timePast + 1, CapsConfig.EffectResortInterval, m_curSpecialEffect == TSpecialEffect.EResortEffect);
 						m_effectStep = 1;
                     }
                     else if (m_effectStep == 1)                             //逐个播放消失特效
@@ -1925,7 +1925,7 @@ public class GameLogic
                                 ClearLogic(true);
                                 InitLogic();
                             }
-                            ProcessResortEffectStartTime(oneTimeCount + CapsConfig.EffectResortTime, CapsConfig.EffectResortInterval);    //计算特效时序
+                            ProcessResortEffectStartTime(oneTimeCount + CapsConfig.EffectResortTime, CapsConfig.EffectResortInterval, m_curSpecialEffect == TSpecialEffect.EResortEffect);    //计算特效时序
                             m_effectStep = 3;
                         }
                     }

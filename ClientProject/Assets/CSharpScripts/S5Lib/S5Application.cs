@@ -79,39 +79,40 @@ public class S5Application
 
     bool backKeyPress = false;
 
+    public void FixedUpdate()
+    {
+        if (mCurGameState != null)
+        {
+            mCurGameState.FixedUpdate();
+        }
+    }
+
     public void Update()
     {
-        try
+        if (mOldGameState != null)
         {
-            if (mOldGameState != null)
-            {
-                mOldGameState.DeInitState();         //Release the resources for the gamestate
-                mOldGameState = null;
+            mOldGameState.DeInitState();         //Release the resources for the gamestate
+            mOldGameState = null;
 
-                Resources.UnloadUnusedAssets();
-                GC.Collect(2);
-            }
-
-            if (!mHasFirstUpdate)
-            {
-                mHasFirstUpdate = true;
-                InitWhenFirstFrame();
-            }
-
-            if (mCurGameState != null)
-            {
-                mCurGameState.Update();
-            }
-
-            DoUpdate();
-
-            UIWindowManager.Singleton.Update();
-            UIDrawer.Singleton.Update();
+            Resources.UnloadUnusedAssets();
+            GC.Collect(2);
         }
-        catch (Exception e)
+
+        if (!mHasFirstUpdate)
         {
-            ExceptionProcessor(e);
+            mHasFirstUpdate = true;
+            InitWhenFirstFrame();
         }
+
+        if (mCurGameState != null)
+        {
+            mCurGameState.Update();
+        }
+
+        DoUpdate();
+
+        UIWindowManager.Singleton.Update();
+        UIDrawer.Singleton.Update();
 
         if (!backKeyPress && Input.GetKeyDown(KeyCode.Escape))
         {

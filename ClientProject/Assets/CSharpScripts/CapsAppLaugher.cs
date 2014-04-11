@@ -25,6 +25,11 @@ public class CapsAppLaugher : MonoBehaviour {
 	{
 		mApp.Update();
 	}
+
+    void FixedUpdate()
+    {
+        mApp.FixedUpdate();
+    }
 	
 	void OnLevelWasLoaded(int level)
 	{

@@ -69,6 +69,15 @@ public class GameState : State
         }
     }
 
+    public override void FixedUpdate()
+    {
+        base.FixedUpdate();
+        if (m_bGameLogicStarted)
+        {
+            GameLogic.Singleton.FixedUpdate();
+        }
+    }
+
     public override void OnBackKey()
     {
         base.OnBackKey();

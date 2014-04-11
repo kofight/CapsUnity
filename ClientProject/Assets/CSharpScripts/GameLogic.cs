@@ -405,6 +405,10 @@ public class GameLogic
     public int m_chocolateCount = 0;                        //当前关卡里巧克力块的数量（用来优化性能）
     public int m_stoneCount = 0;                            //当前关卡里石头块的数量（用来优化性能）
 
+
+    bool m_bReadyToStart = false;                           //这个变量标记当前是否可以开始(任意点击就可以开始了)
+    float m_readyToStartTime;                               //准备好开始的时间
+
     bool m_bHurryAnimPlayed = false;                        //用来记录Hurry动画是否已经播放完毕了
 
     //计时器
@@ -666,6 +670,7 @@ public class GameLogic
     void InitRes()
     {
         m_gameFlow = TGameFlow.EGameState_Clear;
+        m_bReadyToStart = false;
 
         if (m_freeNumberList.Count == 0)
         {
@@ -1355,6 +1360,8 @@ public class GameLogic
 
     void ReleaseAll()
     {
+        HideStartBanner();
+
         //隐藏shadowSprite
         foreach (UISprite sprite in m_freeShadowSpriteList)
         {
@@ -1748,7 +1755,8 @@ public class GameLogic
             {
                 if (m_curSpecialEffect == TSpecialEffect.ERestartEffect)            //若是重新开始和开始特效，结束后开始游戏
                 {
-                    StartGame();        //开始游戏
+                    m_bReadyToStart = true;
+                    m_readyToStartTime = Timer.GetRealTimeSinceStartUp();
                 }
                 else
                 {
@@ -1834,11 +1842,11 @@ public class GameLogic
 						DropDown();                                               			 //尝试进行一次下落
                     }                    
                 }
-                else if (m_curSpecialEffect == TSpecialEffect.EStartEffect)
+                else if (m_curSpecialEffect == TSpecialEffect.EStartEffect && !m_bReadyToStart)
                 {
                     if (timePast > 0 && m_effectStep == 0)
                     {
-                        ProcessResortEffectStartTime(timePast + 1, CapsConfig.EffectResortInterval, false);      //一次特效所用的时间
+                        ProcessResortEffectStartTime(timePast + 1, CapsConfig.EffectStartInterval, false);      //一次特效所用的时间
                         m_effectStep = 1;
                     }
                     if (m_effectStep == 1)                                                                 //逐个播放出现特效
@@ -1868,7 +1876,8 @@ public class GameLogic
 
                         if (!bFoundUnplayAnim)      //若所有都已经播完，指定m_effectStateDuration
                         {
-                            StartGame();        //开始游戏
+                            m_bReadyToStart = true;
+                            m_readyToStartTime = Timer.GetRealTimeSinceStartUp();
                         }
                     }
                 }
@@ -2226,7 +2235,18 @@ public class GameLogic
         m_cageCheckList.Clear();
 		return bEat;
 	}
-	
+
+    public void FixedUpdate()
+    {
+        if (m_bReadyToStart)
+        {
+            if (Timer.GetRealTimeSinceStartUp() - m_readyToStartTime > 3.0f)      //3秒钟自动开始
+            {
+                m_bReadyToStart = false;
+                StartGame();
+            }
+        }
+    }
 
     public void Update()
     {
@@ -4605,6 +4625,13 @@ public class GameLogic
 
     public void OnTouchEnd(Gesture ges)
     {
+        if (m_bReadyToStart)
+        {
+            StartGame();
+            m_bReadyToStart = false;
+            return;
+        }
+
         if (ges.fingerIndex != 0)
         {
             return;

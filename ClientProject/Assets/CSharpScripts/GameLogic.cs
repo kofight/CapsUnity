@@ -5047,6 +5047,7 @@ public class GameLogic
         if (bExchange)
         {
             m_gameFlow = TGameFlow.EGameState_EffectTime;
+			m_curSpecialEffect = TSpecialEffect.EEatAColor;
             m_effectStateDuration = (int)((flyDuration + startDelay + intervalTime * eatCount) * 1000);
             m_curStateStartTime = Timer.millisecondNow();
         }

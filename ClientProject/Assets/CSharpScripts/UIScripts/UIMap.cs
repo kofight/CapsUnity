@@ -514,7 +514,9 @@ public class UIMap : UIWindow
                     m_inputBlocker.SetActive(true);
                 }
                 Vector3 target = new Vector3(m_stageBtns[m_newStageNumber - 1].localPosition.x, m_stageBtns[m_newStageNumber - 1].localPosition.y + HeadYOffset, m_stageBtns[m_newStageNumber - 1].localPosition.z);
-                m_headSprite.gameObject.transform.localPosition = Vector3.Lerp(m_stageBtns[m_newStageNumber - 2].localPosition, target, (1 - m_newStageMoveTime / HeadMoveTime));
+                Vector3 fromPos = m_stageBtns[m_newStageNumber - 2].localPosition;
+                fromPos.y += HeadYOffset;
+                m_headSprite.gameObject.transform.localPosition = Vector3.Lerp(fromPos, target, (1 - m_newStageMoveTime / HeadMoveTime));
             }
         }
         //5105 - 2045 = 3060

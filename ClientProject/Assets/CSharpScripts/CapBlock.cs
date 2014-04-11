@@ -141,9 +141,61 @@ public class CapBlock
 
     public TweenScale m_tweenScale;
     public TweenPosition m_tweenPosition;
+
+
     public TweenAlpha m_tweenAlpha;
+    public TweenAlpha m_addColorTweenAlpha;
 
     public int CollectIndex = -1;               //改块是搜集的第几个目标
+
+    public void AlphaFadeIn()
+    {
+        if (Application.platform == RuntimePlatform.WP8Player)
+        {
+            m_tweenAlpha.enabled = true;
+            m_tweenAlpha.Play(true);
+        }
+    }
+
+    public void AlphaFadeOut()
+    {
+        if (Application.platform == RuntimePlatform.WP8Player)
+        {
+            m_tweenAlpha.enabled = true;
+            m_tweenAlpha.Play(false);
+        }
+        AddColorFadeIn();
+    }
+
+    public void ResetAlphaAndAddColor()
+    {
+        if (Application.platform == RuntimePlatform.WP8Player)
+        {
+            m_tweenAlpha.enabled = false;
+            m_tweenAlpha.ResetToBeginning();
+
+            m_addColorTweenAlpha.enabled = false;
+            m_addColorTweenAlpha.ResetToBeginning();
+        }
+    }
+
+    public void AddColorFadeIn()
+    {
+        if (Application.platform == RuntimePlatform.WP8Player)
+        {
+            m_addColorTweenAlpha.enabled = true;
+            m_addColorTweenAlpha.Play(true);
+        }
+    }
+
+    public void AddColorFadeOut()
+    {
+        if (Application.platform == RuntimePlatform.WP8Player)
+        {
+            m_addColorTweenAlpha.enabled = true;
+            m_addColorTweenAlpha.Play(false);
+        }
+    }
 
     public void Eat(float delay = 0)							//吃掉这个块
 	{
@@ -180,9 +232,11 @@ public class CapBlock
 
     public void Reset()
 	{
+        ResetAlphaAndAddColor();
         m_blockTransform.localScale = Vector3.one;
         m_blockSprite.transform.localScale = Vector3.one;
         m_blockSprite.color = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+        m_addColorSprite.color = new Color(1.0f, 1.0f, 1.0f, 0.0f);
         if (m_tweenPosition.enabled)
         {
             m_blockSprite.depth = 2;
@@ -230,6 +284,8 @@ public class CapBlock
 
         m_tweenPosition = m_blockTransform.GetComponent<TweenPosition>();
         m_tweenScale = m_blockTransform.GetComponent<TweenScale>();
+
         m_tweenAlpha = m_blockSprite.transform.GetComponent<TweenAlpha>();
+        m_addColorTweenAlpha = m_addColorSprite.transform.GetComponent<TweenAlpha>();
     }
 }

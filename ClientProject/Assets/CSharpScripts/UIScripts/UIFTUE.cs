@@ -384,7 +384,6 @@ public class UIFTUE : UIWindow
 
     public void EndFTUE()
     {
-        Debug.Log("EndFTUE");
 		m_finishedStep = m_curStep;
         m_pointer.SetActive(false);
 		HideHighLight();

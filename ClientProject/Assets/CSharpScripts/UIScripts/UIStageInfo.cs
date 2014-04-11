@@ -183,7 +183,7 @@ public class UIStageInfo : UIWindow
             m_pointer = UIWindowManager.Singleton.GetUIWindow<UIFTUE>().m_pointer;
             GameObject playBtn = GameObject.Find("PlayBtn");
             m_pointer.transform.parent = playBtn.transform;
-            m_pointer.transform.localPosition = new Vector3(0, 0, 0);
+            m_pointer.transform.localPosition = new Vector3(-26, 48, 0);
             //m_pointer.transform.parent = gameAreaTrans;                     //恢复父窗口
             m_pointer.SetActive(false);
             m_pointer.SetActive(true);

@@ -415,7 +415,6 @@ public class GameLogic
     Timer timerMoveBlock = new Timer();
 
     float m_lastHelpTime;
-    float m_lastGCTime;                                     //在操作间隔进行GC
     
     Position touchBeginPos;                                 //触控开始的位置
 	Position touchBeginGrid;                                 //触控开始的位置
@@ -1130,7 +1129,6 @@ public class GameLogic
 
     public void PlayAutoResortEffect()
     {
-        Debug.Log("PlayAutoResortEffect");
         m_gameFlow = TGameFlow.EGameState_EffectTime;                           //切换游戏状态到特效演出时间，等待特效演出
         m_curSpecialEffect = TSpecialEffect.EResortEffect;                      //重排特效
         m_curStateStartTime = Timer.millisecondNow();                           //保存下切状态的时间
@@ -1864,6 +1862,7 @@ public class GameLogic
                                         m_blocks[i, j].m_resortEffectStartTime = 0;               //清空时间，防止重复播放
                                         m_blocks[i, j].m_animation.enabled = true;
                                         m_blocks[i, j].m_animation.Play(CapsConfig.ResortOutAnim);                             //播放吃块动画
+                                        m_blocks[i, j].AlphaFadeIn();
                                         AddPartile(CapsConfig.ResortInEffect, AudioEnum.Audio_None, i, j);     //添加吃块特效
                                     }
                                     else
@@ -1903,6 +1902,7 @@ public class GameLogic
                                         m_blocks[i, j].m_resortEffectStartTime = 0;               //清空时间，防止重复播放
                                         m_blocks[i, j].m_animation.enabled = true;
                                         m_blocks[i, j].m_animation.Play(CapsConfig.ResortInAnim);                             //播放吃块动画
+                                        m_blocks[i, j].AlphaFadeOut();
                                         AddPartile(CapsConfig.ResortInEffect, AudioEnum.Audio_None, i, j);     //添加吃块特效
                                     }
                                     else
@@ -1959,6 +1959,7 @@ public class GameLogic
                                     m_blocks[i, j].m_resortEffectStartTime = 0;               //清空时间，防止重复播放
                                     m_blocks[i, j].m_animation.enabled = true;
                                     m_blocks[i, j].m_animation.Play(CapsConfig.ResortOutAnim);                             //播放吃块动画
+                                    m_blocks[i, j].AlphaFadeIn();
                                     AddPartile(CapsConfig.ResortOutEffect, AudioEnum.Audio_None, i, j);     //添加吃块特效
                                 }
                             }
@@ -2245,13 +2246,8 @@ public class GameLogic
                 m_bReadyToStart = false;
                 StartGame();
             }
+            return;
         }
-    }
-
-    public void Update()
-    {
-        //Profiler.BeginSample("GameLogic");
-        //Timer.s_currentTime = Time.realtimeSinceStartup;
 
         ProcessState();
 
@@ -2259,10 +2255,10 @@ public class GameLogic
 
         if (CapBlock.DropingBlockCount > 0)
         {
-            
-            for (int i = 0; i < BlockCountX; ++i )
+
+            for (int i = 0; i < BlockCountX; ++i)
             {
-                for (int j = 0; j < BlockCountY; ++j )
+                for (int j = 0; j < BlockCountY; ++j)
                 {
                     if (m_blocks[i, j] != null && m_blocks[i, j].CurState == BlockState.MovingEnd)
                     {
@@ -2284,42 +2280,6 @@ public class GameLogic
         {
             UpdateSlopeLock();              //否则更新SlopeLock
         }
-
-        {
-            //处理延迟消除
-            LinkedListNode<DelayProceedGrid> node = m_delayProcessGrid.First;
-            LinkedListNode<DelayProceedGrid> nodeLast = m_delayProcessGrid.Last;
-            LinkedListNode<DelayProceedGrid> nodeTmp;//临时结点
-            if (m_delayProcessGrid.Count > 0)
-            {
-                while (node != nodeLast)
-                {
-                    if (Timer.GetRealTimeSinceStartUp() > node.Value.startTime)       //若到了处理时间
-                    {
-                        ProcessEatChanges(node.Value, true, true);                          //处理延迟处理的消块
-
-                        nodeTmp = node.Next;
-                        m_delayProcessGrid.Remove(node.Value);                              //移除中间一个元素
-                        node = nodeTmp;
-                    }
-                    else
-                    {
-                        node = node.Next;
-                    }
-                }
-
-                if (Timer.GetRealTimeSinceStartUp() > nodeLast.Value.startTime)       //若到了处理时间
-                {
-                    ProcessEatChanges(nodeLast.Value, true, true);                          //处理延迟处理的消块
-                    m_delayProcessGrid.Remove(nodeLast.Value);                              //移除中间一个元素
-                }
-            }
-        }
-
-
-        TimerWork();
-
-        DrawGraphics();     //绘制图形
 
         //处理帮助
         if (m_gameFlow == TGameFlow.EGameState_Playing && m_lastHelpTime > 0)      //下落完成的状态
@@ -2345,6 +2305,25 @@ public class GameLogic
                 }
             }
         }
+
+        if (m_gameFlow == TGameFlow.EGameState_Playing && GlobalVars.CurStageData.TimeLimit > 0 && CapBlock.DropingBlockCount == 0 && CapBlock.EatingBlockCount == 0)
+        {
+            ProcessCheckStageFinish();
+        }
+
+        //剩15秒的特效
+        if (!m_bHurryAnimPlayed && m_gameFlow == TGameFlow.EGameState_Playing && GlobalVars.CurStageData.TimeLimit > 0 && GetTimeRemain() < 15)
+        {
+            m_bHurryAnimPlayed = true;
+            AddPartile("Only15SecLeftAnim", AudioEnum.Audio_Only15SecLeft, 0, 0, false);
+        }
+    }
+
+    public void Update()
+    {
+        TimerWork();
+
+        DrawGraphics();     //绘制图形
 
         //处理粒子////////////////////////////////////////////////////////////////////////
         foreach (KeyValuePair<string, LinkedList<DelayParticle>> pair in m_particleMap)
@@ -2382,53 +2361,64 @@ public class GameLogic
             }
         }
 
-        //处理数字
         //处理延迟消除
+        if (m_delayProcessGrid.Count > 0)
         {
-            if (m_showingNumberEffectList.Count > 0)
-            {
-                LinkedListNode<ShowingNumberEffect> node = m_showingNumberEffectList.First;
-                LinkedListNode<ShowingNumberEffect> nodeLast = m_showingNumberEffectList.Last;
-                LinkedListNode<ShowingNumberEffect> nodeTmp;//临时结点
-                while (node != nodeLast)
-                {
-                    if (node.Value.IsEnd())       //若到了处理时间
-                    {
-                        nodeTmp = node.Next;
-                        node.Value.SetFree();
-                        m_freeNumberList.AddLast(node.Value);
-                        m_showingNumberEffectList.Remove(node.Value);                              //移除中间一个元素
-                        node = nodeTmp;
-                    }
-                    else
-                    {
-                        //node.Value.Update();
-                        node = node.Next;
-                    }
-                }
+            LinkedListNode<DelayProceedGrid> node = m_delayProcessGrid.First;
+            LinkedListNode<DelayProceedGrid> nodeLast = m_delayProcessGrid.Last;
+            LinkedListNode<DelayProceedGrid> nodeTmp;//临时结点
 
-                if (nodeLast.Value.IsEnd())       //若到了处理时间
+            while (node != nodeLast)
+            {
+                if (Timer.GetRealTimeSinceStartUp() > node.Value.startTime)       //若到了处理时间
                 {
-					node.Value.SetFree();
-                    m_freeNumberList.AddLast(nodeLast.Value);
-                    m_showingNumberEffectList.Remove(nodeLast.Value);                              //移除中间一个元素
+                    ProcessEatChanges(node.Value, true, true);                          //处理延迟处理的消块
+
+                    nodeTmp = node.Next;
+                    m_delayProcessGrid.Remove(node.Value);                              //移除中间一个元素
+                    node = nodeTmp;
                 }
-                //else
-                //{
-                //    nodeLast.Value.Update();
-                //}
+                else
+                {
+                    node = node.Next;
+                }
+            }
+
+            if (Timer.GetRealTimeSinceStartUp() > nodeLast.Value.startTime)       //若到了处理时间
+            {
+                ProcessEatChanges(nodeLast.Value, true, true);                          //处理延迟处理的消块
+                m_delayProcessGrid.Remove(nodeLast.Value);                              //移除中间一个元素
             }
         }
 
-        if (m_gameFlow == TGameFlow.EGameState_Playing && GlobalVars.CurStageData.TimeLimit > 0 && CapBlock.DropingBlockCount == 0 && CapBlock.EatingBlockCount == 0)
+        //处理数字
+        if (m_showingNumberEffectList.Count > 0)
         {
-            ProcessCheckStageFinish();
-        }
+            LinkedListNode<ShowingNumberEffect> node = m_showingNumberEffectList.First;
+            LinkedListNode<ShowingNumberEffect> nodeLast = m_showingNumberEffectList.Last;
+            LinkedListNode<ShowingNumberEffect> nodeTmp;//临时结点
+            while (node != nodeLast)
+            {
+                if (node.Value.IsEnd())       //若到了处理时间
+                {
+                    nodeTmp = node.Next;
+                    node.Value.SetFree();
+                    m_freeNumberList.AddLast(node.Value);
+                    m_showingNumberEffectList.Remove(node.Value);                              //移除中间一个元素
+                    node = nodeTmp;
+                }
+                else
+                {
+                    node = node.Next;
+                }
+            }
 
-        if (m_lastGCTime > 0 && Timer.GetRealTimeSinceStartUp() - m_lastGCTime > 0.5f)      //落完0.5秒后进行GC
-        {
-            //System.GC.Collect();
-            m_lastGCTime = 0;
+            if (nodeLast.Value.IsEnd())       //若到了处理时间
+            {
+				node.Value.SetFree();
+                m_freeNumberList.AddLast(nodeLast.Value);
+                m_showingNumberEffectList.Remove(nodeLast.Value);                              //移除中间一个元素
+            }
         }
 
         //处理声音
@@ -2471,21 +2461,6 @@ public class GameLogic
         if (IsStoppingTime || m_gameFlow == TGameFlow.EGameState_FTUE)
         {
             m_gameStartTime += (long)(Time.deltaTime * 1000);
-        }
-
-        //if (m_endingAccelarateStartTime > 0 && Timer.GetRealTimeSinceStartUp() > m_endingAccelarateStartTime)
-        //{
-        //    if (Timer.GetRealTimeSinceStartUp() - m_endingAccelarateStartTime >10)
-        //    {
-        //        Time.timeScale = 1.4f;
-        //    }
-        //}
-
-        //剩15秒的特效
-        if (!m_bHurryAnimPlayed && m_gameFlow == TGameFlow.EGameState_Playing && GlobalVars.CurStageData.TimeLimit > 0 && GetTimeRemain() < 15)
-        {
-            m_bHurryAnimPlayed = true;
-            AddPartile("Only15SecLeftAnim", AudioEnum.Audio_Only15SecLeft, 0, 0, false);
         }
     }
 
@@ -2845,6 +2820,7 @@ public class GameLogic
                                 }
                                 m_blocks[i, j].m_animation.enabled = true;
                                 m_blocks[i, j].m_animation.Play(m_blocks[i, j].EatAnimationName);                             //播放吃块动画
+                                m_blocks[i, j].AlphaFadeOut();
                             }
                             AddPartile(m_blocks[i, j].EatEffectName, m_blocks[i, j].EatAudio, i, j);     //添加吃块特效
                         }
@@ -4241,7 +4217,6 @@ public class GameLogic
         ProcessCheckStageFinish();
 
         m_lastHelpTime = Timer.GetRealTimeSinceStartUp();
-        m_lastGCTime = Timer.GetRealTimeSinceStartUp();
 
         CheckFTUE();            //检测一次FTUE
 
@@ -4872,7 +4847,6 @@ public class GameLogic
 
     void MoveSelected()
     {
-        m_lastGCTime = 0;
         m_chocolateNeedGrow = true;
         ClearHelpPoint();
         MoveBlockPair(m_selectedPos[0], m_selectedPos[1]);

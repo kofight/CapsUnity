@@ -2017,11 +2017,11 @@ public class GameLogic
             {
                 m_gameStartTime = 0;
                 m_gameFlow = TGameFlow.EGameState_End;      //从奖励状态进入结束状态
-
+                HideUI();
                 //若达成过关条件，触发关卡结束对话，并在对话结束后出游戏结束窗口
                 if (IsStageFinish())
                 {
-                    HideUI();
+                    
                     GameLogic.Singleton.PlayEndGameAnim();		//play the end anim(move the game area out of screen)
                     Timer.AddDelayFunc(0.8f, delegate()
                     {
@@ -4220,6 +4220,8 @@ public class GameLogic
         //否则直接结束游戏
         m_gameStartTime = 0;
         m_gameFlow = TGameFlow.EGameState_End;
+
+        HideUI();
 
         Timer.AddDelayFunc(2.0f, delegate()
         {

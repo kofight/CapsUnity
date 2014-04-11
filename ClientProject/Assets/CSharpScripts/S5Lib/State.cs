@@ -6,6 +6,8 @@ public abstract class State
     // Update Game State
     public virtual void Update() { }
 
+    public virtual void FixedUpdate() { }
+
     public virtual void OnGUI() { }
 
     public virtual void DoInitState() { }

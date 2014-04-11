@@ -664,6 +664,16 @@ public class GameLogic
             m_freeShadowSpriteList.AddLast(sprite);
             newObj.SetActive(false);
         }
+
+        AddParticleToFreeList("AddSpecialEffect", true, 10);
+        AddParticleToFreeList(CapsConfig.ResortOutEffect, true, 81);
+        AddParticleToFreeList(CapsConfig.EatEffect, true, 10);
+        AddParticleToFreeList("Dir1Effect", true, 3);
+        AddParticleToFreeList("Dir2Effect", true, 3);
+        AddParticleToFreeList("Dir0Effect", true, 3);
+        AddParticleToFreeList("BombEffect", true, 3);
+        AddParticleToFreeList("LineEatEffect", true, 20);
+        AddParticleToFreeList(CapsConfig.EatEffect, true, 10);
     }
 
     void InitRes()
@@ -677,6 +687,7 @@ public class GameLogic
             {
                 ShowingNumberEffect numEffect = new ShowingNumberEffect();
                 numEffect.Init(m_numInstance);
+                numEffect.SetFree();
                 m_freeNumberList.AddLast(numEffect);
             }
         }
@@ -736,6 +747,20 @@ public class GameLogic
         PlayingStageData = StageData.CreateStageData();
 
         m_stageTargetUI = UIWindowManager.Singleton.CreateWindow<UIWindow>("UIStageTarget", UIWindowManager.Anchor.Center);
+
+        //提前创建粒子
+        if (GlobalVars.CurStageData.Target == GameTarget.ClearJelly)        //冰块关
+        {
+            AddParticleToFreeList("JellyEffect", true, 10);
+        }
+        if (GlobalVars.CurStageData.ChocolateCount > 0)
+        {
+            AddParticleToFreeList("ChocolateEffect", true, GlobalVars.CurStageData.ChocolateCount / 2);
+        }
+        if (GlobalVars.CurStageData.StoneCount > 0)
+        {
+            AddParticleToFreeList("StoneEffect", true, GlobalVars.CurStageData.ChocolateCount / 3);
+        }
     }
 
     public void InitLogic(int seed = -1)
@@ -3850,6 +3875,51 @@ public class GameLogic
         m_flyParticleList.AddLast(flyParticle);
     }
 
+    void AddParticleToFreeList(string name, bool addToGameArea, int count)
+    {
+        //先看freeParticleList里面有没有可用的list，没有的话创建一个
+        LinkedList<ParticleSystem> freeParticleList;
+        if (!m_freeParticleMap.TryGetValue(name, out freeParticleList))
+        {
+            freeParticleList = new LinkedList<ParticleSystem>();
+            m_freeParticleMap.Add(name, freeParticleList);
+        }
+
+        int addCount = 0;
+        if (freeParticleList.Count < count)
+        {
+            addCount = count - freeParticleList.Count;
+        }
+        
+        if (addCount == 0)      //已经有足够的粒子了，返回
+        {
+            return;
+        }
+
+        GameObject gameObj = null;
+        ParticleSystem par = null;
+        //创建粒子
+        Object obj = Resources.Load(name);
+
+        for (int i = 0; i < addCount; ++i )
+        {
+            gameObj = GameObject.Instantiate(obj) as GameObject;
+            if (addToGameArea)
+            {
+                gameObj.transform.parent = m_capsPool.transform;
+            }
+            else
+            {
+                gameObj.transform.parent = CenterAnchor.transform;
+            }
+            par = gameObj.GetComponent<ParticleSystem>();
+            par.Stop();     //这里先不播放
+            gameObj.SetActive(false);           //隐藏起来
+
+            freeParticleList.AddLast(par);      //加到空闲列表中
+        }
+    }
+
     public void AddPartile(string name, AudioEnum audio, int x, int y, bool addToGameArea = true, float delay = 0.0f)
     {
         //先看freeParticleList里面有没有可用的
@@ -3871,6 +3941,7 @@ public class GameLogic
         }
         else   //没有，创建新粒子
         {
+            Debug.Log("Need Load Partile " + name);
             //Todo 临时加的粒子代码
             Object obj = Resources.Load(name);
             gameObj = GameObject.Instantiate(obj) as GameObject;

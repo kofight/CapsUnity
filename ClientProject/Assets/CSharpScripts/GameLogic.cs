@@ -1577,7 +1577,16 @@ public class GameLogic
                                     m_blocks[i, j].m_shadowSprite.transform.localScale = new Vector3(shadowScale, 1, 1);
                                 }
 
-                                float scale = m_blocks[i, j].m_blockSprite.fillAmount * 0.3f + 0.7f;    //根据填充值计算一个缩放值，缩放比例控制在0.7-1
+                                float scale = 0.7f;
+
+                                if (m_blocks[i, j].m_blockSprite.fillAmount > 0.25f)                    //开始的0.25维持0.7
+                                {
+                                    scale = (m_blocks[i, j].m_blockSprite.fillAmount - 0.25f) * 0.3f / 0.75f + 0.7f;    //根据填充值计算一个缩放值，缩放比例控制在0.7-1
+                                }
+                                else
+                                {
+                                    scale = 0.7f;
+                                }
 
                                 m_blocks[i, j].m_blockSprite.transform.localScale = new Vector3(scale, 1, 1);
 							}

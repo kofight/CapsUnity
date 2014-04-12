@@ -18,7 +18,7 @@ NewFormat			1
 StarScore			21000,26000,31000,				
 CollectColors			2,4,0,				
 CollectSpecial			0,0,0,				
-CollectCount			20,20,0,				
+CollectCount			36,36,0,				
 GridDataArray			0,0,9,0,9,0,0,0,0,0,9,1,9,1,9,0,0,0,0,1,1,1,1,1,0,0,0,0,0,1,1,1,0,0,0,0,0,1,1,1,1,1,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,				
 PortalArray							
 SpecialArray							

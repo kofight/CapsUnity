@@ -83,7 +83,7 @@ public class CapsApplication : S5Application
             GlobalVars.UseSFX = (PlayerPrefs.GetInt("SFX") == 1);
         }
 
-		Application.targetFrameRate = 45;			//
+		Application.targetFrameRate = 60;			//
 		
         new CapsConfig();
         new ResourceManager();

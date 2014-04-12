@@ -1605,41 +1605,6 @@ public class GameLogic
             }
         }
 
-		/*if (GlobalVars.ShowFlagInfo && CheckPosAvailable(m_selectedPos[0]))
-		{
-			Position pos = new Position();
-			for(int y=0; y<BlockCountY; ++y)
-			{
-				pos = new Position(m_selectedPos[0].x, y);
-				string str = "";
-				if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Cage))
-				{
-					str += "Cage,";
-				}
-				if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Stone))
-				{
-					str += "Stone,";
-				}
-				if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Iron))
-				{
-					str += "Iron,";
-				}
-				if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Jelly))
-				{
-					str += "Jelly,";
-				}
-				if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.JellyDouble))
-				{
-					str += "JellyD,";
-				}
-                if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Chocolate))
-                {
-                    str += "Choco,";
-                }
-				UIDrawer.Singleton.DrawText("FlagInfo" + pos.y, GetXPos(pos.x) - 30, GetYPos(pos.x, pos.y) - 30, str);
-			}
-		}*/
-
 		if (GlobalVars.ShowFlagInfo)
 		{
 			for (int i = BlockXStart; i <= BlockXEnd; i++)

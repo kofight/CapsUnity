@@ -27,6 +27,27 @@ public class UIPurchaseTarget : UIWindow
         UIGameHead gamehead = UIWindowManager.Singleton.GetUIWindow<UIGameHead>();
         gamehead.ShowCoin(true);
 
+        m_msgLabel.text = Localization.instance.Get("Use_" + GlobalVars.UsingItem.ToString());
+        m_costLabel.text = CapsConfig.GetItemPrice(GlobalVars.UsingItem).ToString();
+
+        //若冰块关，找个冰块
+        if (GlobalVars.CurStageData.Target == GameTarget.ClearJelly)
+        {
+            for (int i = 0; i < GameLogic.BlockCountX; ++i)
+            {
+                for (int j = 0; j < GameLogic.BlockCountY; ++j)
+                {
+                    if (GameLogic.Singleton.PlayingStageData.CheckFlag(i, j, GridFlag.Jelly) || GameLogic.Singleton.PlayingStageData.CheckFlag(i, j, GridFlag.JellyDouble))
+                    {
+                        GlobalVars.UsingItemTarget = new Position(i, j);
+                        SetTarget(GlobalVars.UsingItemTarget);
+                        return;
+                    }
+                }
+            }
+        }
+        
+        //不是冰块关，找个可点块
         for (int i = 0; i < GameLogic.BlockCountX; ++i)
         {
             for (int j = 0; j < GameLogic.BlockCountY; ++j)
@@ -40,11 +61,6 @@ public class UIPurchaseTarget : UIWindow
                 }
             }
         }
-
-        Debug.Log(GlobalVars.UsingItem.ToString());
-
-        m_msgLabel.text = Localization.instance.Get("Use_" + GlobalVars.UsingItem.ToString());
-        m_costLabel.text = CapsConfig.GetItemPrice(GlobalVars.UsingItem).ToString();
     }
 
     public override void OnHide()

@@ -78,7 +78,8 @@ public class UIGameEnd : UIWindow
         base.OnShow();
         UISprite sprite = GetChildComponent<UISprite>("FailedReason");
 
-        if (GameLogic.Singleton.CheckLimit() && GameLogic.Singleton.GetGameFlow() == TGameFlow.EGameState_End)
+        if ((GameLogic.Singleton.CheckLimit() || GameLogic.Singleton.ResortFailed)           //若关卡步数（时间）限制到了，或重排失败
+            && GameLogic.Singleton.GetGameFlow() == TGameFlow.EGameState_End)
         {
             if (GlobalVars.CurStageData.StepLimit > 0)
             {
@@ -92,21 +93,34 @@ public class UIGameEnd : UIWindow
             m_continueTipBoard.gameObject.SetActive(true);
             m_pauseTipBoard.gameObject.SetActive(false);
 
-            m_planOnItemIcon.gameObject.SetActive(true);
-
-            if (GlobalVars.CurStageData.StepLimit > 0)
-            {
-                m_planOnItemIcon.spriteName = PurchasedItem.ItemAfterGame_PlusStep.ToString();
-                m_itemIntro.text = Localization.instance.Get("Intro_" + PurchasedItem.ItemAfterGame_PlusStep.ToString());
-            }
-            else if (GlobalVars.CurStageData.TimeLimit > 0)
-            {
-                m_planOnItemIcon.spriteName = PurchasedItem.ItemAfterGame_PlusTime.ToString();
-                m_itemIntro.text = Localization.instance.Get("Intro_" + PurchasedItem.ItemAfterGame_PlusTime.ToString());
-            }
-
             m_curScore.SetNumber(GameLogic.Singleton.GetProgress());
             m_targetScore.SetNumber(GlobalVars.CurStageData.StarScore[0]);
+
+            if (GameLogic.Singleton.ResortFailed)
+            {
+                m_playOnBtn.gameObject.SetActive(false);
+                m_continueTipBoard.gameObject.SetActive(false);
+                m_planOnItemIcon.gameObject.SetActive(false);
+                m_EndGameBtn.LocalPositionX(0);
+            }
+            else
+            {
+                if (GlobalVars.CurStageData.StepLimit > 0)
+                {
+                    m_planOnItemIcon.spriteName = PurchasedItem.ItemAfterGame_PlusStep.ToString();
+                    m_itemIntro.text = Localization.instance.Get("Intro_" + PurchasedItem.ItemAfterGame_PlusStep.ToString());
+                }
+                else if (GlobalVars.CurStageData.TimeLimit > 0)
+                {
+                    m_planOnItemIcon.spriteName = PurchasedItem.ItemAfterGame_PlusTime.ToString();
+                    m_itemIntro.text = Localization.instance.Get("Intro_" + PurchasedItem.ItemAfterGame_PlusTime.ToString());
+                }
+
+                m_EndGameBtn.LocalPositionX(-108);
+                m_continueTipBoard.gameObject.SetActive(true);
+                m_playOnBtn.gameObject.SetActive(true);
+                m_planOnItemIcon.gameObject.SetActive(true);
+            }
         }
         else
         {

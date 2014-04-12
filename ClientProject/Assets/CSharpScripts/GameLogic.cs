@@ -410,6 +410,8 @@ public class GameLogic
     bool m_bReadyToStart = false;                           //这个变量标记当前是否可以开始(任意点击就可以开始了)
     float m_readyToStartTime;                               //准备好开始的时间
 
+    public bool ResortFailed = false;                           //重排失败造成关卡失败(仍有步数或时间)
+
     bool m_bHurryAnimPlayed = false;                        //用来记录Hurry动画是否已经播放完毕了
 
     //计时器
@@ -1275,7 +1277,8 @@ public class GameLogic
         }
         if (sortcount == 100)       //100次还没有合适的，直接失败
         {
-
+            ResortFailed = true;
+            EndGameFailed();
         }
         Debug.Log("Auto Resort, count = " + sortcount);
     }
@@ -1486,6 +1489,7 @@ public class GameLogic
         m_progress = 0;
         m_nut1Count = 0;
         m_nut2Count = 0;
+        ResortFailed = false;
         if (!RestartEffectClear)
         {
             m_bFailedFTUE = false;

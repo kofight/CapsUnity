@@ -137,6 +137,9 @@ public class GlobalVars {
     public static TSpecialBlock EditingSpecial;                //正在编辑的颜色
     public static int     EditingGrid;                          //正在编辑的块
 
+    public static bool ShowFlagInfo;                            //显示旗标
+    public static bool ShowXYInfo;                              //显示坐标
+
     public static StageData CurStageData;                       //当前正在查看或玩的关卡数据
     public static GameLogic CurGameLogic;                       //当前的游戏逻辑
 	

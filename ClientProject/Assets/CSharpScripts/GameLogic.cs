@@ -1578,7 +1578,7 @@ public class GameLogic
         //    UIDrawer.Singleton.DrawText("lock" + i, GetXPos(i) - 30, GetYPos(i, m_slopeDropLock[i]) - 30, m_slopeDropLock[i].ToString());
         //}
 
-        if (GlobalVars.DeveloperMode)
+        if (GlobalVars.ShowXYInfo)
         {
             for (int i = 0; i < BlockCountX; i++)
             {
@@ -1591,21 +1591,90 @@ public class GameLogic
                 }
             }
         }
-        
 
-        //根据数据绘制Sprite
-        for (int i = 0; i < BlockCountX; i++)
-        {
-            for (int j = 0; j < BlockCountY; j++)
-            {
-                if (PlayingStageData.GridData[i, j] == 0)
+		/*if (GlobalVars.ShowFlagInfo && CheckPosAvailable(m_selectedPos[0]))
+		{
+			Position pos = new Position();
+			for(int y=0; y<BlockCountY; ++y)
+			{
+				pos = new Position(m_selectedPos[0].x, y);
+				string str = "";
+				if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Cage))
+				{
+					str += "Cage,";
+				}
+				if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Stone))
+				{
+					str += "Stone,";
+				}
+				if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Iron))
+				{
+					str += "Iron,";
+				}
+				if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Jelly))
+				{
+					str += "Jelly,";
+				}
+				if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.JellyDouble))
+				{
+					str += "JellyD,";
+				}
+                if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Chocolate))
                 {
-                    continue;
+                    str += "Choco,";
                 }
+				UIDrawer.Singleton.DrawText("FlagInfo" + pos.y, GetXPos(pos.x) - 30, GetYPos(pos.x, pos.y) - 30, str);
+			}
+		}*/
 
-                if (m_blocks[i, j] != null)
-                {
-                    if (m_blocks[i, j].m_dropDownStartTime > 0)     //处理一次下落动画
+		if (GlobalVars.ShowFlagInfo)
+		{
+			for(int x=0; x<BlockCountX; ++x)
+			for(int y=0; y<BlockCountY; ++y)
+			{
+				Position pos = new Position(x, y);
+				string str = "";
+				if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Cage))
+				{
+					str += "Cage,";
+				}
+				if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Stone))
+				{
+					str += "St,";
+				}
+				if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Iron))
+				{
+					str += "Ir,";
+				}
+				if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Jelly))
+				{
+					str += "JL,";
+				}
+				if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.JellyDouble))
+				{
+					str += "JL2,";
+				}
+				if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Chocolate))
+				{
+					str += "Cho,";
+				}
+				UIDrawer.Singleton.DrawText("FlagInfo" + pos.ToInt().ToString(), GetXPos(pos.x) - 30, GetYPos(pos.x, pos.y) - 30, str);
+			}
+		}
+		
+		//根据数据绘制Sprite
+		for (int i = 0; i < BlockCountX; i++)
+		{
+			for (int j = 0; j < BlockCountY; j++)
+			{
+				if (PlayingStageData.GridData[i, j] == 0)
+				{
+					continue;
+				}
+				
+				if (m_blocks[i, j] != null)
+				{
+					if (m_blocks[i, j].m_dropDownStartTime > 0)     //处理一次下落动画
                     {
                         if (Timer.GetRealTimeSinceStartUp() - m_blocks[i, j].m_dropDownStartTime > 1.0f)
                         {

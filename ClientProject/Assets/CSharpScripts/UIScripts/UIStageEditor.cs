@@ -102,6 +102,17 @@ public class UIStageEditor : UIWindow
                 GlobalVars.EditingGrid = GetGridFlagsFromCheckBoxes();
             });
         }
+        UIToggle flagToggle = GetChildComponent<UIToggle>("InfoFlag");
+        EventDelegate.Set(flagToggle.onChange, delegate()
+        {
+            GlobalVars.ShowFlagInfo = UIToggle.current.value;
+        });
+
+        UIToggle xyToggle = GetChildComponent<UIToggle>("InfoXY");
+		EventDelegate.Set(xyToggle.onChange, delegate()
+        {
+            GlobalVars.ShowXYInfo = UIToggle.current.value;
+        });
 
         for (int i = 0; i <= (int)GameTarget.Collect; ++i)
         {

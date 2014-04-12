@@ -366,10 +366,12 @@ public class GameLogic
     int m_stoppingTimeStepLeft;                                                 //停止时间的剩余步数
 
     //用这4个数来记录每关实际块的范围，用来计算游戏区位置及优化性能
-    int BlockXStart = 0;
-    int BlockXEnd = 0;
-    int BlockYStart = 0;
-    int BlockYEnd = 0;
+    public int BlockXStart = 0;
+    public int BlockXEnd = 0;
+    public int BlockYStart = 0;
+    public int BlockYEnd = 0;
+    public int BlockAreaWidth = 0;
+    public int BlockAreaHeight = 0;
 
     int m_progress;										//当前进度
     TGameFlow m_gameFlow;								//游戏状态
@@ -697,10 +699,10 @@ public class GameLogic
         }
 
         //计算游戏区位置////////////////////////////////////////////////////////////////////////
-        int BlockXStart = 999;
-        int BlockXEnd = -1;
-        int BlockYStart = 999;
-        int BlockYEnd = -1;
+        BlockXStart = 999;
+        BlockXEnd = -1;
+        BlockYStart = 999;
+        BlockYEnd = -1;
         for (int i = 0; i < BlockCountX; ++i)
         {
             for (int j = 0; j < BlockCountY; ++j)
@@ -727,13 +729,16 @@ public class GameLogic
             }
         }
 
-        gameAreaX = (int)((CapsApplication.Singleton.Width - (BlockXEnd + 1 - BlockXStart) * BLOCKWIDTH) / 2 - BlockXStart * BLOCKWIDTH);
-        gameAreaY = (int)((CapsApplication.Singleton.Height - (BlockYEnd + 1 - BlockYStart) * BLOCKHEIGHT) / 2 - BlockYStart * BLOCKHEIGHT - BLOCKHEIGHT / 2) - 2;
+        BlockAreaWidth = BlockXEnd + 1 - BlockXStart;
+        BlockAreaHeight = BlockYEnd + 1 - BlockYStart;
 
-        //创建底图对象
-        for (int i = 0; i < BlockCountX; ++i)
+        gameAreaX = (int)((CapsApplication.Singleton.Width - BlockAreaWidth * BLOCKWIDTH) / 2 - BlockXStart * BLOCKWIDTH);
+        gameAreaY = (int)((CapsApplication.Singleton.Height - BlockAreaHeight * BLOCKHEIGHT) / 2 - BlockYStart * BLOCKHEIGHT - BLOCKHEIGHT / 2) - 2;
+
+        //创建底图对象，寻找x和y的边界
+        for (int i = BlockXStart; i <= BlockXEnd; ++i)
         {
-            for (int j = 0; j < BlockCountY; ++j)
+            for (int j = BlockYStart; j <= BlockYEnd; ++j)
             {
                 if (GlobalVars.CurStageData.GridData[i, j] == 0)
                 {
@@ -795,9 +800,9 @@ public class GameLogic
         m_random2 = new System.Random((int)Time.timeSinceLevelLoad * 1000);
 
         //绘制底图
-        for (int i = 0; i < BlockCountX; ++i)
+        for (int i = BlockXStart; i <= BlockXEnd; ++i)
         {
-            for (int j = 0; j < BlockCountY; ++j)
+            for (int j = BlockYStart; j <= BlockYEnd; ++j)
             {
                 if (PlayingStageData.GridData[i, j] == 0)
                 {
@@ -827,9 +832,9 @@ public class GameLogic
         {
             posContainer.Clear();       //先清理容器
             //查找出生点
-            for (int i = 0; i < BlockCountX; ++i)
+            for (int i = BlockXStart; i <= BlockXEnd; ++i)
             {
-                for (int j = 0; j < BlockCountY; ++j)
+                for (int j = BlockYStart; j <= BlockYEnd; ++j)
                 {
                     if (PlayingStageData.CheckFlag(i, j, GridFlag.Birth) && !PlayingStageData.CheckFlag(i, j, GridFlag.Cage))
                     {
@@ -842,17 +847,17 @@ public class GameLogic
         }
         else
         {
-            randomPos = randNum % BlockCountX;
+			randomPos = BlockXStart + randNum % BlockAreaWidth;
         }
 
         bool startOver = true;
         while (startOver)
         {
             startOver = false;
-            for (int i = 0; i < BlockCountX; i++)
+            for (int i = 0; i < BlockAreaWidth; i++)
             {
-                int xPos = (randomPos + i) % BlockCountX;
-                for (int j = 0; j < BlockCountY; j++)
+                int xPos = BlockXStart + (randomPos + i) % BlockAreaWidth;
+                for (int j = BlockYStart; j <= BlockYEnd; j++)
                 {
                     if (PlayingStageData.CheckFlag(xPos, j, GridFlag.GenerateCap))
                     {
@@ -1099,9 +1104,9 @@ public class GameLogic
     public bool Help()                 //查找到一个可交换的位置
     {
         m_lastHelpTime = Timer.GetRealTimeSinceStartUp();
-        for (int i = 0; i < BlockCountX; ++i)
+        for (int i = BlockXStart; i <= BlockXEnd; ++i)
         {
-            for (int j = 0; j < BlockCountY; ++j)
+            for (int j = BlockYStart; j <= BlockYEnd; ++j)
             {
                 if (m_blocks[i, j] == null || m_blocks[i, j].CurState != BlockState.Normal)                     //空格或空块
                 {
@@ -1203,12 +1208,12 @@ public class GameLogic
 
     public void AutoResort()           //自动重排功能 Todo 没处理交换后形成消除的情况，不确定要不要处理
     {
-        Position[] array = new Position[BlockCountX * BlockCountY];
+		Position[] array = new Position[BlockCountX * BlockCountY];
 
         int count = 0;
-        for (int i = 0; i < BlockCountX; ++i)
+        for (int i = BlockXStart; i <= BlockXEnd; ++i)
         {
-            for (int j = 0; j < BlockCountY; ++j)
+            for (int j = BlockYStart; j <= BlockYEnd; ++j)
             {
                 if (m_blocks[i, j] == null || m_blocks[i, j].CurState != BlockState.Normal)                     //空格或被锁块
                 {
@@ -1230,20 +1235,20 @@ public class GameLogic
         {
             //自动重排
             Permute<Position>(array, count);       //重排
-            CapBlock[,] blocks = new CapBlock[BlockCountX, BlockCountY];
+			CapBlock[,] blocks = new CapBlock[BlockCountX, BlockCountY];
 
-            for (int i = 0; i < BlockCountX; ++i)
+            for (int i = BlockXStart; i <= BlockXEnd; ++i)
             {
-                for (int j = 0; j < BlockCountY; ++j)
+                for (int j = BlockYStart; j <= BlockYEnd; ++j)
                 {
                     blocks[i, j] = m_blocks[i, j];          //先复制份数据
                 }
             }
 
             count = 0;
-            for (int i = 0; i < BlockCountX; ++i)
+            for (int i = BlockXStart; i <= BlockXEnd; ++i)
             {
-                for (int j = 0; j < BlockCountY; ++j)
+                for (int j = BlockYStart; j <= BlockYEnd; ++j)
                 {
                     if (m_blocks[i, j] == null || m_blocks[i, j].CurState != BlockState.Normal)                     //空格或空块
                     {
@@ -1381,9 +1386,9 @@ public class GameLogic
     void FreeAllBlocks()
     {
         //回收Blocks
-        for (int i = 0; i < BlockCountX; ++i)
+        for (int i = BlockXStart; i <= BlockXEnd; ++i)
         {
-            for (int j = 0; j < BlockCountY; ++j)
+            for (int j = BlockYStart; j <= BlockYEnd; ++j)
             {
                 if (m_blocks[i, j] != null)
                 {
@@ -1443,9 +1448,9 @@ public class GameLogic
         m_gridAngles.Clear();
 
         //释放底图
-        for (int i = 0; i < BlockCountX; ++i)
+        for (int i = BlockXStart; i <= BlockXEnd; ++i)
         {
-            for (int j = 0; j < BlockCountY; ++j)
+            for (int j = BlockYStart; j <= BlockYEnd; ++j)
             {
                 if (m_gridBackImage[i, j] != null)
                 {
@@ -1565,9 +1570,9 @@ public class GameLogic
         if (CapBlock.DropingBlockCount > 0)            //若有块在下落
         {
             //如果未到120毫秒，更新各方快的位置
-            for (int i = 0; i < BlockCountX; i++)
+            for (int i = BlockXStart; i <= BlockXEnd; i++)
             {
-                for (int j = 0; j < BlockCountY; j++)
+                for (int j = BlockYStart; j <= BlockYEnd; j++)
                 {
                     if (m_blocks[i, j] == null)
                     {
@@ -1588,9 +1593,9 @@ public class GameLogic
 
         if (GlobalVars.ShowXYInfo)
         {
-            for (int i = 0; i < BlockCountX; i++)
+            for (int i = BlockXStart; i <= BlockXEnd; i++)
             {
-                for (int j = 0; j < BlockCountY; j++)
+                for (int j = BlockYStart; j <= BlockYEnd; j++)
                 {
                     if (m_blocks[i, j] != null)
                     {
@@ -1637,44 +1642,46 @@ public class GameLogic
 
 		if (GlobalVars.ShowFlagInfo)
 		{
-			for(int x=0; x<BlockCountX; ++x)
-			for(int y=0; y<BlockCountY; ++y)
-			{
-				Position pos = new Position(x, y);
-				string str = "";
-				if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Cage))
-				{
-					str += "Cage,";
-				}
-				if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Stone))
-				{
-					str += "St,";
-				}
-				if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Iron))
-				{
-					str += "Ir,";
-				}
-				if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Jelly))
-				{
-					str += "JL,";
-				}
-				if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.JellyDouble))
-				{
-					str += "JL2,";
-				}
-				if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Chocolate))
-				{
-					str += "Cho,";
-				}
-				UIDrawer.Singleton.DrawText("FlagInfo" + pos.ToInt().ToString(), GetXPos(pos.x) - 30, GetYPos(pos.x, pos.y) - 30, str);
-			}
+			for (int i = BlockXStart; i <= BlockXEnd; i++)
+            {
+                for (int j = BlockYStart; j <= BlockYEnd; j++)
+			    {
+				    Position pos = new Position(i, j);
+				    string str = "";
+				    if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Cage))
+				    {
+					    str += "Cage,";
+				    }
+				    if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Stone))
+				    {
+					    str += "St,";
+				    }
+				    if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Iron))
+				    {
+					    str += "Ir,";
+				    }
+				    if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Jelly))
+				    {
+					    str += "JL,";
+				    }
+				    if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.JellyDouble))
+				    {
+					    str += "JL2,";
+				    }
+				    if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Chocolate))
+				    {
+					    str += "Cho,";
+				    }
+				    UIDrawer.Singleton.DrawText("FlagInfo" + pos.ToInt().ToString(), GetXPos(pos.x) - 30, GetYPos(pos.x, pos.y) - 30, str);
+			    }
+            }
 		}
 		
 		//根据数据绘制Sprite
-		for (int i = 0; i < BlockCountX; i++)
-		{
-			for (int j = 0; j < BlockCountY; j++)
-			{
+        for (int i = BlockXStart; i <= BlockXEnd; i++)
+        {
+            for (int j = BlockYStart; j <= BlockYEnd; j++)
+            {
 				if (PlayingStageData.GridData[i, j] == 0)
 				{
 					continue;
@@ -1918,10 +1925,10 @@ public class GameLogic
                     {
 						if(Timer.GetRealTimeSinceStartUp() - m_colorToBombLastTime > CapsConfig.Rainbow_Bomb_EffectAddItemInterval)		//到达了生成块间隔
 						{
-							for (int i = 0; i < BlockCountX; ++i)
-	                        {
-	                            for (int j = 0; j < BlockCountY; ++j)
-	                            {
+                            for (int i = BlockXStart; i <= BlockXEnd; ++i)
+                            {
+                                for (int j = BlockYStart; j <= BlockYEnd; ++j)
+                                {
 	                                CapBlock block = m_blocks[i, j];
 	                                if (block != null && block.color == m_colorToBomb && block.special == TSpecialBlock.ESpecial_Normal)     //同颜色的普通块
 	                                {
@@ -1953,9 +1960,9 @@ public class GameLogic
 
                     if (CapBlock.EatingBlockCount == 0 && CapBlock.DropingBlockCount == 0)          //若没有在吃或在掉落中的块了
                     {
-                        for (int i = 0; i < BlockCountX; ++i)
+                        for (int i = BlockXStart; i <= BlockXEnd; ++i)
                         {
-                            for (int j = 0; j < BlockCountY; ++j)
+                            for (int j = BlockYStart; j <= BlockYEnd; ++j)
                             {
                                 if (m_blocks[i, j] != null && m_blocks[i, j].special == TSpecialBlock.ESpecial_Bomb)
                                 {
@@ -1978,9 +1985,9 @@ public class GameLogic
                     if (m_effectStep == 1)                                                                 //逐个播放出现特效
                     {
                         bool bFoundUnplayAnim = false;
-                        for (int i = 0; i < BlockCountX; ++i)
+                        for (int i = BlockXStart; i <= BlockXEnd; ++i)
                         {
-                            for (int j = 0; j < BlockCountY; ++j)
+                            for (int j = BlockYStart; j <= BlockYEnd; ++j)
                             {
                                 if (m_blocks[i, j] != null &&
                                     m_blocks[i, j].m_resortEffectStartTime > 0)
@@ -2018,9 +2025,9 @@ public class GameLogic
                     else if (m_effectStep == 1)                             //逐个播放消失特效
                     {
                         bool bFoundUnplayAnim = false;
-                        for (int i = 0; i < BlockCountX; ++i )
+                        for (int i = BlockXStart; i <= BlockXEnd; i++)
                         {
-                            for (int j = 0; j < BlockCountY; ++j )
+                            for (int j = BlockYStart; j <= BlockYEnd; j++)
                             {
                                 if (m_blocks[i, j] != null && 
                                     m_blocks[i, j].m_resortEffectStartTime > 0)
@@ -2076,9 +2083,9 @@ public class GameLogic
                     }
                     else if (m_effectStep == 4)                             //逐个播放出现特效
                     {
-                        for (int i = 0; i < BlockCountX; ++i)
+                        for (int i = BlockXStart; i <= BlockXEnd; ++i)
                         {
-                            for (int j = 0; j < BlockCountY; ++j)
+                            for (int j = BlockYStart; j <= BlockYEnd; ++j)
                             {
                                 if (m_blocks[i, j] != null &&
                                     m_blocks[i, j].m_resortEffectStartTime > 0 &&
@@ -2119,9 +2126,9 @@ public class GameLogic
         if (m_gameFlow == TGameFlow.EGameState_EndEatingSpecial && CapBlock.EatingBlockCount == 0 && CapBlock.DropingBlockCount == 0)
         {
             bool bFoundSpecial = false;
-            for (int i = 0; i < BlockCountX; ++i)
+            for (int i = BlockXStart; i <= BlockXEnd; ++i)
             {
-                for (int j = 0; j < BlockCountY; ++j)
+                for (int j = BlockYStart; j <= BlockYEnd; ++j)
                 {
                     if (m_blocks[i, j] != null && m_blocks[i, j].special != TSpecialBlock.ESpecial_Normal)
                     {
@@ -2281,9 +2288,9 @@ public class GameLogic
     {
         bool bDroped = false;   //记录是否发生了落到底事件
         bool bEat = false;      //记录是否形成了消块
-        for (int i = 0; i < BlockCountX; ++i)
+        for (int i = BlockXStart; i <= BlockXEnd; ++i)
         {
-            for (int j = 0; j < BlockCountY; ++j)
+            for (int j = BlockYStart; j <= BlockYEnd; ++j)
             {
                 if (m_blocks[i, j] != null && m_blocks[i, j].CurState == BlockState.MovingEnd)      //若为普通块且移动结束
                 {
@@ -2384,9 +2391,9 @@ public class GameLogic
         if (CapBlock.DropingBlockCount > 0)
         {
 
-            for (int i = 0; i < BlockCountX; ++i)
+            for (int i = BlockXStart; i <= BlockXEnd; ++i)
             {
-                for (int j = 0; j < BlockCountY; ++j)
+                for (int j = BlockYStart; j <= BlockYEnd; ++j)
                 {
                     if (m_blocks[i, j] != null && m_blocks[i, j].CurState == BlockState.MovingEnd)
                     {
@@ -2663,9 +2670,9 @@ public class GameLogic
     void UpdateSlopeLock()
     {
         //计算锁的位置
-        for (int i = 0; i < BlockCountX; ++i)
+        for (int i = BlockXStart; i <= BlockXEnd; ++i)
         {
-            for (int j = 0; j < BlockCountY; ++j)
+            for (int j = BlockYStart; j <= BlockYEnd; ++j)
             {
                 if (m_blocks[i, j] != null)     //若有下落块
                 {
@@ -2954,9 +2961,9 @@ public class GameLogic
             bool bEat = false;
             bool bNeedRefreshTarget = false;        //搜集关可能需要更新目标
             //消块逻辑，把正在消失的块变成粒子，原块置空
-            for (int i = 0; i < BlockCountX; i++)
+            for (int i = BlockXStart; i <= BlockXEnd; i++)
             {
-                for (int j = 0; j < BlockCountY; j++)
+                for (int j = BlockYStart; j <= BlockYEnd; j++)
                 {
                     if (m_blocks[i, j] == null)     //为空块
                     {
@@ -3198,9 +3205,9 @@ public class GameLogic
 
     public void ProcessTempBlocks()
     {
-        for (int i = 0; i < BlockCountX; ++i)
+        for (int i = BlockXStart; i <= BlockXEnd; ++i)
         {
-            for (int j = 0; j < BlockCountY; ++j)
+            for (int j = BlockYStart; j <= BlockYEnd; ++j)
             {
 				if (m_scoreToShow[i, j] > 0)
 				{
@@ -3305,7 +3312,7 @@ public class GameLogic
             while (bNewSpace)
             {
                 bNewSpace = false;
-                for (int i = 0; i < BlockCountX; ++i)
+                for (int i = BlockXStart; i <= BlockXEnd; ++i)
                 {
                     if (DropDownStraight(i))                //垂直下落
                     {
@@ -3316,8 +3323,8 @@ public class GameLogic
             }
 
             //尝试斜下落
-            for (int i = 0; i < BlockCountX; ++i)
-            {
+             for (int i = BlockXStart; i <= BlockXEnd; ++i)
+             {
                 if (DropDownIndirect(i))                //斜向下落
                 {
                     bDrop = true;
@@ -3687,9 +3694,9 @@ public class GameLogic
 
         if (PlayingStageData.StoneCount > 0)
         {
-            for (int i = 0; i < BlockCountX; ++i)
+            for (int i = BlockXStart; i <= BlockXEnd; ++i)
             {
-                for (int j = 0; j < BlockCountY; ++j)
+                for (int j = BlockYStart; j <= BlockYEnd; ++j)
                 {
                     if (m_gridBackImage[i, j] != null)
                     {
@@ -3759,9 +3766,9 @@ public class GameLogic
         posContainer.Clear();       //先清理容器
 
         int ranNum = m_random.Next();
-        for (int i = 0; i < BlockCountX; i++)				//遍历一行
+        for (int i = BlockXStart; i <= BlockXEnd; i++)
         {
-            for (int j = 0; j < BlockCountY; j++)		//遍历一列
+            for (int j = BlockYStart; j <= BlockYEnd; j++)
             {
                 if (m_blocks[i, j] == null || m_blocks[i, j].color > TBlockColor.EColor_Cyan
                     || m_blocks[i, j].color == excludeColor || m_blocks[i, j].special == TSpecialBlock.ESpecial_EatAColor || m_blocks[i, j].CurState != BlockState.Normal)
@@ -4277,9 +4284,9 @@ public class GameLogic
 			m_stepCountWhenReachTarget = PlayingStageData.StepLimit;		//save the step for submit data later
 
             bool foundSpecial = false;
-            for (int i = 0; i < BlockCountX; ++i)
+            for (int i = BlockXStart; i <= BlockXEnd; ++i)
             {
-                for (int j = 0; j < BlockCountY; ++j)
+                for (int j = BlockYStart; j <= BlockYEnd; ++j)
                 {
                     if (m_blocks[i, j] != null && m_blocks[i, j].special != TSpecialBlock.ESpecial_Normal)
                     {
@@ -4336,9 +4343,9 @@ public class GameLogic
                 }
 
                 bool foundSpecial = false;
-                for (int i = 0; i < BlockCountX; ++i)
+                for (int i = BlockXStart; i <= BlockXEnd; ++i)
                 {
-                    for (int j = 0; j < BlockCountY; ++j)
+                    for (int j = BlockYStart; j <= BlockYEnd; ++j)
                     {
                         if (m_blocks[i, j] != null && m_blocks[i, j].special != TSpecialBlock.ESpecial_Normal)
                         {
@@ -4545,12 +4552,12 @@ public class GameLogic
     {
         //先找到待用的巧克力
         //从随机位置开始
-        int randomPos = m_random.Next() % BlockCountX;
+        int randomPos = m_random.Next() % BlockAreaWidth;
 
-        for (int i = 0; i < BlockCountX; i++)
+        for (int i = 0; i < BlockAreaWidth; i++)
         {
-            int xPos = (randomPos + i) % BlockCountX;
-            for (int j = 0; j < BlockCountY; j++)
+            int xPos = (randomPos + i) % BlockAreaWidth;
+            for (int j = BlockYStart; j <= BlockYEnd; j++)
             {
                 if (PlayingStageData.CheckFlag(xPos, j, GridFlag.Chocolate))        //找到块了
                 {
@@ -4558,8 +4565,9 @@ public class GameLogic
                     for (int dir = (int)TDirection.EDir_Up; dir <= (int)TDirection.EDir_LeftUp; ++dir)
                     {
                         Position newPos = GoTo(new Position(xPos, j), (TDirection)dir, 1);
-                        if (newPos.x >= BlockCountX || newPos.y >= BlockCountY || newPos.x < 0 || newPos.y < 0)
+                        if (!CheckPosAvailable(newPos))
                             continue;
+
                         if (PlayingStageData.CheckFlag(newPos.x, newPos.y, GridFlag.Cage))                //若是笼子
                         {
                             continue;
@@ -4694,9 +4702,9 @@ public class GameLogic
             ChangeColor(p, GlobalVars.EditingColor);
             m_nut1Count = 0;
             m_nut2Count = 0;
-            for (int i = 0; i < BlockCountX; ++i)
+            for (int i = BlockXStart; i <= BlockXEnd; ++i)
             {
-                for (int j = 0; j < BlockCountY; ++j)
+                for (int j = BlockYStart; j <= BlockYEnd; ++j)
                 {
                     if (m_blocks[i, j] == null) continue;
                     if (m_blocks[i, j].color == TBlockColor.EColor_Nut1)
@@ -5161,7 +5169,7 @@ public class GameLogic
     void EatDirLine(Position startPos, float startDelay, float intervalTime, TDirection dir)
     {
         Position pos = startPos;
-        for (int i = 1; i < BlockCountX; ++i)
+        for (int i = 1; i < BlockAreaWidth; ++i)
         {
             pos = GoTo(pos, dir, 1);
 
@@ -5276,9 +5284,9 @@ public class GameLogic
         }
 
         int eatCount = 0;
-        for (int i = 0; i < BlockCountX; ++i)
+        for (int i = BlockXStart; i <= BlockXEnd; ++i)
         {
-            for (int j = 0; j < BlockCountY; ++j)
+            for (int j = BlockYStart; j <= BlockYEnd; ++j)
             {
                 if (m_blocks[i, j] == null)
                 {
@@ -5333,9 +5341,9 @@ public class GameLogic
 
     void ChangeColorToBomb(TBlockColor color)
     {
-        for (int i = 0; i < BlockCountX; ++i)
+        for (int i = BlockXStart; i <= BlockXEnd; ++i)
         {
-            for (int j = 0; j < BlockCountY; ++j)
+            for (int j = BlockYStart; j <= BlockYEnd; ++j)
             {
                 if (m_blocks[i, j] != null && m_blocks[i, j].color == color)
                 {
@@ -5347,9 +5355,9 @@ public class GameLogic
             }
         }
 
-        for (int i = 0; i < BlockCountX; ++i)
+        for (int i = BlockXStart; i <= BlockXEnd; ++i)
         {
-            for (int j = 0; j < BlockCountY; ++j)
+            for (int j = BlockYStart; j <= BlockYEnd; ++j)
             {
                 if (m_blocks[i, j] != null && m_blocks[i, j].color == color)
                 {
@@ -5584,9 +5592,9 @@ public class GameLogic
 
     bool IsHaveLine()
     {
-        for (int i = 0; i < BlockCountX; ++i )
+        for (int i = BlockXStart; i <= BlockXEnd; ++i)
         {
-            for (int j = 0; j < BlockCountY; ++j )
+            for (int j = BlockYStart; j <= BlockYEnd; ++j)
             {
                 if (m_blocks[i, j] != null)
                 {

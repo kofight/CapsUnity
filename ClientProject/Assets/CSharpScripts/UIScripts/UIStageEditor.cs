@@ -89,9 +89,13 @@ public class UIStageEditor : UIWindow
             });
         }
 
-        for (int i = 1; i <= 10; ++i)
+        for (int i = 1; i <= 14; ++i)
         {
 			UIToggle toggle = GetChildComponent<UIToggle>("GridFlag" + i);
+            if (toggle == null)
+            {
+                continue;
+            }
 			EventDelegate.Set(toggle.onChange, delegate()
             {
                 GlobalVars.EditState = TEditState.EditStageGrid;
@@ -175,6 +179,12 @@ public class UIStageEditor : UIWindow
             RefreshStageGridFlagCheckBoxes(GlobalVars.EditingGrid);
         });
 
+        AddChildComponentMouseClick("GridIronBtn", delegate()
+        {
+            GlobalVars.EditingGrid = ((int)GridFlag.Iron) | ((int)GridFlag.NotGenerateCap);
+            RefreshStageGridFlagCheckBoxes(GlobalVars.EditingGrid);
+        });
+
         AddChildComponentMouseClick("GridChocolateBtn", delegate()
         {
             GlobalVars.EditingGrid = ((int)GridFlag.Chocolate) | ((int)GridFlag.NotGenerateCap);
@@ -184,9 +194,13 @@ public class UIStageEditor : UIWindow
 
     void RefreshStageGridFlagCheckBoxes(int gridFlags)       //刷新当前编辑的GridFlag对应的CheckBox界面
     {
-        for (int i = 0; i < 10; ++i )
+        for (int i = 0; i < 14; ++i )
         {
             UIToggle checkBox = UIToolkits.FindComponent<UIToggle>(mUIObject.transform, "GridFlag" + (i + 1));      //找到CheckBox
+            if (checkBox == null)
+            {
+                continue;
+            }
             if ((gridFlags & 1 << i) > 0)
             {
                 checkBox.value = true;
@@ -201,10 +215,10 @@ public class UIStageEditor : UIWindow
     int GetGridFlagsFromCheckBoxes()
     {
         int gridFlags = 0;
-        for (int i = 0; i < 10; ++i)
+        for (int i = 0; i < 14; ++i)
         {
             UIToggle checkBox = UIToolkits.FindComponent<UIToggle>(mUIObject.transform, "GridFlag" + (i + 1));      //找到CheckBox
-            if (checkBox.value)
+            if (checkBox != null && checkBox.value)
             {
                 gridFlags |= 1 << i;
             }

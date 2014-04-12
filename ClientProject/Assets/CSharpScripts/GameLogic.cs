@@ -88,7 +88,8 @@ public class GridSprites
     public UISprite layer2;            //出生点
     public UISprite layer3;            //结束点
     public GameObject IcePartile;      //冰的粒子
-    public bool hasProcessAngle = false;       //是否已经处理了角(用来处理角的中间变量)
+    public bool hasProcessAngle = false;        //是否已经处理了角(用来处理角的中间变量)
+    public bool hasProcessStoneAround = false;  //是否已经处理了周围的石块，有石头的关每次三消后需要清理一次，确保一次三消之内不重复消除石头
 }
 
 struct ShowingNumberEffect
@@ -1003,6 +1004,15 @@ public class GameLogic
             }
             m_gridBackImage[x, y].layer1.spriteName = "Stone";
         }
+        else if (PlayingStageData.CheckFlag(x, y, GridFlag.Iron))
+        {
+            if (m_gridBackImage[x, y].layer1 == null)
+            {
+                newObj = GameObject.Instantiate(m_gridInstance) as GameObject;
+                m_gridBackImage[x, y].layer1 = newObj.GetComponent<UISprite>();
+            }
+            m_gridBackImage[x, y].layer1.spriteName = "Iron";
+        }
         else if (PlayingStageData.CheckFlag(x, y, GridFlag.Chocolate))
         {
             if (m_gridBackImage[x, y].layer1 == null)
@@ -1491,6 +1501,20 @@ public class GameLogic
             m_slopeDropLock[i] = 10;         //初始化成不加锁
         }
         m_helpPointerObj.SetActive(false);  //隐藏帮助指针
+
+        if (GlobalVars.CurStageData.StoneCount > 0)     //清理清石头的标记
+        {
+            for (int i = 0; i < BlockCountX; ++i)
+            {
+                for (int j = 0; j < BlockCountY; ++j)
+                {
+                    if (m_gridBackImage[i, j] != null)
+                    {
+                        m_gridBackImage[i, j].hasProcessStoneAround = false;
+                    }
+                }
+            }
+        }
     }
 
     public void ClearGame()
@@ -2627,11 +2651,11 @@ public class GameLogic
         TSpecialBlock special0 = m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].special;
         TSpecialBlock special1 = m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].special;
         //+5当成普通块来处理
-        if (special0 == TSpecialBlock.ESpecial_NormalPlus5)
+        if (special0 == TSpecialBlock.ESpecial_NormalPlus6)
         {
             special0 = TSpecialBlock.ESpecial_Normal;
         }
-        if (special1 == TSpecialBlock.ESpecial_NormalPlus5)
+        if (special1 == TSpecialBlock.ESpecial_NormalPlus6)
         {
             special1 = TSpecialBlock.ESpecial_Normal;
         }
@@ -2875,9 +2899,11 @@ public class GameLogic
                                 m_blocks[i, j].m_tweenPosition.to = CollectTargetUIPos[m_blocks[i, j].CollectIndex];                                       //目标位置
                                 m_blocks[i, j].m_tweenPosition.enabled = true;
                                 m_blocks[i, j].m_tweenPosition.ResetToBeginning();
+                                m_blocks[i, j].m_tweenPosition.duration = 1.0f;
                                 m_blocks[i, j].m_tweenPosition.Play(true);
                                 m_blocks[i, j].EatDuration = m_blocks[i, j].m_tweenPosition.duration;
 
+                                m_blocks[i, j].m_tweenScale.duration = 1.0f;
                                 m_blocks[i, j].m_tweenScale.enabled = true;
                                 m_blocks[i, j].m_tweenScale.ResetToBeginning();
                                 m_blocks[i, j].m_tweenScale.Play(true);
@@ -2890,10 +2916,12 @@ public class GameLogic
                                 m_blocks[i, j].m_tweenPosition.from = m_blocks[i, j].m_blockTransform.localPosition;             //从当前位置开始
                                 m_blocks[i, j].m_tweenPosition.to = CollectTargetUIPos[m_blocks[i, j].color - TBlockColor.EColor_Nut1];    //目标位置
                                 m_blocks[i, j].m_tweenPosition.enabled = true;
+                                m_blocks[i, j].m_tweenPosition.duration = 2.0f;
                                 m_blocks[i, j].m_tweenPosition.ResetToBeginning();
                                 m_blocks[i, j].m_tweenPosition.Play(true);
                                 m_blocks[i, j].EatDuration = m_blocks[i, j].m_tweenPosition.duration;
 
+                                m_blocks[i, j].m_tweenScale.duration = 2.0f;
                                 m_blocks[i, j].m_tweenScale.enabled = true;
                                 m_blocks[i, j].m_tweenScale.ResetToBeginning();
                                 m_blocks[i, j].m_tweenScale.Play(true);
@@ -2993,6 +3021,14 @@ public class GameLogic
             m_scoreToShow[processGrid.x, processGrid.y] += CapsConfig.EatChocolate;
             m_gridBackImage[processGrid.x, processGrid.y].layer1.gameObject.SetActive(false);
             m_chocolateNeedGrow = false;
+        }
+        else if ((flag & (int)GridFlag.Iron) > 0)               //铁块消除变石块
+        {
+            PlayingStageData.ClearFlag(processGrid.x, processGrid.y, GridFlag.Iron);
+            PlayingStageData.AddFlag(processGrid.x, processGrid.y, GridFlag.Stone);
+            AddPartile("StoneEffect", AudioEnum.Audio_Stone, processGrid.x, processGrid.y);
+            m_scoreToShow[processGrid.x, processGrid.y] += CapsConfig.EatStonePoint;
+            m_gridBackImage[processGrid.x, processGrid.y].layer1.spriteName = "Stone";
         }
         else if ((flag & (int)GridFlag.Stone) > 0)            //石头
         {
@@ -3164,7 +3200,7 @@ public class GameLogic
     {
         if (!CheckPosAvailable(new Position(x, y))) return false;        //若落到底了，不掉落
         if (m_blocks[x, y] != null || PlayingStageData.GridData[x, y] == 0) return false;           //若下面有块或为空格，不掉落
-        if (PlayingStageData.CheckFlag(x, y, GridFlag.Stone | GridFlag.Chocolate | GridFlag.Cage))   //若下面锁住了，不掉落
+        if (PlayingStageData.CheckFlag(x, y, GridFlag.Stone | GridFlag.Iron | GridFlag.Chocolate | GridFlag.Cage))   //若下面锁住了，不掉落
         {
             return false;
         }
@@ -3274,7 +3310,7 @@ public class GameLogic
         //需要补充遍历所有出生点
         for (int j = BlockCountY - 1; j >= 0; j--)		//从最下面开始遍历
         {
-            if (PlayingStageData.CheckFlag(x, j, GridFlag.Birth) && !PlayingStageData.CheckFlag(x, j, GridFlag.Chocolate | GridFlag.Stone) && m_blocks[x, j] == null)     //若为出生点，且为空
+            if (PlayingStageData.CheckFlag(x, j, GridFlag.Birth) && !PlayingStageData.CheckFlag(x, j, GridFlag.Chocolate | GridFlag.Stone | GridFlag.Iron) && m_blocks[x, j] == null)     //若为出生点，且为空
             {
                 int y = j;
                 //看看可以掉落到什么地方
@@ -3479,27 +3515,27 @@ public class GameLogic
         //根据结果来生成道具////////////////////////////////////////////////////////////////////////
         if (maxCountInSameDir >= 5)		//若最大每行消了5个
         {
-            if (m_blocks[position.x, position.y].special == TSpecialBlock.ESpecial_NormalPlus5)
+            if (m_blocks[position.x, position.y].special == TSpecialBlock.ESpecial_NormalPlus6)
             {
-                AddGameTime(5);               //增加5秒时间
+                AddGameTime(6);               //增加5秒时间
             }
             generateSpecial = TSpecialBlock.ESpecial_EatAColor;         //生成彩虹
             kItem = 3;
         }
         else if (totalSameCount >= 5)			//若总共消除大于等于6个（3,4消除或者多个3消）
         {
-            if (m_blocks[position.x, position.y].special == TSpecialBlock.ESpecial_NormalPlus5)
+            if (m_blocks[position.x, position.y].special == TSpecialBlock.ESpecial_NormalPlus6)
             {
-                AddGameTime(5);               //增加5秒时间
+                AddGameTime(6);               //增加5秒时间
             }
             generateSpecial = TSpecialBlock.ESpecial_Bomb;
             kItem = 2;
         }
         else if (maxCountInSameDir == 4)		//若最大每行消了4个
         {
-            if (m_blocks[position.x, position.y].special == TSpecialBlock.ESpecial_NormalPlus5)
+            if (m_blocks[position.x, position.y].special == TSpecialBlock.ESpecial_NormalPlus6)
             {
-                AddGameTime(5);               //增加5秒时间
+                AddGameTime(6);               //增加5秒时间
             }
             if (m_moveDirection == TDirection.EDir_Up || m_moveDirection == TDirection.EDir_Down)
             {
@@ -3569,6 +3605,20 @@ public class GameLogic
             if (m_blocks[p.x, p.y].CollectIndex > -1)
             {
                 m_scoreToShow[p.x, p.y] += 300;                                             //加搜集的300分
+            }
+        }
+
+        if (PlayingStageData.StoneCount > 0)
+        {
+            for (int i = 0; i < BlockCountX; ++i)
+            {
+                for (int j = 0; j < BlockCountY; ++j)
+                {
+                    if (m_gridBackImage[i, j] != null)
+                    {
+                        m_gridBackImage[i, j].hasProcessStoneAround = false;
+                    }
+                }
             }
         }
 
@@ -3711,6 +3761,14 @@ public class GameLogic
             Position pos = GoTo(new Position(x, y), (TDirection)i, 1);
             if (CheckPosAvailable(pos))
             {
+                if (m_gridBackImage[pos.x, pos.y] == null)                      //这个为空的位置一定没有石块
+                {
+                    continue;
+                }
+                if (m_gridBackImage[pos.x, pos.y].hasProcessStoneAround)        //不重复消
+                {
+                    continue;
+                }
                 if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Stone))
                 {
                     PlayingStageData.ClearFlag(pos.x, pos.y, GridFlag.Stone);
@@ -3721,6 +3779,16 @@ public class GameLogic
                     m_gridBackImage[pos.x, pos.y].layer1.gameObject.SetActive(false);
                     AddPartile("StoneEffect", AudioEnum.Audio_Stone, pos.x, pos.y);
 					AddProgress(CapsConfig.EatStonePoint, pos.x, pos.y);
+                    m_gridBackImage[pos.x, pos.y].hasProcessStoneAround = true;
+                }
+                else if (PlayingStageData.CheckFlag(pos.x, pos.y, GridFlag.Iron))       //铁消一次变石头
+                {
+                    PlayingStageData.ClearFlag(pos.x, pos.y, GridFlag.Iron);
+                    PlayingStageData.AddFlag(pos.x, pos.y, GridFlag.Stone);
+                    m_gridBackImage[pos.x, pos.y].layer1.spriteName = "Stone";
+                    AddPartile("StoneEffect", AudioEnum.Audio_Stone, pos.x, pos.y);
+                    AddProgress(CapsConfig.EatStonePoint, pos.x, pos.y);
+                    m_gridBackImage[pos.x, pos.y].hasProcessStoneAround = true;
                 }
             }
         }
@@ -3843,7 +3911,7 @@ public class GameLogic
                         m_blocks[position.x, position.y].EatAudio = AudioEnum.Audio_Bomb;
                     }
                     break;
-                case TSpecialBlock.ESpecial_NormalPlus5:
+                case TSpecialBlock.ESpecial_NormalPlus6:
                     {
                         if (m_gameFlow == TGameFlow.EGameState_EndEatingSpecial)
                         {
@@ -4580,7 +4648,7 @@ public class GameLogic
             {
                 m_blocks[p.x, p.y].CurState = BlockState.Locked;
             }
-            if ((GlobalVars.EditingGrid & (int)GridFlag.Stone) > 0 || (GlobalVars.EditingGrid & (int)GridFlag.Chocolate) > 0)
+            if ((GlobalVars.EditingGrid & (int)GridFlag.Stone) > 0 || (GlobalVars.EditingGrid & (int)GridFlag.Stone) > 0 || (GlobalVars.EditingGrid & (int)GridFlag.Chocolate) > 0)
             {
                 if (m_blocks[p.x, p.y] != null)
                 {
@@ -5319,7 +5387,7 @@ public class GameLogic
             //处理+5
             if (m_nextPlus5Step == 0)
             {
-                m_blocks[x, y].special = TSpecialBlock.ESpecial_NormalPlus5;            //生成一个+5
+                m_blocks[x, y].special = TSpecialBlock.ESpecial_NormalPlus6;            //生成一个+6
                 int range = PlayingStageData.PlusStepMax - PlayingStageData.PlusStepMin;
                 if (range <= 1)
                 {

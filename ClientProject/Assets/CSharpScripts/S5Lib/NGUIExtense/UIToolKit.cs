@@ -69,7 +69,12 @@ public class UIToolkits
     //用名字和组件类型查找组件
     public static T FindComponent<T>(Transform panelTransform, string name) where T : Component
     {
-        return FindChild(panelTransform, name).GetComponent<T>();
+        Transform trans = FindChild(panelTransform, name);
+        if (trans == null)
+        {
+            return null;
+        }
+        return trans.GetComponent<T>();
     }
 
     //用组件类型查找组件

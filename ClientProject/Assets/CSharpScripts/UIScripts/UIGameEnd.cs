@@ -170,7 +170,7 @@ public class UIGameEnd : UIWindow
                                 m_collectSprite[i].spriteName = "Item" + (int)(GlobalVars.CurStageData.CollectColors[i] - TBlockColor.EColor_None);
                             }
                             break;
-                        case TSpecialBlock.ESpecial_NormalPlus5:
+                        case TSpecialBlock.ESpecial_NormalPlus6:
                             {
                                 m_collectSprite[i].spriteName = "TimeAdded" + (int)(GlobalVars.CurStageData.CollectColors[i] - TBlockColor.EColor_None);
                             }

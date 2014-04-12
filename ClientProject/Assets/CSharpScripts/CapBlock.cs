@@ -19,7 +19,7 @@ public enum TBlockColor
 public enum TSpecialBlock
 {
     ESpecial_Normal,			    //0普通块
-    ESpecial_NormalPlus5,			//1普通块加5时间
+    ESpecial_NormalPlus6,			//1普通块加6时间
     ESpecial_EatLineDir0,			//2一次消一线，方向0
     ESpecial_EatLineDir1,			//3一次消一线，方向1
     ESpecial_EatLineDir2,			//4一次消一线，方向2
@@ -59,7 +59,7 @@ public class CapBlock
                     m_blockSprite.spriteName = "Item" + (int)(color - TBlockColor.EColor_None);
                 }
                 break;
-            case TSpecialBlock.ESpecial_NormalPlus5:
+            case TSpecialBlock.ESpecial_NormalPlus6:
                 {
                     m_blockSprite.spriteName = "TimeAdded" + (int)(color - TBlockColor.EColor_None);
                 }

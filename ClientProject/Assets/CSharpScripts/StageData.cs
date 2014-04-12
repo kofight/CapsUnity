@@ -25,10 +25,13 @@ public enum GridFlag
     FruitExit = 1 << 8,          //水果的消失点
 
     Portal = 1 << 9,             //传送门
+
     PortalStart = 1 << 10,             //传送门
     PortalEnd = 1 << 11,             //传送门
 
     MoveAble = 1 << 12,             //是否可移动
+
+    Iron = 1 << 13,                 //铁块（需要消两次）
 }
 
 public enum PortalFlag
@@ -350,6 +353,10 @@ public class StageData
                     ++ChocolateCount;
                 }
                 if ((number & (int)GridFlag.Stone) > 0)
+                {
+                    ++StoneCount;
+                }
+                if ((number & (int)GridFlag.Iron) > 0)
                 {
                     ++StoneCount;
                 }

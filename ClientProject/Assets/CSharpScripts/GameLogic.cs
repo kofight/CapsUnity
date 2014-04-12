@@ -1407,6 +1407,7 @@ public class GameLogic
             foreach (DelayParticle par in list)
             {
                 par.par.Stop();
+				par.par.gameObject.SetActive(false);
                 m_freeParticleMap[pair.Key].AddLast(par.par);           //添加空闲的
 
             }
@@ -2336,6 +2337,44 @@ public class GameLogic
             ProcessCheckStageFinish();
         }
 
+        //移除已经结束的粒子
+        foreach (KeyValuePair<string, LinkedList<DelayParticle>> pair in m_particleMap)
+        {
+            LinkedList<DelayParticle> list = pair.Value;
+
+            if (list.Count > 0)
+            {
+                LinkedListNode<DelayParticle> node = list.First;
+                LinkedListNode<DelayParticle> nodeLast = list.Last;
+                LinkedListNode<DelayParticle> nodeTmp;//临时结点
+                while (node != nodeLast)
+                {
+                    if (node.Value.startTime == 0.0f && node.Value.par.isStopped)       //若到了处理时间
+                    {
+                        m_freeParticleMap[pair.Key].AddLast(node.Value.par);           //添加到空闲列表
+                        node.Value.par.Stop();                                         //停止粒子
+                        node.Value.par.gameObject.SetActive(false);                    //隐藏粒子
+
+                        nodeTmp = node.Next;
+                        list.Remove(node.Value);                              //移除中间一个元素
+                        node = nodeTmp;
+                    }
+                    else
+                    {
+                        node = node.Next;
+                    }
+                }
+                //处理最后一个结点
+                if (nodeLast.Value.startTime == 0.0f && nodeLast.Value.par.isStopped)       //若到了处理时间
+                {
+                    m_freeParticleMap[pair.Key].AddLast(nodeLast.Value.par);           //添加到空闲列表
+                    nodeLast.Value.par.Stop();                                         //停止粒子
+                    nodeLast.Value.par.gameObject.SetActive(false);                    //隐藏粒子
+                    list.Remove(node.Value);                              //移除中间一个元素
+                }
+            }
+        }
+
         //剩15秒的特效
         if (!m_bHurryAnimPlayed && m_gameFlow == TGameFlow.EGameState_Playing && GlobalVars.CurStageData.TimeLimit > 0 && GetTimeRemain() < 15)
         {
@@ -2368,7 +2407,7 @@ public class GameLogic
                     node = node.Next;
                 }
             }
-
+            //处理最后一个结点
             if (Timer.GetRealTimeSinceStartUp() > nodeLast.Value.startTime)       //若到了处理时间
             {
                 ProcessEatChanges(nodeLast.Value, true, true);                          //处理延迟处理的消块
@@ -2396,28 +2435,6 @@ public class GameLogic
                     PlaySoundNextFrame(par.audio);
                 }
             }
-
-            //移除已经结束的粒子
-            LinkedListNode<DelayParticle> node = list.First;
-            LinkedListNode<DelayParticle> nodeLast = list.Last;
-            LinkedListNode<DelayParticle> nodeTmp;//临时结点
-            while (node != nodeLast)
-            {
-                if (node.Value.startTime == 0.0f && node.Value.par.isStopped)       //若到了处理时间
-                {
-                    m_freeParticleMap[pair.Key].AddLast(node.Value.par);           //添加到空闲列表
-                    node.Value.par.Stop();                                         //停止粒子
-                    node.Value.par.gameObject.SetActive(false);                    //隐藏粒子
-
-                    nodeTmp = node.Next;
-                    list.Remove(node.Value);                              //移除中间一个元素
-					node = nodeTmp;
-                }
-                else
-                {
-                    node = node.Next;
-                }
-            }
         }
 
         //处理数字
@@ -2442,6 +2459,7 @@ public class GameLogic
                 }
             }
 
+            //处理最后一个结点
             if (nodeLast.Value.IsEnd())       //若到了处理时间
             {
 				node.Value.SetFree();
@@ -2459,6 +2477,7 @@ public class GameLogic
 
 
         //处理飞行特效
+        if (m_flyParticleList.Count > 0)
         {
             LinkedListNode<FlyParticle> node = m_flyParticleList.First;
             LinkedListNode<FlyParticle> nodeLast = m_flyParticleList.Last;
@@ -2496,6 +2515,37 @@ public class GameLogic
                         flyParticle.par.transform.localPosition = Vector3.Lerp(flyParticle.start, flyParticle.end, (Timer.GetRealTimeSinceStartUp() - flyParticle.startTime) / flyParticle.duration);        //指定位置
                     }
                     node = node.Next;
+                }
+            }
+
+            //处理最后一个结点
+            {
+                FlyParticle flyParticle = nodeLast.Value;
+                float passTime = Timer.GetRealTimeSinceStartUp() - flyParticle.startTime;
+                if (passTime > flyParticle.duration)       //若到了处理时间
+                {
+                    m_freeParticleMap[flyParticle.name].AddLast(node.Value.par);
+                    flyParticle.par.Stop();                 //停止
+                    flyParticle.par.gameObject.SetActive(false);        //隐藏
+
+                    m_flyParticleList.Remove(node.Value);                              //移除中间一个元素
+                }
+                else
+                {
+                    if (passTime > 0)      //若已开始未结束
+                    {
+                        if (!flyParticle.par.gameObject.activeSelf)
+                        {
+                            flyParticle.par.gameObject.SetActive(true);
+                            flyParticle.par.Play();
+                            if (flyParticle.audio != AudioEnum.Audio_None)
+                            {
+                                PlaySoundNextFrame(flyParticle.audio);
+                            }
+                        }
+
+                        flyParticle.par.transform.localPosition = Vector3.Lerp(flyParticle.start, flyParticle.end, (Timer.GetRealTimeSinceStartUp() - flyParticle.startTime) / flyParticle.duration);        //指定位置
+                    }
                 }
             }
         }

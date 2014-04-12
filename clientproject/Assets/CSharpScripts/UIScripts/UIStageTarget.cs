@@ -42,6 +42,7 @@ public class UIStageTarget : UIWindow
     {
         base.OnShow();
 		StageData stage = GlobalVars.CurStageData;
+		Transform curBoard;
 		if(stage.Target == GameTarget.GetScore)
 		{
 			m_collectBoard.gameObject.SetActive(false);
@@ -49,11 +50,15 @@ public class UIStageTarget : UIWindow
 			m_nutBoard.gameObject.SetActive(false);
 			if(stage.StepLimit > 0)
 			{
-				m_stepScoreBoard.gameObject.SetActive(false);
+				m_stepScoreBoard.gameObject.SetActive(true);
+				m_timeScoreBoard.gameObject.SetActive(false);
+				curBoard = m_stepScoreBoard;
 			}
 			else
 			{
-				m_timeScoreBoard.gameObject.SetActive(false);
+				m_timeScoreBoard.gameObject.SetActive(true);
+				m_stepScoreBoard.gameObject.SetActive(false);
+				curBoard = m_timeScoreBoard;
 			}
 
 			UILabel scoreLabel = GetChildComponent<UILabel>("Score");
@@ -63,6 +68,7 @@ public class UIStageTarget : UIWindow
 		{
 			m_collectBoard.gameObject.SetActive(false);
 			m_jellyBoard.gameObject.SetActive(true);
+			curBoard = m_jellyBoard;
 			m_stepScoreBoard.gameObject.SetActive(false);
 			m_timeScoreBoard.gameObject.SetActive(false);
 			m_nutBoard.gameObject.SetActive(false);
@@ -77,6 +83,7 @@ public class UIStageTarget : UIWindow
 			m_stepScoreBoard.gameObject.SetActive(false);
 			m_timeScoreBoard.gameObject.SetActive(false);
 			m_nutBoard.gameObject.SetActive(true);
+			curBoard = m_nutBoard;
 
 			if(stage.Nut1Count > 0)
 			{
@@ -103,9 +110,10 @@ public class UIStageTarget : UIWindow
 				nut2Icon.gameObject.SetActive(false);
 			}
 		}
-		else if(stage.Target == GameTarget.Collect)
+		else 		//Collect
 		{
 			m_collectBoard.gameObject.SetActive(true);
+			curBoard = m_collectBoard;
 			m_jellyBoard.gameObject.SetActive(false);
 			m_stepScoreBoard.gameObject.SetActive(false);
 			m_timeScoreBoard.gameObject.SetActive(false);
@@ -161,12 +169,12 @@ public class UIStageTarget : UIWindow
 
 		if(stage.StepLimit > 0)
 		{
-			UILabel stepLabel = GetChildComponent<UILabel>("Step");
+			UILabel stepLabel = UIToolkits.FindComponent<UILabel>(curBoard, "Step");
 			stepLabel.text = stage.StepLimit.ToString();
 		}
 		else
 		{
-			UILabel timeLabel = GetChildComponent<UILabel>("Time");
+			UILabel timeLabel = UIToolkits.FindComponent<UILabel>(curBoard, "Time");
 			timeLabel.text = stage.TimeLimit.ToString();
 		}
     }

@@ -748,7 +748,7 @@ public class GameLogic
 
         PlayingStageData = StageData.CreateStageData();
 
-        m_stageTargetUI = UIWindowManager.Singleton.CreateWindow<UIWindow>("UIStageTarget", UIWindowManager.Anchor.Center);
+        m_stageTargetUI = UIWindowManager.Singleton.CreateWindow<UIStageTarget>();
 
         //提前创建粒子
         if (GlobalVars.CurStageData.Target == GameTarget.ClearJelly)        //冰块关
@@ -1272,6 +1272,10 @@ public class GameLogic
             {
                 break;
             }
+        }
+        if (sortcount == 100)       //100次还没有合适的，直接失败
+        {
+
         }
         Debug.Log("Auto Resort, count = " + sortcount);
     }
@@ -2985,12 +2989,12 @@ public class GameLogic
                                 m_blocks[i, j].m_tweenPosition.from = m_blocks[i, j].m_blockTransform.localPosition;             //从当前位置开始
                                 m_blocks[i, j].m_tweenPosition.to = CollectTargetUIPos[m_blocks[i, j].color - TBlockColor.EColor_Nut1];    //目标位置
                                 m_blocks[i, j].m_tweenPosition.enabled = true;
-                                m_blocks[i, j].m_tweenPosition.duration = 2.0f;
+                                m_blocks[i, j].m_tweenPosition.duration = 1.5f;
                                 m_blocks[i, j].m_tweenPosition.ResetToBeginning();
                                 m_blocks[i, j].m_tweenPosition.Play(true);
                                 m_blocks[i, j].EatDuration = m_blocks[i, j].m_tweenPosition.duration;
 
-                                m_blocks[i, j].m_tweenScale.duration = 2.0f;
+                                m_blocks[i, j].m_tweenScale.duration = 1.5f;
                                 m_blocks[i, j].m_tweenScale.enabled = true;
                                 m_blocks[i, j].m_tweenScale.ResetToBeginning();
                                 m_blocks[i, j].m_tweenScale.Play(true);

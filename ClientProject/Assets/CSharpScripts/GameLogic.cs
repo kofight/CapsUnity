@@ -600,6 +600,7 @@ public class GameLogic
     public void ResumeGame()
     {
         ShowHelpAnim();
+        ShowUI();
         CapsConfig.Instance.GameSpeed = 1.0f;
     }
 
@@ -5533,7 +5534,7 @@ public class GameLogic
         {
             return TBlockColor.EColor_None;
         }
-        if (m_blocks[p.x, p.y].CurState != BlockState.Moving)
+        if (m_blocks[p.x, p.y].CurState != BlockState.Moving && m_blocks[p.x, p.y].CurState != BlockState.MovingEnd)
         {
             return m_blocks[p.x, p.y].color;
         }

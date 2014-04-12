@@ -18,6 +18,8 @@ public class UIGameHead : UIWindow
 
     UISprite[] m_background = new UISprite[3];
 
+    UIButton m_debugBtn;
+
     public override void OnCreate()
     {
         base.OnCreate();
@@ -63,6 +65,7 @@ public class UIGameHead : UIWindow
         });
 
         m_showCoinTweener = mUIObject.GetComponent<TweenPosition>();
+        m_debugBtn = GetChildComponent<UIButton>("EditorBtn");
     }
 
     public override void OnShow()
@@ -292,6 +295,15 @@ public class UIGameHead : UIWindow
         UpdateItemButtons();
 
         RefreshTarget();
+
+        if (GlobalVars.DeveloperMode)
+        {
+            m_debugBtn.gameObject.SetActive(true);
+        }
+        else
+        {
+            m_debugBtn.gameObject.SetActive(false);
+        }
     }
 
     public void UpdateCoolDown(float val)       //更新coolDown的值

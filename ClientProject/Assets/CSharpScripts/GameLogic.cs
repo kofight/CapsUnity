@@ -1998,7 +1998,7 @@ public class GameLogic
                                         m_blocks[i, j].m_animation.enabled = true;
                                         m_blocks[i, j].m_animation.Play(CapsConfig.ResortOutAnim);                             //播放吃块动画
                                         m_blocks[i, j].AlphaFadeIn();
-                                        AddPartile(CapsConfig.ResortInEffect, AudioEnum.Audio_None, i, j);     //添加吃块特效
+                                        AddPartile(CapsConfig.ResortOutEffect, AudioEnum.Audio_None, i, j);     //添加吃块特效
                                     }
                                     else
                                     {

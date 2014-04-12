@@ -2880,10 +2880,6 @@ public class GameLogic
                                 m_blocks[i, j].m_tweenScale.enabled = true;
                                 m_blocks[i, j].m_tweenScale.ResetToBeginning();
                                 m_blocks[i, j].m_tweenScale.Play(true);
-
-                                m_blocks[i, j].m_tweenAlpha.enabled = true;
-                                m_blocks[i, j].m_tweenAlpha.ResetToBeginning();
-                                m_blocks[i, j].m_tweenAlpha.Play(true);
                                 m_blocks[i, j].m_blockSprite.depth = 3;
                                 ++PlayingStageData.CollectCount[m_blocks[i, j].CollectIndex];                             //增加一个搜集数量
                             }
@@ -2900,10 +2896,6 @@ public class GameLogic
                                 m_blocks[i, j].m_tweenScale.enabled = true;
                                 m_blocks[i, j].m_tweenScale.ResetToBeginning();
                                 m_blocks[i, j].m_tweenScale.Play(true);
-
-                                m_blocks[i, j].m_tweenAlpha.enabled = true;
-                                m_blocks[i, j].m_tweenAlpha.ResetToBeginning();
-                                m_blocks[i, j].m_tweenAlpha.Play(true);
                                 m_blocks[i, j].m_blockSprite.depth = 3;
                             }
                             else

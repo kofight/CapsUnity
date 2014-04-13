@@ -1042,8 +1042,11 @@ public class GameLogic
         if (m_gridBackImage[x, y].layer1 != null)
         {
             m_gridBackImage[x, y].layer1.transform.parent = m_gridInstance.transform.parent;
-            m_gridBackImage[x, y].layer1.transform.localScale = m_gridInstance.transform.localScale;
             m_gridBackImage[x, y].layer1.transform.localPosition = new Vector3(GetXPos(x), -GetYPos(x, y), -110);
+
+            m_gridBackImage[x, y].layer1.transform.localScale = new Vector3(1, 1, 1);
+            m_gridBackImage[x, y].layer1.width = 84;
+            m_gridBackImage[x, y].layer1.height = 84;
             m_gridBackImage[x, y].layer1.depth = 3;
             m_gridBackImage[x, y].layer1.gameObject.SetActive(true);
         }
@@ -4557,7 +4560,9 @@ public class GameLogic
                             m_gridBackImage[newPos.x, newPos.y].layer1 = newObj.GetComponent<UISprite>();
 
                             m_gridBackImage[newPos.x, newPos.y].layer1.transform.parent = m_gridInstance.transform.parent;
-                            m_gridBackImage[newPos.x, newPos.y].layer1.transform.localScale = m_gridInstance.transform.localScale;
+                            m_gridBackImage[newPos.x, newPos.y].layer1.transform.localScale = new Vector3(1, 1, 1);
+                            m_gridBackImage[newPos.x, newPos.y].layer1.width = 84;
+                            m_gridBackImage[newPos.x, newPos.y].layer1.height = 84;
                             m_gridBackImage[newPos.x, newPos.y].layer1.transform.localPosition = new Vector3(GetXPos(newPos.x), -GetYPos(newPos.x, newPos.y), -110);
                         }
                         m_gridBackImage[newPos.x, newPos.y].layer1.spriteName = "Chocolate";

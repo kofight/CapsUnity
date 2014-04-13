@@ -735,6 +735,14 @@ public class GameLogic
         gameAreaX = (int)((CapsApplication.Singleton.Width - BlockAreaWidth * BLOCKWIDTH) / 2 - BlockXStart * BLOCKWIDTH);
         gameAreaY = (int)((CapsApplication.Singleton.Height - BlockAreaHeight * BLOCKHEIGHT) / 2 - BlockYStart * BLOCKHEIGHT - BLOCKHEIGHT / 2) - 2;
 
+        if (PlayingStageData.FTUEMap.Count > 0)     //因为FTUE已经编完了，所以若有FTUE，跳过循环范围的优化，优先保证FTUE正确
+        {
+            BlockXStart = 0;
+            BlockXEnd = 8;
+            BlockYStart = 0;
+            BlockYEnd = 8;
+        }
+
         //创建底图对象，寻找x和y的边界
         for (int i = BlockXStart; i <= BlockXEnd; ++i)
         {

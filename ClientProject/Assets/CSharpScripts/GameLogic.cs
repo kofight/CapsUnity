@@ -87,7 +87,7 @@ public class GridSprites
     public UISprite layer1;            //石头/笼子/巧克力
     public UISprite layer2;            //出生点
     public UISprite layer3;            //结束点
-    public GameObject IcePartile;      //冰的粒子
+    //public GameObject IcePartile;      //冰的粒子
     public bool hasProcessAngle = false;        //是否已经处理了角(用来处理角的中间变量)
     public bool hasProcessStoneAround = false;  //是否已经处理了周围的石块，有石头的关每次三消后需要清理一次，确保一次三消之内不重复消除石头
 }
@@ -649,9 +649,9 @@ public class GameLogic
         m_shadowSpriteInstance = GameObject.Find("ShadowSprite");
         m_helpPointerObj = GameObject.Find("HelpPointer");
 
-        Object obj = Resources.Load("IcePartile");
-        m_iceParticle = GameObject.Instantiate(obj) as GameObject;
-        m_iceParticle.SetActive(false);
+        //Object obj = Resources.Load("IcePartile");
+       // m_iceParticle = GameObject.Instantiate(obj) as GameObject;
+       // m_iceParticle.SetActive(false);
         m_gameBottomUI = UIWindowManager.Singleton.GetUIWindow<UIGameBottom>();
 
         //初始化瓶盖图片池
@@ -735,6 +735,18 @@ public class GameLogic
         gameAreaX = (int)((CapsApplication.Singleton.Width - BlockAreaWidth * BLOCKWIDTH) / 2 - BlockXStart * BLOCKWIDTH);
         gameAreaY = (int)((CapsApplication.Singleton.Height - BlockAreaHeight * BLOCKHEIGHT) / 2 - BlockYStart * BLOCKHEIGHT - BLOCKHEIGHT / 2) - 2;
 
+        if (GlobalVars.CurStageData.FTUEMap.Count == 0
+            || (PlayerPrefs.GetInt("StageFTUEFinished") >= GlobalVars.CurStageNum && !GlobalVars.DeveloperMode))     //因为FTUE已经编完了，所以若有FTUE，跳过循环范围的优化，优先保证FTUE正确
+        {
+            BlockXStart = 0;
+            BlockXEnd = 8;
+            BlockYStart = 0;
+            BlockYEnd = 8;
+
+            BlockAreaWidth = BlockXEnd + 1 - BlockXStart;
+            BlockAreaHeight = BlockYEnd + 1 - BlockYStart;
+        }
+
         //创建底图对象，寻找x和y的边界
         for (int i = BlockXStart; i <= BlockXEnd; ++i)
         {
@@ -768,7 +780,7 @@ public class GameLogic
         }
         if (GlobalVars.CurStageData.StoneCount > 0)
         {
-            AddParticleToFreeList("StoneEffect", true, GlobalVars.CurStageData.ChocolateCount / 3);
+            AddParticleToFreeList("StoneEffect", true, GlobalVars.CurStageData.StoneCount / 3);
         }
     }
 
@@ -977,26 +989,26 @@ public class GameLogic
             m_gridBackImage[x, y].layer0.spriteName = "Grid" + ((y + (x % 2)) % 3);
         }
 
-        if (bJelly)
-        {
-            if (m_gridBackImage[x, y].IcePartile == null)
-            {
-                m_gridBackImage[x, y].IcePartile = GameObject.Instantiate(m_iceParticle) as GameObject;
-                ParticleSystem par = m_gridBackImage[x, y].IcePartile.GetComponent<ParticleSystem>();
-                par.startDelay = (float)m_random2.NextDouble();
-                ParticleSystem parChild = UIToolkits.FindComponent<ParticleSystem>(m_gridBackImage[x, y].IcePartile.transform);
-                parChild.startDelay = 0.3f + (float)m_random2.NextDouble() * 3.33f;
-                m_gridBackImage[x, y].IcePartile.transform.parent = m_gridBackImage[x, y].layer0.transform;
-                m_gridBackImage[x, y].IcePartile.transform.localPosition = Vector3.zero;
-            }
+        //if (bJelly)
+        //{
+        //    if (m_gridBackImage[x, y].IcePartile == null)
+        //    {
+        //        m_gridBackImage[x, y].IcePartile = GameObject.Instantiate(m_iceParticle) as GameObject;
+        //        ParticleSystem par = m_gridBackImage[x, y].IcePartile.GetComponent<ParticleSystem>();
+        //        par.startDelay = (float)m_random2.NextDouble();
+        //        ParticleSystem parChild = UIToolkits.FindComponent<ParticleSystem>(m_gridBackImage[x, y].IcePartile.transform);
+        //        parChild.startDelay = 0.3f + (float)m_random2.NextDouble() * 3.33f;
+        //        m_gridBackImage[x, y].IcePartile.transform.parent = m_gridBackImage[x, y].layer0.transform;
+        //        m_gridBackImage[x, y].IcePartile.transform.localPosition = Vector3.zero;
+        //    }
 
-            m_gridBackImage[x, y].IcePartile.SetActive(true);
-        }
-        else
-        {
-			if(m_gridBackImage[x, y].IcePartile != null)
-            	GameObject.Destroy(m_gridBackImage[x, y].IcePartile);
-        }
+        //    //m_gridBackImage[x, y].IcePartile.SetActive(true);
+        //}
+        //else
+        //{
+        //    if(m_gridBackImage[x, y].IcePartile != null)
+        //        GameObject.Destroy(m_gridBackImage[x, y].IcePartile);
+        //}
 
         m_gridBackImage[x, y].layer0.transform.localPosition = new Vector3(GetXPosF(x), -GetYPosF(x, y), 0);
         m_gridBackImage[x, y].layer0.depth = 0;
@@ -1042,8 +1054,11 @@ public class GameLogic
         if (m_gridBackImage[x, y].layer1 != null)
         {
             m_gridBackImage[x, y].layer1.transform.parent = m_gridInstance.transform.parent;
-            m_gridBackImage[x, y].layer1.transform.localScale = m_gridInstance.transform.localScale;
             m_gridBackImage[x, y].layer1.transform.localPosition = new Vector3(GetXPos(x), -GetYPos(x, y), -110);
+
+            m_gridBackImage[x, y].layer1.transform.localScale = new Vector3(1, 1, 1);
+            m_gridBackImage[x, y].layer1.width = 84;
+            m_gridBackImage[x, y].layer1.height = 84;
             m_gridBackImage[x, y].layer1.depth = 3;
             m_gridBackImage[x, y].layer1.gameObject.SetActive(true);
         }
@@ -1458,10 +1473,10 @@ public class GameLogic
                     {
                         GameObject.Destroy(m_gridBackImage[i, j].layer0.gameObject);
                     }
-                    if (m_gridBackImage[i, j].IcePartile != null)
-                    {
-                        GameObject.Destroy(m_gridBackImage[i, j].IcePartile);
-                    }
+                    //if (m_gridBackImage[i, j].IcePartile != null)
+                    //{
+                    //    GameObject.Destroy(m_gridBackImage[i, j].IcePartile);
+                    //}
                     if (m_gridBackImage[i, j].layer1 != null)
                     {
                         GameObject.Destroy(m_gridBackImage[i, j].layer1.gameObject);
@@ -3075,7 +3090,7 @@ public class GameLogic
         {
             PlayingStageData.ClearFlag(processGrid.x, processGrid.y, GridFlag.Iron);
             PlayingStageData.AddFlag(processGrid.x, processGrid.y, GridFlag.Stone);
-            AddPartile("StoneEffect", AudioEnum.Audio_Stone, processGrid.x, processGrid.y);
+            AddPartile("Iron", AudioEnum.Audio_Stone, processGrid.x, processGrid.y);
             m_scoreToShow[processGrid.x, processGrid.y] += CapsConfig.EatStonePoint;
             m_gridBackImage[processGrid.x, processGrid.y].layer1.spriteName = "Stone";
         }
@@ -3132,8 +3147,8 @@ public class GameLogic
 
         if (jellyChanged)
         {
-			if(removeJelly && m_gridBackImage[processGrid.x, processGrid.y].IcePartile != null)
-	            GameObject.Destroy(m_gridBackImage[processGrid.x, processGrid.y].IcePartile);
+            //if(removeJelly && m_gridBackImage[processGrid.x, processGrid.y].IcePartile != null)
+            //    GameObject.Destroy(m_gridBackImage[processGrid.x, processGrid.y].IcePartile);
             UIWindowManager.Singleton.GetUIWindow<UIGameHead>().RefreshTarget();
         }
 
@@ -3835,7 +3850,7 @@ public class GameLogic
                     PlayingStageData.ClearFlag(pos.x, pos.y, GridFlag.Iron);
                     PlayingStageData.AddFlag(pos.x, pos.y, GridFlag.Stone);
                     m_gridBackImage[pos.x, pos.y].layer1.spriteName = "Stone";
-                    AddPartile("StoneEffect", AudioEnum.Audio_Stone, pos.x, pos.y);
+                    AddPartile("IronEffect", AudioEnum.Audio_Stone, pos.x, pos.y);
                     AddProgress(CapsConfig.EatStonePoint, pos.x, pos.y);
                     m_gridBackImage[pos.x, pos.y].hasProcessStoneAround = true;
                 }
@@ -4557,7 +4572,9 @@ public class GameLogic
                             m_gridBackImage[newPos.x, newPos.y].layer1 = newObj.GetComponent<UISprite>();
 
                             m_gridBackImage[newPos.x, newPos.y].layer1.transform.parent = m_gridInstance.transform.parent;
-                            m_gridBackImage[newPos.x, newPos.y].layer1.transform.localScale = m_gridInstance.transform.localScale;
+                            m_gridBackImage[newPos.x, newPos.y].layer1.transform.localScale = new Vector3(1, 1, 1);
+                            m_gridBackImage[newPos.x, newPos.y].layer1.width = 84;
+                            m_gridBackImage[newPos.x, newPos.y].layer1.height = 84;
                             m_gridBackImage[newPos.x, newPos.y].layer1.transform.localPosition = new Vector3(GetXPos(newPos.x), -GetYPos(newPos.x, newPos.y), -110);
                         }
                         m_gridBackImage[newPos.x, newPos.y].layer1.spriteName = "Chocolate";

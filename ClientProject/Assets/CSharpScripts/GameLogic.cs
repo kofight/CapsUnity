@@ -768,7 +768,7 @@ public class GameLogic
         }
         if (GlobalVars.CurStageData.StoneCount > 0)
         {
-            AddParticleToFreeList("StoneEffect", true, GlobalVars.CurStageData.ChocolateCount / 3);
+            AddParticleToFreeList("StoneEffect", true, GlobalVars.CurStageData.StoneCount / 3);
         }
     }
 
@@ -3078,7 +3078,7 @@ public class GameLogic
         {
             PlayingStageData.ClearFlag(processGrid.x, processGrid.y, GridFlag.Iron);
             PlayingStageData.AddFlag(processGrid.x, processGrid.y, GridFlag.Stone);
-            AddPartile("StoneEffect", AudioEnum.Audio_Stone, processGrid.x, processGrid.y);
+            AddPartile("Iron", AudioEnum.Audio_Stone, processGrid.x, processGrid.y);
             m_scoreToShow[processGrid.x, processGrid.y] += CapsConfig.EatStonePoint;
             m_gridBackImage[processGrid.x, processGrid.y].layer1.spriteName = "Stone";
         }
@@ -3838,7 +3838,7 @@ public class GameLogic
                     PlayingStageData.ClearFlag(pos.x, pos.y, GridFlag.Iron);
                     PlayingStageData.AddFlag(pos.x, pos.y, GridFlag.Stone);
                     m_gridBackImage[pos.x, pos.y].layer1.spriteName = "Stone";
-                    AddPartile("StoneEffect", AudioEnum.Audio_Stone, pos.x, pos.y);
+                    AddPartile("IronEffect", AudioEnum.Audio_Stone, pos.x, pos.y);
                     AddProgress(CapsConfig.EatStonePoint, pos.x, pos.y);
                     m_gridBackImage[pos.x, pos.y].hasProcessStoneAround = true;
                 }

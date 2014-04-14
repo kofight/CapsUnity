@@ -1209,6 +1209,7 @@ public class GameLogic
         //播放开始游戏的动画
         TweenPosition tweenPos = m_gameArea.GetComponent<TweenPosition>();
         tweenPos.Play(true);
+        tweenPos.duration = 1.0f;
 
         m_gameFlow = TGameFlow.EGameState_EffectTime;                           //切换游戏状态到特效演出时间，等待特效演出
         m_curSpecialEffect = TSpecialEffect.EStartEffect;                       //开始特效
@@ -1395,6 +1396,7 @@ public class GameLogic
     {
 		m_gameFlow = TGameFlow.EGameState_Clear;
         TweenPosition tweenPos = m_gameArea.GetComponent<TweenPosition>();
+        tweenPos.duration = 0.8f;
         tweenPos.Play(false);
     }
 
@@ -2150,7 +2152,7 @@ public class GameLogic
                 }
                 else //若没达成过关条件
                 {
-                    Timer.AddDelayFunc(2.0f, delegate()
+                    Timer.AddDelayFunc(1.5f, delegate()
                     {
                         UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();            //出游戏结束界面
                     });
@@ -4464,7 +4466,7 @@ public class GameLogic
 
         HideUI();
 
-        Timer.AddDelayFunc(2.0f, delegate()
+        Timer.AddDelayFunc(1.5f, delegate()
         {
             UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();            //出游戏结束界面
         });
@@ -4531,9 +4533,10 @@ public class GameLogic
     void ChocolateGrow()        //生长一个巧克力
     {
         //先找到待用的巧克力
+        int randomNum = m_random.Next();
         //从随机位置开始
-        int randomPos = m_random.Next() % BlockAreaWidth;
-        int randomDir = m_random.Next() % 6;        //选一随机方向
+        int randomPos = randomNum % BlockAreaWidth;
+        int randomDir = randomNum % 6;        //选一随机方向
         for (int i = 0; i < BlockAreaWidth; i++)
         {
             int xPos = (randomPos + i) % BlockAreaWidth;

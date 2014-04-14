@@ -247,7 +247,7 @@ public class UIGameEnd : UIWindow
 
         GameLogic.Singleton.HideUI();
 
-        Timer.AddDelayFunc(1.1f, delegate()
+        Timer.AddDelayFunc(0.6f, delegate()
         {
             UIWindowManager.Singleton.GetUIWindow<UIRetry>().RefreshData();
             UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();

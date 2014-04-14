@@ -23,6 +23,22 @@ public class MoveWithGravity : MonoBehaviour {
 	void Update () {
         float x = Mathf.Lerp(transform.localPosition.x, -Input.acceleration.x * Width, Time.deltaTime * 3);
         float y = Mathf.Lerp(transform.localPosition.y, -Input.acceleration.y * Up, Time.deltaTime * 3);
+        if (x > Width)
+        {
+            x = Width;
+        }
+        if (x < -Width)
+        {
+            x = -Width;
+        }
+        if (y > Up)
+        {
+            y = Up;
+        }
+        if (y < -Up)
+        {
+            y = -Up;
+        }
         transform.localPosition = new Vector3(x, y, transform.localPosition.z);
 	}
 }

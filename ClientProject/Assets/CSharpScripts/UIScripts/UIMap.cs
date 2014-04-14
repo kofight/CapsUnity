@@ -42,7 +42,7 @@ public class UIMap : UIWindow
 
     int m_newStageNumber;                       //开启的新关卡的编号
     float m_newStageMoveTime;                  //开启新关卡的时间
-    readonly static float HeadMoveTime = 1.5f;  //开启新关卡时头像的移动时间
+    readonly static float HeadMoveTime = 1.0f;  //开启新关卡时头像的移动时间
     readonly static float HeadYOffset = 90.0f; //头像相对于按钮位置的位移
 
     float m_lastClickStageTime = 0;                 //上次点击关卡的时间

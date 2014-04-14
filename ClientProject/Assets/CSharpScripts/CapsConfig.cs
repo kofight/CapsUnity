@@ -101,7 +101,7 @@ public class CapsConfig
     public static float EatBombEffectStartInterval = 0.5f;           //炸弹特效 吃块的开始时间
 
     public static float BigBombEffectInterval = 0.0f;                //炸弹合炸弹 特效吃块的间隔
-    public static float EatBigBombEffectStartInterval = 0.9f;        //炸弹合炸弹 特效吃块的开始时间
+    public static float EatBigBombEffectStartInterval = 0.67f;        //炸弹合炸弹 特效吃块的开始时间
 
     public static float Rainbow_EffectInterval = 0.1f;                //彩虹特效 吃块的间隔
     public static float Rainbow_EffectStartDelay = 0.3f;              //彩虹特效 吃块的开始前等待时间

@@ -223,7 +223,7 @@ public class Unibiller {
 	public static decimal GetCurrencyBalance(string currencyIdentifier) {
         if (UnityEngine.Application.platform == UnityEngine.RuntimePlatform.WindowsPlayer)
         {
-            return 0;
+            return 1000;
         }
 		return biller.getCurrencyBalance (currencyIdentifier);
 	}

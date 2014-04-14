@@ -328,16 +328,22 @@ public class UIMap : UIWindow
 			
 			m_stageNumbers[i].gameObject.SetActive(true);
 			button.enabled = true;
+
+            m_stageBtns[i].gameObject.SetActive(true);
 		}
 		else
 		{
-			sprite.spriteName = "MapPoint_NotOpen_Type" + CapsConfig.StageTypeArray[i];
-			sprite.width = 74;
-			sprite.height = 74;
-			sprite.LocalPositionX(4);
-			sprite.LocalPositionY(18);
-			m_stageNumbers[i].gameObject.SetActive(false);
-			button.enabled = false;
+            //截图时用的，发布版本不显示未开启的关卡，直接放在背景图上
+            
+            //sprite.spriteName = "MapPoint_NotOpen_Type" + CapsConfig.StageTypeArray[i];
+            //sprite.width = 74;
+            //sprite.height = 74;
+            //sprite.LocalPositionX(4);
+            //sprite.LocalPositionY(18);
+            //m_stageNumbers[i].gameObject.SetActive(false);
+            //button.enabled = false;
+
+            m_stageBtns[i].gameObject.SetActive(false);
 		}
 		EventDelegate.Set(button.onClick, OnStageClicked);
 	}

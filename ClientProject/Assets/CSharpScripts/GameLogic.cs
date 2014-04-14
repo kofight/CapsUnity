@@ -735,8 +735,8 @@ public class GameLogic
         gameAreaX = (int)((CapsApplication.Singleton.Width - BlockAreaWidth * BLOCKWIDTH) / 2 - BlockXStart * BLOCKWIDTH);
         gameAreaY = (int)((CapsApplication.Singleton.Height - BlockAreaHeight * BLOCKHEIGHT) / 2 - BlockYStart * BLOCKHEIGHT - BLOCKHEIGHT / 2) - 2;
 
-        if (GlobalVars.CurStageData.FTUEMap.Count == 0
-            || (PlayerPrefs.GetInt("StageFTUEFinished") >= GlobalVars.CurStageNum && !GlobalVars.DeveloperMode))     //因为FTUE已经编完了，所以若有FTUE，跳过循环范围的优化，优先保证FTUE正确
+        if (GlobalVars.CurStageData.FTUEMap.Count > 0
+            || GlobalVars.DeveloperMode)     //因为FTUE已经编完了，所以若有FTUE，跳过循环范围的优化，优先保证FTUE正确
         {
             BlockXStart = 0;
             BlockXEnd = 8;
@@ -4533,7 +4533,7 @@ public class GameLogic
         //先找到待用的巧克力
         //从随机位置开始
         int randomPos = m_random.Next() % BlockAreaWidth;
-
+        int randomDir = m_random.Next() % 6;        //选一随机方向
         for (int i = 0; i < BlockAreaWidth; i++)
         {
             int xPos = (randomPos + i) % BlockAreaWidth;
@@ -4542,8 +4542,9 @@ public class GameLogic
                 if (PlayingStageData.CheckFlag(xPos, j, GridFlag.Chocolate))        //找到块了
                 {
                     //看相邻的6方向能否生成
-                    for (int dir = (int)TDirection.EDir_Up; dir <= (int)TDirection.EDir_LeftUp; ++dir)
+                    for (int d = 0; d <= 6; ++d)
                     {
+                        int dir = (randomDir + d) % 6;
                         Position newPos = GoTo(new Position(xPos, j), (TDirection)dir, 1);
                         if (!CheckPosAvailable(newPos))
                             continue;

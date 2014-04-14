@@ -221,6 +221,10 @@ public class Unibiller {
 	/// </summary>
 	/// <returns>The currency balance or 0 if the currency is unknown.</returns>
 	public static decimal GetCurrencyBalance(string currencyIdentifier) {
+        if (UnityEngine.Application.platform == UnityEngine.RuntimePlatform.WindowsPlayer)
+        {
+            return 0;
+        }
 		return biller.getCurrencyBalance (currencyIdentifier);
 	}
 
@@ -236,6 +240,10 @@ public class Unibiller {
 	/// </summary>
 	/// <returns><c>true</c>, if balance was debited (sufficient funds were available), <c>false</c> otherwise.</returns>
 	public static bool DebitBalance(string currencyIdentifier, decimal amount) {
+        if (UnityEngine.Application.platform == UnityEngine.RuntimePlatform.WindowsPlayer)
+        {
+            return true;
+        }
 		return biller.debitCurrencyBalance (currencyIdentifier, amount);
 	}
 

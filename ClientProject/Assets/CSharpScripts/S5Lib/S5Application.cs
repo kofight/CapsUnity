@@ -53,9 +53,12 @@ public class S5Application
 
     public void Init()
     {
-        //初始化支付插件
-        Unibiller.onBillerReady += OnUniBillInitialised;
-        Unibiller.Initialise();
+        if (Application.platform != RuntimePlatform.WindowsPlayer)
+        {
+            //初始化支付插件
+            Unibiller.onBillerReady += OnUniBillInitialised;
+            Unibiller.Initialise();
+        }
 
         Application.runInBackground = true;
         new UIWindowManager();          //Create UIManager Singleton

@@ -84,6 +84,10 @@ public class CapsApplication : S5Application
         }
 
 		Application.targetFrameRate = 60;			//
+        if (Application.platform == RuntimePlatform.WindowsPlayer)
+        {
+            Screen.SetResolution(480, 800, false);
+        }
 		
         new CapsConfig();
         new ResourceManager();

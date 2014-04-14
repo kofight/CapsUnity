@@ -3092,7 +3092,7 @@ public class GameLogic
         {
             PlayingStageData.ClearFlag(processGrid.x, processGrid.y, GridFlag.Iron);
             PlayingStageData.AddFlag(processGrid.x, processGrid.y, GridFlag.Stone);
-            AddPartile("Iron", AudioEnum.Audio_Stone, processGrid.x, processGrid.y);
+            AddPartile("IronEffect", AudioEnum.Audio_Stone, processGrid.x, processGrid.y);
             m_scoreToShow[processGrid.x, processGrid.y] += CapsConfig.EatStonePoint;
             m_gridBackImage[processGrid.x, processGrid.y].layer1.spriteName = "Stone";
         }

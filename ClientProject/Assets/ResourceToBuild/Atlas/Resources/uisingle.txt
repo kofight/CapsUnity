@@ -949,8 +949,8 @@
 	"frame": {"x":283,"y":1398,"w":72,"h":66},
 	"rotated": false,
 	"trimmed": true,
-	"spriteSourceSize": {"x":5,"y":8,"w":72,"h":66},
-	"sourceSize": {"w":82,"h":82}
+	"spriteSourceSize": {"x":6,"y":9,"w":72,"h":66},
+	"sourceSize": {"w":84,"h":84}
 },
 "Item.png":
 {
@@ -2423,6 +2423,6 @@
 	"format": "RGBA8888",
 	"size": {"w":2048,"h":2048},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:1700b3f515aee6a3cc5c73fa9d836fe6$"
+	"smartupdate": "$TexturePacker:SmartUpdate:bffbb54021be2945a1983aaaaadb3fcd$"
 }
 }

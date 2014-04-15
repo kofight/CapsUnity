@@ -39,9 +39,13 @@ public class UIPurchaseTarget : UIWindow
                 {
                     if (GameLogic.Singleton.PlayingStageData.CheckFlag(i, j, GridFlag.Jelly) || GameLogic.Singleton.PlayingStageData.CheckFlag(i, j, GridFlag.JellyDouble))
                     {
-                        GlobalVars.UsingItemTarget = new Position(i, j);
-                        SetTarget(GlobalVars.UsingItemTarget);
-                        return;
+                        CapBlock pBlock = GameLogic.Singleton.GetBlock(new Position(i, j));
+                        if (pBlock != null && pBlock.color < TBlockColor.EColor_Nut1 && pBlock.CurState == BlockState.Normal)
+                        {
+                            GlobalVars.UsingItemTarget = new Position(i, j);
+                            SetTarget(GlobalVars.UsingItemTarget);
+                            break;
+                        }
                     }
                 }
             }

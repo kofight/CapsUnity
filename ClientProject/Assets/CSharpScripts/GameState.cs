@@ -84,6 +84,12 @@ public class GameState : State
 
         //////////////////前面弹出窗口//////////////////////////////////////
 
+        if (UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().Visible)
+        {
+            UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().HideWindow();
+            return;
+        }
+
         if (UIWindowManager.Singleton.GetUIWindow<UIDialog>().Visible)
         {
             UIWindowManager.Singleton.GetUIWindow<UIDialog>().EndDialog();

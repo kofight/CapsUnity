@@ -1502,6 +1502,7 @@ public class GameLogic
         EasyTouch.On_TouchUp -= OnTouchEnd;
 
         m_bFailedFTUE = false;      //这个比较特殊，因为ClearLogic会被重新开始特效调用，所以清理失败FTUE放这里一次
+        m_bStopFTUE = false;        
     }
 
     public void ClearLogic(bool RestartEffectClear = false)
@@ -1519,7 +1520,6 @@ public class GameLogic
         }
         m_lastStepRewardTime = 0;
         m_lastHelpTime = 0;
-        m_bStopFTUE = false;
         m_gettingExtraScore = false;
         IsStopingChocoGrow = false;
         IsStoppingTime = false;
@@ -4439,6 +4439,7 @@ public class GameLogic
                 pWin.ShowWindow();      //显示窗口
                 pWin.RestartFunc = delegate()
                 {
+                    StopFTUE();         //屏蔽FTUE
                     PlayRestartEffect();
                     pWin.HideWindow();
                 };
@@ -4446,6 +4447,7 @@ public class GameLogic
                 pWin.NeedHelpFunc = delegate()
                 {
                     m_bFailedFTUE = true;       //开始失败FTUE
+                    m_bStopFTUE = false;
                     PlayRestartEffect();
                     pWin.HideWindow();
                     m_gameBottomUI.OnChangeStep(PlayingStageData.StepLimit);

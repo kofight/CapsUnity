@@ -130,8 +130,8 @@ public class UIGameEnd : UIWindow
             m_continueTipBoard.gameObject.SetActive(false);
             m_pauseTipBoard.gameObject.SetActive(true);
 
-            m_curScore.SetNumber(GameLogic.Singleton.GetProgress(), 0.0f);
-            m_targetScore.SetNumber(GlobalVars.CurStageData.StarScore[0], 0.0f);
+            m_curScore.SetNumberRapid(GameLogic.Singleton.GetProgress());
+            m_targetScore.SetNumberRapid(GlobalVars.CurStageData.StarScore[0]);
         }
 
         m_scoreCheck.SetWithoutTrigger((GameLogic.Singleton.GetProgress() >= GlobalVars.CurStageData.StarScore[0]));

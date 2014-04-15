@@ -152,6 +152,10 @@ public class UIMainMenu : UIWindow
         }
         else if (UIWindowManager.Singleton.GetUIWindow<UIMap>().Visible)
         {
+            if (GlobalVars.InMapFTUE)       //若再FTUE中
+            {
+                UIWindowManager.Singleton.GetUIWindow<UIFTUE>().EndFTUE();      //结束FTUE
+            }
             UIWindowManager.Singleton.GetUIWindow<UIMap>().HideWindow();
             UIWindowManager.Singleton.GetUIWindow<UILogin>().ShowWindow();
             LoginState.Instance.CurFlow = TLoginFlow.LoginFlow_LoginScreen;
@@ -160,5 +164,7 @@ public class UIMainMenu : UIWindow
         {
             UIWindowManager.Singleton.GetUIWindow<UIQuitConfirm>().ShowWindow();
         }
+
+
     }
 }

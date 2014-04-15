@@ -398,6 +398,11 @@ public class UIGameHead : UIWindow
             return;
         }
 
+        if (GlobalVars.UsingItem != PurchasedItem.None)
+        {
+            return;
+        }
+
         GlobalVars.UsingItem = item;
 
         //先判断是否够钱

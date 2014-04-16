@@ -462,6 +462,7 @@ public class GameLogic
     bool m_bFailedFTUE = false;             //是否在失败FTUE中
 
     float m_iceTipStartTime;                //冰块提示开始时间
+    float m_lastShowIceTipTime;             //上次冰块提示的时间
 
     public void StopFTUE()
     {
@@ -558,7 +559,14 @@ public class GameLogic
 
     void ShowIceTip()       //冰块闪烁
     {
+        //正在闪烁
+        if (Timer.GetRealTimeSinceStartUp() - m_iceTipStartTime < (CapsConfig.EffectResortInterval * BlockAreaWidth * BlockAreaHeight) / 1000.0f)
+        {
+            return;         
+        }
         m_iceTipStartTime = Timer.GetRealTimeSinceStartUp();            //设置冰块提示开始时间
+
+        m_lastShowIceTipTime = m_iceTipStartTime;
 
         for (int i = BlockXStart; i < BlockXEnd; ++i)
         {
@@ -977,6 +985,8 @@ public class GameLogic
                 PlayingStageData.CollectCount[i] = 0;           //先把已搜集数量清零
             }
         }
+
+        m_lastShowIceTipTime = 0;
     }
 
     public void Init(int seed = -1)         //seed > -1时，指定seed
@@ -2555,6 +2565,11 @@ public class GameLogic
             m_hurryUpTweener.Play(true);
             PlaySoundNextFrame(AudioEnum.Audio_Only15SecLeft);
         }
+
+        if (m_lastShowIceTipTime > 0 && Timer.GetRealTimeSinceStartUp() - m_lastShowIceTipTime > 60)        //1分钟1次
+        {
+            ShowIceTip();
+        }
     }
 
     public void Update()
@@ -3043,7 +3058,6 @@ public class GameLogic
 
                             if (PlayingStageData.Target == GameTarget.Collect && m_blocks[i, j].CollectIndex > -1)           //若为收集块，播收集块特效
                             {
-                                bNeedRefreshTarget = true;
                                 m_blocks[i, j].m_tweenPosition.from = m_blocks[i, j].m_blockTransform.localPosition;             //从当前位置开始
                                 m_blocks[i, j].m_tweenPosition.to = CollectTargetUIPos[m_blocks[i, j].CollectIndex];                                       //目标位置
                                 m_blocks[i, j].m_tweenPosition.enabled = true;
@@ -3057,7 +3071,12 @@ public class GameLogic
                                 m_blocks[i, j].m_tweenScale.ResetToBeginning();
                                 m_blocks[i, j].m_tweenScale.Play(true);
                                 m_blocks[i, j].m_blockSprite.depth = 3;
-                                ++PlayingStageData.CollectCount[m_blocks[i, j].CollectIndex];                             //增加一个搜集数量
+                                int collectIndex = m_blocks[i, j].CollectIndex;
+                                Timer.AddDelayFunc(1.0f, delegate()
+                                {
+                                    ++PlayingStageData.CollectCount[collectIndex];                             //增加一个搜集数量
+                                    UIWindowManager.Singleton.GetUIWindow<UIGameHead>().RefreshTarget();
+                                });
                             }
                             else if (PlayingStageData.Target == GameTarget.BringFruitDown && m_blocks[i, j].color >= TBlockColor.EColor_Nut1)      //落水果关
                             {
@@ -3075,6 +3094,11 @@ public class GameLogic
                                 m_blocks[i, j].m_tweenScale.ResetToBeginning();
                                 m_blocks[i, j].m_tweenScale.Play(true);
                                 m_blocks[i, j].m_blockSprite.depth = 3;
+
+                                Timer.AddDelayFunc(1.5f, delegate()
+                                {
+                                    UIWindowManager.Singleton.GetUIWindow<UIGameHead>().RefreshTarget();
+                                });
                             }
                             else
                             {
@@ -3098,11 +3122,6 @@ public class GameLogic
                         bEat = true;
                     }
                 }
-            }
-
-            if (bNeedRefreshTarget)
-            {
-                UIWindowManager.Singleton.GetUIWindow<UIGameHead>().RefreshTarget();
             }
 
             if (bEat)               //若有块被消除，相当于产生了新的空间，要处理一次下落

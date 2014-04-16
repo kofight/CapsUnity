@@ -34,7 +34,7 @@ public class UIHowToPlay : UIWindow
     {
         HideWindow(delegate()
         {
-			if(GameLogic.Singleton != null)
+            if (GameLogic.Singleton != null && CapsApplication.Singleton.CurStateEnum == StateEnum.Game)
             	GameLogic.Singleton.ResumeGame();
         });
         UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();

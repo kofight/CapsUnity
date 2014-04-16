@@ -6,6 +6,8 @@ public class UIStageInfo : UIWindow
     NumberDrawer m_levelNumber;
     UILabel m_totalCostLabel;
 
+    UIWindow m_stageTip;
+
     UILabel[] m_itemCostLabels = new UILabel[3];
     UIToggle [] m_itemToggles = new UIToggle [3];
     PurchasedItem [] m_items = new PurchasedItem [3];
@@ -39,6 +41,19 @@ public class UIStageInfo : UIWindow
 
         AddChildComponentMouseClick("CloseBtn", OnCloseClicked);
         AddChildComponentMouseClick("PlayBtn", OnPlayClicked);
+
+        AddChildComponentMouseClick("HelpBtn", delegate()
+        {
+            if (m_stageTip == null)
+            {
+                m_stageTip = UIWindowManager.Singleton.CreateWindow<UIWindow>("UIStageTip", UIWindowManager.Anchor.Center);
+                m_stageTip.AddChildComponentMouseClick("CloseBtn", delegate()
+                {
+                    m_stageTip.HideWindow();
+                });
+            }
+            m_stageTip.ShowWindow();
+        });
     }
 
     public void OnToggle()

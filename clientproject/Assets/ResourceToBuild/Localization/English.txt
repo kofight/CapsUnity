@@ -75,3 +75,12 @@ Get140Coins = Get 140 Coins
 QuitConfirm = Do you want quit the game?
 
 TotalCost = Total:
+
+HurryUpStep = 还剩5步
+HurryUpTime = 还剩15秒
+
+FTUEStep0 = 这个是整个梦境世界的地图。
+FTUEStep1 = 我们刚刚通过的是这一扇门。
+FTUEStep2 = 每当我们通过一扇门以后，都会开启一扇新的门。
+FTUEStep3 = 这就是新的门。
+FTUEStep4 = 点击它，接受下一个挑战吧？

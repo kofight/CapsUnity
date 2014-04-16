@@ -9,6 +9,19 @@ public class UIStageTarget : UIWindow
 	Transform m_timeScoreBoard;
 	Transform m_nutBoard;
 
+    Transform m_gameFailedBoard;
+    Transform m_resortBoard;
+    Transform m_autoResortBoard;
+
+    public enum TargetMode
+    {
+        StageTarget,
+        AutoResort,
+        GameFailed,
+    }
+
+    public TargetMode Mode;
+
 	UILabel nut1Label;
 	UILabel nut2Label;
 	UISprite nut1Icon;
@@ -26,6 +39,10 @@ public class UIStageTarget : UIWindow
 		m_stepScoreBoard = mUIObject.transform.FindChild("ScoreBoard");
 		m_timeScoreBoard = mUIObject.transform.FindChild("TimeBoard");
 		m_nutBoard = mUIObject.transform.FindChild("NutBoard");
+
+        m_gameFailedBoard = mUIObject.transform.FindChild("FailedBoard");
+        m_resortBoard = mUIObject.transform.FindChild("ResortBoard");
+        m_autoResortBoard = mUIObject.transform.FindChild("AutoResortBoard");
 		
 	 	nut1Label = GetChildComponent<UILabel>("NutCount1");
 		nut2Label = GetChildComponent<UILabel>("NutCount2");
@@ -41,141 +58,149 @@ public class UIStageTarget : UIWindow
     public override void OnShow()
     {
         base.OnShow();
-		StageData stage = GlobalVars.CurStageData;
+
+
+        m_collectBoard.gameObject.SetActive(false);
+        m_jellyBoard.gameObject.SetActive(false);
+        m_stepScoreBoard.gameObject.SetActive(false);
+        m_timeScoreBoard.gameObject.SetActive(false);
+        m_nutBoard.gameObject.SetActive(false);
+        m_gameFailedBoard.gameObject.SetActive(false);
+        m_resortBoard.gameObject.SetActive(false);
+        m_autoResortBoard.gameObject.SetActive(false);
+		
 		Transform curBoard;
-		if(stage.Target == GameTarget.GetScore)
-		{
-			m_collectBoard.gameObject.SetActive(false);
-			m_jellyBoard.gameObject.SetActive(false);
-			m_nutBoard.gameObject.SetActive(false);
-			if(stage.StepLimit > 0)
-			{
-				m_stepScoreBoard.gameObject.SetActive(true);
-				m_timeScoreBoard.gameObject.SetActive(false);
-				curBoard = m_stepScoreBoard;
-			}
-			else
-			{
-				m_timeScoreBoard.gameObject.SetActive(true);
-				m_stepScoreBoard.gameObject.SetActive(false);
-				curBoard = m_timeScoreBoard;
-			}
-
-			UILabel scoreLabel = GetChildComponent<UILabel>("Score");
-			scoreLabel.text = stage.StarScore[0].ToString();
-		}
-		else if(stage.Target == GameTarget.ClearJelly)
-		{
-			m_collectBoard.gameObject.SetActive(false);
-			m_jellyBoard.gameObject.SetActive(true);
-			curBoard = m_jellyBoard;
-			m_stepScoreBoard.gameObject.SetActive(false);
-			m_timeScoreBoard.gameObject.SetActive(false);
-			m_nutBoard.gameObject.SetActive(false);
-
-			UILabel jellyLabel = GetChildComponent<UILabel>("JellyCount");
-			jellyLabel.text = stage.GetJellyCount().ToString();
-		}
-		else if(stage.Target == GameTarget.BringFruitDown)
-		{
-			m_collectBoard.gameObject.SetActive(false);
-			m_jellyBoard.gameObject.SetActive(false);
-			m_stepScoreBoard.gameObject.SetActive(false);
-			m_timeScoreBoard.gameObject.SetActive(false);
-			m_nutBoard.gameObject.SetActive(true);
-			curBoard = m_nutBoard;
-
-			if(stage.Nut1Count > 0)
-			{
-				nut1Label.text = stage.Nut1Count.ToString();
-
-				nut1Label.gameObject.SetActive(true);
-				nut1Icon.gameObject.SetActive(true);
-			}
-			else
-			{
-				nut1Label.gameObject.SetActive(false);
-				nut1Icon.gameObject.SetActive(false);
-			}
-			if(stage.Nut2Count > 0)
-			{
-				nut2Label.text = stage.Nut2Count.ToString();
-
-				nut2Label.gameObject.SetActive(true);
-				nut2Icon.gameObject.SetActive(true);
-			}
-			else
-			{
-				nut2Label.gameObject.SetActive(false);
-				nut2Icon.gameObject.SetActive(false);
-			}
-		}
-		else 		//Collect
-		{
-			m_collectBoard.gameObject.SetActive(true);
-			curBoard = m_collectBoard;
-			m_jellyBoard.gameObject.SetActive(false);
-			m_stepScoreBoard.gameObject.SetActive(false);
-			m_timeScoreBoard.gameObject.SetActive(false);
-			m_nutBoard.gameObject.SetActive(false);
-
-            for (int i = 0; i < 3; ++i )
+        if (Mode == TargetMode.StageTarget)
+        {
+            StageData stage = GlobalVars.CurStageData;
+            if (stage.Target == GameTarget.GetScore)
             {
-                if (stage.CollectCount[i] > 0)
+                if (stage.StepLimit > 0)
                 {
-                    collectLabel[i].gameObject.SetActive(true);
-                    collectIcon[i].gameObject.SetActive(true);
-
-                    collectLabel[i].text = stage.CollectCount[i].ToString();
-
-                    switch (GlobalVars.CurStageData.CollectSpecial[i])
-                    {
-                        case TSpecialBlock.ESpecial_Normal:
-                            {
-                                collectIcon[i].spriteName = "Item" + (int)(GlobalVars.CurStageData.CollectColors[i] - TBlockColor.EColor_None);
-                            }
-                            break;
-                        case TSpecialBlock.ESpecial_NormalPlus6:
-                            {
-                                collectIcon[i].spriteName = "TimeAdded" + (int)(GlobalVars.CurStageData.CollectColors[i] - TBlockColor.EColor_None);
-                            }
-                            break;
-                        case TSpecialBlock.ESpecial_EatLineDir0:
-                            collectIcon[i].spriteName = "Line" + (int)(GlobalVars.CurStageData.CollectColors[i] - TBlockColor.EColor_None) + "_3";
-                            break;
-                        case TSpecialBlock.ESpecial_EatLineDir1:
-                            collectIcon[i].spriteName = "Line" + (int)(GlobalVars.CurStageData.CollectColors[i] - TBlockColor.EColor_None) + "_1";
-                            break;
-                        case TSpecialBlock.ESpecial_EatLineDir2:
-                            collectIcon[i].spriteName = "Line" + (int)(GlobalVars.CurStageData.CollectColors[i] - TBlockColor.EColor_None) + "_2";
-                            break;
-                        case TSpecialBlock.ESpecial_Bomb:
-                            collectIcon[i].spriteName = "Bomb" + (int)(GlobalVars.CurStageData.CollectColors[i] - TBlockColor.EColor_None);
-                            break;
-                        case TSpecialBlock.ESpecial_EatAColor:
-                            collectIcon[i].spriteName = "Rainbow";
-                            break;
-                        default:
-                            break;
-                    }
+                    m_stepScoreBoard.gameObject.SetActive(true);
+                    curBoard = m_stepScoreBoard;
                 }
                 else
                 {
-                    collectLabel[i].gameObject.SetActive(false);
-                    collectIcon[i].gameObject.SetActive(false);
+                    m_timeScoreBoard.gameObject.SetActive(true);
+                    curBoard = m_timeScoreBoard;
+                }
+
+                UILabel scoreLabel = GetChildComponent<UILabel>("Score");
+                scoreLabel.text = stage.StarScore[0].ToString();
+            }
+            else if (stage.Target == GameTarget.ClearJelly)
+            {
+                m_jellyBoard.gameObject.SetActive(true);
+                curBoard = m_jellyBoard;
+
+                UILabel jellyLabel = GetChildComponent<UILabel>("JellyCount");
+                jellyLabel.text = stage.GetJellyCount().ToString();
+            }
+            else if (stage.Target == GameTarget.BringFruitDown)
+            {
+                m_nutBoard.gameObject.SetActive(true);
+                curBoard = m_nutBoard;
+
+                if (stage.Nut1Count > 0)
+                {
+                    nut1Label.text = stage.Nut1Count.ToString();
+
+                    nut1Label.gameObject.SetActive(true);
+                    nut1Icon.gameObject.SetActive(true);
+                }
+                else
+                {
+                    nut1Label.gameObject.SetActive(false);
+                    nut1Icon.gameObject.SetActive(false);
+                }
+                if (stage.Nut2Count > 0)
+                {
+                    nut2Label.text = stage.Nut2Count.ToString();
+
+                    nut2Label.gameObject.SetActive(true);
+                    nut2Icon.gameObject.SetActive(true);
+                }
+                else
+                {
+                    nut2Label.gameObject.SetActive(false);
+                    nut2Icon.gameObject.SetActive(false);
                 }
             }
-		}
+            else 		//Collect
+            {
+                m_collectBoard.gameObject.SetActive(true);
+                curBoard = m_collectBoard;
 
-		if(stage.StepLimit > 0)
-		{
-			UILabel stepLabel = UIToolkits.FindComponent<UILabel>(curBoard, "Step");
-			stepLabel.text = stage.StepLimit.ToString();
-		}
-		else
-		{
-			UILabel timeLabel = UIToolkits.FindComponent<UILabel>(curBoard, "Time");
-			timeLabel.text = stage.TimeLimit.ToString();
-		}
+                for (int i = 0; i < 3; ++i)
+                {
+                    if (stage.CollectCount[i] > 0)
+                    {
+                        collectLabel[i].gameObject.SetActive(true);
+                        collectIcon[i].gameObject.SetActive(true);
+
+                        collectLabel[i].text = stage.CollectCount[i].ToString();
+
+                        switch (GlobalVars.CurStageData.CollectSpecial[i])
+                        {
+                            case TSpecialBlock.ESpecial_Normal:
+                                {
+                                    collectIcon[i].spriteName = "Item" + (int)(GlobalVars.CurStageData.CollectColors[i] - TBlockColor.EColor_None);
+                                }
+                                break;
+                            case TSpecialBlock.ESpecial_NormalPlus6:
+                                {
+                                    collectIcon[i].spriteName = "TimeAdded" + (int)(GlobalVars.CurStageData.CollectColors[i] - TBlockColor.EColor_None);
+                                }
+                                break;
+                            case TSpecialBlock.ESpecial_EatLineDir0:
+                                collectIcon[i].spriteName = "Line" + (int)(GlobalVars.CurStageData.CollectColors[i] - TBlockColor.EColor_None) + "_3";
+                                break;
+                            case TSpecialBlock.ESpecial_EatLineDir1:
+                                collectIcon[i].spriteName = "Line" + (int)(GlobalVars.CurStageData.CollectColors[i] - TBlockColor.EColor_None) + "_1";
+                                break;
+                            case TSpecialBlock.ESpecial_EatLineDir2:
+                                collectIcon[i].spriteName = "Line" + (int)(GlobalVars.CurStageData.CollectColors[i] - TBlockColor.EColor_None) + "_2";
+                                break;
+                            case TSpecialBlock.ESpecial_Bomb:
+                                collectIcon[i].spriteName = "Bomb" + (int)(GlobalVars.CurStageData.CollectColors[i] - TBlockColor.EColor_None);
+                                break;
+                            case TSpecialBlock.ESpecial_EatAColor:
+                                collectIcon[i].spriteName = "Rainbow";
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        collectLabel[i].gameObject.SetActive(false);
+                        collectIcon[i].gameObject.SetActive(false);
+                    }
+                }
+            }
+
+            if (stage.StepLimit > 0)
+            {
+                UILabel stepLabel = UIToolkits.FindComponent<UILabel>(curBoard, "Step");
+                stepLabel.text = stage.StepLimit.ToString();
+            }
+            else
+            {
+                UILabel timeLabel = UIToolkits.FindComponent<UILabel>(curBoard, "Time");
+                timeLabel.text = stage.TimeLimit.ToString();
+            }
+        }
+        else
+        {
+            if (Mode == TargetMode.GameFailed)
+            {
+                m_gameFailedBoard.gameObject.SetActive(true);
+            }
+            else if (Mode == TargetMode.AutoResort)
+            {
+                m_autoResortBoard.gameObject.SetActive(true);
+            }
+        }
     }
 }

@@ -87,6 +87,7 @@ public class GridSprites
     public UISprite layer1;            //石头/笼子/巧克力
     public UISprite layer2;            //出生点
     public UISprite layer3;            //结束点
+    public UISprite layer4;            //冰块闪烁效果
     //public GameObject IcePartile;      //冰的粒子
     public bool hasProcessAngle = false;        //是否已经处理了角(用来处理角的中间变量)
     public bool hasProcessStoneAround = false;  //是否已经处理了周围的石块，有石头的关每次三消后需要清理一次，确保一次三消之内不重复消除石头
@@ -338,7 +339,9 @@ public class GameLogic
     public static int StartAnimTime = 1200;            //开始动画的时间长度
 
     UIGameBottom m_gameBottomUI;
-    UIWindow m_stageTargetUI;                               //关卡开始时显示的关卡目标
+    UIStageTarget m_stageTargetUI;                               //关卡开始时显示的关卡目标
+    UILabel m_hurryUpText;                                       //剩余5步（15秒）的文字框
+    TweenPosition m_hurryUpTweener;                              //剩余5步（15秒）的Tweener
 
     ///游戏逻辑变量/////////////////////////////////////////////////////////////////
     TDirection m_moveDirection;							                //选择的块1向块2移动的方向
@@ -458,6 +461,8 @@ public class GameLogic
     bool m_bStopFTUE = false;               //若在关卡中跳过了FTUE,这个就为true了，进关卡时清回false
     bool m_bFailedFTUE = false;             //是否在失败FTUE中
 
+    float m_iceTipStartTime;                //冰块提示开始时间
+
     public void StopFTUE()
     {
         m_bStopFTUE = true;
@@ -549,6 +554,23 @@ public class GameLogic
         }
         
 		NGUITools.PlaySound(clip);
+    }
+
+    void ShowIceTip()       //冰块闪烁
+    {
+        m_iceTipStartTime = Timer.GetRealTimeSinceStartUp();            //设置冰块提示开始时间
+
+        for (int i = BlockXStart; i < BlockXEnd; ++i)
+        {
+            for (int j = BlockYStart; j < BlockYEnd; ++j)
+            {
+                if (PlayingStageData.CheckFlag(i, j, GridFlag.Jelly) && PlayingStageData.CheckFlag(i, j, GridFlag.JellyDouble))
+                {
+                    m_gridBackImage[i, j].layer4.gameObject.SetActive(true);       //清理闪烁效果
+                    m_gridBackImage[i, j].layer4.alpha = 0;
+                }
+            }
+        }     
     }
 
     void PlaySoundNextFrame(AudioEnum audio)                            //为了同一声音在一帧内播放多次，把要播放的声音存起来下一帧播放
@@ -648,6 +670,9 @@ public class GameLogic
         m_numInstance = GameObject.Find("NumberInstance");
         m_shadowSpriteInstance = GameObject.Find("ShadowSprite");
         m_helpPointerObj = GameObject.Find("HelpPointer");
+
+        m_hurryUpTweener = GameObject.Find("HurryUp").GetComponent<TweenPosition>();
+        m_hurryUpText = GameObject.Find("HurryUpText").GetComponent<UILabel>();
 
         //Object obj = Resources.Load("IcePartile");
        // m_iceParticle = GameObject.Instantiate(obj) as GameObject;
@@ -972,17 +997,42 @@ public class GameLogic
             m_gridBackImage[x, y].layer0.transform.localScale = m_gridInstance.transform.localScale;
         }
 
-        bool bJelly = false;
+        //bool bJelly = false;
 
         if (PlayingStageData.CheckFlag(x, y, GridFlag.Jelly))
         {
-            m_gridBackImage[x, y].layer0.spriteName = "Jelly" + ((y + (x % 2)) % 3);
-            bJelly = true;
+            //m_gridBackImage[x, y].layer0.spriteName = "Jelly" + ((y + (x % 2)) % 3);
+            m_gridBackImage[x, y].layer0.spriteName = "Jelly";
+
+            if (m_gridBackImage[x, y].layer4 == null)
+            {
+                newObj = GameObject.Instantiate(m_gridInstance) as GameObject;
+                m_gridBackImage[x, y].layer4 = newObj.GetComponent<UISprite>();
+                m_gridBackImage[x, y].layer4.transform.parent = m_gridInstance.transform.parent;
+                m_gridBackImage[x, y].layer4.transform.localScale = m_gridInstance.transform.localScale;
+                m_gridBackImage[x, y].layer4.spriteName = "JellySpark";
+                m_gridBackImage[x, y].layer4.gameObject.SetActive(false);
+                m_gridBackImage[x, y].layer4.gameObject.name = "JellyTip";
+            }
+
+           // bJelly = true;
         }
         else if (PlayingStageData.CheckFlag(x, y, GridFlag.JellyDouble))
         {
-            m_gridBackImage[x, y].layer0.spriteName = "JellyDouble" + ((y + (x % 2)) % 3);
-            bJelly = true;
+            //m_gridBackImage[x, y].layer0.spriteName = "JellyDouble" + ((y + (x % 2)) % 3);
+            m_gridBackImage[x, y].layer0.spriteName = "JellyDouble";
+
+            if (m_gridBackImage[x, y].layer4 == null)
+            {
+                newObj = GameObject.Instantiate(m_gridInstance) as GameObject;
+                m_gridBackImage[x, y].layer4 = newObj.GetComponent<UISprite>();
+                m_gridBackImage[x, y].layer4.transform.parent = m_gridInstance.transform.parent;
+                m_gridBackImage[x, y].layer4.transform.localScale = m_gridInstance.transform.localScale;
+                m_gridBackImage[x, y].layer4.spriteName = "JellySpark";
+                m_gridBackImage[x, y].layer4.gameObject.SetActive(false);
+                m_gridBackImage[x, y].layer4.gameObject.name = "JellyTip";
+            }
+           // bJelly = true;
         }
         else
         {
@@ -1012,6 +1062,12 @@ public class GameLogic
 
         m_gridBackImage[x, y].layer0.transform.localPosition = new Vector3(GetXPosF(x), -GetYPosF(x, y), 0);
         m_gridBackImage[x, y].layer0.depth = 0;
+
+        if (m_gridBackImage[x, y].layer4 != null)
+        {
+            m_gridBackImage[x, y].layer4.transform.localPosition = m_gridBackImage[x, y].layer0.transform.localPosition;
+            m_gridBackImage[x, y].layer4.depth = 1;
+        }
 
         //处理第二层
         if (PlayingStageData.CheckFlag(x, y, GridFlag.Stone))
@@ -1219,7 +1275,8 @@ public class GameLogic
         m_curStateStartTime = Timer.millisecondNow() + (int)tweenPos.duration * 1000 / 2;       //保存下切状态的时间
 
         //播放开始的Banner
-        ShowStartBanner();
+        m_stageTargetUI.Mode = UIStageTarget.TargetMode.StageTarget;
+        m_stageTargetUI.ShowWindow();
     }
 
     public void AutoResort()           //自动重排功能 Todo 没处理交换后形成消除的情况，不确定要不要处理
@@ -1336,23 +1393,6 @@ public class GameLogic
     void ShowStartBanner()      //显示开始游戏的条
     {
         m_stageTargetUI.ShowWindow();
-        //UISprite sprite = m_stageTargetUI.GetChildComponent<UISprite>("Target");
-        //if (PlayingStageData.Target == GameTarget.GetScore)
-        //{
-        //    AddPartile("StartGameAnim-Score", AudioEnum.Audio_None, 0, 0, false);
-        //}
-        //if (PlayingStageData.Target == GameTarget.ClearJelly)
-        //{
-        //    AddPartile("StartGameAnim-Ice", AudioEnum.Audio_None, 0, 0, false);
-        //}
-        //if (PlayingStageData.Target == GameTarget.BringFruitDown)
-        //{
-        //    AddPartile("StartGameAnim-Fruit", AudioEnum.Audio_None, 0, 0, false);
-        //}
-        //if (PlayingStageData.Target == GameTarget.Collect)
-        //{
-        //    AddPartile("StartGameAnim-Collect", AudioEnum.Audio_None, 0, 0, false);
-        //}
     }
 
     void HideStartBanner()
@@ -1803,6 +1843,50 @@ public class GameLogic
             UIDrawer.Singleton.DrawSprite(PurchasedItem.ItemInGame_TimeStoper.ToString(), 300, 100, PurchasedItem.ItemInGame_TimeStoper.ToString(), UIDrawer.Singleton.spriteDefaultPrefabID);       //出生点   
         }
         UIDrawer.Singleton.CurDepth = 0;
+
+        if (m_iceTipStartTime > 0)          //若正在进行冰块提示
+        {
+            int passTime = (int)((Timer.GetRealTimeSinceStartUp() - m_iceTipStartTime) * 1000);
+            if ( passTime > CapsConfig.EffectResortInterval * BlockAreaWidth * BlockAreaHeight)       //时间到了
+            {
+                m_iceTipStartTime = 0;      //结束状态
+                for (int i = BlockXStart; i < BlockXEnd; ++i)
+                {
+                    for (int j = BlockYStart; j < BlockYEnd; ++j)
+                    {
+                        if (m_gridBackImage[i, j] != null && m_gridBackImage[i, j].layer4 != null)
+                            m_gridBackImage[i, j].layer4.gameObject.SetActive(false);       //清理闪烁效果
+                    }
+                }
+                return;
+            }
+
+            for (int i = BlockXStart; i < BlockXEnd; ++i)
+            {
+                for (int j = BlockYStart; j < BlockYEnd; ++j)
+                {
+                    if (PlayingStageData.CheckFlag(i, j, GridFlag.Jelly) || PlayingStageData.CheckFlag(i, j, GridFlag.JellyDouble))
+                    {
+                        int gridTipTime = (j * BlockAreaWidth + i) * CapsConfig.EffectResortInterval;
+                        if (passTime > gridTipTime)             //
+                        {
+                            if (passTime < gridTipTime + 300)
+                            {
+                                m_gridBackImage[i, j].layer4.alpha = (passTime - gridTipTime) / 300.0f;
+                            }
+                            else if (passTime < gridTipTime + 600)
+                            {
+                                m_gridBackImage[i, j].layer4.alpha = 1 - (passTime - (gridTipTime + 300)) / 300.0f;
+                            }
+                            else
+                            {
+                                m_gridBackImage[i, j].layer4.alpha = 0;
+                            }
+                        }
+                    }
+                }
+            }                        
+        }
     }
 
     void ProcessResortEffectStartTime(long curTime, long interval, bool bResort = true)      //处理重拍特效的时序
@@ -2152,11 +2236,7 @@ public class GameLogic
                 }
                 else //若没达成过关条件
                 {
-                    Timer.AddDelayFunc(1.5f, delegate()
-                    {
-                        UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();            //出游戏结束界面
-                    });
-                    AddPartile("EndGameFailed", AudioEnum.Audio_None, 0, 0, false);
+                    EndGameFailed();
                 }
             }
             return;
@@ -2410,7 +2490,8 @@ public class GameLogic
                         if (!Help())
                         {
                             m_curStateStartTime = Timer.millisecondNow();
-                            AddPartile("ResortAnim", AudioEnum.Audio_None, 0, 0, false);                                    //显示需要重排
+                            m_stageTargetUI.Mode = UIStageTarget.TargetMode.AutoResort;
+                            m_stageTargetUI.ShowWindow();
                             m_gameFlow = TGameFlow.EGameState_ResortAnim;
                         }
                     }
@@ -2470,7 +2551,9 @@ public class GameLogic
         if (!m_bHurryAnimPlayed && m_gameFlow == TGameFlow.EGameState_Playing && GlobalVars.CurStageData.TimeLimit > 0 && GetTimeRemain() < 15)
         {
             m_bHurryAnimPlayed = true;
-            AddPartile("Only15SecLeftAnim", AudioEnum.Audio_Only15SecLeft, 0, 0, false);
+            m_hurryUpText.text = Localization.instance.Get("HurryUpTime");
+            m_hurryUpTweener.Play(true);
+            PlaySoundNextFrame(AudioEnum.Audio_Only15SecLeft);
         }
     }
 
@@ -3116,7 +3199,8 @@ public class GameLogic
                 PlayingStageData.AddFlag(processGrid.x, processGrid.y, GridFlag.Jelly);
                 AddPartile("JellyEffect", AudioEnum.Audio_Jelly, processGrid.x, processGrid.y);
                 m_scoreToShow[processGrid.x, processGrid.y] += CapsConfig.EatJellyDouble;
-                m_gridBackImage[processGrid.x, processGrid.y].layer0.spriteName = "Jelly" + ((processGrid.y + (processGrid.x % 2)) % 3);
+                //m_gridBackImage[processGrid.x, processGrid.y].layer0.spriteName = "Jelly" + ((processGrid.y + (processGrid.x % 2)) % 3);
+                m_gridBackImage[processGrid.x, processGrid.y].layer0.spriteName = "Jelly";
                 jellyChanged = true;
             }
             else if ((flag & (int)GridFlag.Jelly) > 0)
@@ -4472,7 +4556,9 @@ public class GameLogic
         {
             UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();            //出游戏结束界面
         });
-        AddPartile("EndGameFailed", AudioEnum.Audio_None, 0, 0, false);
+
+        m_stageTargetUI.Mode = UIStageTarget.TargetMode.GameFailed;
+        m_stageTargetUI.ShowWindow();
     }
 
     void OnDropEnd()            //所有下落和移动结束时被调用
@@ -4528,8 +4614,12 @@ public class GameLogic
         if (!m_bHurryAnimPlayed && m_gameFlow == TGameFlow.EGameState_Playing && PlayingStageData.StepLimit == 5)                    
         {
             m_bHurryAnimPlayed = true;
-            AddPartile("Only5StepLeftAnim", AudioEnum.Audio_Only5StepLeft, 0, 0, false);
+            m_hurryUpText.text = Localization.instance.Get("HurryUpStep");
+            m_hurryUpTweener.Play(true);
+            PlaySoundNextFrame(AudioEnum.Audio_Only5StepLeft);
         }
+
+        ShowIceTip();
     }
 
     void ChocolateGrow()        //生长一个巧克力
@@ -4927,11 +5017,13 @@ public class GameLogic
 
                     if (PlayingStageData.CheckFlag(x, y, GridFlag.Jelly))
                     {
-                        m_gridBackImage[x, y].layer0.spriteName = "Jelly" + ((y + (x % 2)) % 3) + "_f";
+                        //m_gridBackImage[x, y].layer0.spriteName = "Jelly" + ((y + (x % 2)) % 3) + "_f";
+                        m_gridBackImage[x, y].layer0.spriteName = "Jelly_f";
                     }
                     else if (PlayingStageData.CheckFlag(x, y, GridFlag.JellyDouble))
                     {
-                        m_gridBackImage[x, y].layer0.spriteName = "JellyDouble" + ((y + (x % 2)) % 3) + "_f";
+                        //m_gridBackImage[x, y].layer0.spriteName = "JellyDouble" + ((y + (x % 2)) % 3) + "_f";
+                        m_gridBackImage[x, y].layer0.spriteName = "JellyDouble_f";
                     }
                     else
                     {
@@ -4974,11 +5066,13 @@ public class GameLogic
 
                     if (PlayingStageData.CheckFlag(x, y, GridFlag.Jelly))
                     {
-                        m_gridBackImage[x, y].layer0.spriteName = "Jelly" + ((y + (x % 2)) % 3);
+                        //m_gridBackImage[x, y].layer0.spriteName = "Jelly" + ((y + (x % 2)) % 3);
+                        m_gridBackImage[x, y].layer0.spriteName = "Jelly";
                     }
                     else if (PlayingStageData.CheckFlag(x, y, GridFlag.JellyDouble))
                     {
-                        m_gridBackImage[x, y].layer0.spriteName = "JellyDouble" + ((y + (x % 2)) % 3);
+                        //m_gridBackImage[x, y].layer0.spriteName = "JellyDouble" + ((y + (x % 2)) % 3);
+                        m_gridBackImage[x, y].layer0.spriteName = "JellyDouble";
                     }
                     else
                     {

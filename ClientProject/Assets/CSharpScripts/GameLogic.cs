@@ -564,7 +564,7 @@ public class GameLogic
         {
             for (int j = BlockYStart; j < BlockYEnd; ++j)
             {
-                if (PlayingStageData.CheckFlag(i, j, GridFlag.Jelly) && PlayingStageData.CheckFlag(i, j, GridFlag.JellyDouble))
+                if (PlayingStageData.CheckFlag(i, j, GridFlag.Jelly) || PlayingStageData.CheckFlag(i, j, GridFlag.JellyDouble))
                 {
                     m_gridBackImage[i, j].layer4.gameObject.SetActive(true);       //清理闪烁效果
                     m_gridBackImage[i, j].layer4.alpha = 0;

@@ -1058,7 +1058,7 @@ public class GameLogic
                 m_gridBackImage[x, y].layer4 = newObj.GetComponent<UISprite>();
                 m_gridBackImage[x, y].layer4.transform.parent = m_gridInstance.transform.parent;
                 m_gridBackImage[x, y].layer4.transform.localScale = m_gridInstance.transform.localScale;
-                m_gridBackImage[x, y].layer4.spriteName = "JellySpark";
+                m_gridBackImage[x, y].layer4.spriteName = "JellyDoubleSpark";
                 m_gridBackImage[x, y].layer4.gameObject.SetActive(false);
                 m_gridBackImage[x, y].layer4.gameObject.name = "JellyTip";
             }
@@ -3250,6 +3250,7 @@ public class GameLogic
                 //m_gridBackImage[processGrid.x, processGrid.y].layer0.spriteName = "Jelly" + ((processGrid.y + (processGrid.x % 2)) % 3);
                 m_gridBackImage[processGrid.x, processGrid.y].layer0.spriteName = "Jelly";
 
+                m_gridBackImage[processGrid.x, processGrid.y].layer4.spriteName = "JellySpark";
                 
                 jellyChanged = true;
             }

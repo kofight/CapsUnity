@@ -858,6 +858,25 @@ public class GameLogic
             }
         }
 
+        //创建传送门
+        foreach (KeyValuePair<int, Portal> pair in PlayingStageData.PortalToMap)
+        {
+            if (pair.Value.flag == 1)
+            {
+                Object obj = Resources.Load("PortalStart");
+                m_gridBackImage[pair.Value.from.x, pair.Value.from.y].portal = GameObject.Instantiate(obj) as GameObject;
+                m_gridBackImage[pair.Value.from.x, pair.Value.from.y].portal.transform.parent = m_gridInstance.transform.parent;
+                m_gridBackImage[pair.Value.from.x, pair.Value.from.y].portal.transform.localPosition = new Vector3(GetXPos(pair.Value.from.x), -GetYPos(pair.Value.from.x, pair.Value.from.y), 0);
+                m_gridBackImage[pair.Value.from.x, pair.Value.from.y].portal.transform.localScale = new Vector3(1, 1, 1);
+
+                Object obj2 = Resources.Load("PortalEnd");
+                m_gridBackImage[pair.Value.to.x, pair.Value.to.y].portal = GameObject.Instantiate(obj2) as GameObject;
+                m_gridBackImage[pair.Value.to.x, pair.Value.to.y].portal.transform.parent = m_gridInstance.transform.parent;
+                m_gridBackImage[pair.Value.to.x, pair.Value.to.y].portal.transform.localPosition = new Vector3(GetXPos(pair.Value.to.x), -GetYPos(pair.Value.to.x, pair.Value.to.y), 0);
+                m_gridBackImage[pair.Value.to.x, pair.Value.to.y].portal.transform.localScale = new Vector3(1, 1, 1);
+            }
+        }
+
         for (int i = 0; i < 3; ++i)
         {
             m_saveHelpBlocks[i].MakeItUnAvailable();
@@ -1128,24 +1147,6 @@ public class GameLogic
             m_gridBackImage[x, y].layer1.height = 84;
             m_gridBackImage[x, y].layer1.depth = 3;
             m_gridBackImage[x, y].layer1.gameObject.SetActive(true);
-        }
-
-        if (PlayingStageData.CheckFlag(x, y, GridFlag.PortalStart & GridFlag.Portal))
-        {
-            Object obj = Resources.Load("PortalStart");
-            m_gridBackImage[x, y].portal = GameObject.Instantiate(obj) as GameObject;
-            m_gridBackImage[x, y].portal.transform.parent = m_gridInstance.transform.parent;
-            m_gridBackImage[x, y].portal.transform.localPosition = new Vector3(GetXPos(x), -GetYPos(x, y), 0);
-            m_gridBackImage[x, y].portal.transform.localScale = new Vector3(1, 1, 1);
-        }
-
-        if (PlayingStageData.CheckFlag(x, y, GridFlag.PortalEnd & GridFlag.Portal))
-        {
-            Object obj2 = Resources.Load("PortalEnd");
-            m_gridBackImage[x, y].portal = GameObject.Instantiate(obj2) as GameObject;
-            m_gridBackImage[x, y].portal.transform.parent = m_gridInstance.transform.parent;
-            m_gridBackImage[x, y].portal.transform.localPosition = new Vector3(GetXPos(x), -GetYPos(x, y), 0);
-            m_gridBackImage[x, y].portal.transform.localScale = new Vector3(1, 1, 1);
         }
 
         ProcessAngles(x, y);

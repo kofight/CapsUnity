@@ -569,9 +569,9 @@ public class GameLogic
 
         m_lastShowIceTipTime = m_iceTipStartTime;
 
-        for (int i = BlockXStart; i < BlockXEnd; ++i)
+        for (int i = BlockXStart; i <= BlockXEnd; ++i)
         {
-            for (int j = BlockYStart; j < BlockYEnd; ++j)
+            for (int j = BlockYStart; j <= BlockYEnd; ++j)
             {
                 if (PlayingStageData.CheckFlag(i, j, GridFlag.Jelly) || PlayingStageData.CheckFlag(i, j, GridFlag.JellyDouble))
                 {
@@ -1130,7 +1130,7 @@ public class GameLogic
             m_gridBackImage[x, y].layer1.gameObject.SetActive(true);
         }
 
-        if (PlayingStageData.CheckFlag(x, y, GridFlag.PortalStart))
+        if (PlayingStageData.CheckFlag(x, y, GridFlag.PortalStart & GridFlag.Portal))
         {
             Object obj = Resources.Load("PortalStart");
             m_gridBackImage[x, y].portal = GameObject.Instantiate(obj) as GameObject;
@@ -1139,7 +1139,7 @@ public class GameLogic
             m_gridBackImage[x, y].portal.transform.localScale = new Vector3(1, 1, 1);
         }
 
-        if (PlayingStageData.CheckFlag(x, y, GridFlag.PortalEnd))
+        if (PlayingStageData.CheckFlag(x, y, GridFlag.PortalEnd & GridFlag.Portal))
         {
             Object obj2 = Resources.Load("PortalEnd");
             m_gridBackImage[x, y].portal = GameObject.Instantiate(obj2) as GameObject;
@@ -1883,12 +1883,12 @@ public class GameLogic
         if (m_iceTipStartTime > 0)          //若正在进行冰块提示
         {
             int passTime = (int)((Timer.GetRealTimeSinceStartUp() - m_iceTipStartTime) * 1000);
-            if (passTime > CapsConfig.EffectIceTipInterval * BlockAreaWidth * BlockAreaHeight + 600)       //时间到了
+            if (passTime > CapsConfig.EffectIceTipInterval * BlockAreaWidth * BlockAreaHeight + 1200)       //时间到了
             {
                 m_iceTipStartTime = 0;      //结束状态
-                for (int i = BlockXStart; i < BlockXEnd; ++i)
+                for (int i = BlockXStart; i <= BlockXEnd; ++i)
                 {
-                    for (int j = BlockYStart; j < BlockYEnd; ++j)
+                    for (int j = BlockYStart; j <= BlockYEnd; ++j)
                     {
                         if (m_gridBackImage[i, j] != null && m_gridBackImage[i, j].layer4 != null)
                             m_gridBackImage[i, j].layer4.gameObject.SetActive(false);       //清理闪烁效果
@@ -1897,9 +1897,9 @@ public class GameLogic
                 return;
             }
 
-            for (int i = BlockXStart; i < BlockXEnd; ++i)
+            for (int i = BlockXStart; i <= BlockXEnd; ++i)
             {
-                for (int j = BlockYStart; j < BlockYEnd; ++j)
+                for (int j = BlockYStart; j <= BlockYEnd; ++j)
                 {
                     if (PlayingStageData.CheckFlag(i, j, GridFlag.Jelly) || PlayingStageData.CheckFlag(i, j, GridFlag.JellyDouble))
                     {
@@ -3247,6 +3247,8 @@ public class GameLogic
                 m_scoreToShow[processGrid.x, processGrid.y] += CapsConfig.EatJellyDouble;
                 //m_gridBackImage[processGrid.x, processGrid.y].layer0.spriteName = "Jelly" + ((processGrid.y + (processGrid.x % 2)) % 3);
                 m_gridBackImage[processGrid.x, processGrid.y].layer0.spriteName = "Jelly";
+
+                
                 jellyChanged = true;
             }
             else if ((flag & (int)GridFlag.Jelly) > 0)
@@ -3262,6 +3264,9 @@ public class GameLogic
                 {
                     m_gridBackImage[processGrid.x, processGrid.y].layer0.spriteName = "Grid" + ((processGrid.y + 1) % 3);
                 }
+
+                m_gridBackImage[processGrid.x, processGrid.y].layer4.gameObject.SetActive(false);
+
                 jellyChanged = true;
 				removeJelly = true;
             }
@@ -3281,6 +3286,7 @@ public class GameLogic
         {
             //if(removeJelly && m_gridBackImage[processGrid.x, processGrid.y].IcePartile != null)
             //    GameObject.Destroy(m_gridBackImage[processGrid.x, processGrid.y].IcePartile);
+            ShowIceTip();
             UIWindowManager.Singleton.GetUIWindow<UIGameHead>().RefreshTarget();
         }
 
@@ -4666,7 +4672,7 @@ public class GameLogic
             PlaySoundNextFrame(AudioEnum.Audio_Only5StepLeft);
         }
 
-        ShowIceTip();
+        //ShowIceTip();
     }
 
     void ChocolateGrow()        //生长一个巧克力
@@ -4719,6 +4725,7 @@ public class GameLogic
                             m_gridBackImage[newPos.x, newPos.y].layer1.width = 84;
                             m_gridBackImage[newPos.x, newPos.y].layer1.height = 84;
                             m_gridBackImage[newPos.x, newPos.y].layer1.transform.localPosition = new Vector3(GetXPos(newPos.x), -GetYPos(newPos.x, newPos.y), -110);
+                            m_gridBackImage[newPos.x, newPos.y].layer1.depth = 3;
                         }
                         m_gridBackImage[newPos.x, newPos.y].layer1.spriteName = "Chocolate";
 						m_gridBackImage[newPos.x, newPos.y].layer1.gameObject.SetActive(true);

@@ -1415,14 +1415,9 @@ public class GameLogic
         m_curStateStartTime = Timer.millisecondNow();
 
         m_gameFlow = TGameFlow.EGameState_Playing;                           //开始游戏
-        HideStartBanner();
+        m_stageTargetUI.HideWindow();
         DropDown();                                                          //开始先尝试进行一次下落
         CheckFTUE();                                                         //检查是否有FTUE
-    }
-
-    void ShowStartBanner()      //显示开始游戏的条
-    {
-        m_stageTargetUI.ShowWindow();
     }
 
     void HideStartBanner()
@@ -1493,7 +1488,7 @@ public class GameLogic
 
     void ReleaseAll()
     {
-        HideStartBanner();
+        m_stageTargetUI.HideWindow();
 
         //隐藏shadowSprite
         foreach (UISprite sprite in m_freeShadowSpriteList)
@@ -2528,7 +2523,13 @@ public class GameLogic
                         {
                             m_curStateStartTime = Timer.millisecondNow();
                             m_stageTargetUI.Mode = UIStageTarget.TargetMode.AutoResort;
-                            m_stageTargetUI.ShowWindow();
+                            m_stageTargetUI.ShowWindow(delegate() 
+                            { 
+                                Timer.AddDelayFunc(1.0f, delegate() 
+                                { 
+                                    m_stageTargetUI.HideWindow();
+                                }); 
+                            });
                             m_gameFlow = TGameFlow.EGameState_ResortAnim;
                         }
                     }
@@ -4612,7 +4613,13 @@ public class GameLogic
         });
 
         m_stageTargetUI.Mode = UIStageTarget.TargetMode.GameFailed;
-        m_stageTargetUI.ShowWindow();
+        m_stageTargetUI.ShowWindow(delegate()
+        {
+            Timer.AddDelayFunc(1.0f, delegate()
+            {
+                m_stageTargetUI.HideWindow();
+            });
+        });
     }
 
     void OnDropEnd()            //所有下落和移动结束时被调用

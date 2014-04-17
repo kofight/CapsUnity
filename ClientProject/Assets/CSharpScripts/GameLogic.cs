@@ -88,6 +88,7 @@ public class GridSprites
     public UISprite layer2;            //出生点
     public UISprite layer3;            //结束点
     public UISprite layer4;            //冰块闪烁效果
+    public GameObject portal;          //传送门
     //public GameObject IcePartile;      //冰的粒子
     public bool hasProcessAngle = false;        //是否已经处理了角(用来处理角的中间变量)
     public bool hasProcessStoneAround = false;  //是否已经处理了周围的石块，有石头的关每次三消后需要清理一次，确保一次三消之内不重复消除石头
@@ -560,7 +561,7 @@ public class GameLogic
     void ShowIceTip()       //冰块闪烁
     {
         //正在闪烁
-        if (Timer.GetRealTimeSinceStartUp() - m_iceTipStartTime < (CapsConfig.EffectResortInterval * BlockAreaWidth * BlockAreaHeight) / 1000.0f)
+        if (Timer.GetRealTimeSinceStartUp() - m_iceTipStartTime < (CapsConfig.EffectIceTipInterval * BlockAreaWidth * BlockAreaHeight) / 1000.0f)
         {
             return;         
         }
@@ -1120,13 +1121,31 @@ public class GameLogic
         if (m_gridBackImage[x, y].layer1 != null)
         {
             m_gridBackImage[x, y].layer1.transform.parent = m_gridInstance.transform.parent;
-            m_gridBackImage[x, y].layer1.transform.localPosition = new Vector3(GetXPos(x), -GetYPos(x, y), -110);
+            m_gridBackImage[x, y].layer1.transform.localPosition = new Vector3(GetXPos(x), -GetYPos(x, y), 0);
 
             m_gridBackImage[x, y].layer1.transform.localScale = new Vector3(1, 1, 1);
             m_gridBackImage[x, y].layer1.width = 84;
             m_gridBackImage[x, y].layer1.height = 84;
             m_gridBackImage[x, y].layer1.depth = 3;
             m_gridBackImage[x, y].layer1.gameObject.SetActive(true);
+        }
+
+        if (PlayingStageData.CheckFlag(x, y, GridFlag.PortalStart))
+        {
+            Object obj = Resources.Load("PortalStart");
+            m_gridBackImage[x, y].portal = GameObject.Instantiate(obj) as GameObject;
+            m_gridBackImage[x, y].portal.transform.parent = m_gridInstance.transform.parent;
+            m_gridBackImage[x, y].portal.transform.localPosition = new Vector3(GetXPos(x), -GetYPos(x, y), 0);
+            m_gridBackImage[x, y].portal.transform.localScale = new Vector3(1, 1, 1);
+        }
+
+        if (PlayingStageData.CheckFlag(x, y, GridFlag.PortalEnd))
+        {
+            Object obj2 = Resources.Load("PortalEnd");
+            m_gridBackImage[x, y].portal = GameObject.Instantiate(obj2) as GameObject;
+            m_gridBackImage[x, y].portal.transform.parent = m_gridInstance.transform.parent;
+            m_gridBackImage[x, y].portal.transform.localPosition = new Vector3(GetXPos(x), -GetYPos(x, y), 0);
+            m_gridBackImage[x, y].portal.transform.localScale = new Vector3(1, 1, 1);
         }
 
         ProcessAngles(x, y);
@@ -1541,6 +1560,17 @@ public class GameLogic
                     {
                         GameObject.Destroy(m_gridBackImage[i, j].layer3.gameObject);
                     }
+
+                    if (m_gridBackImage[i, j].layer4 != null)
+                    {
+                        GameObject.Destroy(m_gridBackImage[i, j].layer4.gameObject);
+                    }
+
+                    if (m_gridBackImage[i, j].portal != null)
+                    {
+                        GameObject.Destroy(m_gridBackImage[i, j].portal);
+                    }
+
                     m_gridBackImage[i, j] = null;
                 }
             }
@@ -1825,19 +1855,15 @@ public class GameLogic
         }
 		
         //绘制传送门
-        foreach (KeyValuePair<int, Portal> pair in PlayingStageData.PortalToMap)
+        if (GlobalVars.EditStageMode)
         {
-            if (pair.Value.flag == 1)               //可见传送门
-            {
-                UIDrawer.Singleton.DrawSprite("PortalStart" + pair.Key, GetXPos(pair.Value.from.x), GetYPos(pair.Value.from.x, pair.Value.from.y) + (int)BLOCKHEIGHT / 2, "PortalStart", 3);
-                UIDrawer.Singleton.DrawSprite("PortalEnd" + pair.Key, GetXPos(pair.Value.to.x), GetYPos(pair.Value.to.x, pair.Value.to.y) - (int)BLOCKHEIGHT / 2 + 15, "PortalEnd", 3);
-            }
-            else if (GlobalVars.EditStageMode)      //编辑器模式，画不可见传送门
+            foreach (KeyValuePair<int, Portal> pair in PlayingStageData.PortalToMap)
             {
                 UIDrawer.Singleton.DrawSprite("InviPortalStart" + pair.Key, GetXPos(pair.Value.from.x), GetYPos(pair.Value.from.x, pair.Value.from.y), "InviPortalStart", 3);
                 UIDrawer.Singleton.DrawSprite("InviPortalEnd" + pair.Key, GetXPos(pair.Value.to.x), GetYPos(pair.Value.to.x, pair.Value.to.y), "InviPortalEnd", 3);
             }
         }
+        
 
         UIDrawer.Singleton.CurDepth = 5;
         if (m_gettingExtraScore)
@@ -1857,7 +1883,7 @@ public class GameLogic
         if (m_iceTipStartTime > 0)          //若正在进行冰块提示
         {
             int passTime = (int)((Timer.GetRealTimeSinceStartUp() - m_iceTipStartTime) * 1000);
-            if ( passTime > CapsConfig.EffectResortInterval * BlockAreaWidth * BlockAreaHeight)       //时间到了
+            if (passTime > CapsConfig.EffectIceTipInterval * BlockAreaWidth * BlockAreaHeight + 600)       //时间到了
             {
                 m_iceTipStartTime = 0;      //结束状态
                 for (int i = BlockXStart; i < BlockXEnd; ++i)
@@ -1877,7 +1903,7 @@ public class GameLogic
                 {
                     if (PlayingStageData.CheckFlag(i, j, GridFlag.Jelly) || PlayingStageData.CheckFlag(i, j, GridFlag.JellyDouble))
                     {
-                        int gridTipTime = (j * BlockAreaWidth + i) * CapsConfig.EffectResortInterval;
+                        int gridTipTime = (j * BlockAreaWidth + i) * CapsConfig.EffectIceTipInterval;
                         if (passTime > gridTipTime)             //
                         {
                             if (passTime < gridTipTime + 300)

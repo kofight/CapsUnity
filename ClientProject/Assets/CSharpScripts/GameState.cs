@@ -28,12 +28,6 @@ public class GameState : State
         GameLogic.Singleton.Init();
         m_bGameLogicStarted = false;
 		UIWindowManager.Singleton.GetUIWindow("UIGameBackground").ShowWindow();
-
-        if (GlobalVars.UseMusic)
-        {
-            UIToolkits.PlayMusic(CapsConfig.CurAudioList.GameMusic);
-        }
-
         m_waitLoadingStart = Time.realtimeSinceStartup;
     }
 

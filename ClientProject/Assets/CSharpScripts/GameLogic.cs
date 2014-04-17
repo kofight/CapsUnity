@@ -1013,6 +1013,33 @@ public class GameLogic
     {
         InitRes();
         InitLogic(seed);
+        //播放音乐
+        if (GlobalVars.UseMusic)
+        {
+            if (PlayingStageData.Target == GameTarget.GetScore)
+            {
+                if (PlayingStageData.StepLimit > 0)
+                {
+                    UIToolkits.PlayMusic(CapsConfig.CurAudioList.GameMusicScore);
+                }
+                else
+                {
+                    UIToolkits.PlayMusic(CapsConfig.CurAudioList.GameMusicTime);
+                }
+            }
+            else if (PlayingStageData.Target == GameTarget.BringFruitDown)
+            {
+                UIToolkits.PlayMusic(CapsConfig.CurAudioList.GameMusicNuts);
+            }
+            else if (PlayingStageData.Target == GameTarget.ClearJelly)
+            {
+                UIToolkits.PlayMusic(CapsConfig.CurAudioList.GameMusicJelly);
+            }
+            else if (PlayingStageData.Target == GameTarget.Collect)
+            {
+                UIToolkits.PlayMusic(CapsConfig.CurAudioList.GameMusicCollect);
+            }
+        }
     }
 
     void ProcessGridSprites(int x, int y)
@@ -1787,9 +1814,18 @@ public class GameLogic
                                     m_blocks[i, j].m_shadowSprite.transform.localPosition = new Vector3(GetXPos(from.x), -(m_blocks[i, j].y_move + GetYPos(from.x, from.y + 1)), 0);
 
                                     float shadowScale = 1.0f;
-                                    if (m_blocks[i, j].m_shadowSprite.fillAmount <= 0.75f)                              //影子的缩放范围是从0.75到0(开始的0.25不缩放)
+                                    //if (m_blocks[i, j].m_shadowSprite.fillAmount <= 0.75f)                              //影子的缩放范围是从0.75到0(开始的0.25不缩放)
+                                    //{
+                                    //    shadowScale = m_blocks[i, j].m_shadowSprite.fillAmount * 2.0f / 3.0f + 0.5f;    //根据填充值计算一个缩放值(缩放比例控制在1-0.5)
+                                    //}
+
+                                    if (m_blocks[i, j].m_shadowSprite.fillAmount >= 0.5f)
                                     {
-                                        shadowScale = m_blocks[i, j].m_shadowSprite.fillAmount * 2.0f / 3.0f + 0.5f;    //根据填充值计算一个缩放值(缩放比例控制在1-0.5)
+                                        shadowScale = m_blocks[i, j].m_shadowSprite.fillAmount * 0.45f + 0.55f;
+                                    }
+                                    else
+                                    {
+                                        shadowScale = 1.0f - m_blocks[i, j].m_shadowSprite.fillAmount * 0.45f;
                                     }
                                     
                                     m_blocks[i, j].m_shadowSprite.transform.localScale = new Vector3(shadowScale, 1, 1);
@@ -1799,7 +1835,8 @@ public class GameLogic
 
                                 if (m_blocks[i, j].m_blockSprite.fillAmount > 0.25f)                    //开始的0.25维持0.7
                                 {
-                                    scale = (m_blocks[i, j].m_blockSprite.fillAmount - 0.25f) * 0.3f / 0.75f + 0.7f;    //根据填充值计算一个缩放值，缩放比例控制在0.7-1
+                                    //scale = (m_blocks[i, j].m_blockSprite.fillAmount - 0.25f) * 0.3f / 0.75f + 0.7f;    //根据填充值计算一个缩放值，缩放比例控制在0.7-1
+                                    scale = (m_blocks[i, j].m_blockSprite.fillAmount - 0.25f) * 0.45f / 0.75f + 0.55f;    //根据填充值计算一个缩放值，缩放比例控制在0.55-1
                                 }
                                 else
                                 {
@@ -3603,6 +3640,7 @@ public class GameLogic
                 m_blocks[x, toPos.y].m_shadowSprite = m_freeShadowSpriteList.Last.Value;                                //指定一个影子图片
                 m_blocks[x, toPos.y].m_shadowSprite.gameObject.SetActive(true);
                 m_blocks[x, toPos.y].m_shadowSprite.spriteName = m_blocks[x, toPos.y].m_blockSprite.spriteName;
+                m_blocks[x, toPos.y].m_animation.Stop();                    //传送时停止播动画
                 m_freeShadowSpriteList.RemoveLast();
             }
             else

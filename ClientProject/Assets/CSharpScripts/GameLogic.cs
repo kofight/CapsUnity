@@ -561,7 +561,7 @@ public class GameLogic
     void ShowIceTip()       //冰块闪烁
     {
         //正在闪烁
-        if (Timer.GetRealTimeSinceStartUp() - m_iceTipStartTime < (CapsConfig.EffectIceTipInterval * BlockAreaWidth * BlockAreaHeight) / 1000.0f)
+        if (Timer.GetRealTimeSinceStartUp() - m_iceTipStartTime < (CapsConfig.EffectIceTipInterval * BlockAreaWidth * BlockAreaHeight + 1200) / 1000.0f)
         {
             return;         
         }

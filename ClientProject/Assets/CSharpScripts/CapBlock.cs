@@ -197,6 +197,25 @@ public class CapBlock
         }
     }
 
+    public void StartAddColorPingPhong()
+    {
+        if (Application.platform == RuntimePlatform.WP8Player)
+        {
+            m_addColorTweenAlpha.enabled = true;
+            m_addColorTweenAlpha.style = UITweener.Style.PingPong;
+            m_addColorTweenAlpha.Play(true);
+        }
+    }
+
+    public void EndAddColorPingPong()
+    {
+        if (Application.platform == RuntimePlatform.WP8Player)
+        {
+            m_addColorTweenAlpha.enabled = false;
+            m_addColorTweenAlpha.ResetToBeginning();
+        }
+    }
+
     public void Eat(float delay = 0)							//吃掉这个块
 	{
         if (CurState == BlockState.Eating)

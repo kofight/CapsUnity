@@ -463,6 +463,7 @@ public class GameLogic
     bool m_bFailedFTUE = false;             //是否在失败FTUE中
 
     float m_iceTipStartTime;                //冰块提示开始时间
+    int m_curIceTipInterval;              //当前冰块闪烁的间隔
     float m_lastShowIceTipTime;             //上次冰块提示的时间
 
     public void StopFTUE()
@@ -558,16 +559,18 @@ public class GameLogic
 		NGUITools.PlaySound(clip);
     }
 
-    void ShowIceTip()       //冰块闪烁
+    void ShowIceTip(int interval)       //冰块闪烁
     {
         //正在闪烁
-        if (Timer.GetRealTimeSinceStartUp() - m_iceTipStartTime < (CapsConfig.EffectIceTipInterval * BlockAreaWidth * BlockAreaHeight + 1200) / 1000.0f)
+        if (Timer.GetRealTimeSinceStartUp() - m_iceTipStartTime < (m_curIceTipInterval * BlockAreaWidth * BlockAreaHeight + 1200) / 1000.0f)
         {
             return;         
         }
         m_iceTipStartTime = Timer.GetRealTimeSinceStartUp();            //设置冰块提示开始时间
 
         m_lastShowIceTipTime = m_iceTipStartTime;
+
+        m_curIceTipInterval = interval;
 
         for (int i = BlockXStart; i <= BlockXEnd; ++i)
         {
@@ -1013,6 +1016,11 @@ public class GameLogic
     {
         InitRes();
         InitLogic(seed);
+        PlayMusic();
+    }
+
+    public void PlayMusic()
+    {
         //播放音乐
         if (GlobalVars.UseMusic)
         {
@@ -1439,6 +1447,7 @@ public class GameLogic
         m_gameStartTime = time;
 		m_gameStartTimeReal = CapsApplication.Singleton.GetPlayTime ();
         m_lastHelpTime = Timer.GetRealTimeSinceStartUp();
+        m_lastShowIceTipTime = Timer.GetRealTimeSinceStartUp();
         m_curStateStartTime = Timer.millisecondNow();
 
         m_gameFlow = TGameFlow.EGameState_Playing;                           //开始游戏
@@ -1916,7 +1925,7 @@ public class GameLogic
         if (m_iceTipStartTime > 0)          //若正在进行冰块提示
         {
             int passTime = (int)((Timer.GetRealTimeSinceStartUp() - m_iceTipStartTime) * 1000);
-            if (passTime > CapsConfig.EffectIceTipInterval * BlockAreaWidth * BlockAreaHeight + 1200)       //时间到了
+            if (passTime > m_curIceTipInterval * BlockAreaWidth * BlockAreaHeight + 1200)       //时间到了
             {
                 m_iceTipStartTime = 0;      //结束状态
                 for (int i = BlockXStart; i <= BlockXEnd; ++i)
@@ -1936,7 +1945,7 @@ public class GameLogic
                 {
                     if (PlayingStageData.CheckFlag(i, j, GridFlag.Jelly) || PlayingStageData.CheckFlag(i, j, GridFlag.JellyDouble))
                     {
-                        int gridTipTime = (j * BlockAreaWidth + i) * CapsConfig.EffectIceTipInterval;
+                        int gridTipTime = (j * BlockAreaWidth + i) * m_curIceTipInterval;
                         if (passTime > gridTipTime)             //
                         {
                             if (passTime < gridTipTime + 300)
@@ -2631,9 +2640,9 @@ public class GameLogic
             PlaySoundNextFrame(AudioEnum.Audio_Only15SecLeft);
         }
 
-        if (m_lastShowIceTipTime > 0 && Timer.GetRealTimeSinceStartUp() - m_lastShowIceTipTime > 60)        //1分钟1次
+        if (m_lastShowIceTipTime > 0 && Timer.GetRealTimeSinceStartUp() - m_lastShowIceTipTime > 7)        //5秒钟1次
         {
-            ShowIceTip();
+            ShowIceTip(CapsConfig.EffectResortInterval);            //闪得较慢
         }
     }
 
@@ -3326,7 +3335,7 @@ public class GameLogic
         {
             //if(removeJelly && m_gridBackImage[processGrid.x, processGrid.y].IcePartile != null)
             //    GameObject.Destroy(m_gridBackImage[processGrid.x, processGrid.y].IcePartile);
-            ShowIceTip();
+            ShowIceTip(CapsConfig.EffectIceTipInterval);
             UIWindowManager.Singleton.GetUIWindow<UIGameHead>().RefreshTarget();
         }
 
@@ -4672,6 +4681,7 @@ public class GameLogic
         ProcessCheckStageFinish();
 
         m_lastHelpTime = Timer.GetRealTimeSinceStartUp();
+        m_lastShowIceTipTime = Timer.GetRealTimeSinceStartUp();
 
         CheckFTUE();            //检测一次FTUE
 
@@ -5318,6 +5328,7 @@ public class GameLogic
     {
         m_chocolateNeedGrow = true;
         ClearHelpPoint();
+        m_lastShowIceTipTime = Timer.GetRealTimeSinceStartUp();
         MoveBlockPair(m_selectedPos[0], m_selectedPos[1]);
     }
 

@@ -313,6 +313,11 @@ public class UIToolkits
             mCurMusic = GameObject.Find("MusicSource").GetComponent<AudioSource>();
         }
 
+        if (mCurMusic.clip == clip && mCurMusic.isPlaying)
+        {
+            return;
+        }
+
         if (clip != null)
         {
             mCurMusic.clip = clip;

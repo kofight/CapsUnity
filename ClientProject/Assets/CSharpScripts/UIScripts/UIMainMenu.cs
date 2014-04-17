@@ -54,7 +54,14 @@ public class UIMainMenu : UIWindow
             {
                 if (!UIToolkits.IsPlayingMusic())
                 {
-                    UIToolkits.PlayMusic(CapsConfig.CurAudioList.MapMusic);
+                    if (CapsApplication.Singleton.CurStateEnum != StateEnum.Game)
+                    {
+                        UIToolkits.PlayMusic(CapsConfig.CurAudioList.MapMusic);
+                    }
+                    else
+                    {
+                        GameLogic.Singleton.PlayMusic();
+                    }
                 }
             }
             RefreshIcons();

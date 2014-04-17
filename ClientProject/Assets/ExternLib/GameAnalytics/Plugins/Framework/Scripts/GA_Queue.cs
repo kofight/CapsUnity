@@ -8,10 +8,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
-#if UNITY_METRO && !UNITY_EDITOR
-using GA_Compatibility.Collections;
-#endif
-
 public static class GA_Queue
 {
 	public delegate void EventSuccess();

@@ -93,7 +93,7 @@ public class GA_GUIHelper
         clippingEnabled = false;
     }
 
-    public static void DrawLine(Vector2 pointA, Vector2 pointB, Color color,int width = 1)
+    public static void DrawLine(Vector2 pointA, Vector2 pointB, Color color)
     {
 		if (Event.current == null)
             return;

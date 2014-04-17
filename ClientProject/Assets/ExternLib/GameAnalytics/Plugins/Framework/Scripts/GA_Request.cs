@@ -12,10 +12,6 @@ using System.Text;
 using System;
 //using LitJson;
 
-#if UNITY_METRO && !UNITY_EDITOR
-using GA_Compatibility.Collections;
-#endif
-
 public class GA_Request
 {
 	/// <summary>
@@ -47,7 +43,18 @@ public class GA_Request
 	#region public methods
 	
 	public WWW RequestGameInfo(SubmitSuccessHandler successEvent, SubmitErrorHandler errorEvent)
-	{ 
+	{
+		if (string.IsNullOrEmpty(GA.SettingsGA.GameKey))
+		{
+			GA.LogWarning("Game key not set - please setup your Game key in GA_Settings, under the Basic tab");
+			return null;
+		}
+		if (string.IsNullOrEmpty(GA.SettingsGA.ApiKey))
+		{
+			GA.LogWarning("API key not set - please setup your API key in GA_Settings, under the Advanced tab");
+			return null;
+		}
+		
 		string game_key = GA.SettingsGA.GameKey;
 		
 		string requestInfo = "game_key=" + game_key + "&keys=area%7Cevent_id%7Cbuild";
@@ -168,7 +175,7 @@ public class GA_Request
 		
 		try
 		{
-			if (www.error != null)
+			if (!string.IsNullOrEmpty(www.error))
 			{
 				throw new Exception(www.error);
 			}

@@ -8,10 +8,6 @@ using System.Collections.Generic;
 using UnityEditor;
 #endif
 
-#if UNITY_METRO && !UNITY_EDITOR
-using GA_Compatibility.Collections;
-#endif
-
 [RequireComponent(typeof(GA_HeatMapRenderer))]
 [ExecuteInEditMode]
 public class GA_HeatMapDataFilter : GA_HeatMapDataFilterBase

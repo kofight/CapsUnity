@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEditor;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 public class GA_WebInterface : MonoBehaviour
 {
@@ -41,18 +42,18 @@ public class GA_WebInterface : MonoBehaviour
 				selected.transform.parent = go.transform;
 			}
 			EditorUtility.DisplayProgressBar ("Exporting static mesh. Please wait...", "Creating temp prefab. Might take a while.", 0.1f);
-
+			
 			GameObject prefab = PrefabUtility.CreatePrefab ("Assets/GA_tmp.prefab", go);
 			
 			
 			//Destroy all the things we don't need
 			Debug.Log ("Stripping gameobjects from unecessary components");
 			EditorUtility.DisplayProgressBar ("Exporting static mesh. Please wait...", "Stripping gameobjects from unecessary components.", 0.2f);
-
+			
 			StripGameObjects (prefab);
 			Debug.Log ("Building asset bundle");
 			EditorUtility.DisplayProgressBar ("Exporting static mesh. Please wait...", "Building and uploading AssetBundle.", 0.5f);
-
+			
 			// Build the resource file from the active selection.
 			BuildPipeline.BuildAssetBundle (prefab, null, path);
 			
@@ -60,7 +61,7 @@ public class GA_WebInterface : MonoBehaviour
 			UploadAssetBunble (path, splitPath[splitPath.Length - 1]);
 			
 			EditorUtility.DisplayProgressBar ("Exporting static mesh. Please wait...", "Cleaning up.", 0.9f);
-
+			
 			//IMPORTANT: If this code fails we will delete peoples scene. That would be sort of bad!
 			int i = 0;
 			foreach (GameObject selected in Selection.gameObjects) {
@@ -89,15 +90,15 @@ public class GA_WebInterface : MonoBehaviour
 		
 		if (!fileName.EndsWith(".unity3d"))
 			fileName = fileName + ".unity3d";
-
+		
 		WWWForm form = new WWWForm ();
 		
 		form.AddField ("gamekey", GA.SettingsGA.GameKey);
 		form.AddField ("authorization", GA.API.Submit.CreateMD5Hash(GA.SettingsGA.GameKey + fileName + GA.SettingsGA.SecretKey));
 		form.AddBinaryData ("mesh", meshData, fileName, "application/vnd.unity");
-
+		
 		WWW w = new WWW ("https://go.gameanalytics.com/api/heatmap/mesh/upload", form);
-
+		
 		while (!w.isDone)
 		{
 			EditorUtility.DisplayProgressBar ("Uploading static mesh. Please wait...", "Might take a while", w.progress);
@@ -141,9 +142,27 @@ public class GA_WebInterface : MonoBehaviour
 			File.Delete(path);
 		}
 	}
-
+	
 	public static void StripGameObjects (GameObject prefab)
 	{
+		#if !UNITY_3_0 && !UNITY_3_0_0 && !UNITY_3_1 && !UNITY_3_2 && !UNITY_3_3 && !UNITY_3_4 && !UNITY_3_5 && !UNITY_4_0 && !UNITY_4_0_1 && !UNITY_4_1 && !UNITY_4_2
+		
+		List<SpriteRenderer> spriteRenderers = new List<SpriteRenderer>();
+		BuildSpriteLayersList(prefab, spriteRenderers);
+		
+		if (spriteRenderers.Count > 0)
+		{
+			spriteRenderers = spriteRenderers.OrderBy(x => x.sortingLayerID).ThenBy(x => x.sortingOrder).ToList();
+			
+			for (int i = 0; i < spriteRenderers.Count; i++)
+			{
+				spriteRenderers[i].sortingLayerName = "Default";
+				spriteRenderers[i].sortingOrder = i;
+			}
+		}
+		
+		#endif
+		
 		foreach (MonoBehaviour bh in prefab.GetComponentsInChildren<MonoBehaviour>()) {
 			DestroyImmediate (bh);
 		}
@@ -163,6 +182,24 @@ public class GA_WebInterface : MonoBehaviour
 			DestroyImmediate (c);
 		}
 	}
+	
+	#if !UNITY_3_0 && !UNITY_3_0_0 && !UNITY_3_1 && !UNITY_3_2 && !UNITY_3_3 && !UNITY_3_4 && !UNITY_3_5 && !UNITY_4_0 && !UNITY_4_0_1 && !UNITY_4_1 && !UNITY_4_2
+	
+	private static void BuildSpriteLayersList (GameObject go, List<SpriteRenderer> spriteRenderers)
+	{
+		SpriteRenderer sr = go.GetComponent<SpriteRenderer>();
+		if (sr != null)
+		{
+			spriteRenderers.Add(sr);
+		}
+		
+		for (int i = 0; i < go.transform.childCount; i++)
+		{
+			BuildSpriteLayersList(go.transform.GetChild(i).gameObject, spriteRenderers);
+		}
+	}
+	
+	#endif
 	
 	[MenuItem ("Window/GameAnalytics/Delete AssetBundle Menu", false, 501)]
 	static void OpenDeleteAssetMenu ()

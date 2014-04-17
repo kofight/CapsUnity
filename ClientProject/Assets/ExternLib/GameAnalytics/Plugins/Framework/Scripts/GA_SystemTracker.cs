@@ -6,16 +6,12 @@ using System.Collections.Generic;
 using UnityEditor;
 #endif
 
-#if UNITY_METRO && !UNITY_EDITOR
-using GA_Compatibility.Collections;
-#endif
-
 [RequireComponent(typeof(GA_SpecialEvents))]
 [RequireComponent(typeof(GA_Gui))]
 
 [ExecuteInEditMode]
-public class GA_SystemTracker : MonoBehaviour {
-
+public class GA_SystemTracker : MonoBehaviour
+{
 	#region public values
 	
 	public static GA_SystemTracker GA_SYSTEMTRACKER;
@@ -45,6 +41,9 @@ public class GA_SystemTracker : MonoBehaviour {
 	void OnEnable ()
 	{
 		EditorApplication.hierarchyWindowItemOnGUI += GA.HierarchyWindowCallback;
+		
+		if (Application.isPlaying)
+			GA_SYSTEMTRACKER = this;
 	}
 	
 	void OnDisable ()

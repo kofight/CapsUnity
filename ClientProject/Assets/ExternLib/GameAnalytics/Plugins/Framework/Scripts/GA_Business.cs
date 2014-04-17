@@ -6,10 +6,6 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-#if UNITY_METRO && !UNITY_EDITOR
-using GA_Compatibility.Collections;
-#endif
-
 public class GA_Business 
 {
 	#region public methods
@@ -71,6 +67,24 @@ public class GA_Business
 		}
 		
 		GA_Queue.AddItem(parameters, GA_Submit.CategoryType.GA_Purchase, false);
+
+		GA_AdSupport.ShowAdStatic(GA_AdSupport.GAEventType.Custom, GA_AdSupport.GAEventCat.Business, eventName);
+		
+		#if UNITY_EDITOR
+		
+		if (GA.SettingsGA.DebugAddEvent)
+		{
+			string options = "";
+			
+			if (x.HasValue && y.HasValue && z.HasValue)
+			{
+				options = ", x: " + x + ", y: " + y + ", z: " + z;
+			}
+			
+			GA.Log("GA Business Event added: " + eventName + ", currency: " + currency + ", amount: " + amount + options, true);
+		}
+		
+		#endif
 	}
 	
 	#endregion

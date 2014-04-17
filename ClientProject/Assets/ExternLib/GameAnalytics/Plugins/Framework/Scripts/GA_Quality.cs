@@ -7,10 +7,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
-#if UNITY_METRO && !UNITY_EDITOR
-using GA_Compatibility.Collections;
-#endif
-
 public class GA_Quality 
 {
 	#region public methods
@@ -95,6 +91,24 @@ public class GA_Quality
 		}
 		
 		GA_Queue.AddItem(parameters, GA_Submit.CategoryType.GA_Log, stack);
+
+		//GA_AdSupport.ShowAdStatic(GA_AdSupport.GAEventType.Custom, GA_AdSupport.GAEventCat.Quality, eventName);
+		
+		#if UNITY_EDITOR
+		
+		if (GA.SettingsGA.DebugAddEvent)
+		{
+			string options = "";
+			
+			if (x.HasValue && y.HasValue && z.HasValue)
+			{
+				options = ", x: " + x + ", y: " + y + ", z: " + z;
+			}
+			
+			GA.Log("GA Quality Event added: " + eventName + ", message: " + message + options, true);
+		}
+		
+		#endif
 	}
 	
 	#endregion

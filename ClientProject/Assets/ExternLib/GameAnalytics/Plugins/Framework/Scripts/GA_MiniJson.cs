@@ -3,10 +3,6 @@ using System;
 using System.Collections;
 using System.Text;
 
-#if UNITY_METRO && !UNITY_EDITOR
-using GA_Compatibility.Collections;
-#endif
-
 /* Based on the JSON parser from 
  * http://techblog.procurios.nl/k/618/news/view/14605/14863/How-do-I-write-my-own-parser-for-JSON.html
  * 

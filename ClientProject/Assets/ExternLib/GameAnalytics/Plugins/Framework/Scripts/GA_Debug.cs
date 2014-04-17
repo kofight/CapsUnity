@@ -7,10 +7,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
-#if UNITY_METRO && !UNITY_EDITOR
-using GA_Compatibility.Collections;
-#endif
-
 public class GA_Debug
 {
 	public bool SubmitErrors;
@@ -50,15 +46,16 @@ public class GA_Debug
 		//We only submit exceptions and errors
         if (SubmitErrors && _errorCount < MaxErrorCount && type != LogType.Log)
 		{
-			// Might be worth looking into: http://www.doogal.co.uk/exception.php
-			
 			_errorCount++;
+			
+			string lString = logString.Replace('"', '\'').Replace('\n', ' ').Replace('\r', ' ');
+			string sTrace = stackTrace.Replace('"', '\'').Replace('\n', ' ').Replace('\r', ' ');
 			
 			string eventID = "Exception";
 			
 			if (SubmitErrorStackTrace)
 			{
-				SubmitError(eventID, logString.Replace('"', '\'').Replace('\n', ' ').Replace('\r', ' ') + " " + stackTrace.Replace('"', '\'').Replace('\n', ' ').Replace('\r', ' '), type);
+				SubmitError(eventID, lString + " " + sTrace, type);
 			}
 			else
 			{
@@ -67,7 +64,7 @@ public class GA_Debug
 			
 			if (SubmitErrorSystemInfo)
 			{
-				List<Hashtable> systemspecs = GA.API.GenericInfo.GetGenericInfo(logString);
+				List<Hashtable> systemspecs = GA.API.GenericInfo.GetGenericInfo(lString);
 			
 				foreach (Hashtable spec in systemspecs)
 				{

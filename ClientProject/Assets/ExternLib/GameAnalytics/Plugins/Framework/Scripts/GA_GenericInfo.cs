@@ -15,10 +15,6 @@ using System.Security.Cryptography;
 using System.Text;
 #endif
 
-#if UNITY_METRO && !UNITY_EDITOR
-using GA_Compatibility.Collections;
-#endif
-
 public  class GA_GenericInfo
 {
 	#region public values
@@ -140,9 +136,16 @@ public  class GA_GenericInfo
 		string uid = GA.SettingsGA.GetUniqueIDiOS();
 		
 		if (uid == null)
+		{
 			return "";
+		}
 		else if (uid != "OLD")
-			return uid;
+		{
+			if (uid.StartsWith("VENDOR-"))
+				return uid.Remove(0, 7);
+			else
+				return uid;
+		}
 		
 		#endif
 		

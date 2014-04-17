@@ -63,6 +63,17 @@ public class GA_HeatMapRendererInspector : Editor
 		
 		EditorGUILayout.Space();
 		
+		#if !UNITY_3_0 && !UNITY_3_0_0 && !UNITY_3_1 && !UNITY_3_2 && !UNITY_3_3 && !UNITY_3_4 && !UNITY_3_5 && !UNITY_4_0 && !UNITY_4_0_1 && !UNITY_4_1 && !UNITY_4_2
+		
+		if (GameObject.FindObjectOfType(typeof(SpriteRenderer)))
+		{
+			EditorGUILayout.HelpBox("In order to render the heatmap in front of any 2D sprites you must go to: Edit > Project Settings > Tags and Layers, and move the Default Layer to the bottom of the Sorting Layers list.", MessageType.Warning);
+			
+			EditorGUILayout.Space();
+		}
+		
+		#endif
+		
 		if(render.transform.position != Vector3.zero)
 		{
 			// not placed in zero and heatmap data is off. It might be useful to move the heatmap to create layers, but we should warn the user.

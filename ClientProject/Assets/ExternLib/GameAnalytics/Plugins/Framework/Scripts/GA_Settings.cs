@@ -1,14 +1,9 @@
-//#define IOS_ID
-//#define ANDROID_ID
+#define IOS_ID
 
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-
-#if UNITY_METRO && !UNITY_EDITOR
-using GA_Compatibility.Collections;
-#endif
 
 /// <summary>
 /// The GA_Settings object contains an array of options which allows you to customize your use of GameAnalytics. Most importantly you will need to fill in your Game Key and Secret Key on the GA_Settings object to use the service.
@@ -19,10 +14,6 @@ public class GA_Settings : ScriptableObject
 	#if UNITY_IPHONE && !UNITY_EDITOR && IOS_ID
 	[DllImport ("__Internal")]
 	private static extern string GetUserID ();
-	#endif
-	
-	#if UNITY_ANDROID && !UNITY_EDITOR && ANDROID_ID
-	private const string ANDROID_CLASS_NAME = "com.yourcompany.yourgame";
 	#endif
 	
 	/// <summary>
@@ -47,7 +38,7 @@ public class GA_Settings : ScriptableObject
 	/// The version of the GA Unity Wrapper plugin
 	/// </summary>
 	[HideInInspector]
-	public static string VERSION = "0.5.4";
+	public static string VERSION = "0.6.1";
 	
 	#endregion
 	
@@ -81,8 +72,10 @@ public class GA_Settings : ScriptableObject
 	[SerializeField]
 	public string Build = "0.1";
 	public bool DebugMode = true;
+	public bool DebugAddEvent = false;
 	public bool SendExampleGameDataToMyGame = false;
 	public bool RunInEditorPlayMode = true;
+	public bool UseBundleVersion = false;
 	
 	public bool AllowRoaming = true;
 	public bool ArchiveData = true;
@@ -96,14 +89,46 @@ public class GA_Settings : ScriptableObject
 	public float SubmitInterval = 10;
 	
 	public bool InternetConnectivity;
+
+	//ad support
+	public bool Start_AlwaysShowAds = true;
+	public bool Start_TimePlayed = false;
+	public bool Start_Sessions = false;
+	
+	public int TimePlayed = 300;
+	public int Sessions = 1;
+	
+	public bool Trigger_AdsEnabled = false;
+	public GA_AdSupport.GAAdNetwork Trigger_AdsEnabled_network = GA_AdSupport.GAAdNetwork.Any;
+	
+	public bool Trigger_SceneChange = true;
+	public GA_AdSupport.GAAdNetwork Trigger_SceneChange_network = GA_AdSupport.GAAdNetwork.Any;
+	
+	public bool IAD_foldout = true;
+	public bool IAD_enabled = true;
+	#if UNITY_IPHONE || UNITY_EDITOR
+	public ADBannerView.Type IAD_type = ADBannerView.Type.Banner;
+	public ADBannerView.Layout IAD_layout = ADBannerView.Layout.Top;
+	#endif
+	public Vector2 IAD_position = Vector2.zero;
+	public float IAD_Duration = 10;
+
+	public bool CB_foldout = true;
+	public bool CB_enabled = false;
+	public string CB_appID;
+	public string CB_appSig;
 	
 	//These values are used for the GA_Inspector only
-	public enum InspectorStates { Basic, QA, Debugging, Data, Pref }
+	public enum InspectorStates { Basic, Debugging, Pref, Ads }
 	public InspectorStates CurrentInspectorState;
 	public List<HelpTypes> ClosedHints = new List<HelpTypes>();
 	public bool DisplayHints;
 	public Vector2 DisplayHintsScrollState;
 	public Texture2D Logo;
+	public Texture2D UpdateIcon;
+	
+	[SerializeField]
+	public List<GA_CustomAdTrigger> CustomAdTriggers = new List<GA_CustomAdTrigger>();
 
 	#endregion
 	
@@ -188,7 +213,7 @@ public class GA_Settings : ScriptableObject
 				{
 					InternetConnectivity = true;
 				}
-				else if (www.error != null)
+				else if (!string.IsNullOrEmpty(www.error))
 				{
 					InternetConnectivity = false;
 				}
@@ -217,39 +242,62 @@ public class GA_Settings : ScriptableObject
 		if (startQueue)
 		{
 			if (InternetConnectivity)
-				GA.Log("GA initialized, waiting for events..");
+				GA.Log("GA has confirmed internet connection..");
 			else
 				GA.Log("GA detects no internet connection..");
 			
-			//Add additional IDs
-			AddUniqueIDs();
-			
-			//Start the submit queue for sending messages to the server
-			GA.RunCoroutine(GA_Queue.SubmitQueue());
-			GA.Log("GameAnalytics: Submission queue started.");
-			
-			#if UNITY_EDITOR
-			
-			GameObject gaTracking = new GameObject("GA Trackeing");
-			gaTracking.AddComponent<GA_Tracking>();
-			
-			#endif
+			//Try to add additional IDs
+			if (AddUniqueIDs())
+			{
+				//Start the submit queue for sending messages to the server
+				GA.RunCoroutine(GA_Queue.SubmitQueue());
+				GA.Log("GameAnalytics: Submission queue started.");
+				
+				#if UNITY_EDITOR
+				
+				GameObject gaTracking = new GameObject("GA_Tracking");
+				gaTracking.AddComponent<GA_Tracking>();
+				
+				#else
+				
+				GameObject fbGameObject = new GameObject("GA_FacebookSDK");
+				fbGameObject.AddComponent<GA_FacebookSDK>();
+				
+				#endif
+			}
+			else
+			{
+				GA.LogWarning("GA failed to add unique IDs and will not send any data. If you are using iOS or Android please see the readme file in the iOS/Android folder in the GameAnalytics/Plugins directory.");
+			}
 		}
 	}
 	
-	private void AddUniqueIDs()
+	private bool AddUniqueIDs()
 	{
-		#if !UNITY_EDITOR
+		bool returnValue = false;
+		
+		#if !UNITY_EDITOR && UNITY_WEBPLAYER
+		
+		if (Application.absoluteURL.StartsWith("http"))
+		{
+			Application.ExternalEval(
+				"try{var __scr = document.createElement('script'); __scr.setAttribute('async', 'true'); __scr.type = 'text/javascript'; __scr.src = 'https://d17ay18sztndlo.cloudfront.net/resources/js/ga_sdk_tracking.js'; ((document.getElementsByTagName('head') || [null])[0] || document.getElementsByTagName('script')[0].parentNode).appendChild(__scr);}catch(e){}"
+				);
+		}
+		
+		#endif
+		
+		#if !UNITY_EDITOR && UNITY_STANDALONE_WIN
+		
+		string device = "PC";
+		
+		#elif !UNITY_EDITOR
 		
 		string device = SystemInfo.deviceModel;
-		int i = device.Length - 1;
-		int io = 0;
-		while (i >= 0 && (int.TryParse(device[i].ToString(), out io) || device[i].Equals(',') || device[i].Equals('.')))
-		{
-			i--;
-		}
-		device = device.Substring(0, i + 1);
-		Debug.Log("DEVICE: " + device);
+		
+		#endif
+		
+		#if !UNITY_EDITOR
 		
 		string os = "";
 		string[] osSplit = SystemInfo.operatingSystem.Split(' ');
@@ -265,27 +313,26 @@ public class GA_Settings : ScriptableObject
 			string iOSid = GetUniqueIDiOS();
 			if (iOSid != null && iOSid != string.Empty)
 			{
-				GA.API.User.NewUser(GA_User.Gender.Unknown, null, null, iOSid, null, AutoSubmitUserInfo?GA.API.GenericInfo.GetSystem():null, AutoSubmitUserInfo?device:null, AutoSubmitUserInfo?os:null, AutoSubmitUserInfo?SystemInfo.operatingSystem:null, "GA Unity SDK " + VERSION);
+				if (iOSid.StartsWith("VENDOR-"))
+					GA.API.User.NewUser(GA_User.Gender.Unknown, null, null, null, null, AutoSubmitUserInfo?GA.API.GenericInfo.GetSystem():null, AutoSubmitUserInfo?device:null, AutoSubmitUserInfo?os:null, AutoSubmitUserInfo?SystemInfo.operatingSystem:null, "GA Unity SDK " + VERSION);
+				else
+					GA.API.User.NewUser(GA_User.Gender.Unknown, null, null, iOSid, null, AutoSubmitUserInfo?GA.API.GenericInfo.GetSystem():null, AutoSubmitUserInfo?device:null, AutoSubmitUserInfo?os:null, AutoSubmitUserInfo?SystemInfo.operatingSystem:null, "GA Unity SDK " + VERSION);
+				
+				returnValue = true;
 			}
 		}
 		catch
 		{ }
 		
-		#elif UNITY_ANDROID && !UNITY_EDITOR && ANDROID_ID
+		#elif UNITY_ANDROID && !UNITY_EDITOR
 		
 		try
 		{
-			AndroidJNI.AttachCurrentThread();
-			
-			using (AndroidJavaClass cls_UnityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer")) {
-				
-				using (AndroidJavaObject obj_Activity = cls_UnityPlayer.GetStatic<AndroidJavaObject>("currentActivity")) {
-					
-					AndroidJavaClass cls_AndroidID = new AndroidJavaClass(ANDROID_CLASS_NAME + ".GA_Android");
-					
-					string androidID = cls_AndroidID.CallStatic<string>("GetDeviceId");
-					GA.API.User.NewUser(GA_User.Gender.Unknown, null, null, null, androidID, AutoSubmitUserInfo?GA.API.GenericInfo.GetSystem():null, AutoSubmitUserInfo?device:null, AutoSubmitUserInfo?os:null, AutoSubmitUserInfo?SystemInfo.operatingSystem:null, "GA Unity SDK " + VERSION);
-				}
+			string androidID = GetUniqueIDAndroid();
+			if (androidID != null && androidID != string.Empty)
+			{
+				GA.API.User.NewUser(GA_User.Gender.Unknown, null, null, null, androidID, AutoSubmitUserInfo?GA.API.GenericInfo.GetSystem():null, AutoSubmitUserInfo?device:null, AutoSubmitUserInfo?os:null, AutoSubmitUserInfo?SystemInfo.operatingSystem:null, "GA Unity SDK " + VERSION);
+				returnValue = true;
 			}
 		}
 		catch
@@ -294,12 +341,25 @@ public class GA_Settings : ScriptableObject
 		#elif UNITY_FLASH && !UNITY_EDITOR
 		
 		GA.API.User.NewUser(GA_User.Gender.Unknown, null, null, null, null, AutoSubmitUserInfo?GA.API.GenericInfo.GetSystem():null, "Flash", AutoSubmitUserInfo?os:null, AutoSubmitUserInfo?SystemInfo.operatingSystem:null, "GA Unity SDK " + VERSION);
+		returnValue = true;
 		
-		#elif !UNITY_EDITOR
+		#elif !UNITY_EDITOR && !UNITY_IPHONE && !UNITY_ANDROID
 		
 		GA.API.User.NewUser(GA_User.Gender.Unknown, null, null, null, null, AutoSubmitUserInfo?GA.API.GenericInfo.GetSystem():null, AutoSubmitUserInfo?device:null, AutoSubmitUserInfo?os:null, AutoSubmitUserInfo?SystemInfo.operatingSystem:null, "GA Unity SDK " + VERSION);
+		returnValue = true;
+		
+		#elif UNITY_IPHONE && UNITY_EDITOR && !IOS_ID
+		
+		GetUniqueIDiOS ();
+		returnValue = true;
+		
+		#elif UNITY_EDITOR
+		
+		returnValue = true;
 		
 		#endif
+		
+		return returnValue;
 	}
 	
 	public string GetUniqueIDiOS ()
@@ -312,6 +372,26 @@ public class GA_Settings : ScriptableObject
 		
 		#if UNITY_IPHONE && UNITY_EDITOR && !IOS_ID
 		GA.LogWarning("GA Warning: Remember to read the iOS_Readme in the GameAnalytics > Plugins > iOS folder, for information on how to setup advertiser ID for iOS. GA will not work on iOS if you do not follow these steps.");
+		#endif
+		
+		return uid;
+	}
+	
+	public string GetUniqueIDAndroid ()
+	{
+		string uid = "";
+		
+		#if UNITY_ANDROID && !UNITY_EDITOR
+		try
+		{
+			AndroidJavaClass up = new AndroidJavaClass ("com.unity3d.player.UnityPlayer");
+			AndroidJavaObject currentActivity = up.GetStatic<AndroidJavaObject> ("currentActivity");
+			AndroidJavaObject contentResolver = currentActivity.Call<AndroidJavaObject> ("getContentResolver");  
+			AndroidJavaClass secure = new AndroidJavaClass ("android.provider.Settings$Secure");
+			uid = secure.CallStatic<string> ("getString", contentResolver, "android_id");
+		}
+		catch
+		{ }
 		#endif
 		
 		return uid;
@@ -344,6 +424,13 @@ public class GA_Settings : ScriptableObject
 	public void SetCustomArea(string customArea)
 	{
 		CustomArea = customArea;
+	}
+
+	public void SetKeys (string gamekey, string secretkey)
+	{
+		GA.API.Submit.SetupKeys(gamekey, secretkey);
+		GameKey = gamekey;
+		SecretKey = secretkey;
 	}
 	
 	#endregion

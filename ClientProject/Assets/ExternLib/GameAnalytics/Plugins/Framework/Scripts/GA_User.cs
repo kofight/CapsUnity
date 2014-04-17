@@ -6,10 +6,6 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-#if UNITY_METRO && !UNITY_EDITOR
-using GA_Compatibility.Collections;
-#endif
-
 public class GA_User
 {
 	public enum Gender { Unknown, Male, Female }
@@ -18,17 +14,17 @@ public class GA_User
 	
 	public void NewUser(Gender gender, int? birth_year, int? friend_count)
 	{
-		CreateNewUser(gender, birth_year, friend_count, null, null, null, null, null, null, null, null, null, null, null, null, null);
+		CreateNewUser(gender, birth_year, friend_count, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 	}
 	
 	public void NewUser(Gender gender, int? birth_year, int? friend_count, string ios_id, string android_id, string platform, string device, string os, string osVersion, string sdk)
 	{
-		CreateNewUser(gender, birth_year, friend_count, ios_id, android_id, platform, device, os, osVersion, sdk, null, null, null, null, null, null);
+		CreateNewUser(gender, birth_year, friend_count, ios_id, android_id, platform, device, os, osVersion, sdk, null, null, null, null, null, null, null);
 	}
 	
-	public void NewUser(Gender gender, int? birth_year, int? friend_count, string ios_id, string android_id, string platform, string device, string os, string osVersion, string sdk, string installPublisher, string installSite, string installCampaign, string installAdgroup, string installAd, string installKeyword)
+	public void NewUser(Gender gender, int? birth_year, int? friend_count, string ios_id, string android_id, string platform, string device, string os, string osVersion, string sdk, string installPublisher, string installSite, string installCampaign, string installAdgroup, string installAd, string installKeyword, string facebookID)
 	{
-		CreateNewUser(gender, birth_year, friend_count, ios_id, android_id, platform, device, os, osVersion, sdk, installPublisher, installSite, installCampaign, installAdgroup, installAd, installKeyword);
+		CreateNewUser(gender, birth_year, friend_count, ios_id, android_id, platform, device, os, osVersion, sdk, installPublisher, installSite, installCampaign, installAdgroup, installAd, installKeyword, facebookID);
 	}
 	
 	#endregion
@@ -53,7 +49,7 @@ public class GA_User
 	/// /// <param name="friend_count">
 	/// The number of friends in the user's network. Set to "null" if unknown.
 	/// </param>
-	private void CreateNewUser(Gender gender, int? birth_year, int? friend_count, string ios_id, string android_id, string platform, string device, string os, string osVersion, string sdk, string installPublisher, string installSite, string installCampaign, string installAdgroup, string installAd, string installKeyword)
+	private void CreateNewUser(Gender gender, int? birth_year, int? friend_count, string ios_id, string android_id, string platform, string device, string os, string osVersion, string sdk, string installPublisher, string installSite, string installCampaign, string installAdgroup, string installAd, string installKeyword, string facebookID)
 	{
 		Hashtable parameters = new Hashtable();
 		
@@ -140,7 +136,12 @@ public class GA_User
 		{
 			parameters.Add(GA_ServerFieldTypes.Fields[GA_ServerFieldTypes.FieldType.InstallKeyword], installKeyword);
 		}
-		
+
+		if (facebookID != null)
+		{
+			parameters.Add(GA_ServerFieldTypes.Fields[GA_ServerFieldTypes.FieldType.FacebookID], facebookID);
+		}
+
 		if (parameters.Count == 0)
 		{
 			GA.LogWarning("GA: No data to send with NewUser event; event will not be added to queue");
@@ -148,6 +149,35 @@ public class GA_User
 		}
 
 		GA_Queue.AddItem(parameters, GA_Submit.CategoryType.GA_User, false);
+		
+		#if UNITY_EDITOR
+		
+		if (GA.SettingsGA.DebugAddEvent)
+		{
+			string options = "";
+			if (gender == Gender.Male)
+			{
+				options = ", Gender: Male";
+			}
+			else if (gender == Gender.Female)
+			{
+				options = ", Gender: Female";
+			}
+			
+			if (birth_year.HasValue && birth_year.Value != 0)
+			{
+				options += ", Birth Year: " + birth_year;
+			}
+			
+			if (friend_count.HasValue)
+			{
+				options += ", Friend Count: " + friend_count;
+			}
+			
+			GA.Log("GA User Event added" + options, true);
+		}
+		
+		#endif
 	}
 	
 	#endregion

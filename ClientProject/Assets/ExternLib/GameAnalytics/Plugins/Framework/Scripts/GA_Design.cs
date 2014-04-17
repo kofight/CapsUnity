@@ -4,10 +4,6 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-#if UNITY_METRO && !UNITY_EDITOR
-using GA_Compatibility.Collections;
-#endif
-
 public class GA_Design
 {
 	#region public methods
@@ -111,6 +107,28 @@ public class GA_Design
 		}
 
 		GA_Queue.AddItem(parameters, GA_Submit.CategoryType.GA_Event, false);
+
+		GA_AdSupport.ShowAdStatic(GA_AdSupport.GAEventType.Custom, GA_AdSupport.GAEventCat.Design, eventName);
+		
+		#if UNITY_EDITOR
+		
+		if (GA.SettingsGA.DebugAddEvent)
+		{
+			string options = "";
+			if (eventValue.HasValue)
+			{
+				options = ", value: " + eventValue;
+			}
+			
+			if (x.HasValue && y.HasValue && z.HasValue)
+			{
+				options += ", x: " + x + ", y: " + y + ", z: " + z;
+			}
+			
+			GA.Log("GA Design Event added: " + eventName + options, true);
+		}
+		
+		#endif
 	}
 	
 	#endregion

@@ -24,7 +24,18 @@ public class GA_Tracking : MonoBehaviour
 		};
 		queue.Add(new GA_Submit.Item() { AddTime = 0, Count = 1, Type = GA_Submit.CategoryType.GA_Log, Parameters = parameters});
 		GA.API.Submit.SubmitQueue(queue, Submitted, SubmitError, true, _publicTestKey, _privateTestKey);
-		
+
+		List<GA_Submit.Item> queueUnityVersion = new List<GA_Submit.Item>();
+		Hashtable parametersUnityVersion = new Hashtable() {
+			{ GA_ServerFieldTypes.Fields[GA_ServerFieldTypes.FieldType.EventID], "UnityVersion:" + Application.unityVersion },
+			{ GA_ServerFieldTypes.Fields[GA_ServerFieldTypes.FieldType.Level], "Unity Editor" },
+			{ GA_ServerFieldTypes.Fields[GA_ServerFieldTypes.FieldType.UserID], GA.API.GenericInfo.UserID },
+			{ GA_ServerFieldTypes.Fields[GA_ServerFieldTypes.FieldType.SessionID], GA.API.GenericInfo.SessionID },
+			{ GA_ServerFieldTypes.Fields[GA_ServerFieldTypes.FieldType.Build], GA_Settings.VERSION }
+		};
+		queueUnityVersion.Add(new GA_Submit.Item() { AddTime = 0, Count = 1, Type = GA_Submit.CategoryType.GA_Event, Parameters = parametersUnityVersion});
+		GA.API.Submit.SubmitQueue(queueUnityVersion, Submitted, SubmitError, true, _publicTestKey, _privateTestKey);
+
 		if (FindObjectOfType(typeof(GA_Tracker)) != null)
 		{
 			List<GA_Submit.Item> queueTracker = new List<GA_Submit.Item>();
@@ -52,7 +63,37 @@ public class GA_Tracking : MonoBehaviour
 			queueSystemTracker.Add(new GA_Submit.Item() { AddTime = 0, Count = 1, Type = GA_Submit.CategoryType.GA_Event, Parameters = parametersSystemTracker});
 			GA.API.Submit.SubmitQueue(queueSystemTracker, Submitted, SubmitError, true, _publicTestKey, _privateTestKey);
 		}
+
+		#if UNITY_IPHONE
+
+		List<GA_Submit.Item> queueIAD = new List<GA_Submit.Item>();
+		Hashtable parametersIAD = new Hashtable() {
+			{ GA_ServerFieldTypes.Fields[GA_ServerFieldTypes.FieldType.EventID], "GA_IAD:"+GA.SettingsGA.IAD_enabled },
+			{ GA_ServerFieldTypes.Fields[GA_ServerFieldTypes.FieldType.Level], "Unity Editor" },
+			{ GA_ServerFieldTypes.Fields[GA_ServerFieldTypes.FieldType.UserID], GA.API.GenericInfo.UserID },
+			{ GA_ServerFieldTypes.Fields[GA_ServerFieldTypes.FieldType.SessionID], GA.API.GenericInfo.SessionID },
+			{ GA_ServerFieldTypes.Fields[GA_ServerFieldTypes.FieldType.Build], GA_Settings.VERSION }
+		};
+		queueIAD.Add(new GA_Submit.Item() { AddTime = 0, Count = 1, Type = GA_Submit.CategoryType.GA_Event, Parameters = parametersIAD});
+		GA.API.Submit.SubmitQueue(queueIAD, Submitted, SubmitError, true, _publicTestKey, _privateTestKey);
+
+		#endif
+
+		#if UNITY_IPHONE || UNITY_ANDROID
 		
+		List<GA_Submit.Item> queueCB = new List<GA_Submit.Item>();
+		Hashtable parametersCB = new Hashtable() {
+			{ GA_ServerFieldTypes.Fields[GA_ServerFieldTypes.FieldType.EventID], "GA_Chartboost:"+GA.SettingsGA.CB_enabled },
+			{ GA_ServerFieldTypes.Fields[GA_ServerFieldTypes.FieldType.Level], "Unity Editor" },
+			{ GA_ServerFieldTypes.Fields[GA_ServerFieldTypes.FieldType.UserID], GA.API.GenericInfo.UserID },
+			{ GA_ServerFieldTypes.Fields[GA_ServerFieldTypes.FieldType.SessionID], GA.API.GenericInfo.SessionID },
+			{ GA_ServerFieldTypes.Fields[GA_ServerFieldTypes.FieldType.Build], GA_Settings.VERSION }
+		};
+		queueCB.Add(new GA_Submit.Item() { AddTime = 0, Count = 1, Type = GA_Submit.CategoryType.GA_Event, Parameters = parametersCB});
+		GA.API.Submit.SubmitQueue(queueCB, Submitted, SubmitError, true, _publicTestKey, _privateTestKey);
+		
+		#endif
+
 		GA_Queue.OnSuccess += EventSuccess;
 	}
 	

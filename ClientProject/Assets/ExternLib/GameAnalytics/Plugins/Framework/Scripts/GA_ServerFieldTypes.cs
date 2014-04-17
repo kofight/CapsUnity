@@ -45,6 +45,7 @@ public static class GA_ServerFieldTypes
 		InstallAdgroup,
 		InstallAd,
 		InstallKeyword,
+		FacebookID,
 		Severity
 	}
 	
@@ -87,6 +88,7 @@ public static class GA_ServerFieldTypes
 		{ FieldType.InstallAdgroup, "install_adgroup" },
 		{ FieldType.InstallAd, "install_ad" },
 		{ FieldType.InstallKeyword, "install_keyword" },
+		{ FieldType.FacebookID, "facebook_id" },
 		{ FieldType.Severity, "severity" }
 	};
 }

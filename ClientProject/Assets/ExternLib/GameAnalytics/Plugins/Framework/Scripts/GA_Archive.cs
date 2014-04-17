@@ -10,10 +10,6 @@ using System;
 using System.IO;
 //using LitJson;
 
-#if UNITY_METRO && !UNITY_EDITOR
-using GA_Compatibility.Collections;
-#endif
-
 public  class GA_Archive
 {
 	public  string FILE_NAME = "GA_archive";

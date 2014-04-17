@@ -71,7 +71,7 @@ public class GA_Menu : MonoBehaviour
 		status.Show ();
 	}
 	
-	[MenuItem ("Window/GameAnalytics/PlayMaker/Enable (or Disable) Scripts", false, 400)]
+	[MenuItem ("Window/GameAnalytics/PlayMaker/Toggle Scripts", false, 400)]
 	static void TogglePlayMaker ()
 	{
 		bool enabled = false;
@@ -138,7 +138,7 @@ public class GA_Menu : MonoBehaviour
 			Debug.Log("Disabled PlayMaker Scripts.");
 	}
 	
-	private static bool ReplaceInFile (string filePath, string searchText, string replaceText)
+	public static bool ReplaceInFile (string filePath, string searchText, string replaceText)
 	{
 		bool enabled = false;
 		
@@ -146,7 +146,7 @@ public class GA_Menu : MonoBehaviour
 		string content = reader.ReadToEnd ();
 		reader.Close ();
 		
-		if (content.StartsWith(searchText))
+		if (content.Contains(searchText))
 		{
 			enabled = true;
 			content = Regex.Replace (content, searchText, replaceText);
@@ -162,6 +162,37 @@ public class GA_Menu : MonoBehaviour
 		writer.Close ();
 		
 		return enabled;
+	}
+	
+	[MenuItem ("Window/GameAnalytics/Facebook/Toggle Scripts", false, 401)]
+	static void ToggleFacebook ()
+	{
+		bool enabled = false;
+		bool fail = false;
+		
+		string searchText = "#if false";
+		string replaceText = "#if true";
+		
+		string filePath = Application.dataPath + "/GameAnalytics/Plugins/Framework/Scripts/GA_FacebookSDK.cs";
+		string filePathJS = Application.dataPath + "/Plugins/GameAnalytics/Framework/Scripts/GA_FacebookSDK.cs";
+		try {
+			enabled = ReplaceInFile (filePath, searchText, replaceText);
+		} catch {
+			try {
+				enabled = ReplaceInFile (filePathJS, searchText, replaceText);
+			} catch {
+				fail = true;
+			}
+		}
+		
+		AssetDatabase.Refresh();
+		
+		if (fail)
+			Debug.Log("Failed to toggle Facebook Scripts.");
+		else if (enabled)
+			Debug.Log("Enabled Facebook Scripts.");
+		else
+			Debug.Log("Disabled Facebook Scripts.");
 	}
 	
 	[MenuItem ("Window/GameAnalytics/Folder Structure/Switch to JS", false, 600)]

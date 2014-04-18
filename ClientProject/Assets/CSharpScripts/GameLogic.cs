@@ -562,11 +562,11 @@ public class GameLogic
     void ShowIceTip(int interval)       //冰块闪烁
     {
         //正在闪烁
-        if (Timer.GetFixedTime() - m_iceTipStartTime < (m_curIceTipInterval * BlockAreaWidth * BlockAreaHeight + 1200) / 1000.0f)
+        if (Timer.GetRealTimeSinceStartUp() - m_iceTipStartTime < (m_curIceTipInterval * BlockAreaWidth * BlockAreaHeight + 1200) / 1000.0f)
         {
             return;         
         }
-        m_iceTipStartTime = Timer.GetFixedTime();            //设置冰块提示开始时间
+        m_iceTipStartTime = Timer.GetRealTimeSinceStartUp();            //设置冰块提示开始时间
 
         m_lastShowIceTipTime = m_iceTipStartTime;
 
@@ -710,12 +710,11 @@ public class GameLogic
 
         AddParticleToFreeList("AddSpecialEffect", true, 10);
         AddParticleToFreeList(CapsConfig.ResortOutEffect, true, 81);
-        AddParticleToFreeList(CapsConfig.EatEffect, true, 20);
+        AddParticleToFreeList(CapsConfig.EatEffect, true, 10);
         AddParticleToFreeList("Dir1Effect", true, 3);
         AddParticleToFreeList("Dir2Effect", true, 3);
         AddParticleToFreeList("Dir0Effect", true, 3);
         AddParticleToFreeList("BombEffect", true, 3);
-        AddParticleToFreeList("BombEatEffect", true, 12);
         AddParticleToFreeList("LineEatEffect", true, 20);
         AddParticleToFreeList(CapsConfig.EatEffect, true, 10);
     }
@@ -1240,7 +1239,7 @@ public class GameLogic
 
     public bool Help()                 //查找到一个可交换的位置
     {
-        m_lastHelpTime = Timer.GetFixedTime();
+        m_lastHelpTime = Timer.GetRealTimeSinceStartUp();
         for (int i = BlockXStart; i <= BlockXEnd; ++i)
         {
             for (int j = BlockYStart; j <= BlockYEnd; ++j)
@@ -1447,8 +1446,8 @@ public class GameLogic
         long time = Timer.millisecondNow();
         m_gameStartTime = time;
 		m_gameStartTimeReal = CapsApplication.Singleton.GetPlayTime ();
-        m_lastHelpTime = Timer.GetFixedTime();
-        m_lastShowIceTipTime = Timer.GetFixedTime();
+        m_lastHelpTime = Timer.GetRealTimeSinceStartUp();
+        m_lastShowIceTipTime = Timer.GetRealTimeSinceStartUp();
         m_curStateStartTime = Timer.millisecondNow();
 
         m_gameFlow = TGameFlow.EGameState_Playing;                           //开始游戏
@@ -1710,13 +1709,11 @@ public class GameLogic
                     }
                     if (m_blocks[i, j].CurState == BlockState.Moving)
                     {
-                        ProcessDropMove(m_blocks[i, j].droppingFrom, new Position(i, j));
+                        ProcessDropPic(m_blocks[i, j].droppingFrom, new Position(i, j));
                     }
                 }
             }
         }
-
-        
 
         //for (int i = 0; i < BlockCountX; i++)
         //{
@@ -1788,7 +1785,7 @@ public class GameLogic
 				{
 					if (m_blocks[i, j].m_dropDownStartTime > 0)     //处理一次下落动画
                     {
-                        if (Timer.GetRealTime() - m_blocks[i, j].m_dropDownStartTime > 1.0f)
+                        if (Timer.GetRealTimeSinceStartUp() - m_blocks[i, j].m_dropDownStartTime > 1.0f)
                         {
                             m_blocks[i, j].m_animation.Stop();
                             m_blocks[i, j].m_animation.enabled = false;
@@ -1863,12 +1860,7 @@ public class GameLogic
                                 m_blocks[i, j].m_blockSprite.transform.localScale = new Vector3(0.7f, 1, 1);
 							}
 						}
-						else
-						{
-							m_blocks[i, j].m_blockSprite.fillAmount = 1.0f;                     //完全显示
-							m_blocks[i, j].m_blockSprite.transform.localScale = new Vector3(1, 1, 1);
-						}
-					}
+                    }
                     else
                     {
                         if (m_blocks[i, j].m_shadowSprite != null)                           //已经落完的，若仍有shadowSprite, 释放
@@ -1932,7 +1924,7 @@ public class GameLogic
 
         if (m_iceTipStartTime > 0)          //若正在进行冰块提示
         {
-            int passTime = (int)((Timer.GetFixedTime() - m_iceTipStartTime) * 1000);
+            int passTime = (int)((Timer.GetRealTimeSinceStartUp() - m_iceTipStartTime) * 1000);
             if (passTime > m_curIceTipInterval * BlockAreaWidth * BlockAreaHeight + 1200)       //时间到了
             {
                 m_iceTipStartTime = 0;      //结束状态
@@ -2041,7 +2033,7 @@ public class GameLogic
                 if (m_curSpecialEffect == TSpecialEffect.ERestartEffect)            //若是重新开始和开始特效，结束后开始游戏
                 {
                     m_bReadyToStart = true;
-                    m_readyToStartTime = Timer.GetFixedTime();
+                    m_readyToStartTime = Timer.GetRealTimeSinceStartUp();
                 }
                 else
                 {
@@ -2075,7 +2067,7 @@ public class GameLogic
                 {
                     if (m_colorToBombLastTime > 0)       
                     {
-						if(Timer.GetFixedTime() - m_colorToBombLastTime > CapsConfig.Rainbow_Bomb_EffectAddItemInterval)		//到达了生成块间隔
+						if(Timer.GetRealTimeSinceStartUp() - m_colorToBombLastTime > CapsConfig.Rainbow_Bomb_EffectAddItemInterval)		//到达了生成块间隔
 						{
                             for (int i = BlockXStart; i <= BlockXEnd; ++i)
                             {
@@ -2097,7 +2089,7 @@ public class GameLogic
 	                                    AddPartile(CapsConfig.AddSpecialEffect, AudioEnum.Audio_itemBirth, i, j);
 	                                    block.special = TSpecialBlock.ESpecial_Bomb;
 	                                    block.RefreshBlockSprite(PlayingStageData.GridData[i, j]);
-	                                    m_colorToBombLastTime = Timer.GetFixedTime();
+	                                    m_colorToBombLastTime = Timer.GetRealTimeSinceStartUp();
 	                                    return;
 	                                }
 	                            }
@@ -2163,7 +2155,7 @@ public class GameLogic
                         if (!bFoundUnplayAnim)      //若所有都已经播完，指定m_effectStateDuration
                         {
                             m_bReadyToStart = true;
-                            m_readyToStartTime = Timer.GetFixedTime();
+                            m_readyToStartTime = Timer.GetRealTimeSinceStartUp();
                         }
                     }
                 }
@@ -2455,7 +2447,7 @@ public class GameLogic
 						m_blocks[i, j].m_animation.enabled = true;
                         m_blocks[i, j].m_animation.Play("DropDown");                                    //播放下落动画
                         PlaySoundNextFrame(AudioEnum.Audio_Drop);
-                        m_blocks[i, j].m_dropDownStartTime = Timer.GetFixedTime();           //记录开始时间(用于强制停止下落动画)
+                        m_blocks[i, j].m_dropDownStartTime = Timer.GetRealTimeSinceStartUp();           //记录开始时间(用于强制停止下落动画)
 							
 						if (m_blocks[i, j].color > TBlockColor.EColor_Cyan)                     //若为坚果
 		                {
@@ -2520,11 +2512,11 @@ public class GameLogic
 		return bEat;
 	}
 
-    void SlowFixedUpdate()
+    public void FixedUpdate()
     {
         if (m_bReadyToStart)
         {
-            if (Timer.GetFixedTime() - m_readyToStartTime > 3.0f)      //3秒钟自动开始
+            if (Timer.GetRealTimeSinceStartUp() - m_readyToStartTime > 3.0f)      //3秒钟自动开始
             {
                 m_bReadyToStart = false;
                 StartGame();
@@ -2534,6 +2526,36 @@ public class GameLogic
 
         ProcessState();
 
+        bool bFoundMoveEnd = false;
+
+        if (CapBlock.DropingBlockCount > 0)
+        {
+
+            for (int i = BlockXStart; i <= BlockXEnd; ++i)
+            {
+                for (int j = BlockYStart; j <= BlockYEnd; ++j)
+                {
+                    if (m_blocks[i, j] != null && m_blocks[i, j].CurState == BlockState.MovingEnd)
+                    {
+                        bFoundMoveEnd = true;
+                    }
+                }
+            }
+            if (bFoundMoveEnd)     //若找到了MovingEnd的块
+            {
+                ProcessMoveEnd();        //处理下落结束的块（消块）
+            }
+        }
+
+        if (bFoundMoveEnd)
+        {
+            DropDown();                     //再处理一次下落, DropDown里已经处理了UpdateSlopeLock
+        }
+        else
+        {
+            UpdateSlopeLock();              //否则更新SlopeLock
+        }
+
         //处理帮助
         if (m_gameFlow == TGameFlow.EGameState_Playing && m_lastHelpTime > 0)      //下落完成的状态
         {
@@ -2541,24 +2563,24 @@ public class GameLogic
             {
                 if (!m_saveHelpBlocks[2].IsAvailable())     //还没找帮助点
                 {
-                    if (Timer.GetFixedTime() > m_lastHelpTime + CheckAvailableTimeInterval)
+                    if (Timer.GetRealTimeSinceStartUp() > m_lastHelpTime + CheckAvailableTimeInterval)
                     {
                         if (!Help())
                         {
                             m_curStateStartTime = Timer.millisecondNow();
                             m_stageTargetUI.Mode = UIStageTarget.TargetMode.AutoResort;
-                            m_stageTargetUI.ShowWindow(delegate()
-                            {
-                                Timer.AddDelayFunc(1.0f, delegate()
-                                {
+                            m_stageTargetUI.ShowWindow(delegate() 
+                            { 
+                                Timer.AddDelayFunc(1.0f, delegate() 
+                                { 
                                     m_stageTargetUI.HideWindow();
-                                });
+                                }); 
                             });
                             m_gameFlow = TGameFlow.EGameState_ResortAnim;
                         }
                     }
                 }
-                else if (Timer.GetFixedTime() > m_lastHelpTime + ShowHelpTimeInterval && !m_bHidingHelp)
+                else if (Timer.GetRealTimeSinceStartUp() > m_lastHelpTime + ShowHelpTimeInterval && !m_bHidingHelp)
                 {
                     Help();
                     ShowHelpAnim();
@@ -2619,9 +2641,64 @@ public class GameLogic
             PlaySoundNextFrame(AudioEnum.Audio_Only15SecLeft);
         }
 
-        if (m_lastShowIceTipTime > 0 && Timer.GetFixedTime() - m_lastShowIceTipTime > 7)        //5秒钟1次
+        if (m_lastShowIceTipTime > 0 && Timer.GetRealTimeSinceStartUp() - m_lastShowIceTipTime > 7)        //5秒钟1次
         {
             ShowIceTip(CapsConfig.EffectResortInterval);            //闪得较慢
+        }
+    }
+
+    public void Update()
+    {
+        //处理延迟消除
+        if (m_delayProcessGrid.Count > 0)
+        {
+            //处理并移除到了时间的
+            LinkedListNode<DelayProceedGrid> node = m_delayProcessGrid.First;
+            LinkedListNode<DelayProceedGrid> nodeLast = m_delayProcessGrid.Last;
+            LinkedListNode<DelayProceedGrid> nodeTmp;//临时结点
+            while (node != nodeLast)
+            {
+                if (Timer.GetRealTimeSinceStartUp() > node.Value.startTime)       //若到了处理时间
+                {
+                    ProcessEatChanges(node.Value, true, true);                          //处理延迟处理的消块
+
+                    nodeTmp = node.Next;
+                    m_delayProcessGrid.Remove(node.Value);                              //移除中间一个元素
+                    node = nodeTmp;
+                }
+                else
+                {
+                    node = node.Next;
+                }
+            }
+            //处理最后一个结点
+            if (Timer.GetRealTimeSinceStartUp() > nodeLast.Value.startTime)       //若到了处理时间
+            {
+                ProcessEatChanges(nodeLast.Value, true, true);                          //处理延迟处理的消块
+                m_delayProcessGrid.Remove(nodeLast.Value);                              //移除中间一个元素
+            }
+        }
+
+        TimerWork();
+
+        DrawGraphics();     //绘制图形
+
+        //处理粒子////////////////////////////////////////////////////////////////////////
+        foreach (KeyValuePair<string, LinkedList<DelayParticle>> pair in m_particleMap)
+        {
+            LinkedList<DelayParticle> list = pair.Value;
+
+            //处理延迟开始的粒子
+            foreach (DelayParticle par in list)
+            {
+                if (par.startTime != 0.0f && Timer.GetRealTimeSinceStartUp() > par.startTime)       //到了开始时间
+                {
+                    par.par.gameObject.SetActive(true);
+                    par.par.Play();
+                    par.startTime = 0.0f;
+                    PlaySoundNextFrame(par.audio);
+                }
+            }
         }
 
         //处理数字
@@ -2649,143 +2726,9 @@ public class GameLogic
             //处理最后一个结点
             if (nodeLast.Value.IsEnd())       //若到了处理时间
             {
-                node.Value.SetFree();
+				node.Value.SetFree();
                 m_freeNumberList.AddLast(nodeLast.Value);
                 m_showingNumberEffectList.Remove(nodeLast.Value);                              //移除中间一个元素
-            }
-        }
-    }
-
-    int fixedUpdateCount = 0;
-
-    public void FixedUpdate()
-    {
-        if (fixedUpdateCount > 3)
-        {
-            SlowFixedUpdate();
-            fixedUpdateCount = 0;
-        }
-        ++fixedUpdateCount;
-
-        CheckBlockDropEnd();                                                            //检查从Moving到MovingEnd的转化
-
-        bool bFoundMoveEnd = false;
-        if (CapBlock.DropingBlockCount > 0)
-        {
-
-            for (int i = BlockXStart; i <= BlockXEnd; ++i)
-            {
-                for (int j = BlockYStart; j <= BlockYEnd; ++j)
-                {
-                    if (m_blocks[i, j] != null && m_blocks[i, j].CurState == BlockState.MovingEnd)
-                    {
-                        bFoundMoveEnd = true;
-                    }
-                }
-            }
-            if (bFoundMoveEnd)     //若找到了MovingEnd的块
-            {
-                ProcessMoveEnd();        //处理下落结束的块（消块）
-            }
-        }
-
-        if (bFoundMoveEnd)
-        {
-            DropDown();                     //再处理一次下落, DropDown里已经处理了UpdateSlopeLock
-        }
-        else
-        {
-            UpdateSlopeLock();              //否则更新SlopeLock
-        }
-
-        ProcessEatTimer();
-
-        //处理延迟消除
-        if (m_delayProcessGrid.Count > 0)
-        {
-            //处理并移除到了时间的
-            LinkedListNode<DelayProceedGrid> node = m_delayProcessGrid.First;
-            LinkedListNode<DelayProceedGrid> nodeLast = m_delayProcessGrid.Last;
-            LinkedListNode<DelayProceedGrid> nodeTmp;//临时结点
-            while (node != nodeLast)
-            {
-                if (Timer.GetFixedTime() > node.Value.startTime)       //若到了处理时间
-                {
-                    ProcessEatChanges(node.Value, true, true);                          //处理延迟处理的消块
-
-                    nodeTmp = node.Next;
-                    m_delayProcessGrid.Remove(node.Value);                              //移除中间一个元素
-                    node = nodeTmp;
-                }
-                else
-                {
-                    node = node.Next;
-                }
-            }
-            //处理最后一个结点
-            if (Timer.GetFixedTime() > nodeLast.Value.startTime)       //若到了处理时间
-            {
-                ProcessEatChanges(nodeLast.Value, true, true);                          //处理延迟处理的消块
-                m_delayProcessGrid.Remove(nodeLast.Value);                              //移除中间一个元素
-            }
-        }
-
-        //时间暂停但仍可继续游戏的状态 或 FTUE状态时间停止
-        if (IsStoppingTime || m_gameFlow == TGameFlow.EGameState_FTUE)
-        {
-            m_gameStartTime += (long)(Time.fixedDeltaTime * 1000);
-        }
-    }
-
-    public void Update()                //这个更新里严格限制只能放逻辑无关的内容，否则无法保证时序可复现
-    {
-        /*------------------处理timerMoveBlock------------------*/
-        if (timerMoveBlock.GetState() == TimerEnum.ERunning)		//如果交换方块计时器状态为开启
-        {
-            int passTime = (int)timerMoveBlock.GetTime();
-            if (passTime > MOVE_TIME)	//交换方块计时器到了MOVE_TIME
-            {
-                timerMoveBlock.Stop();				//停止计时器
-
-                //清空方块的偏移值
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].x_move = 0;
-                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].y_move = 0;
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].x_move = 0;
-                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].y_move = 0;
-
-                if (m_changeBack)//如果处于换回状态
-                {
-                    m_changeBack = false;	//清除换回标志
-                    //清空选择的方块
-                    ClearSelected();
-                    return;
-                }
-
-                ProcessExchange();      //处理两块交换
-            }
-            else
-            {
-                ProcessMoveBlock(m_selectedPos[0], m_selectedPos[1], MOVE_TIME - passTime);           //处理交换块的位移
-            }
-        }
-
-        DrawGraphics();     //绘制图形
-
-        //处理粒子////////////////////////////////////////////////////////////////////////
-        foreach (KeyValuePair<string, LinkedList<DelayParticle>> pair in m_particleMap)
-        {
-            LinkedList<DelayParticle> list = pair.Value;
-
-            //处理延迟开始的粒子
-            foreach (DelayParticle par in list)
-            {
-                if (par.startTime != 0.0f && Timer.GetRealTime() > par.startTime)       //到了开始时间
-                {
-                    par.par.gameObject.SetActive(true);
-                    par.par.Play();
-                    par.startTime = 0.0f;
-                    PlaySoundNextFrame(par.audio);
-                }
             }
         }
 
@@ -2806,7 +2749,7 @@ public class GameLogic
             while (node != nodeLast)
             {
                 FlyParticle flyParticle = node.Value;
-                float passTime = Timer.GetRealTime() - flyParticle.startTime;
+                float passTime = Timer.GetRealTimeSinceStartUp() - flyParticle.startTime;
                 if (passTime > flyParticle.duration)       //若到了处理时间
                 {
                     nodeTmp = node.Next;
@@ -2833,7 +2776,7 @@ public class GameLogic
                             }
                         }
 
-                        flyParticle.par.transform.localPosition = Vector3.Lerp(flyParticle.start, flyParticle.end, (Timer.GetRealTime() - flyParticle.startTime) / flyParticle.duration);        //指定位置
+                        flyParticle.par.transform.localPosition = Vector3.Lerp(flyParticle.start, flyParticle.end, (Timer.GetRealTimeSinceStartUp() - flyParticle.startTime) / flyParticle.duration);        //指定位置
                     }
                     node = node.Next;
                 }
@@ -2842,7 +2785,7 @@ public class GameLogic
             //处理最后一个结点
             {
                 FlyParticle flyParticle = nodeLast.Value;
-                float passTime = Timer.GetFixedTime() - flyParticle.startTime;
+                float passTime = Timer.GetRealTimeSinceStartUp() - flyParticle.startTime;
                 if (passTime > flyParticle.duration)       //若到了处理时间
                 {
                     m_freeParticleMap[flyParticle.name].AddLast(node.Value.par);
@@ -2865,10 +2808,17 @@ public class GameLogic
                             }
                         }
 
-                        flyParticle.par.transform.localPosition = Vector3.Lerp(flyParticle.start, flyParticle.end, (Timer.GetRealTime() - flyParticle.startTime) / flyParticle.duration);        //指定位置
+                        flyParticle.par.transform.localPosition = Vector3.Lerp(flyParticle.start, flyParticle.end, (Timer.GetRealTimeSinceStartUp() - flyParticle.startTime) / flyParticle.duration);        //指定位置
                     }
                 }
             }
+        }
+
+
+        //时间暂停但仍可继续游戏的状态 或 FTUE状态时间停止
+        if (IsStoppingTime || m_gameFlow == TGameFlow.EGameState_FTUE)
+        {
+            m_gameStartTime += (long)(Time.deltaTime * 1000);
         }
     }
 
@@ -3116,7 +3066,7 @@ public class GameLogic
 				m_effectStateDuration = 0;
 				m_curStateStartTime = Timer.millisecondNow();
                 m_curSpecialEffect = TSpecialEffect.EEatAColorNDBomb;
-				m_colorToBombLastTime = Timer.GetFixedTime();
+				m_colorToBombLastTime = Timer.GetRealTimeSinceStartUp();
                 m_curSpecialEffectPos = m_selectedPos[1];
                 m_colorToBomb = m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].color;
             }
@@ -3130,7 +3080,7 @@ public class GameLogic
 				m_effectStateDuration = 0;
 				m_curStateStartTime = Timer.millisecondNow();
                 m_curSpecialEffect = TSpecialEffect.EEatAColorNDBomb;
-				m_colorToBombLastTime = Timer.GetFixedTime();
+				m_colorToBombLastTime = Timer.GetRealTimeSinceStartUp();
                 m_curSpecialEffectPos = m_selectedPos[0];
                 m_colorToBomb = m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].color;
             }
@@ -3159,12 +3109,13 @@ public class GameLogic
         ProcessTempBlocks();                                                            //处理正常移动后消块对场景的影响
     }
 
-    void ProcessEatTimer()
+    void TimerWork()
     {
         /*------------------处理timerEatBlock------------------*/
         if (CapBlock.EatingBlockCount > 0)      //若有在消块的
         {
             bool bEat = false;
+            bool bNeedRefreshTarget = false;        //搜集关可能需要更新目标
             //消块逻辑，把正在消失的块变成粒子，原块置空
             for (int i = BlockXStart; i <= BlockXEnd; i++)
             {
@@ -3175,7 +3126,7 @@ public class GameLogic
                         continue;
                     }
 
-                    if (m_blocks[i, j].IsEating() && Timer.GetFixedTime() > m_blocks[i, j].m_eatStartTime)
+                    if (m_blocks[i, j].IsEating() && Timer.GetRealTimeSinceStartUp() > m_blocks[i, j].m_eatStartTime)
                     {
                         if (!m_blocks[i, j].EatEffectPlayed)
                         {
@@ -3205,6 +3156,7 @@ public class GameLogic
                             }
                             else if (PlayingStageData.Target == GameTarget.BringFruitDown && m_blocks[i, j].color >= TBlockColor.EColor_Nut1)      //落水果关
                             {
+                                bNeedRefreshTarget = true;
                                 m_blocks[i, j].m_tweenPosition.from = m_blocks[i, j].m_blockTransform.localPosition;             //从当前位置开始
                                 m_blocks[i, j].m_tweenPosition.to = CollectTargetUIPos[m_blocks[i, j].color - TBlockColor.EColor_Nut1];    //目标位置
                                 m_blocks[i, j].m_tweenPosition.enabled = true;
@@ -3238,7 +3190,7 @@ public class GameLogic
                         }
                     }
 
-                    if (m_blocks[i, j].IsEating() && Timer.GetFixedTime() - m_blocks[i, j].m_eatStartTime > m_blocks[i, j].EatDuration)       //若消块时间到了
+                    if (m_blocks[i, j].IsEating() && Timer.GetRealTimeSinceStartUp() - m_blocks[i, j].m_eatStartTime > m_blocks[i, j].EatDuration)       //若消块时间到了
                     {
                         --CapBlock.EatingBlockCount;
                         //清空block信息
@@ -3251,6 +3203,36 @@ public class GameLogic
             if (bEat)               //若有块被消除，相当于产生了新的空间，要处理一次下落
             {
                 DropDown();
+            }
+        }
+
+        /*------------------处理timerMoveBlock------------------*/
+        if (timerMoveBlock.GetState() == TimerEnum.ERunning)		//如果交换方块计时器状态为开启
+        {
+            int passTime = (int)timerMoveBlock.GetTime();
+            if (passTime > MOVE_TIME)	//交换方块计时器到了MOVE_TIME
+            {
+                timerMoveBlock.Stop();				//停止计时器
+
+                //清空方块的偏移值
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].x_move = 0;
+                m_blocks[m_selectedPos[0].x, m_selectedPos[0].y].y_move = 0;
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].x_move = 0;
+                m_blocks[m_selectedPos[1].x, m_selectedPos[1].y].y_move = 0;
+
+                if (m_changeBack)//如果处于换回状态
+                {
+                    m_changeBack = false;	//清除换回标志
+                    //清空选择的方块
+                    ClearSelected();
+                    return;
+                }
+
+                ProcessExchange();      //处理两块交换
+            }
+            else
+            {
+                ProcessMoveBlock(m_selectedPos[0], m_selectedPos[1], MOVE_TIME - passTime);           //处理交换块的位移
             }
         }
     }
@@ -3440,9 +3422,9 @@ public class GameLogic
         }
     }
 
-    void ProcessDropMove(Position from, Position to)        //处理下落中的移动
+    void ProcessDropPic(Position from, Position to)
     {
-        float dropTime = Timer.GetRealTime() - m_blocks[to.x, to.y].DropingStartTime;
+        float dropTime = Timer.GetRealTimeSinceStartUp() - m_blocks[to.x, to.y].DropingStartTime;
 
         if (from.x != to.x)		//若x方向上的值不一样，就有x方向上的移动
         {
@@ -3461,44 +3443,8 @@ public class GameLogic
         {
             m_blocks[to.x, to.y].x_move = 0;        //清除x_move
             m_blocks[to.x, to.y].y_move = 0;        //清除y_move
-        }
-    }
 
-    void CheckBlockDropEnd()                            //检查是否有下落结束
-    {
-        //处理下落
-        if (CapBlock.DropingBlockCount > 0)            //若有块在下落
-        {
-            for (int i = BlockXStart; i <= BlockXEnd; i++)
-            {
-                for (int j = BlockYStart; j <= BlockYEnd; j++)
-                {
-                    if (m_blocks[i, j] == null)
-                    {
-                        continue;
-                    }
-                    if (m_blocks[i, j].CurState == BlockState.Moving)
-                    {
-                        float dropTime = Timer.GetFixedTime() - m_blocks[i, j].DropingStartTime;
-                        float y_move = 0;
-                        if (m_blocks[i, j].droppingFrom.x - i == 0)
-                        {
-                            y_move = (int)(DROP_SPEED * dropTime * BLOCKHEIGHT + dropTime * dropTime * DROP_ACC * BLOCKHEIGHT - (j - m_blocks[i, j].droppingFrom.y) * BLOCKHEIGHT);           //垂直下落
-                        }
-                        else
-                        {
-                            y_move = (int)(SLIDE_SPEED * dropTime * (BLOCKHEIGHT / 2) - BLOCKHEIGHT / 2);
-                        }
-
-                        if (y_move >= 0)       //下落完毕
-                        {
-                            m_blocks[i, j].CurState = BlockState.MovingEnd;
-                            m_blocks[i, j].y_move = 0;
-                            m_blocks[i, j].x_move = 0;
-                        }
-                    }
-                }
-            }
+            m_blocks[to.x, to.y].CurState = BlockState.MovingEnd;      //移动结束
         }
     }
 
@@ -3594,14 +3540,14 @@ public class GameLogic
                     if (m_blocks[destPos.x, destPos.y].CurState != BlockState.MovingEnd)        //若为MovingEnd状态，继续下落，则不增加下落块数记录
                     {
                         ++CapBlock.DropingBlockCount;
-                        m_blocks[destPos.x, destPos.y].DropingStartTime = Timer.GetFixedTime();    //重新记录下落开始时间
+                        m_blocks[destPos.x, destPos.y].DropingStartTime = Timer.GetRealTimeSinceStartUp();    //重新记录下落开始时间
                         m_blocks[destPos.x, destPos.y].droppingFrom.Set(x, j);       //记录从哪里落过来的
                     }
                     else
                     {
                         if (m_blocks[destPos.x, destPos.y].droppingFrom.x != destPos.x || PlayingStageData.CheckFlag(destPos.x, destPos.y, GridFlag.PortalEnd))         //若不为直线下落
                         {
-                            m_blocks[destPos.x, destPos.y].DropingStartTime = Timer.GetFixedTime();    //重新记录下落开始时间
+                            m_blocks[destPos.x, destPos.y].DropingStartTime = Timer.GetRealTimeSinceStartUp();    //重新记录下落开始时间
                             m_blocks[destPos.x, destPos.y].droppingFrom.Set(x, j);       //记录从哪里落过来的
                         }
                     }
@@ -3634,7 +3580,7 @@ public class GameLogic
                     CreateBlock(x, destY, false);                                           //在目标位置生成块
                     m_blocks[x, destY].CurState = BlockState.Moving;
                     m_blocks[x, destY].droppingFrom.Set(x, destY - (y - j) - 1);            //记录从哪里落过来的
-                    m_blocks[x, destY].DropingStartTime = Timer.GetFixedTime();    //记录下落开始时间
+                    m_blocks[x, destY].DropingStartTime = Timer.GetRealTimeSinceStartUp();    //记录下落开始时间
                     tag = true;
                     ++CapBlock.DropingBlockCount;
                 }
@@ -3712,7 +3658,7 @@ public class GameLogic
                 m_blocks[x, toPos.y].droppingFrom.Set(fromPos.x, fromPos.y);       //记录从哪里落过来的
             }
             m_blocks[fromPos.x, fromPos.y] = null;                       //原块置空
-            m_blocks[x, toPos.y].DropingStartTime = Timer.GetFixedTime();    //记录下落开始时间
+            m_blocks[x, toPos.y].DropingStartTime = Timer.GetRealTimeSinceStartUp();    //记录下落开始时间
 			
             return true;
         }
@@ -3897,7 +3843,7 @@ public class GameLogic
                     grid.bProceeChocolateAround = true;
                 }
 				
-                grid.startTime = Timer.GetFixedTime();
+                grid.startTime = Timer.GetRealTimeSinceStartUp();
                 ProcessEatChanges(grid, false);     //立刻处理一次Grid
             }
         }
@@ -3959,10 +3905,10 @@ public class GameLogic
 		
 		if(m_comboCount > 1                 //从combo2开始
 			&& m_comboCount > m_comboSoundCount         //若combo比声音播放进度快
-			&& Timer.GetFixedTime() - m_comboSoundPlayTime > 0.3f)       //若到了时间间隔
+			&& Timer.GetRealTimeSinceStartUp() - m_comboSoundPlayTime > 0.3f)       //若到了时间间隔
 		{
 			++m_comboSoundCount;
-            m_comboSoundPlayTime = Timer.GetFixedTime();
+            m_comboSoundPlayTime = Timer.GetRealTimeSinceStartUp();
 			if (m_comboSoundCount > 8)
 	        {
 	            PlaySoundNextFrame(AudioEnum.Audio_Combo8);
@@ -4153,7 +4099,7 @@ public class GameLogic
                 m_helpPointerObj.SetActive(false);
             }
 
-            m_lastHelpTime = Timer.GetFixedTime();
+            m_lastHelpTime = Timer.GetRealTimeSinceStartUp();
         }
     }
 
@@ -4162,7 +4108,7 @@ public class GameLogic
         DelayProceedGrid grid = new DelayProceedGrid();
         grid.x = x;
         grid.y = y;
-        grid.startTime = Timer.GetFixedTime() + delay;
+        grid.startTime = Timer.GetRealTimeSinceStartUp() + delay;
         grid.block = block;
 
         if (delay == 0.0f)
@@ -4197,7 +4143,7 @@ public class GameLogic
 
         if (block != null &&
             block.CurState != BlockState.Moving &&
-            (block.CurState != BlockState.Eating || block.m_eatStartTime > Timer.GetFixedTime() + delay) && //对于Eating的块，原预计消除的时间比delay后的晚才处理，相当于提前引爆
+            (block.CurState != BlockState.Eating || block.m_eatStartTime > Timer.GetRealTimeSinceStartUp() + delay) && //对于Eating的块，原预计消除的时间比delay后的晚才处理，相当于提前引爆
             block.color <= TBlockColor.EColor_Cyan)       //移动不处理特殊块
         {
             block.EatEffectName = eatEffectName;         //消除特效名字，用传进来的
@@ -4306,7 +4252,7 @@ public class GameLogic
         flyParticle.start = gameObj.transform.localPosition;
         flyParticle.end = new Vector3(GetXPos(to.x), -GetYPos(to.x, to.y), -200);
         flyParticle.duration = duration;
-        flyParticle.startTime = Timer.GetFixedTime() + delay;
+        flyParticle.startTime = Timer.GetRealTimeSinceStartUp() + delay;
         flyParticle.audio = audio;
         flyParticle.name = name;
 
@@ -4433,7 +4379,7 @@ public class GameLogic
         else
         {
             gameObj.SetActive(false);           //先隐藏起来
-            delayPar.startTime = Timer.GetFixedTime() + delay;
+            delayPar.startTime = Timer.GetRealTimeSinceStartUp() + delay;
             delayPar.audio = audio;
             particleList.AddLast(delayPar);
         }
@@ -4735,8 +4681,8 @@ public class GameLogic
 
         ProcessCheckStageFinish();
 
-        m_lastHelpTime = Timer.GetFixedTime();
-        m_lastShowIceTipTime = Timer.GetFixedTime();
+        m_lastHelpTime = Timer.GetRealTimeSinceStartUp();
+        m_lastShowIceTipTime = Timer.GetRealTimeSinceStartUp();
 
         CheckFTUE();            //检测一次FTUE
 
@@ -4780,7 +4726,7 @@ public class GameLogic
         {
             m_bHurryAnimPlayed = true;
             m_hurryUpText.text = Localization.instance.Get("HurryUpStep");
-			m_hurryUpTweener.ResetToBeginning();
+            m_hurryUpTweener.ResetToBeginning();
             m_hurryUpTweener.Play(true);
             PlaySoundNextFrame(AudioEnum.Audio_Only5StepLeft);
         }
@@ -5384,7 +5330,7 @@ public class GameLogic
     {
         m_chocolateNeedGrow = true;
         ClearHelpPoint();
-        m_lastShowIceTipTime = Timer.GetFixedTime();
+        m_lastShowIceTipTime = Timer.GetRealTimeSinceStartUp();
         MoveBlockPair(m_selectedPos[0], m_selectedPos[1]);
     }
 
@@ -5752,6 +5698,7 @@ public class GameLogic
 			int test2 = test;
 		}
         m_blocks[x, y].RefreshBlockSprite(PlayingStageData.GridData[x, y]);                                         //刷新下显示内容
+
         return true;
     }
 

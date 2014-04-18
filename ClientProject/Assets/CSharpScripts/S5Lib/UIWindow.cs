@@ -32,13 +32,13 @@ public abstract class UIEffectPlayer : MonoBehaviour
         if (Delay == 0)
         {
             m_state = EffectState.Showing;
-            m_curStateStartTime = Timer.GetFixedTime();
+            m_curStateStartTime = Timer.GetRealTimeSinceStartUp();
 			DoShowEffect();
         }
         else
         {
             m_state = EffectState.Delay;
-            m_curStateStartTime = Timer.GetFixedTime();
+            m_curStateStartTime = Timer.GetRealTimeSinceStartUp();
             gameObject.SetActive(false);
             m_delayStartTime = Time.realtimeSinceStartup;
         }
@@ -47,7 +47,7 @@ public abstract class UIEffectPlayer : MonoBehaviour
     public virtual void HideEffect(UIWindow.WindowEffectFinished finishedFunc = null)        //隐藏时的特效
     {
         m_state = EffectState.Hiding;
-        m_curStateStartTime = Timer.GetFixedTime();
+        m_curStateStartTime = Timer.GetRealTimeSinceStartUp();
         DoHideEffect();
         m_finishedFunc = finishedFunc;
     }            
@@ -63,7 +63,7 @@ public abstract class UIEffectPlayer : MonoBehaviour
             if (Time.realtimeSinceStartup - m_delayStartTime > Delay)                         //若Delay时间已到
             {
                 m_state = EffectState.Showing;                                                //切显示特效状态
-                m_curStateStartTime = Timer.GetFixedTime();
+                m_curStateStartTime = Timer.GetRealTimeSinceStartUp();
                 m_delayStartTime = 0;
                 gameObject.SetActive(true);                                                   //把自己显示出来
                 DoShowEffect();                                                               //播放显示特效
@@ -73,7 +73,7 @@ public abstract class UIEffectPlayer : MonoBehaviour
         if (m_state == EffectState.Showing && !IsPlaying())     //若显示特效状态已经结束
         {
             m_state = EffectState.Idle;                         //进入Idle状态
-            m_curStateStartTime = Timer.GetFixedTime();
+            m_curStateStartTime = Timer.GetRealTimeSinceStartUp();
             DoIdleEffect();                                     //播放Idle状态特效
         }
 

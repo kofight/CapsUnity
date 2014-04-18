@@ -367,7 +367,7 @@ public class UIMap : UIWindow
 
         m_cloud2Sprite.gameObject.SetActive(true);
         m_cloudSprite.gameObject.SetActive(true);
-		m_lastClickStageTime = Timer.GetFixedTime();     //更新关卡点击时间
+		m_lastClickStageTime = Timer.GetRealTimeSinceStartUp();     //更新关卡点击时间
         m_inputBlocker.SetActive(false);
         if (GlobalVars.DeveloperMode)
         {
@@ -543,9 +543,9 @@ public class UIMap : UIWindow
 
         if (m_stageUI.Visible)
         {
-            m_lastClickStageTime = Timer.GetFixedTime();     //更新关卡点击时间
+            m_lastClickStageTime = Timer.GetRealTimeSinceStartUp();     //更新关卡点击时间
         }
-        else if (Timer.GetFixedTime() - m_lastClickStageTime > 5.0f)      //5秒没有有效操作
+        else if (Timer.GetRealTimeSinceStartUp() - m_lastClickStageTime > 5.0f)      //5秒没有有效操作
         {
             SetStageHelp(true);
         }
@@ -621,7 +621,7 @@ public class UIMap : UIWindow
 
     private void OnStageClicked()
     {
-        m_lastClickStageTime = Timer.GetFixedTime();     //更新关卡点击时间
+        m_lastClickStageTime = Timer.GetRealTimeSinceStartUp();     //更新关卡点击时间
         SetStageHelp(false);
 
         if (GlobalVars.UseSFX)

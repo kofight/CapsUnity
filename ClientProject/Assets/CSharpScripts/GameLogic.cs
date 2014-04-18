@@ -2212,6 +2212,7 @@ public class GameLogic
                                 //重新开始游戏
                                 ClearLogic(true);
                                 InitLogic();
+                                UIWindowManager.Singleton.GetUIWindow<UIGameHead>().RefreshTarget();
                             }
                             ProcessResortEffectStartTime(oneTimeCount + CapsConfig.EffectResortTime, CapsConfig.EffectResortInterval, m_curSpecialEffect == TSpecialEffect.EResortEffect);    //计算特效时序
                             m_effectStep = 3;
@@ -2419,8 +2420,6 @@ public class GameLogic
 
         m_scoreToShow[x, y] += CapsConfig.FruitDropDown;
         m_blocks[x, y].Eat();
-
-        UIWindowManager.Singleton.GetUIWindow<UIGameHead>().RefreshTarget();
     }
 
     //处理下落完成后的判断////////////////////////////////////////////////////////////////////////

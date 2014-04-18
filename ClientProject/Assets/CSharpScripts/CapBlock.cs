@@ -220,8 +220,8 @@ public class CapBlock
 	{
         if (CurState == BlockState.Eating)
         {
-			if(m_eatStartTime > Timer.GetRealTimeSinceStartUp() + delay)
-				m_eatStartTime = Timer.GetRealTimeSinceStartUp() + delay;
+			if(m_eatStartTime > Timer.GetFixedTime() + delay)
+				m_eatStartTime = Timer.GetFixedTime() + delay;
             return;
         }
 		if (CurState == BlockState.MovingEnd)
@@ -229,7 +229,7 @@ public class CapBlock
             --DropingBlockCount;
         }
         CurState = BlockState.Eating;
-        m_eatStartTime = Timer.GetRealTimeSinceStartUp() + delay;
+        m_eatStartTime = Timer.GetFixedTime() + delay;
         ++EatingBlockCount;
         EatEffectPlayed = false;
 	}

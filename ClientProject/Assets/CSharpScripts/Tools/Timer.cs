@@ -18,13 +18,20 @@ struct DelayAction
 public class Timer {
 
     static LinkedList<DelayAction> m_delayActoinList = new LinkedList<DelayAction>();
+    static float m_lastUpdateRealTime;
+    static float m_RealTime;
 
     public static long millisecondNow()
     {
         return (long)(s_currentTime * 1000);
     }
 
-    public static float GetRealTimeSinceStartUp()
+    public static float GetRealTime()   //每帧刷新的时间
+    {
+        return m_RealTime;                   
+    }
+
+    public static float GetFixedTime()              //固定间隔的时间
     {
         return s_currentTime;
     }
@@ -37,7 +44,7 @@ public class Timer {
         m_delayActoinList.AddLast(act);
     }
 
-    public static void Update()
+    public static void FixedUpdate()
     {
         foreach (DelayAction act in m_delayActoinList)
         {
@@ -48,6 +55,14 @@ public class Timer {
                 break;
             }
         }
+
+        Timer.s_currentTime += Time.fixedDeltaTime;		//更新时间
+        m_lastUpdateRealTime = Time.realtimeSinceStartup;
+    }
+
+    public static void Update()
+    {
+        m_RealTime = s_currentTime + (Time.realtimeSinceStartup - m_lastUpdateRealTime) * Time.timeScale;
     }
 
 	public static float s_currentTime = 0;
@@ -58,7 +73,7 @@ public class Timer {
 
     public long GetTime()
     {
-        return millisecondNow() - m_startTime;
+        return (int)(GetRealTime() * 1000) - m_startTime;
     }
 
     public void Play()
@@ -78,10 +93,6 @@ public class Timer {
 		    return TimerEnum.EStop;
 	    }
 	    return TimerEnum.ERunning;
-    }
-	public void Adjust(long val)
-    {
-        m_startTime -= val;
     }
 
 	long m_startTime;

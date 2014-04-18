@@ -4780,6 +4780,7 @@ public class GameLogic
         {
             m_bHurryAnimPlayed = true;
             m_hurryUpText.text = Localization.instance.Get("HurryUpStep");
+			m_hurryUpTweener.ResetToBeginning();
             m_hurryUpTweener.Play(true);
             PlaySoundNextFrame(AudioEnum.Audio_Only5StepLeft);
         }

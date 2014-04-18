@@ -1469,13 +1469,13 @@ public class GameLogic
             return;
         }
 
-        //if (!GlobalVars.DeveloperMode)
-        //{
-        //    if (PlayerPrefs.GetInt("StageFTUEFinished") >= GlobalVars.CurStageNum)
-        //    {
-        //        return;
-        //    }
-        //}
+        if (!GlobalVars.DeveloperMode)
+        {
+            if (PlayerPrefs.GetInt("StageFTUEFinished") >= GlobalVars.CurStageNum)
+            {
+                return;
+            }
+        }
 
         int FTUEStepCount = GlobalVars.CurStageData.StepLimit - PlayingStageData.StepLimit;
 
@@ -2614,6 +2614,7 @@ public class GameLogic
         {
             m_bHurryAnimPlayed = true;
             m_hurryUpText.text = Localization.instance.Get("HurryUpTime");
+            m_hurryUpTweener.ResetToBeginning();
             m_hurryUpTweener.Play(true);
             PlaySoundNextFrame(AudioEnum.Audio_Only15SecLeft);
         }

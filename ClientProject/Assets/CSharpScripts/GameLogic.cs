@@ -663,6 +663,10 @@ public class GameLogic
 
     public float GetTimeRemain()                            //获得剩余时间
     {
+        if (m_gameStartTime == 0)
+        {
+            return GlobalVars.CurStageData.TimeLimit;
+        }
         float timeRemain = GlobalVars.CurStageData.TimeLimit - (Timer.millisecondNow() - m_gameStartTime) / 1000.0f;
         timeRemain = Mathf.Max(0, timeRemain);
         return timeRemain;
@@ -3239,7 +3243,7 @@ public class GameLogic
     void ProcessEatChanges(DelayProceedGrid processGrid, bool showProgress, bool addBlockProgress = false)                //处理吃了某位置后对场景的影响
     {
         bool jellyChanged = false;
-		bool removeJelly = false;
+		//bool removeJelly = false;
         bool needEatBlock = false;          //是否还需要吃块本身?因为若要处理的位置是笼子等，就不需要吃块本身了
 
         int flag = PlayingStageData.GridData[processGrid.x, processGrid.y];
@@ -3317,18 +3321,8 @@ public class GameLogic
                 m_gridBackImage[processGrid.x, processGrid.y].layer4.gameObject.SetActive(false);
 
                 jellyChanged = true;
-				removeJelly = true;
+				//removeJelly = true;
             }
-        }
-
-        if (processGrid.bProceeChocolateAround)        //若有正常消除
-        {
-            ClearChocolateAround(processGrid.x, processGrid.y);   
-        }
-
-        if (processGrid.bProceeStoneAround)
-        {
-            ClearStoneAround(processGrid.x, processGrid.y);         //清周围的石块
         }
 
         if (jellyChanged)
@@ -3354,6 +3348,16 @@ public class GameLogic
                     }
                 }
                 processGrid.block.m_dropDownStartTime = 0;
+
+                if (processGrid.bProceeChocolateAround)        //若有正常消除
+                {
+                    ClearChocolateAround(processGrid.x, processGrid.y);
+                }
+
+                if (processGrid.bProceeStoneAround)
+                {
+                    ClearStoneAround(processGrid.x, processGrid.y);         //清周围的石块
+                }
             }
             else
             {

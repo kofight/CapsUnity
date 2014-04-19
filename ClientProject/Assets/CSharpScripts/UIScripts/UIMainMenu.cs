@@ -134,6 +134,10 @@ public class UIMainMenu : UIWindow
     public void OnQuitClicked()
     {
         m_mainMenuExtend.HideWindow();
+        if (UIWindowManager.Singleton.GetUIWindow<UIFTUE>() != null && UIWindowManager.Singleton.GetUIWindow<UIFTUE>().Visible)
+        {
+            UIWindowManager.Singleton.GetUIWindow<UIFTUE>().HideWindow();
+        }
         if (CapsApplication.Singleton.CurStateEnum == StateEnum.Game)
         {
             if (UIWindowManager.Singleton.GetUIWindow<UIStageEditor>() != null && UIWindowManager.Singleton.GetUIWindow<UIStageEditor>().Visible)

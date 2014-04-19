@@ -86,7 +86,7 @@ public class UIStageTarget : UIWindow
                     curBoard = m_timeScoreBoard;
                 }
 
-                UILabel scoreLabel = GetChildComponent<UILabel>("Score");
+                UILabel scoreLabel = UIToolkits.FindComponent<UILabel>(curBoard, "Score");
                 scoreLabel.text = stage.StarScore[0].ToString();
             }
             else if (stage.Target == GameTarget.ClearJelly)

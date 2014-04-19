@@ -2,7 +2,7 @@
 
 "Click.png":
 {
-	"frame": {"x":324,"y":476,"w":57,"h":60},
+	"frame": {"x":1828,"y":603,"w":57,"h":60},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":57,"h":60},
@@ -10,7 +10,7 @@
 },
 "CopyrightInfo.png":
 {
-	"frame": {"x":2,"y":908,"w":640,"h":64},
+	"frame": {"x":1014,"y":818,"w":640,"h":64},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":640,"h":64},
@@ -18,15 +18,23 @@
 },
 "Dog.png":
 {
-	"frame": {"x":2,"y":566,"w":218,"h":340},
+	"frame": {"x":1608,"y":476,"w":218,"h":340},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":260,"w":218,"h":340},
 	"sourceSize": {"w":320,"h":600}
 },
+"FailedBar.png":
+{
+	"frame": {"x":644,"y":2,"w":640,"h":229},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":12,"w":640,"h":229},
+	"sourceSize": {"w":640,"h":255}
+},
 "Feledes.png":
 {
-	"frame": {"x":2,"y":2,"w":320,"h":562},
+	"frame": {"x":1286,"y":2,"w":320,"h":562},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":38,"w":320,"h":562},
@@ -34,55 +42,71 @@
 },
 "Logo.png":
 {
-	"frame": {"x":639,"y":763,"w":597,"h":135},
+	"frame": {"x":1014,"y":884,"w":597,"h":135},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":597,"h":135},
 	"sourceSize": {"w":597,"h":135}
 },
+"ResortBar.png":
+{
+	"frame": {"x":2,"y":233,"w":639,"h":229},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":12,"w":639,"h":229},
+	"sourceSize": {"w":639,"h":255}
+},
 "Speicher.png":
 {
-	"frame": {"x":324,"y":2,"w":320,"h":472},
+	"frame": {"x":1608,"y":2,"w":320,"h":472},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":128,"w":320,"h":472},
 	"sourceSize": {"w":320,"h":600}
 },
+"TargetBar.png":
+{
+	"frame": {"x":2,"y":2,"w":640,"h":229},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":12,"w":640,"h":229},
+	"sourceSize": {"w":640,"h":255}
+},
 "Tech_Bomb.png":
 {
-	"frame": {"x":1063,"y":2,"w":415,"h":285},
+	"frame": {"x":2,"y":730,"w":506,"h":264},
 	"rotated": false,
 	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":415,"h":285},
-	"sourceSize": {"w":415,"h":285}
+	"spriteSourceSize": {"x":0,"y":0,"w":506,"h":264},
+	"sourceSize": {"w":506,"h":264}
 },
 "Tech_Eat.png":
 {
-	"frame": {"x":646,"y":2,"w":415,"h":285},
+	"frame": {"x":510,"y":499,"w":506,"h":264},
 	"rotated": false,
 	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":415,"h":285},
-	"sourceSize": {"w":415,"h":285}
+	"spriteSourceSize": {"x":0,"y":0,"w":506,"h":264},
+	"sourceSize": {"w":506,"h":264}
 },
 "Tech_EatAColor.png":
 {
-	"frame": {"x":639,"y":476,"w":415,"h":285},
+	"frame": {"x":2,"y":464,"w":506,"h":264},
 	"rotated": false,
 	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":415,"h":285},
-	"sourceSize": {"w":415,"h":285}
+	"spriteSourceSize": {"x":0,"y":0,"w":506,"h":264},
+	"sourceSize": {"w":506,"h":264}
 },
 "Tech_Line.png":
 {
-	"frame": {"x":222,"y":566,"w":415,"h":285},
+	"frame": {"x":643,"y":233,"w":506,"h":264},
 	"rotated": false,
 	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":415,"h":285},
-	"sourceSize": {"w":415,"h":285}
+	"spriteSourceSize": {"x":0,"y":0,"w":506,"h":264},
+	"sourceSize": {"w":506,"h":264}
 },
 "TextBox.png":
 {
-	"frame": {"x":898,"y":289,"w":250,"h":176},
+	"frame": {"x":762,"y":765,"w":250,"h":176},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":250,"h":176},
@@ -90,7 +114,7 @@
 },
 "TextBox2.png":
 {
-	"frame": {"x":1150,"y":289,"w":146,"h":125},
+	"frame": {"x":1828,"y":476,"w":146,"h":125},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":146,"h":125},
@@ -98,15 +122,7 @@
 },
 "TextBox3.png":
 {
-	"frame": {"x":1238,"y":685,"w":283,"h":216},
-	"rotated": false,
-	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":283,"h":216},
-	"sourceSize": {"w":283,"h":216}
-},
-"TextBox3Mir.png":
-{
-	"frame": {"x":1056,"y":467,"w":283,"h":216},
+	"frame": {"x":1018,"y":566,"w":283,"h":216},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":283,"h":216},
@@ -114,7 +130,7 @@
 },
 "TextBoxMir.png":
 {
-	"frame": {"x":646,"y":289,"w":250,"h":176},
+	"frame": {"x":510,"y":765,"w":250,"h":176},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":250,"h":176},
@@ -127,6 +143,6 @@
 	"format": "RGBA8888",
 	"size": {"w":2048,"h":1024},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:310dacbb86e8efb6ca62cfe690ea459c$"
+	"smartupdate": "$TexturePacker:SmartUpdate:1c4b4c379c203b6be00197d534ed95cf$"
 }
 }

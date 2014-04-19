@@ -1,6 +1,6 @@
 ﻿TotalStageCount			95				
 DropAccelarate			5.5				
-SlideSpeed			5				
+SlideSpeed			3.8				
 DropSpeed			4				
 GameSpeed			1				
 EatTime			0.37				

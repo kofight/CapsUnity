@@ -49,7 +49,7 @@ public class CapsApplication : S5Application
     protected override void DoInit()
     {
         //根据平台开关数据分析
-        if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer)
+        if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer || Application.platform == RuntimePlatform.WP8Player)
         {
             CapsConfig.EnableGA = true;
             CapsConfig.EnableTalkingData = true;

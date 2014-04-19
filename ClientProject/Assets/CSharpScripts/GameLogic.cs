@@ -2484,7 +2484,7 @@ public class GameLogic
 						bDroped = true;         //发生了落到底，就记下来
                     }
 					else{
-						DropDownStraight(i);
+                        KeepDroping(i, j);
 					}
                 }
             }
@@ -3533,6 +3533,57 @@ public class GameLogic
             UpdateSlopeLock();
         }
         return bDrop;
+    }
+
+    public bool KeepDroping(int x, int y)
+    {
+        bool tag = false;
+            Position destPos = new Position();
+            if (m_blocks[x, y] != null && m_blocks[x, y].IsDropDownAble())       //若有效块没在下落且没被锁定
+            {
+                bool bDrop = false;
+                int yPos = y;
+                if (CheckPosCanDropDown(x, yPos + 1))          //下面的格若能掉落
+                {
+                    ++yPos;                                         //向下一格
+                    //看看可以掉落到什么地方
+                    while (true)
+                    {
+                        if (!CheckPosCanDropDown(x, yPos + 1))      //向下看一格
+                        {
+                            break;
+                        }
+                        ++yPos;                               //向下一格
+                    }
+                    destPos.Set(x, yPos);                      //设置掉落目标点
+                    bDrop = true;
+                }
+
+                if (bDrop)
+                {
+                    //处理下落////////////////////////////////////////////////////////////////////////
+                    m_blocks[destPos.x, destPos.y] = m_blocks[x, y];             //往下移块
+                    if (m_blocks[destPos.x, destPos.y].CurState != BlockState.MovingEnd)        //若为MovingEnd状态，继续下落，则不增加下落块数记录
+                    {
+                        ++CapBlock.DropingBlockCount;
+                        m_blocks[destPos.x, destPos.y].DropingStartTime = Timer.GetRealTimeSinceStartUp();    //重新记录下落开始时间
+                        m_blocks[destPos.x, destPos.y].droppingFrom.Set(x, y);       //记录从哪里落过来的
+                    }
+                    else
+                    {
+                        if (m_blocks[destPos.x, destPos.y].droppingFrom.x != destPos.x || PlayingStageData.CheckFlag(destPos.x, destPos.y, GridFlag.PortalEnd))         //若不为直线下落
+                        {
+                            m_blocks[destPos.x, destPos.y].DropingStartTime = Timer.GetRealTimeSinceStartUp();    //重新记录下落开始时间
+                            m_blocks[destPos.x, destPos.y].droppingFrom.Set(x, y);       //记录从哪里落过来的
+                        }
+                    }
+                    m_blocks[destPos.x, destPos.y].CurState = BlockState.Moving;
+                    m_blocks[x, y] = null;                       //原块置空
+
+                    tag = true;
+                }
+            }
+        return tag;			//返回是否发生了掉落
     }
 
     public bool DropDownStraight(int x)

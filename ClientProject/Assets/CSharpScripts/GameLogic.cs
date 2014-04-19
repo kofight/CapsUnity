@@ -4676,18 +4676,9 @@ public class GameLogic
 
         HideUI();
 
-        Timer.AddDelayFunc(1.5f, delegate()
+        Timer.AddDelayFunc(0.5f, delegate()
         {
             UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();            //出游戏结束界面
-        });
-
-        m_stageTargetUI.Mode = UIStageTarget.TargetMode.GameFailed;
-        m_stageTargetUI.ShowWindow(delegate()
-        {
-            Timer.AddDelayFunc(1.0f, delegate()
-            {
-                m_stageTargetUI.HideWindow();
-            });
         });
     }
 

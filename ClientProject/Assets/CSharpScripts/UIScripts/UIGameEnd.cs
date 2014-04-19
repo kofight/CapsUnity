@@ -242,12 +242,22 @@ public class UIGameEnd : UIWindow
     private void OnEndGameClicked()
     {
         HideWindow();
+		
 		GameLogic.Singleton.ResumeGame();
 		GameLogic.Singleton.PlayEndGameAnim();		//play the end anim(move the game area out of screen)
 
         GameLogic.Singleton.HideUI();
 
-        Timer.AddDelayFunc(0.6f, delegate()
+        UIWindowManager.Singleton.GetUIWindow<UIStageTarget>().Mode = UIStageTarget.TargetMode.GameFailed;
+        UIWindowManager.Singleton.GetUIWindow<UIStageTarget>().ShowWindow(delegate()
+        {
+            Timer.AddDelayFunc(1.0f, delegate()
+            {
+                UIWindowManager.Singleton.GetUIWindow<UIStageTarget>().HideWindow();
+            });
+        });
+
+        Timer.AddDelayFunc(1.3f, delegate()
         {
             UIWindowManager.Singleton.GetUIWindow<UIRetry>().RefreshData();
             UIWindowManager.Singleton.GetUIWindow<UIRetry>().ShowWindow();

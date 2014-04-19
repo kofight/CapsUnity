@@ -32,6 +32,8 @@ public class UIStageTarget : UIWindow
 	UISprite nut2Icon;
     UISprite nutSplash;
 
+    UISprite m_background;
+
     UILabel[] collectLabel = new UILabel[3];
 	UISprite [] collectIcon = new UISprite [3];
 
@@ -59,6 +61,8 @@ public class UIStageTarget : UIWindow
 		nut2Icon = GetChildComponent<UISprite>("NutIcon2");
         nutSplash = GetChildComponent<UISprite>("NutSplash");
 
+        m_background = GetChildComponent<UISprite>("Background");
+
         for (int i = 0; i < 3; ++i )
         {
             collectLabel[i] = GetChildComponent<UILabel>("CollectCount" + (i + 1));
@@ -83,6 +87,7 @@ public class UIStageTarget : UIWindow
 		Transform curBoard;
         if (Mode == TargetMode.StageTarget)
         {
+            m_background.spriteName = "TargetBar";
             StageData stage = GlobalVars.CurStageData;
             if (stage.Target == GameTarget.GetScore)
             {
@@ -243,10 +248,12 @@ public class UIStageTarget : UIWindow
         {
             if (Mode == TargetMode.GameFailed)
             {
+                m_background.spriteName = "FailedBar";
                 m_gameFailedBoard.gameObject.SetActive(true);
             }
             else if (Mode == TargetMode.AutoResort)
             {
+                m_background.spriteName = "ResortBar";
                 m_autoResortBoard.gameObject.SetActive(true);
             }
         }

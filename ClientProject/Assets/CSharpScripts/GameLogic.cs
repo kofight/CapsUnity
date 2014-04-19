@@ -416,6 +416,8 @@ public class GameLogic
     bool m_bReadyToStart = false;                           //这个变量标记当前是否可以开始(任意点击就可以开始了)
     float m_readyToStartTime;                               //准备好开始的时间
 
+    bool m_bAvailable = false;                              //GameLogic是否可用，用来在游戏结束时屏蔽Update
+
     public bool ResortFailed = false;                           //重排失败造成关卡失败(仍有步数或时间)
 
     bool m_bHurryAnimPlayed = false;                        //用来记录Hurry动画是否已经播放完毕了
@@ -1018,6 +1020,7 @@ public class GameLogic
 
     public void Init(int seed = -1)         //seed > -1时，指定seed
     {
+        m_bAvailable = true;
         InitRes();
         InitLogic(seed);
         PlayMusic();
@@ -1670,6 +1673,7 @@ public class GameLogic
         ClearLogic();
 
         System.GC.Collect();
+        m_bAvailable = false;
     }
 
     public int GetXPos(int x)
@@ -2517,6 +2521,10 @@ public class GameLogic
 
     public void FixedUpdate()
     {
+        if (!m_bAvailable)
+        {
+            return;
+        }
         if (m_bReadyToStart)
         {
             if (Timer.GetRealTimeSinceStartUp() - m_readyToStartTime > 3.0f)      //3秒钟自动开始
@@ -2652,6 +2660,11 @@ public class GameLogic
 
     public void Update()
     {
+        if (!m_bAvailable)
+        {
+            return;
+        }
+
         //处理延迟消除
         if (m_delayProcessGrid.Count > 0)
         {

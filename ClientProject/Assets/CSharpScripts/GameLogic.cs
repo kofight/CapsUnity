@@ -286,6 +286,8 @@ public enum AudioEnum
     Audio_Only5StepLeft,
     Audio_Only15SecLeft,
 
+    Audio_EatNut,
+
     Audio_Combo1,
     Audio_Combo2,
     Audio_Combo3,
@@ -553,6 +555,11 @@ public class GameLogic
                 case AudioEnum.Audio_Only15SecLeft:
                     {
                         clip = CapsConfig.CurAudioList.Only15SecLeftClip;
+                    }
+                    break;
+                case AudioEnum.Audio_EatNut:
+                    {
+                        clip = CapsConfig.CurAudioList.EatNutClip;
                     }
                     break;
             }
@@ -3190,6 +3197,8 @@ public class GameLogic
                                 m_blocks[i, j].m_tweenScale.ResetToBeginning();
                                 m_blocks[i, j].m_tweenScale.Play(true);
                                 m_blocks[i, j].m_blockSprite.depth = 3;
+
+                                AddPartile("EatNutEffect", AudioEnum.Audio_EatNut, i, j);       //添加一个特效
 
                                 Timer.AddDelayFunc(1.5f, delegate()
                                 {

@@ -27,6 +27,7 @@ public class AudioList : MonoBehaviour {
     public AudioClip Only15SecLeftClip;
     public AudioClip PurchaseClip;
     public AudioClip GetStarClip;
+    public AudioClip EatNutClip;
 
     public List<AudioClip> ComboClip;
 	

@@ -97,6 +97,7 @@ public class UIMap : UIWindow
 
         m_mapObj = mUIObject.transform.FindChild("MapObj").gameObject;
         springPanel = m_mapObj.AddComponent<SpringPanel>();
+        springPanel.strength = 1000;
         UIPanel panel = m_mapObj.GetComponent<UIPanel>();
         //panel.baseClipRegion = new Vector4(0, 0, CapsApplication.Singleton.Width, CapsApplication.Singleton.Height);
 
@@ -335,15 +336,15 @@ public class UIMap : UIWindow
 		{
             //截图时用的，发布版本不显示未开启的关卡，直接放在背景图上
 
-            sprite.spriteName = "MapPoint_NotOpen_Type" + CapsConfig.StageTypeArray[i];
-            sprite.width = 74;
-            sprite.height = 74;
-            sprite.LocalPositionX(4);
-            sprite.LocalPositionY(18);
-            m_stageNumbers[i].gameObject.SetActive(false);
-            button.enabled = false;
+            //sprite.spriteName = "MapPoint_NotOpen_Type" + CapsConfig.StageTypeArray[i];
+            //sprite.width = 74;
+            //sprite.height = 74;
+            //sprite.LocalPositionX(4);
+            //sprite.LocalPositionY(18);
+            //m_stageNumbers[i].gameObject.SetActive(false);
+            //button.enabled = false;
 
-            //m_stageBtns[i].gameObject.SetActive(false);
+            m_stageBtns[i].gameObject.SetActive(false);
 		}
 		EventDelegate.Set(button.onClick, OnStageClicked);
 	}
@@ -373,6 +374,8 @@ public class UIMap : UIWindow
         {
             RefreshButtons();
         }
+        		Transform curStageTrans = UIToolkits.FindChild(mUIObject.transform, "Stage" + GlobalVars.LastStage);      //找到对象
+        MoveTo(new Vector2(curStageTrans.localPosition.x, curStageTrans.localPosition.y));
     }
 
     public override void OnShowEffectPlayOver()
@@ -382,8 +385,6 @@ public class UIMap : UIWindow
         {
             OpenNewButton(GlobalVars.AvailabeStageCount);
         }
-		Transform curStageTrans = UIToolkits.FindChild(mUIObject.transform, "Stage" + GlobalVars.LastStage);      //找到对象
-        MoveTo(new Vector2(curStageTrans.localPosition.x, curStageTrans.localPosition.y));
     }
 
     public override void OnHide()

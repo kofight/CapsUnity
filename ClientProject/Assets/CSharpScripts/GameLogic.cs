@@ -286,6 +286,8 @@ public enum AudioEnum
     Audio_Only5StepLeft,
     Audio_Only15SecLeft,
 
+    Audio_EatNut,
+
     Audio_Combo1,
     Audio_Combo2,
     Audio_Combo3,
@@ -553,6 +555,11 @@ public class GameLogic
                 case AudioEnum.Audio_Only15SecLeft:
                     {
                         clip = CapsConfig.CurAudioList.Only15SecLeftClip;
+                    }
+                    break;
+                case AudioEnum.Audio_EatNut:
+                    {
+                        clip = CapsConfig.CurAudioList.EatNutClip;
                     }
                     break;
             }
@@ -1016,6 +1023,7 @@ public class GameLogic
         }
 
         m_lastShowIceTipTime = 0;
+        m_nextPlus5Step = 0;
     }
 
     public void Init(int seed = -1)         //seed > -1时，指定seed
@@ -3190,6 +3198,8 @@ public class GameLogic
                                 m_blocks[i, j].m_tweenScale.Play(true);
                                 m_blocks[i, j].m_blockSprite.depth = 3;
 
+                                AddPartile("EatNutEffect", AudioEnum.Audio_EatNut, i, j);       //添加一个特效
+
                                 Timer.AddDelayFunc(1.5f, delegate()
                                 {
                                     UIWindowManager.Singleton.GetUIWindow<UIGameHead>().RefreshTarget();
@@ -4676,18 +4686,9 @@ public class GameLogic
 
         HideUI();
 
-        Timer.AddDelayFunc(1.5f, delegate()
+        Timer.AddDelayFunc(0.5f, delegate()
         {
             UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();            //出游戏结束界面
-        });
-
-        m_stageTargetUI.Mode = UIStageTarget.TargetMode.GameFailed;
-        m_stageTargetUI.ShowWindow(delegate()
-        {
-            Timer.AddDelayFunc(1.0f, delegate()
-            {
-                m_stageTargetUI.HideWindow();
-            });
         });
     }
 

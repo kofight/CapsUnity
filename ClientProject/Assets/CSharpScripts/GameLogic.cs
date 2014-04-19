@@ -1016,6 +1016,7 @@ public class GameLogic
         }
 
         m_lastShowIceTipTime = 0;
+        m_nextPlus5Step = 0;
     }
 
     public void Init(int seed = -1)         //seed > -1时，指定seed

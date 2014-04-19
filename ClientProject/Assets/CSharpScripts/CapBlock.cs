@@ -211,8 +211,8 @@ public class CapBlock
     {
         if (Application.platform == RuntimePlatform.WP8Player)
         {
-            m_addColorTweenAlpha.enabled = false;
             m_addColorTweenAlpha.ResetToBeginning();
+            m_addColorTweenAlpha.enabled = false;
         }
     }
 

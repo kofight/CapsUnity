@@ -341,7 +341,7 @@ public class GameLogic
 
     UIGameBottom m_gameBottomUI;
     UIStageTarget m_stageTargetUI;                               //关卡开始时显示的关卡目标
-    UILabel m_hurryUpText;                                       //剩余5步（15秒）的文字框
+    UISprite m_hurryUpSprite;                                       //剩余5步（15秒）的文字框
     TweenPosition m_hurryUpTweener;                              //剩余5步（15秒）的Tweener
 
     ///游戏逻辑变量/////////////////////////////////////////////////////////////////
@@ -690,7 +690,7 @@ public class GameLogic
         m_helpPointerObj = GameObject.Find("HelpPointer");
 
         m_hurryUpTweener = GameObject.Find("HurryUp").GetComponent<TweenPosition>();
-        m_hurryUpText = GameObject.Find("HurryUpText").GetComponent<UILabel>();
+        m_hurryUpSprite = GameObject.Find("HurryUp").GetComponent<UISprite>();
 
         //Object obj = Resources.Load("IcePartile");
        // m_iceParticle = GameObject.Instantiate(obj) as GameObject;
@@ -2619,7 +2619,7 @@ public class GameLogic
         if (!m_bHurryAnimPlayed && m_gameFlow == TGameFlow.EGameState_Playing && GlobalVars.CurStageData.TimeLimit > 0 && GetTimeRemain() < 15)
         {
             m_bHurryAnimPlayed = true;
-            m_hurryUpText.text = Localization.instance.Get("HurryUpTime");
+            m_hurryUpSprite.spriteName = "HurryUpTime";
             m_hurryUpTweener.ResetToBeginning();
             m_hurryUpTweener.Play(true);
             PlaySoundNextFrame(AudioEnum.Audio_Only15SecLeft);
@@ -4745,7 +4745,7 @@ public class GameLogic
         if (!m_bHurryAnimPlayed && m_gameFlow == TGameFlow.EGameState_Playing && PlayingStageData.StepLimit == 5)                    
         {
             m_bHurryAnimPlayed = true;
-            m_hurryUpText.text = Localization.instance.Get("HurryUpStep");
+            m_hurryUpSprite.spriteName = "HurryUpStep";
             m_hurryUpTweener.ResetToBeginning();
             m_hurryUpTweener.Play(true);
             PlaySoundNextFrame(AudioEnum.Audio_Only5StepLeft);

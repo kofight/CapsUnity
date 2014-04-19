@@ -49,7 +49,7 @@ public class UIPurchaseNoTarget : UIWindow
                 GA.API.Business.NewEvent(GlobalVars.UsingItem.ToString(), "Coins", CapsConfig.GetItemPrice(GlobalVars.UsingItem));
                 if (GlobalVars.UsingItem == PurchasedItem.ItemAfterGame_PlusStep)
                 {
-                    GlobalVars.CurStageData.StepLimit += 5;
+                    //GlobalVars.CurStageData.StepLimit += 5;
                     GameLogic.Singleton.PlayingStageData.StepLimit += 5;        //步数加5
                     UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().OnChangeStep(GameLogic.Singleton.PlayingStageData.StepLimit);
                     GameLogic.Singleton.SetGameFlow(TGameFlow.EGameState_Playing);      //回到可以继续玩的状态

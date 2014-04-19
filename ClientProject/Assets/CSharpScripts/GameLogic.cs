@@ -2437,7 +2437,7 @@ public class GameLogic
         bool bEat = false;      //记录是否形成了消块
         for (int i = BlockXStart; i <= BlockXEnd; ++i)
         {
-            for (int j = BlockYStart; j <= BlockYEnd; ++j)
+			for (int j = BlockYEnd; j >= BlockYStart; --j)
             {
                 if (m_blocks[i, j] != null && m_blocks[i, j].CurState == BlockState.MovingEnd)      //若为普通块且移动结束
                 {
@@ -2475,6 +2475,9 @@ public class GameLogic
 							
 						bDroped = true;         //发生了落到底，就记下来
                     }
+					else{
+						DropDownStraight(i);
+					}
                 }
             }
         }
@@ -2536,36 +2539,6 @@ public class GameLogic
         }
 
         ProcessState();
-
-        bool bFoundMoveEnd = false;
-
-        if (CapBlock.DropingBlockCount > 0)
-        {
-
-            for (int i = BlockXStart; i <= BlockXEnd; ++i)
-            {
-                for (int j = BlockYStart; j <= BlockYEnd; ++j)
-                {
-                    if (m_blocks[i, j] != null && m_blocks[i, j].CurState == BlockState.MovingEnd)
-                    {
-                        bFoundMoveEnd = true;
-                    }
-                }
-            }
-            if (bFoundMoveEnd)     //若找到了MovingEnd的块
-            {
-                ProcessMoveEnd();        //处理下落结束的块（消块）
-            }
-        }
-
-        if (bFoundMoveEnd)
-        {
-            DropDown();                     //再处理一次下落, DropDown里已经处理了UpdateSlopeLock
-        }
-        else
-        {
-            UpdateSlopeLock();              //否则更新SlopeLock
-        }
 
         //处理帮助
         if (m_gameFlow == TGameFlow.EGameState_Playing && m_lastHelpTime > 0)      //下落完成的状态
@@ -2698,6 +2671,36 @@ public class GameLogic
         TimerWork();
 
         DrawGraphics();     //绘制图形
+
+        bool bFoundMoveEnd = false;
+
+        if (CapBlock.DropingBlockCount > 0)
+        {
+
+            for (int i = BlockXStart; i <= BlockXEnd; ++i)
+            {
+                for (int j = BlockYStart; j <= BlockYEnd; ++j)
+                {
+                    if (m_blocks[i, j] != null && m_blocks[i, j].CurState == BlockState.MovingEnd)
+                    {
+                        bFoundMoveEnd = true;
+                    }
+                }
+            }
+            if (bFoundMoveEnd)     //若找到了MovingEnd的块
+            {
+                ProcessMoveEnd();        //处理下落结束的块（消块）
+            }
+        }
+
+        if (bFoundMoveEnd)
+        {
+            DropDown();                     //再处理一次下落, DropDown里已经处理了UpdateSlopeLock
+        }
+        else
+        {
+            UpdateSlopeLock();              //否则更新SlopeLock
+        }
 
         //处理粒子////////////////////////////////////////////////////////////////////////
         foreach (KeyValuePair<string, LinkedList<DelayParticle>> pair in m_particleMap)

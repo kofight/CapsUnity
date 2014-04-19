@@ -15,7 +15,7 @@ PlusStepMin			5
 PlusStepMax			10				
 Seed			0				
 NewFormat			1				
-StarScore			18000,21000,24000,				
+StarScore			28000,32000,40000,				
 CollectColors			0,0,0,				
 CollectSpecial			0,0,0,				
 CollectCount			0,0,0,				

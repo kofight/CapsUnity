@@ -3,10 +3,10 @@
   "androidBillingPlatform": "GooglePlay",
   "GooglePlayPublicKey": "[Your key]",
   "useAmazonSandbox": false,
-  "UseWP8MockingFramework": true,
+  "UseWP8MockingFramework": false,
   "useHostedConfig": false,
   "hostedConfigUrl": null,
-  "UseWin8_1Sandbox": true,
+  "UseWin8_1Sandbox": false,
   "purchasableItems": {
     "com.linkrstudio.jellycraft.140coins": {
       "@id": "com.linkrstudio.jellycraft.140coins",
@@ -22,7 +22,7 @@
         "AmazonAppstore": {},
         "AppleAppStore": {
           "AppleAppStore.Id": "com.linkr.jellycraft.140coins",
-          "appleAppStorePriceTier": 1,
+          "appleAppStorePriceTier": 1.0,
           "screenshotPath": ""
         },
         "MacAppStore": {
@@ -47,7 +47,7 @@
         },
         "AmazonAppstore": {},
         "AppleAppStore": {
-          "appleAppStorePriceTier": 1,
+          "appleAppStorePriceTier": 1.0,
           "screenshotPath": ""
         },
         "MacAppStore": {},

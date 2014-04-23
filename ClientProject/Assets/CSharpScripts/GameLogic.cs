@@ -2645,7 +2645,12 @@ public class GameLogic
             PlaySoundNextFrame(AudioEnum.Audio_Only15SecLeft);
         }
 
-        if (m_lastShowIceTipTime > 0 && Timer.GetRealTimeSinceStartUp() - m_lastShowIceTipTime > 7)        //5秒钟1次
+		float interval = 7.0f;
+
+		if(PlayingStageData.GetJellyCount() <= 5)
+			interval = 2;
+
+		if (m_lastShowIceTipTime > 0 && Timer.GetRealTimeSinceStartUp() - m_lastShowIceTipTime > interval)        //7秒钟1次
         {
             ShowIceTip(CapsConfig.EffectResortInterval);            //闪得较慢
         }

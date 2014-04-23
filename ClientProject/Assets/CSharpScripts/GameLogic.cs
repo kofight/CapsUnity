@@ -2656,7 +2656,7 @@ public class GameLogic
 		float interval = 7.0f;
 
 		if(PlayingStageData.GetJellyCount() <= 5)
-			interval = 2;
+			interval = 1.3f;
 
 		if (m_lastShowIceTipTime > 0 && Timer.GetRealTimeSinceStartUp() - m_lastShowIceTipTime > interval)        //7秒钟1次
         {

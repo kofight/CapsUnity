@@ -249,6 +249,7 @@ public class UIGameEnd : UIWindow
         GameLogic.Singleton.HideUI();
 
         UIWindowManager.Singleton.GetUIWindow<UIStageTarget>().Mode = UIStageTarget.TargetMode.GameFailed;
+		NGUITools.PlaySound(CapsConfig.CurAudioList.GameFailedClip);
         UIWindowManager.Singleton.GetUIWindow<UIStageTarget>().ShowWindow(delegate()
         {
             Timer.AddDelayFunc(1.0f, delegate()

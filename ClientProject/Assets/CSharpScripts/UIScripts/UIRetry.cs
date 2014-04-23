@@ -306,6 +306,11 @@ public class UIRetry : UIWindow
                         //{
                         //    m_starParticles[i].transform.GetChild(index).gameObject.SetActive(true);
                         //}
+						Timer.AddDelayFunc(0.5f * i * 0.5f, delegate()
+						{
+							NGUITools.PlaySound(CapsConfig.CurAudioList.GetBigStarClip);
+						});
+
                         m_starParticles[i].Play(true);
                     }
 				}

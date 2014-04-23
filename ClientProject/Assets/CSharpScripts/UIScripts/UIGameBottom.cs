@@ -184,7 +184,12 @@ public class UIGameBottom : UIWindow
                     if (par != null)
                     {
                         par.Play();
-                        NGUITools.PlaySound(CapsConfig.CurAudioList.GetStarClip);
+						if(i == 0)
+                        	NGUITools.PlaySound(CapsConfig.CurAudioList.GetStar1Clip);
+						if(i == 1)
+							NGUITools.PlaySound(CapsConfig.CurAudioList.GetStar2Clip);
+						if(i == 2)
+							NGUITools.PlaySound(CapsConfig.CurAudioList.GetStar3Clip);
                     }
 					m_startCount = i + 1;
                 }

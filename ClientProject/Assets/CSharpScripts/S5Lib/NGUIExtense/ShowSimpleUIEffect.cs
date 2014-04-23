@@ -9,6 +9,9 @@ public class ShowSimpleUIEffect : UIEffectPlayer
     public bool bTweenScale = true;
     public bool bTweenPos = true;
 
+	public bool bReverseYWhenHide = false;
+	float m_fromY;
+
     public Vector2 from;
     public Vector2 to;
 
@@ -84,6 +87,8 @@ public class ShowSimpleUIEffect : UIEffectPlayer
 			mTweenPos.to = toPos;
 			mTweenPos.duration = duration;
 
+			m_fromY = mTweenPos.from.y;
+
             mTweenList.Add(mTweenPos);
         }
 
@@ -138,6 +143,8 @@ public class ShowSimpleUIEffect : UIEffectPlayer
         if (mTweenPos != null)
         {
             mTweenPos.animationCurve = forwardPositionAnimationCurve;
+			if(bReverseYWhenHide)
+				mTweenPos.from.y = m_fromY;
         }
         if (mTweenScale != null)
         {
@@ -168,6 +175,8 @@ public class ShowSimpleUIEffect : UIEffectPlayer
         if (mTweenPos != null)
         {
             mTweenPos.animationCurve = backwardPositionAnimationCurve;
+			if(bReverseYWhenHide)
+				mTweenPos.from.y = - m_fromY;
         }
 
         if (mTweenScale != null)

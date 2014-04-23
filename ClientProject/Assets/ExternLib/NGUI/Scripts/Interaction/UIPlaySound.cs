@@ -52,7 +52,8 @@ public class UIPlaySound : MonoBehaviour
 	{
 		if (enabled && trigger == Trigger.OnClick)
 		{
-			NGUITools.PlaySound(audioClip, volume, pitch);
+			if(GlobalVars.UseSFX)
+				NGUITools.PlaySound(audioClip, volume, pitch);
 		}
 	}
 }

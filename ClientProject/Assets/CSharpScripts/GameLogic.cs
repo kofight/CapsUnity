@@ -3958,7 +3958,7 @@ public class GameLogic
             Position p = allEatBlockPos[i];
             if (p.x != availablePos.x || p.y != availablePos.y)
             {
-                EatBlock(p, "EatEffect");
+                EatBlock(p, "EatEffectFlower" + (m_blocks[p.x, p.y].color - TBlockColor.EColor_None));
             }
             if (m_blocks[p.x, p.y].CollectIndex > -1)
             {

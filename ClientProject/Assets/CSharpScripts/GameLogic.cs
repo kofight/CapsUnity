@@ -288,6 +288,7 @@ public enum AudioEnum
 	Audio_StepEnd,
 	Audio_TimeEnd,
     Audio_EatNut,
+	Audio_NutDropDown,
 
     Audio_Combo1,
     Audio_Combo2,
@@ -498,6 +499,11 @@ public class GameLogic
                         clip = CapsConfig.CurAudioList.BombAudioClip;
                     }
                     break;
+				case AudioEnum.Audio_NutDropDown:
+					{
+						clip = CapsConfig.CurAudioList.NutDropDownClip;
+					}
+					break;
                 case AudioEnum.Audio_Drop:
                     {
                         clip = CapsConfig.CurAudioList.DropClip;
@@ -2473,6 +2479,8 @@ public class GameLogic
 						m_blocks[i, j].m_animation.enabled = true;
 						if(m_blocks[i,j].color < TBlockColor.EColor_Nut1)	//
                         	m_blocks[i, j].m_animation.Play("DropDown");                                    //播放下落动画
+						else
+							m_blocks[i, j].m_animation.Play("NutDropDown");                                    //播放下落动画
                         PlaySoundNextFrame(AudioEnum.Audio_Drop);
                         m_blocks[i, j].m_dropDownStartTime = Timer.GetRealTimeSinceStartUp();           //记录开始时间(用于强制停止下落动画)
 							

@@ -2471,7 +2471,8 @@ public class GameLogic
 						--CapBlock.DropingBlockCount;                       //清理下落计数
 							
 						m_blocks[i, j].m_animation.enabled = true;
-                        m_blocks[i, j].m_animation.Play("DropDown");                                    //播放下落动画
+						if(m_blocks[i,j].color < TBlockColor.EColor_Nut1)	//
+                        	m_blocks[i, j].m_animation.Play("DropDown");                                    //播放下落动画
                         PlaySoundNextFrame(AudioEnum.Audio_Drop);
                         m_blocks[i, j].m_dropDownStartTime = Timer.GetRealTimeSinceStartUp();           //记录开始时间(用于强制停止下落动画)
 							
@@ -2644,7 +2645,12 @@ public class GameLogic
             PlaySoundNextFrame(AudioEnum.Audio_Only15SecLeft);
         }
 
-        if (m_lastShowIceTipTime > 0 && Timer.GetRealTimeSinceStartUp() - m_lastShowIceTipTime > 7)        //5秒钟1次
+		float interval = 7.0f;
+
+		if(PlayingStageData.GetJellyCount() <= 5)
+			interval = 2;
+
+		if (m_lastShowIceTipTime > 0 && Timer.GetRealTimeSinceStartUp() - m_lastShowIceTipTime > interval)        //7秒钟1次
         {
             ShowIceTip(CapsConfig.EffectResortInterval);            //闪得较慢
         }

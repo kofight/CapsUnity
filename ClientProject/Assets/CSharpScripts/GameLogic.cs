@@ -285,7 +285,8 @@ public enum AudioEnum
     Audio_Chocolate,
     Audio_Only5StepLeft,
     Audio_Only15SecLeft,
-
+	Audio_StepEnd,
+	Audio_TimeEnd,
     Audio_EatNut,
 
     Audio_Combo1,
@@ -557,18 +558,28 @@ public class GameLogic
                         clip = CapsConfig.CurAudioList.Only15SecLeftClip;
                     }
                     break;
-                case AudioEnum.Audio_EatNut:
+                case AudioEnum.Audio_StepEnd:
                     {
-                        clip = CapsConfig.CurAudioList.EatNutClip;
+                        clip = CapsConfig.CurAudioList.StepEndClip;
                     }
                     break;
-            }
-        }
-        
+				case AudioEnum.Audio_TimeEnd:
+					{
+						clip = CapsConfig.CurAudioList.TimeEndClip;
+					}
+					break;
+				case AudioEnum.Audio_EatNut:
+					{
+						clip = CapsConfig.CurAudioList.EatNutClip;
+					}
+					break;
+			}
+		}
+		
 		NGUITools.PlaySound(clip);
-    }
-
-    void ShowIceTip(int interval)       //冰块闪烁
+	}
+	
+	void ShowIceTip(int interval)       //冰块闪烁
     {
         //正在闪烁
         if (Timer.GetRealTimeSinceStartUp() - m_iceTipStartTime < (m_curIceTipInterval * BlockAreaWidth * BlockAreaHeight + 1200) / 1000.0f)
@@ -4737,6 +4748,11 @@ public class GameLogic
 
         HideUI();
 
+		if(PlayingStageData.TimeLimit > 0)
+			PlaySound(AudioEnum.Audio_TimeEnd);
+		else
+			PlaySound(AudioEnum.Audio_StepEnd);
+		
         Timer.AddDelayFunc(0.5f, delegate()
         {
             UIWindowManager.Singleton.GetUIWindow<UIGameEnd>().ShowWindow();            //出游戏结束界面

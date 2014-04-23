@@ -15,6 +15,8 @@ public class AudioList : MonoBehaviour {
     public AudioClip StoneClip;
 	public AudioClip CageClip;
 	public AudioClip ChocolateClip;
+	public AudioClip StepEndClip;
+	public AudioClip TimeEndClip;
     public AudioClip GameFailedClip;
 	public AudioClip ButtonClip;
     public AudioClip MapMusic;
@@ -26,7 +28,10 @@ public class AudioList : MonoBehaviour {
     public AudioClip Only5StepLeftClip;
     public AudioClip Only15SecLeftClip;
     public AudioClip PurchaseClip;
-    public AudioClip GetStarClip;
+    public AudioClip GetStar1Clip;
+	public AudioClip GetStar2Clip;
+	public AudioClip GetStar3Clip;
+	public AudioClip GetBigStarClip;
     public AudioClip EatNutClip;
 
     public List<AudioClip> ComboClip;

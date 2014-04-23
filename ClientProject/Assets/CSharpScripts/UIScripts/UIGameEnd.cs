@@ -253,6 +253,7 @@ public class UIGameEnd : UIWindow
         {
             Timer.AddDelayFunc(1.0f, delegate()
             {
+				NGUITools.PlaySound(CapsConfig.CurAudioList.GameFailedClip);
                 UIWindowManager.Singleton.GetUIWindow<UIStageTarget>().HideWindow();
             });
         });

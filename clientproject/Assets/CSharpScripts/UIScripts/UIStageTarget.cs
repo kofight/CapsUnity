@@ -8,7 +8,9 @@ public class UIStageTarget : UIWindow
 	Transform m_scoreBoard;
 	Transform m_nutBoard;
 
-    Transform jelly2Board;
+	UISprite jellyIcon;
+	UISprite jellyDoubleIcon;
+	UISprite jellySplash;
 
     Transform m_stepLimitBoard;         //步数限制
     Transform m_timeLimitBoard;         //时间限制
@@ -45,9 +47,7 @@ public class UIStageTarget : UIWindow
 		m_jellyBoard = mUIObject.transform.FindChild("JellyBoard");
         m_scoreBoard = mUIObject.transform.FindChild("ScoreBoard");
 		m_nutBoard = mUIObject.transform.FindChild("NutBoard");
-
-        jelly2Board = m_jellyBoard.FindChild("JellyDoubleBoard");
-
+		
         m_gameFailedBoard = mUIObject.transform.FindChild("FailedBoard");
         m_resortBoard = mUIObject.transform.FindChild("ResortBoard");
         m_autoResortBoard = mUIObject.transform.FindChild("AutoResortBoard");
@@ -61,6 +61,10 @@ public class UIStageTarget : UIWindow
 		nut2Icon = GetChildComponent<UISprite>("NutIcon2");
         nutSplash = GetChildComponent<UISprite>("NutSplash");
 
+		jellyIcon = GetChildComponent<UISprite>("SingleIcon");
+		jellyDoubleIcon = GetChildComponent<UISprite>("DoubleIcon");
+		jellySplash = GetChildComponent<UISprite>("JellySlash");
+
         m_background = GetChildComponent<UISprite>("Background");
 
         for (int i = 0; i < 3; ++i )
@@ -69,6 +73,7 @@ public class UIStageTarget : UIWindow
             collectIcon[i] = GetChildComponent<UISprite>("Icon" + (i + 1));
         }
     }
+
     public override void OnShow()
     {
         base.OnShow();
@@ -98,24 +103,45 @@ public class UIStageTarget : UIWindow
             }
             else if (stage.Target == GameTarget.ClearJelly)
             {
-                m_jellyBoard.gameObject.SetActive(true);
+				m_jellyBoard.gameObject.SetActive(true);
                 curBoard = m_jellyBoard;
 
-                NumberDrawer jellyLabel = GetChildComponent<NumberDrawer>("JellyCount");
-                jellyLabel.SetNumberRapid(stage.GetSingleJellyCount());
+                
 
-                if (stage.GetDoubleJellyCount() > 0)        //若有双层冰块
+                if (stage.GetDoubleJellyCount() > 0 && stage.GetSingleJellyCount() > 0)
                 {
                     m_jellyBoard.LocalPositionX(-30.0f);
                     NumberDrawer jelly2Label = GetChildComponent<NumberDrawer>("Jelly2Count");
                     jelly2Label.SetNumberRapid(stage.GetDoubleJellyCount());
+					NumberDrawer jellyLabel = GetChildComponent<NumberDrawer>("JellyCount");
+					jellyLabel.SetNumberRapid(stage.GetSingleJellyCount());
 
-                    jelly2Board.gameObject.SetActive(true);
+					jellySplash.gameObject.SetActive(true);
+					jellyIcon.gameObject.SetActive(true);
+					jellyDoubleIcon.gameObject.SetActive(true);
+
+					jellyIcon.LocalPositionX(48.0f);
+					jellyDoubleIcon.LocalPositionX(253.2f);
                 }
+				else if(stage.GetDoubleJellyCount() > 0 && stage.GetSingleJellyCount() == 0)
+				{
+					NumberDrawer jelly2Label = GetChildComponent<NumberDrawer>("Jelly2Count");
+					jelly2Label.SetNumberRapid(stage.GetDoubleJellyCount());
+					jellySplash.gameObject.SetActive(false);
+					jellyIcon.gameObject.SetActive(false);
+					jellyDoubleIcon.gameObject.SetActive(true);
+					jellyDoubleIcon.LocalPositionX(48.0f);
+					m_jellyBoard.LocalPositionX(86.0f);
+				}
                 else
                 {
-                    m_jellyBoard.LocalPositionX(86.0f);
-                    jelly2Board.gameObject.SetActive(false);
+					NumberDrawer jellyLabel = GetChildComponent<NumberDrawer>("JellyCount");
+					jellyLabel.SetNumberRapid(stage.GetSingleJellyCount());
+					jellySplash.gameObject.SetActive(false);
+					jellyIcon.gameObject.SetActive(true);
+					jellyIcon.LocalPositionX(48.0f);
+					jellyDoubleIcon.gameObject.SetActive(false);
+					m_jellyBoard.LocalPositionX(86.0f);
                 }
             }
             else if (stage.Target == GameTarget.BringFruitDown)

@@ -52,7 +52,7 @@ public class UIPlaySound : MonoBehaviour
 	{
 		if (enabled && trigger == Trigger.OnClick)
 		{
-			if(GlobalVars.UseSFX)
+			if(GlobalVars.UseSFX)		//by #lium
 				NGUITools.PlaySound(audioClip, volume, pitch);
 		}
 	}

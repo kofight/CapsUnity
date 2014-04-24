@@ -2488,11 +2488,17 @@ public class GameLogic
 						--CapBlock.DropingBlockCount;                       //清理下落计数
 							
 						m_blocks[i, j].m_animation.enabled = true;
-						if(m_blocks[i,j].color < TBlockColor.EColor_Nut1)	//
-                        	m_blocks[i, j].m_animation.Play("DropDown");                                    //播放下落动画
-						else
-							m_blocks[i, j].m_animation.Play("NutDropDown");                                    //播放下落动画
-                        PlaySoundNextFrame(AudioEnum.Audio_Drop);
+                        if (m_blocks[i, j].color < TBlockColor.EColor_Nut1)	//
+                        {
+                            m_blocks[i, j].m_animation.Play("DropDown");                                    //播放下落动画
+                            PlaySoundNextFrame(AudioEnum.Audio_Drop);
+                        }
+                        else
+                        {
+                            m_blocks[i, j].m_animation.Play("NutDropDown");                                    //播放下落动画
+                            PlaySoundNextFrame(AudioEnum.Audio_NutDropDown);
+                        }
+                        
                         m_blocks[i, j].m_dropDownStartTime = Timer.GetRealTimeSinceStartUp();           //记录开始时间(用于强制停止下落动画)
 							
 						if (m_blocks[i, j].color > TBlockColor.EColor_Cyan)                     //若为坚果
@@ -3904,7 +3910,7 @@ public class GameLogic
         {
             if (m_blocks[position.x, position.y].special == TSpecialBlock.ESpecial_NormalPlus6)
             {
-                AddGameTime(6);               //增加5秒时间
+                AddGameTime(6);               //增加6秒时间
             }
             if (m_moveDirection == TDirection.EDir_Up || m_moveDirection == TDirection.EDir_Down)
             {
@@ -4301,7 +4307,7 @@ public class GameLogic
                         }
                         else
                         {
-                            AddGameTime(5);               //增加5秒时间
+                            AddGameTime(6);               //增加6秒时间
                         }
                     }
                     break;

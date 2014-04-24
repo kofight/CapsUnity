@@ -726,6 +726,7 @@ public class GameLogic
         {
             CapBlock capBlock = new CapBlock();
             m_capBlockFreeList.AddLast(capBlock);
+            capBlock.Reset();
         }
 
         for (int j = 0; j < 10; ++j)
@@ -740,13 +741,23 @@ public class GameLogic
 
         AddParticleToFreeList("AddSpecialEffect", true, 10);
         AddParticleToFreeList(CapsConfig.ResortOutEffect, true, 81);
-        AddParticleToFreeList(CapsConfig.EatEffect, true, 10);
+        AddParticleToFreeList(CapsConfig.EatEffect, true, 3);
         AddParticleToFreeList("Dir1Effect", true, 3);
         AddParticleToFreeList("Dir2Effect", true, 3);
         AddParticleToFreeList("Dir0Effect", true, 3);
         AddParticleToFreeList("BombEffect", true, 3);
         AddParticleToFreeList("LineEatEffect", true, 20);
         AddParticleToFreeList(CapsConfig.EatEffect, true, 10);
+
+
+
+        AddParticleToFreeList("EatEffectFlower1", true, 7);
+        AddParticleToFreeList("EatEffectFlower2", true, 7);
+        AddParticleToFreeList("EatEffectFlower3", true, 7);
+        AddParticleToFreeList("EatEffectFlower4", true, 7);
+        AddParticleToFreeList("EatEffectFlower5", true, 7);
+        AddParticleToFreeList("EatEffectFlower6", true, 7);
+        AddParticleToFreeList("EatEffectFlower7", true, 7);
     }
 
     void InitRes()

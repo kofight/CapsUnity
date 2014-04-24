@@ -1,6 +1,2 @@
 Product ID,Published State,Purchase Type,Auto Translate,Locale; Title; Description,Auto Fill Prices,Price
-com.outlinegames.100goldcoins.v2.c,published,managed_by_android,false,"en_US;140 Gold Coins;140 Gold Coins",true,1990000
-com.linkrstudio.jellycraft.800coins,published,managed_by_android,false,"en_US;800 Gold coins;800 Gold coins",true,1000000
-com.linkrstudio.jellycraft.1700coins,published,managed_by_android,false,"en_US;1700 Gold coins;1700 Gold coins",true,1000000
-com.linkrstudio.jellycraft.4500coins,published,managed_by_android,false,"en_US;4500 Gold coins;4500 Gold coins",true,1000000
-com.linkrstudio.jellycraft.9500coins,published,managed_by_android,false,";9500 Gold coins;9500 Gold coins",true,0
+com.linkrstudio.jellycraft.140coins,published,managed_by_android,false,"en_US;140 Gold Coins;140 Gold Coins",true,1990000

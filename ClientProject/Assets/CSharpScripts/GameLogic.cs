@@ -2881,7 +2881,7 @@ public class GameLogic
         {
             for (int j = BlockYStart; j <= BlockYEnd; ++j)
             {
-                if (m_blocks[i, j] != null)     //若有下落块
+                if (m_blocks[i, j] != null)     //若有块
                 {
                     if (m_blocks[i, j].IsDroping() || m_blocks[i, j].IsEating())     //若有下落块或正在消的块
                     {
@@ -2894,7 +2894,7 @@ public class GameLogic
                     m_slopeDropLock[i] = j;     //锁住出生点以下
                     break;
                 }
-                if (j == BlockCountY - 1)       //若到底了
+				if (j == BlockYEnd - 1)       //若到底了
                 {
                     m_slopeDropLock[i] = 10;    //清掉锁
                 }

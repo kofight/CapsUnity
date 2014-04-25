@@ -3266,7 +3266,7 @@ public class GameLogic
                             //普通块被特殊块消，额外播下基本消除特效
                             if (m_blocks[i, j].special == TSpecialBlock.ESpecial_Normal && m_blocks[i, j].EatEffectName != CapsConfig.EatEffect)
                             {
-                                AddPartile(CapsConfig.EatEffect, AudioEnum.Audio_None, i, j);
+                                AddPartile("EatEffectFlower" + (m_blocks[i, j].color - TBlockColor.EColor_None), AudioEnum.Audio_None, i, j);
                             }
                             
                             if (m_blocks[i, j].special == TSpecialBlock.ESpecial_NormalPlus6)

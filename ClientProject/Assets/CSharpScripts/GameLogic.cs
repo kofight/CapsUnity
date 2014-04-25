@@ -275,6 +275,7 @@ public enum AudioEnum
     Audio_Bomb,
     Audio_Drop,
     Audio_Eat,
+    Audio_Plus6Eat,
     Audio_EatColor,
     Audio_MoveFailed,
     Audio_itemBirth,
@@ -507,6 +508,11 @@ public class GameLogic
                 case AudioEnum.Audio_Drop:
                     {
                         clip = CapsConfig.CurAudioList.DropClip;
+                    }
+                    break;
+                case AudioEnum.Audio_Plus6Eat:
+                    {
+                        clip = CapsConfig.CurAudioList.Plus6EatClip;
                     }
                     break;
                 case AudioEnum.Audio_Eat:
@@ -3257,7 +3263,21 @@ public class GameLogic
                                 m_blocks[i, j].m_animation.Play(m_blocks[i, j].EatAnimationName);                             //播放吃块动画
                                 m_blocks[i, j].AlphaFadeOut();
                             }
-                            AddPartile(m_blocks[i, j].EatEffectName, m_blocks[i, j].EatAudio, i, j);     //添加吃块特效
+                            //普通块被特殊块消，额外播下基本消除特效
+                            if (m_blocks[i, j].special == TSpecialBlock.ESpecial_Normal && m_blocks[i, j].EatEffectName != CapsConfig.EatEffect)
+                            {
+                                AddPartile(CapsConfig.EatEffect, AudioEnum.Audio_None, i, j);
+                            }
+                            
+                            if (m_blocks[i, j].special == TSpecialBlock.ESpecial_NormalPlus6)
+                            {
+                                AddPartile(CapsConfig.Plus5EatEffect, AudioEnum.Audio_Plus6Eat, i, j);
+                                AddPartile(m_blocks[i, j].EatEffectName, AudioEnum.Audio_None, i, j);     //添加吃块特效
+                            }
+                            else
+                            {
+                                AddPartile(m_blocks[i, j].EatEffectName, m_blocks[i, j].EatAudio, i, j);     //添加吃块特效
+                            }
                         }
                     }
 

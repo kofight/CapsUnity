@@ -64,6 +64,7 @@ public class CapsConfig
     public static readonly string EatEffect = "EatEffect";                      //吃块的目标特效
     public static readonly string BombEatEffect = "BombEatEffect";              //炸弹吃块的目标特效
     public static readonly string LineEatEffect = "LineEatEffect";              //条状吃块的目标特效
+    public static readonly string Plus5EatEffect = "Plus6EatEffect";              //条状吃块的目标特效
     public static readonly string RainbowEatEffect = "RainbowEatEffect";        //彩虹吃块的目标特效
     public static readonly string ResortInEffect = "ResortIn";                      //重排开始特效
     public static readonly string ResortOutEffect = "ResortOut";                      //重排结束特效

@@ -34,6 +34,7 @@ public class AudioList : MonoBehaviour {
 	public AudioClip GetBigStarClip;
     public AudioClip EatNutClip;
 	public AudioClip NutDropDownClip;
+    public AudioClip Plus6EatClip;
 
     public List<AudioClip> ComboClip;
 	

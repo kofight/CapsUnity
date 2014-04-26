@@ -757,13 +757,13 @@ public class GameLogic
 
 
 
-        AddParticleToFreeList("EatEffectFlower1", true, 7);
-        AddParticleToFreeList("EatEffectFlower2", true, 7);
-        AddParticleToFreeList("EatEffectFlower3", true, 7);
-        AddParticleToFreeList("EatEffectFlower4", true, 7);
-        AddParticleToFreeList("EatEffectFlower5", true, 7);
-        AddParticleToFreeList("EatEffectFlower6", true, 7);
-        AddParticleToFreeList("EatEffectFlower7", true, 7);
+        AddParticleToFreeList("EatEffectFlower1", true, 10);
+        AddParticleToFreeList("EatEffectFlower2", true, 10);
+        AddParticleToFreeList("EatEffectFlower3", true, 10);
+        AddParticleToFreeList("EatEffectFlower4", true, 10);
+        AddParticleToFreeList("EatEffectFlower5", true, 10);
+        AddParticleToFreeList("EatEffectFlower6", true, 10);
+        AddParticleToFreeList("EatEffectFlower7", true, 10);
     }
 
     void InitRes()
@@ -3264,7 +3264,7 @@ public class GameLogic
                                 m_blocks[i, j].AlphaFadeOut();
                             }
                             //普通块被特殊块消，额外播下基本消除特效
-                            if (m_blocks[i, j].special == TSpecialBlock.ESpecial_Normal && m_blocks[i, j].EatEffectName != CapsConfig.EatEffect)
+                            if (m_blocks[i, j].special == TSpecialBlock.ESpecial_Normal && m_blocks[i, j].EatEffectName.Equals(CapsConfig.EatEffect))
                             {
                                 AddPartile("EatEffectFlower" + (m_blocks[i, j].color - TBlockColor.EColor_None), AudioEnum.Audio_None, i, j);
                             }
@@ -4439,6 +4439,15 @@ public class GameLogic
             {
                 gameObj.transform.parent = CenterAnchor.transform;
             }
+
+            ParticleSystem[] pars = gameObj.GetComponentsInChildren<ParticleSystem>();
+            foreach (ParticleSystem parti in pars)
+            {
+                parti.Stop();     //这里先不播放
+                parti.startSize = parti.startSize * CapsApplication.Singleton.Factor3D;
+                parti.startSpeed = parti.startSpeed * CapsApplication.Singleton.Factor3D;
+            }
+
             par = gameObj.GetComponent<ParticleSystem>();
             par.Stop();     //这里先不播放
             gameObj.SetActive(false);           //隐藏起来
@@ -4449,6 +4458,7 @@ public class GameLogic
 
     public void AddPartile(string name, AudioEnum audio, int x, int y, bool addToGameArea = true, float delay = 0.0f)
     {
+        Debug.Log("Add Partile " + name);
         //先看freeParticleList里面有没有可用的
         LinkedList<ParticleSystem> freeParticleList;
         if (!m_freeParticleMap.TryGetValue(name, out freeParticleList))
@@ -4481,7 +4491,13 @@ public class GameLogic
                 gameObj.transform.parent = CenterAnchor.transform;
             }
             par = gameObj.GetComponent<ParticleSystem>();
-            par.Stop();     //这里先不播放
+            ParticleSystem [] pars = gameObj.GetComponentsInChildren<ParticleSystem>();
+            foreach (ParticleSystem parti in pars)
+            {
+                parti.Stop();     //这里先不播放
+                parti.startSize = parti.startSize * CapsApplication.Singleton.Factor3D;
+                parti.startSpeed = parti.startSpeed * CapsApplication.Singleton.Factor3D;
+            }
         }
 
         if (addToGameArea)
@@ -4492,8 +4508,8 @@ public class GameLogic
         {
             gameObj.transform.localPosition = new Vector3(x, -y, -200);        //指定位置
         }
-        
-        gameObj.transform.localScale = new Vector3(580.0f, 580.0f, 200.0f);                 //指定位置
+
+        gameObj.transform.localScale = new Vector3(580.0f * CapsApplication.Singleton.Factor3D, 580.0f * CapsApplication.Singleton.Factor3D, 200.0f);                 //指定位置
 
         //放到正在播放的列表里
         LinkedList<DelayParticle> particleList;

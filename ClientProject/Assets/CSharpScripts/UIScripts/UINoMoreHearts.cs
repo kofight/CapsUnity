@@ -21,39 +21,39 @@ public class UINoMoreHearts : UIWindow
         m_secNumber = GetChildComponent<NumberDrawer>("SecNumber");
 		m_heartSprite = GetChildComponent<UISprite>("HeartToCull");
 
-        AddChildComponentMouseClick("Buy1HeartBtn", delegate()
-        {
-			if (Unibiller.DebitBalance("gold", 25))
-            {
-                UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetString(Localization.instance.Get("PurchaseSucceed"));
-                UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(delegate()
-                {
-                    GlobalVars.AddHeart(1);
-                    ContinuePlay();
-                });
-                UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().ShowWindow();
-            }
-            else
-            {
-                HideWindow();
-                UIWindowManager.Singleton.GetUIWindow<UIStore>().ShowWindow();
-                UIWindowManager.Singleton.GetUIWindow<UIStore>().OnPurchaseFunc = delegate()
-                {
-                    UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetString(Localization.instance.Get("PurchaseSucceed"));
-                    UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(delegate()
-                    {
-                        Unibiller.DebitBalance("gold", 25);
-                        GlobalVars.AddHeart(1);
-                        ContinuePlay();
-                    });
-                    UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().ShowWindow();
-                };
-				UIWindowManager.Singleton.GetUIWindow<UIStore>().OnCancelFunc = delegate()
-                {
-                    Close();
-                };
-            }
-        });
+        //AddChildComponentMouseClick("Buy1HeartBtn", delegate()
+        //{
+        //    if (Unibiller.DebitBalance("gold", 25))
+        //    {
+        //        UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetString(Localization.instance.Get("PurchaseSucceed"));
+        //        UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(delegate()
+        //        {
+        //            GlobalVars.AddHeart(1);
+        //            ContinuePlay();
+        //        });
+        //        UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().ShowWindow();
+        //    }
+        //    else
+        //    {
+        //        HideWindow();
+        //        UIWindowManager.Singleton.GetUIWindow<UIStore>().ShowWindow();
+        //        GlobalVars.OnPurchaseFunc = delegate()
+        //        {
+        //            UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetString(Localization.instance.Get("PurchaseSucceed"));
+        //            UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(delegate()
+        //            {
+        //                Unibiller.DebitBalance("gold", 25);
+        //                GlobalVars.AddHeart(1);
+        //                ContinuePlay();
+        //            });
+        //            UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().ShowWindow();
+        //        };
+        //        GlobalVars.OnCancelFunc = delegate()
+        //        {
+        //            Close();
+        //        };
+        //    }
+        //});
 
         AddChildComponentMouseClick("Buy5HeartBtn", delegate()
         {
@@ -71,13 +71,13 @@ public class UINoMoreHearts : UIWindow
             {
                 HideWindow();
                 UIWindowManager.Singleton.GetUIWindow<UIStore>().ShowWindow();
-                UIWindowManager.Singleton.GetUIWindow<UIStore>().OnPurchaseFunc = delegate()
+                GlobalVars.OnPurchaseFunc = delegate()
                 {
                     Unibiller.DebitBalance("gold", 100);
                     GlobalVars.AddHeart(5);
                     ContinuePlay();
                 };
-				UIWindowManager.Singleton.GetUIWindow<UIStore>().OnCancelFunc = delegate()
+                GlobalVars.OnCancelFunc = delegate()
                 {
                     Close();
                 };

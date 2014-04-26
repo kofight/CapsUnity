@@ -146,11 +146,11 @@ public class UIMap : UIWindow
             if (stageInfoUI.Visible)
             {
                 stageInfoUI.HideWindow();
-                storeUI.OnCancelFunc = delegate()
+                GlobalVars.OnCancelFunc = delegate()
                 {
                     stageInfoUI.ShowWindow();
                 };
-                storeUI.OnPurchaseFunc = delegate()
+                GlobalVars.OnPurchaseFunc = delegate()
                 {
                     stageInfoUI.ShowWindow();
                 };
@@ -598,7 +598,7 @@ public class UIMap : UIWindow
             m_helpParticle.SetActive(true);
             m_helpParticle.transform.parent = m_stageBtns[GlobalVars.AvailabeStageCount - 1];
             m_helpParticle.transform.localPosition = Vector3.zero;
-            m_helpParticle.transform.localScale = new Vector3(580.0f, 580.0f, 200.0f);                 //指定位置
+            m_helpParticle.transform.localScale = new Vector3(580.0f * CapsApplication.Singleton.Factor3D, 580.0f * CapsApplication.Singleton.Factor3D, 200.0f);                 //指定位置
             m_helpParticle.GetComponent<ParticleSystem>().Play(true);
         }
         else
@@ -616,7 +616,7 @@ public class UIMap : UIWindow
 
         gameObj.transform.parent = m_stageBtns[stageNumber - 1];
         gameObj.transform.localPosition = Vector3.zero;
-        gameObj.transform.localScale = new Vector3(580.0f, 580.0f, 200.0f);                 //指定位置
+        gameObj.transform.localScale = new Vector3(580.0f * CapsApplication.Singleton.Factor3D, 580.0f * CapsApplication.Singleton.Factor3D, 200.0f);                 //指定位置
 		gameObj.GetComponent<ParticleSystem>().Play(true);
     }
 

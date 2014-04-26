@@ -139,11 +139,80 @@ public class CapsApplication : S5Application
         });
 
         Localization.instance.currentLanguage = "Chinese";      //中文版
+
+        //初始化支付插件
+        if (Application.platform != RuntimePlatform.WindowsPlayer)
+        {
+            Unibiller.onBillerReady += OnUniBillInitialised;
+            Unibiller.Initialise();
+        }
     }
 
     protected override void DoUpdate()
     {
         base.DoUpdate();
+
+        if (GlobalVars.PurchaseSuc)
+        {
+            UIWindowManager.Singleton.GetUIWindow<UIWait>().HideWindow();
+            UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().ShowWindow();
+            UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(GlobalVars.OnPurchaseFunc);        //设置完成后执行的函数
+            UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetString(Localization.instance.Get("PurchaseSucceed"));
+            GlobalVars.PurchaseSuc = false;
+        }
+        if (GlobalVars.PurchaseCancel)
+        {
+            GlobalVars.UsingItem = PurchasedItem.None;
+            Debug.Log("Purchase Cancelled");
+
+            UIWindowManager.Singleton.GetUIWindow<UIWait>().HideWindow();
+            UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().ShowWindow();
+            UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetString(Localization.instance.Get("PurchaseCancelled"));
+            UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(GlobalVars.OnCancelFunc);        //设置完成后执行的函数
+            GlobalVars.PurchaseCancel = false;
+        }
+        if (GlobalVars.PurchaseFailed)
+        {
+            GlobalVars.UsingItem = PurchasedItem.None;
+            //Debug.Log("Purchase Failed");
+            UIWindowManager.Singleton.GetUIWindow<UIWait>().HideWindow();
+            UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().ShowWindow();
+            UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetString(Localization.instance.Get("PurchaseFailed"));
+            UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(GlobalVars.OnCancelFunc);        //设置完成后执行的函数
+            GlobalVars.PurchaseFailed = false;
+        }
+    }
+
+    void OnPurchased(PurchaseEvent e)      //购买成功
+    {
+        GlobalVars.PurchaseSuc = true;
+    }
+
+    void OnPurchaseFailed(PurchasableItem item)     //购买失败
+    {
+        GlobalVars.PurchaseFailed = true;
+    }
+
+    void OnPurchaseCancelled(PurchasableItem item)      //主动取消购买
+    {
+        GlobalVars.PurchaseCancel = true;
+    }
+
+    //初始化支付插件
+    private void OnUniBillInitialised(UnibillState result)
+    {
+        if (result != UnibillState.SUCCESS)
+        {
+            Debug.LogError(result.ToString());
+        }
+        else
+        {
+            Debug.Log(result.ToString());
+
+            Unibiller.onPurchaseCompleteEvent += OnPurchased;
+            Unibiller.onPurchaseFailed += OnPurchaseFailed;
+            Unibiller.onPurchaseCancelled += OnPurchaseCancelled;
+        }
     }
 
     public override void OnApplicationPause(bool bPause)

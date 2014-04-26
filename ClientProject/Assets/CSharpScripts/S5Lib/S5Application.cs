@@ -13,6 +13,7 @@ public class S5Application
 
     public int Height { get; set; }
     public int Width { get; set; }
+    public float Factor3D { get; set; }         //3D物件的比例
 
     public MonoBehaviour mCoroutineStarter { private get; set; }				  //Any Exist MonoBehaviour could be a starter, usually is AppLaugher
     public S5Application()
@@ -41,7 +42,9 @@ public class S5Application
         }
         Height = root.manualHeight;
 
-        Debug.Log("Width = " + Width + "Height = " + Height);
+        Factor3D = 960.0f / Height;
+
+        Debug.Log("Width = " + Width + "Height = " + Height + "Factor = " + Factor3D);
 
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
     }
@@ -53,31 +56,11 @@ public class S5Application
 
     public void Init()
     {
-        if (Application.platform != RuntimePlatform.WindowsPlayer)
-        {
-            //初始化支付插件
-            Unibiller.onBillerReady += OnUniBillInitialised;
-            Unibiller.Initialise();
-        }
-
         Application.runInBackground = true;
         new UIWindowManager();          //Create UIManager Singleton
         new TextTable();
         new UIDrawer();
         DoInit();
-    }
-
-    //初始化支付插件
-    private void OnUniBillInitialised(UnibillState result)
-    {
-        if (result != UnibillState.SUCCESS)
-        {
-            Debug.LogError(result.ToString());
-        }
-        else
-        {
-            Debug.Log(result.ToString());
-        }
     }
 
     bool backKeyPress = false;

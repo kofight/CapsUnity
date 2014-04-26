@@ -149,4 +149,11 @@ public class GlobalVars {
 
     public static bool UseSFX;                                  //开启音效
     public static bool UseMusic;                                //开启音乐
+
+    public static UIWindow.WindowEffectFinished OnPurchaseFunc;
+    public static UIWindow.WindowEffectFinished OnCancelFunc;
+
+    public static bool PurchaseSuc;
+    public static bool PurchaseFailed;
+    public static bool PurchaseCancel;
 }

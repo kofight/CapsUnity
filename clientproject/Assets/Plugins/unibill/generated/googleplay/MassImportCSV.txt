@@ -1,2 +1,2 @@
 Product ID,Published State,Purchase Type,Auto Translate,Locale; Title; Description,Auto Fill Prices,Price
-com.linkrstudio.jellycrafttest.140coins,published,managed_by_android,false,"en_US;140 Gold Coins;140 Gold Coins",true,1990000
+com.linkrstudio.jellycraft.140coins,published,managed_by_android,false,"en_US;140 Gold Coins;140 Gold Coins",true,1990000

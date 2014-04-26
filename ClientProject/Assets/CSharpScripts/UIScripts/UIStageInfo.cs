@@ -73,13 +73,13 @@ public class UIStageInfo : UIWindow
             HideWindow(delegate()
             {
                 //弹出购买金币提示
-                UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>().OnCancelFunc = delegate()
+                GlobalVars.OnCancelFunc = delegate()
                 {
                     GlobalVars.UsingItem = PurchasedItem.None;
                     ShowWindow();
                 };
 
-                UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>().OnPurchaseFunc = delegate()
+                GlobalVars.OnPurchaseFunc = delegate()
                 {
                     GlobalVars.UsingItem = PurchasedItem.None;
                     ShowWindow();

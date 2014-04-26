@@ -34,7 +34,7 @@ public class UILogin : UIWindow
         AddChildComponentMouseClick("DebugBtn", delegate()
         {
             ++m_clickDebugCount;
-            //if (m_clickDebugCount >= 3 && (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer))
+            if (m_clickDebugCount >= 3 && (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer))
             {
                 m_debugBoard.SetActive(true);
             }

@@ -8,9 +8,6 @@ public class UIPurchaseNotEnoughMoney : UIWindow
 	UILabel m_costLabel;
     UISprite m_itemIcon;
 
-    public UIWindow.WindowEffectFinished OnPurchaseFunc;
-    public UIWindow.WindowEffectFinished OnCancelFunc;
-	
     public override void OnCreate()
     {
         base.OnCreate();
@@ -19,20 +16,16 @@ public class UIPurchaseNotEnoughMoney : UIWindow
 			HideWindow();
 			UIWindowManager.Singleton.GetUIWindow<UIWait>().ShowWindow(delegate()
             {
-				Unibiller.onPurchaseComplete += OnPurchased;
-                Unibiller.onPurchaseFailed += OnPurchaseFailed;
-                Unibiller.onPurchaseCancelled += OnPurchaseCancelled;
-				
                 Unibiller.initiatePurchase("com.linkrstudio.jellycraft.140coins");
+                UIWindowManager.Singleton.GetUIWindow<UIWait>().ShowWindow();
+                UIWindowManager.Singleton.GetUIWindow<UIWait>().SetString(Localization.instance.Get("WaitForPurchase"));
             });
 		});
         AddChildComponentMouseClick("ShopBtn", delegate()
 		{
 			HideWindow(delegate()
 			{
-				UIWindowManager.Singleton.GetUIWindow<UIStore>().ShowWindow();
-                UIWindowManager.Singleton.GetUIWindow<UIStore>().OnPurchaseFunc = OnPurchaseFunc;
-                UIWindowManager.Singleton.GetUIWindow<UIStore>().OnCancelFunc = OnCancelFunc;
+                UIWindowManager.Singleton.GetUIWindow<UIStore>().ShowWindow();
 			});
 		});
 
@@ -47,9 +40,9 @@ public class UIPurchaseNotEnoughMoney : UIWindow
     {
         HideWindow(delegate()
         {
-            if (OnCancelFunc != null)
+			if (GlobalVars.OnCancelFunc != null)
             {
-                OnCancelFunc();
+				GlobalVars.OnCancelFunc();
             }
         });
     }
@@ -66,43 +59,18 @@ public class UIPurchaseNotEnoughMoney : UIWindow
     void OnPurchased(PurchasableItem item)      //购买成功
     {
         Debug.Log("Purchase Succeed");
-        UnregisterPurchase();
-
-        UIWindowManager.Singleton.GetUIWindow<UIWait>().HideWindow();
-
-        UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().ShowWindow();
-        UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(OnPurchaseFunc);        //设置完成后执行的函数
-        UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetString(Localization.instance.Get("PurchaseSucceed"));
-    }
-
-    void UnregisterPurchase()
-    {
-        Unibiller.onPurchaseComplete -= OnPurchased;
-        Unibiller.onPurchaseFailed -= OnPurchaseFailed;
-        Unibiller.onPurchaseCancelled -= OnPurchaseCancelled;
+        GlobalVars.PurchaseSuc = true;
     }
 
     void OnPurchaseFailed(PurchasableItem item)     //购买失败
     {
         Debug.Log("Purchase Failed");
-
-        UnregisterPurchase();
-        UIWindowManager.Singleton.GetUIWindow<UIWait>().HideWindow();
-        
-        UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().ShowWindow();
-        UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetString(Localization.instance.Get("PurchaseFailed"));
-        UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(OnCancelFunc);        //设置完成后执行的函数
+        GlobalVars.PurchaseFailed = true;
     }
 
     void OnPurchaseCancelled(PurchasableItem item)      //主动取消购买
     {
         Debug.Log("Purchase Cancelled");
-
-        UnregisterPurchase();
-        UIWindowManager.Singleton.GetUIWindow<UIWait>().HideWindow();
-        
-        UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().ShowWindow();
-        UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetString(Localization.instance.Get("PurchaseCancelled"));
-        UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(OnCancelFunc);        //设置完成后执行的函数
+        GlobalVars.PurchaseCancel = true;
     }
 }

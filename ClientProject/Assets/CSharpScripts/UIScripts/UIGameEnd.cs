@@ -301,12 +301,12 @@ public class UIGameEnd : UIWindow
                     {
                         UIPurchaseNotEnoughMoney uiWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>();
                         uiWindow.ShowWindow();
-                        uiWindow.OnCancelFunc = delegate()              //若取消，还显示GameEnd窗口
+                        GlobalVars.OnCancelFunc = delegate()              //若取消，还显示GameEnd窗口
                         {
                             ShowWindow();
                             GlobalVars.UsingItem = PurchasedItem.None;
                         };
-                        uiWindow.OnPurchaseFunc = delegate()            //若成功，显示使用道具窗口
+                        GlobalVars.OnPurchaseFunc = delegate()            //若成功，显示使用道具窗口
                         {
                             UIWindowManager.Singleton.GetUIWindow<UIPurchaseNoTarget>().ShowWindow();
                         };

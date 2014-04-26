@@ -410,11 +410,11 @@ public class UIGameHead : UIWindow
         {
             UIPurchaseNotEnoughMoney uiWindow = UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>();
             uiWindow.ShowWindow();
-            uiWindow.OnPurchaseFunc = delegate()
+            GlobalVars.OnPurchaseFunc = delegate()
             {
                 UserOrBuyItem(item);
             };
-            uiWindow.OnCancelFunc = delegate()
+            GlobalVars.OnCancelFunc = delegate()
             {
                 GlobalVars.UsingItem = PurchasedItem.None;
             };

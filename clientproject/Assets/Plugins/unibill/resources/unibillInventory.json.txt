@@ -7,6 +7,8 @@
   "useHostedConfig": false,
   "hostedConfigUrl": null,
   "UseWin8_1Sandbox": false,
+  "samsungAppsMode": "PRODUCTION",
+  "samsungAppsItemGroupId": "",
   "purchasableItems": {
     "com.linkrstudio.jellycraft.140coins": {
       "@id": "com.linkrstudio.jellycraft.140coins",
@@ -19,9 +21,10 @@
           "defaultLocale": "en_US"
         },
         "AmazonAppstore": {},
+        "SamsungApps": {},
         "AppleAppStore": {
           "AppleAppStore.Id": "com.linkr.jellycraft.140coins",
-          "appleAppStorePriceTier": 1,
+          "appleAppStorePriceTier": 1.0,
           "screenshotPath": ""
         },
         "MacAppStore": {},
@@ -33,7 +36,6 @@
   },
   "currencies": {
     "gold": {
-      "com.linkrstudio.jellycraft.140goldcoins": 140.0,
       "com.linkrstudio.jellycraft.140coins": 140.0
     }
   }

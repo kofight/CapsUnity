@@ -51,11 +51,10 @@ namespace Unibill.Impl {
                     var win8 = new Win8_1BillingService(unibill.Dummy.Factory.Create(config.UseWin8_1Sandbox, GetDummyProducts()), config, getMapper(), getTransactionDatabase(), getLogger());
                     new GameObject().AddComponent<Win8Eventhook>().callback = win8;
                     return win8;
-                case BillingPlatform.UnityEditor:
-                    return new Tests.FakeBillingService(getMapper());
+				case BillingPlatform.SamsungApps:
+					return new SamsungAppsBillingService (config, getMapper (), platformProvider.getSamsung (), getLogger ());
             }
-
-            throw new ArgumentException(config.CurrentPlatform.ToString());
+			return new Tests.FakeBillingService(getMapper());
         }
 
         private CurrencyManager _currencyManager;

@@ -11,6 +11,6 @@ namespace Unibill.Impl {
         IRawAmazonAppStoreBillingInterface getAmazon();
 
         IStoreKitPlugin getStorekit();
-
+		IRawSamsungAppsBillingService getSamsung();
     }
 }

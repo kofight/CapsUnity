@@ -140,7 +140,7 @@ namespace Unibill.Impl {
             }
 
             foreach (string p in purchased) {
-                callback.onPurchaseSucceeded(p);
+				callback.onPurchaseSucceeded(p, string.Empty);
             }
         }
 

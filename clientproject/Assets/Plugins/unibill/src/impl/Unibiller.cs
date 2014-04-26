@@ -35,7 +35,14 @@ public class Unibiller {
     /// </summary>
     public static event Action<PurchasableItem> onPurchaseCancelled;
 
+	/// <summary>
+	/// Occurs when an item is purchased.
+	/// The PurchaseEvent contains both the item purchased and its purchase receipt.
+	/// </summary>
+	public static event Action<PurchaseEvent> onPurchaseCompleteEvent;
+
     /// <summary>
+	/// DEPRECATED - use onPurchaseCompleteEvent.
     /// Occurs when the specified item was purchases successfully.
     /// </summary>
     public static event Action<PurchasableItem> onPurchaseComplete;
@@ -57,7 +64,11 @@ public class Unibiller {
     /// The parameter indicates whether the restoration was successful.
     /// </summary>
     public static event Action<bool> onTransactionsRestored;
-	
+
+	/// <summary>
+	/// Gets the specific billing platform in use; Google Play, Amazon, Storekit etc.
+	/// </summary>
+	/// <value>The billing platform.</value>
 	public static BillingPlatform BillingPlatform {
 		get {
 			if (null != biller) {
@@ -221,10 +232,6 @@ public class Unibiller {
 	/// </summary>
 	/// <returns>The currency balance or 0 if the currency is unknown.</returns>
 	public static decimal GetCurrencyBalance(string currencyIdentifier) {
-        if (UnityEngine.Application.platform == UnityEngine.RuntimePlatform.WindowsPlayer)
-        {
-            return 1000;
-        }
 		return biller.getCurrencyBalance (currencyIdentifier);
 	}
 
@@ -240,10 +247,6 @@ public class Unibiller {
 	/// </summary>
 	/// <returns><c>true</c>, if balance was debited (sufficient funds were available), <c>false</c> otherwise.</returns>
 	public static bool DebitBalance(string currencyIdentifier, decimal amount) {
-        if (UnityEngine.Application.platform == UnityEngine.RuntimePlatform.WindowsPlayer)
-        {
-            return true;
-        }
 		return biller.debitCurrencyBalance (currencyIdentifier, amount);
 	}
 
@@ -308,9 +311,13 @@ public class Unibiller {
 		}
 	}
 
-	private static void _onPurchaseComplete(PurchasableItem item) {
+	private static void _onPurchaseComplete(PurchaseEvent e) {
 		if (null != onPurchaseComplete) {
-			onPurchaseComplete (item);
+			onPurchaseComplete (e.PurchasedItem);
+		}
+
+		if (null != onPurchaseCompleteEvent) {
+			onPurchaseCompleteEvent (e);
 		}
 	}
 

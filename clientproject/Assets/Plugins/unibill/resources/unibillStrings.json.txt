@@ -108,5 +108,13 @@
       ,
          "UNIBILL_ATTEMPTING_TO_PURCHASE_ALREADY_OWNED_NON_CONSUMABLE" :
          "You have attempted to purchase a Non-Consumable product that is already owned by the player. If it is intended that the product be purchasable multiple times, make it Consumable in the inventory editor. Otherwise you should check whether the product is already owned and, if so, prevent the user purchasing it."
-      
+      ,
+      	"SAMSUNG_APPS_MISSING_PRODUCT" :
+      	"Product: {0} was not returned as available by Samsung. Have you created it on the Samsung developer portal?"
+      ,
+		"SAMSUNG_APPS_NO_PRODUCTS_RETURNED" :
+		"Samsung returned an empty product list. Have you created your purchases on the Samsung developer portal?"
+	  ,
+		"SAMSUNG_APPS_ATTEMPTING_TO_PURCHASE_PRODUCT_NOT_RETURNED_BY_SAMSUNG" :
+	  	"You have attempted to purchase a product that was not listed as available for purchase by Samsung."
 }

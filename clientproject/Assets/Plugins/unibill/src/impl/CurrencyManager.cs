@@ -36,6 +36,10 @@ namespace Unibill.Impl {
 			storage.SetInt (getKey (id), (int) (GetCurrencyBalance (id) + amount));
 		}
 
+		public void SetBalance(string id, decimal amount) {
+			storage.SetInt (getKey (id), (int)amount);
+		}
+
 		public bool DebitBalance(string id, decimal amount) {
 			var balance = GetCurrencyBalance (id);
 			if ((balance - amount) >= 0) {

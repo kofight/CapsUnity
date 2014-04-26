@@ -37,7 +37,7 @@ namespace Unibill {
         public IBillingService billingSubsystem { get; private set; }
 
         public event Action<bool> onBillerReady;
-        public event Action<PurchasableItem> onPurchaseComplete;
+		public event Action<PurchaseEvent> onPurchaseComplete;
         public event Action<bool> onTransactionsRestored;
         public event Action<PurchasableItem> onPurchaseCancelled;
         public event Action<PurchasableItem> onPurchaseRefunded;
@@ -146,37 +146,36 @@ namespace Unibill {
             billingSubsystem.restoreTransactions ();
         }
 
-        public void onPurchaseSucceeded (string id) {
+		public void onPurchaseSucceeded (string id, string receipt) {
             if (!verifyPlatformId (id)) {
                 return;
             }
-            PurchasableItem item = remapper.getPurchasableItemFromPlatformSpecificId(id);
+			PurchasableItem item = remapper.getPurchasableItemFromPlatformSpecificId (id);
+
+			if (receipt != null && receipt.Length > 0) {
+				// Take a note of the receipt.
+
+				if (!receiptMap.ContainsKey (item)) {
+					receiptMap.Add (item, new List<string> ());
+				}
+
+				receiptMap [item].Add (receipt);
+			}
+				
+			if (item.PurchaseType != PurchaseType.Consumable) {
+				if (transactionDatabase.getPurchaseHistory (item) > 0) {
+					logger.Log ("Ignoring multi purchase of non consumable");
+					return;
+				}
+			}
+
             logger.Log("onPurchaseSucceeded({0})", item.Id);
             transactionDatabase.onPurchase (item);
 			currencyManager.OnPurchased (item.Id);
             if (null != onPurchaseComplete) {
-                onPurchaseComplete (item);
+				onPurchaseComplete (new PurchaseEvent(item, receipt));
             }
         }
-
-        #region IBillingServiceCallback implementation
-
-        public void onPurchaseSucceeded (string platformSpecificId, string receipt) {
-            if (receipt != null && receipt.Length > 0) {
-                // Take a note of the receipt.
-                PurchasableItem item = remapper.getPurchasableItemFromPlatformSpecificId (platformSpecificId);
-                if (!receiptMap.ContainsKey (item)) {
-                    receiptMap.Add (item, new List<string> ());
-                }
-
-                receiptMap [item].Add (receipt);
-            }
-
-            // Then trigger our normal purchase routine.
-            onPurchaseSucceeded(platformSpecificId);
-        }
-
-        #endregion
         
         public void onSetupComplete (bool available) {
             logger.Log("onSetupComplete({0})", available);
@@ -234,6 +233,24 @@ namespace Unibill {
         public void onTransactionsRestoredFail(string error) {
             logger.Log("onTransactionsRestoredFail({0})", error);
             onTransactionsRestored(false);
+        }
+
+        public bool isOwned(PurchasableItem item) {
+            return getPurchaseHistory(item) > 0;
+        }
+
+        public void onActiveSubscriptionsRetrieved(IEnumerable<string> subscriptions) {
+            foreach (var sub in InventoryDatabase.AllSubscriptions) {
+                transactionDatabase.clearPurchases(sub);
+            }
+
+            foreach (var id in subscriptions) {
+                if (!remapper.canMapProductSpecificId(id)) {
+                    logger.LogError("Entitled to unknown subscription: {0}. Ignoring", id);
+                    continue;
+                }
+                transactionDatabase.onPurchase(remapper.getPurchasableItemFromPlatformSpecificId(id));
+            }
         }
 
         public void logError (UnibillError error) {

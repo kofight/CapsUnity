@@ -13,13 +13,17 @@ using Unibill.Impl;
 public class AndroidManifestMerger : IXmlNamespaceResolver {
     private XNamespace xmlns = "http://schemas.android.com/apk/res/android";
 
-    private const string ELEMENT_WRITE_EXTERNAL = "manifest/uses-permission[@android:name='android.permission.WRITE_EXTERNAL_STORAGE']";
-    private const string ELEMENT_GOOGLEPLAY_BILLING = "manifest/uses-permission[@android:name='com.android.vending.BILLING']";
-    private const string ELEMENT_INTERNET = "manifest/uses-permission[@android:name='android.permission.INTERNET']";
-    private const string ELEMENT_GOOGLEPLAY_BILLING_SERVICE = "manifest/application/service[@android:name='com.outlinegames.unibill.BillingService']";
+	private const string ELEMENT_WRITE_EXTERNAL = 			   "manifest/uses-permission[@android:name='android.permission.WRITE_EXTERNAL_STORAGE']";
+	private const string ELEMENT_GOOGLEPLAY_BILLING = 		   "manifest/uses-permission[@android:name='com.android.vending.BILLING']";
+	private const string ELEMENT_INTERNET = 				   "manifest/uses-permission[@android:name='android.permission.INTERNET']";
+	private const string ELEMENT_GOOGLEPLAY_BILLING_SERVICE =  "manifest/application/service[@android:name='com.outlinegames.unibill.BillingService']";
     private const string ELEMENT_GOOGLEPLAY_BILLING_RECEIVER = "manifest/application/receiver[@android:name='com.outlinegames.unibill.BillingReceiver']";
-    private const string ELEMENT_GOOGLEPLAY_CUSTOM_ACTIVITY = "manifest/application/activity[@android:name='com.outlinegames.unibill.PurchaseActivity']";
-    private const string ELEMENT_AMAZON_SERVICE = "//receiver[@android:name='com.amazon.inapp.purchasing.ResponseReceiver']";
+	private const string ELEMENT_GOOGLEPLAY_CUSTOM_ACTIVITY =  "manifest/application/activity[@android:name='com.outlinegames.unibill.PurchaseActivity']";
+	private const string ELEMENT_AMAZON_SERVICE = 			   "//receiver[@android:name='com.amazon.inapp.purchasing.ResponseReceiver']";
+	private const string ELEMENT_SAMSUNG_BILLING_PERMISSION =  "manifest/uses-permission[@android:name='com.sec.android.iap.permission.BILLING']";
+	private const string ELEMENT_SAMSUNG_INBOX_ACTIVITY      = "manifest/application/activity[@android:name='com.sec.android.iap.lib.activity.InboxActivity']";
+	private const string ELEMENT_SAMSUNG_PAYMENT_ACTIVITY    = "manifest/application/activity[@android:name='com.sec.android.iap.lib.activity.PaymentActivity']";
+	private const string ELEMENT_SAMSUNG_ITEM_ACTIVITY    = "manifest/application/activity[@android:name='com.sec.android.iap.lib.activity.ItemActivity']";
 
     private string[] COMMON_ELEMENTS = {
         ELEMENT_INTERNET,
@@ -29,29 +33,48 @@ public class AndroidManifestMerger : IXmlNamespaceResolver {
         ELEMENT_AMAZON_SERVICE,
     };
 
+	private string[] GOOGLE_PLAY_ELEMENTS = {
+		ELEMENT_GOOGLEPLAY_BILLING,
+		ELEMENT_GOOGLEPLAY_CUSTOM_ACTIVITY
+	};
+
+	private string[] SAMSUNG_APPS_ELEMENTS = {
+		ELEMENT_SAMSUNG_BILLING_PERMISSION,
+		ELEMENT_SAMSUNG_INBOX_ACTIVITY,
+		ELEMENT_SAMSUNG_PAYMENT_ACTIVITY,
+		ELEMENT_SAMSUNG_ITEM_ACTIVITY
+	};
+
     /// <summary>
     /// The external storage permission is one way - we cannot remove it, since
     /// it might be there legitimately.
     /// </summary>
     public XDocument merge (XDocument manifest, BillingPlatform platform, bool sandbox) {
-        if (platform == BillingPlatform.GooglePlay) {
-            addElements(manifest, ELEMENT_GOOGLEPLAY_BILLING);
-            addElements(manifest, COMMON_ELEMENTS);
-            addElements(manifest, ELEMENT_GOOGLEPLAY_CUSTOM_ACTIVITY);
-            removeElements(manifest, ELEMENT_GOOGLEPLAY_BILLING_RECEIVER);
-            removeElements(manifest, ELEMENT_GOOGLEPLAY_BILLING_SERVICE);
-            removeElements(manifest, AMAZON_ELEMENTS);
-        } else if (platform == BillingPlatform.AmazonAppstore) {
-            addElements(manifest, AMAZON_ELEMENTS);
-            addElements(manifest, COMMON_ELEMENTS);
-            removeElements(manifest, ELEMENT_GOOGLEPLAY_BILLING_RECEIVER);
-            removeElements(manifest, ELEMENT_GOOGLEPLAY_BILLING_SERVICE);
-            removeElements(manifest, ELEMENT_GOOGLEPLAY_BILLING);
-            removeElements(manifest, ELEMENT_GOOGLEPLAY_CUSTOM_ACTIVITY);
-            if (sandbox) {
-                addElements(manifest, ELEMENT_WRITE_EXTERNAL);
-            }
-        }
+		switch (platform) {
+		case BillingPlatform.GooglePlay:
+			addElements (manifest, GOOGLE_PLAY_ELEMENTS);
+			addElements (manifest, COMMON_ELEMENTS);
+			// Old billing service v2 elements.
+			removeElements (manifest, ELEMENT_GOOGLEPLAY_BILLING_RECEIVER);
+			removeElements (manifest, ELEMENT_GOOGLEPLAY_BILLING_SERVICE);
+			removeElements (manifest, AMAZON_ELEMENTS);
+			removeElements (manifest, SAMSUNG_APPS_ELEMENTS);
+			break;
+		case BillingPlatform.AmazonAppstore:
+			addElements (manifest, AMAZON_ELEMENTS);
+			addElements (manifest, COMMON_ELEMENTS);
+			if (sandbox) {
+				addElements (manifest, ELEMENT_WRITE_EXTERNAL);
+			}
+			removeElements (manifest, GOOGLE_PLAY_ELEMENTS);
+			removeElements (manifest, SAMSUNG_APPS_ELEMENTS);
+			break;
+		case BillingPlatform.SamsungApps:
+			addElements (manifest, SAMSUNG_APPS_ELEMENTS);
+			removeElements (manifest, GOOGLE_PLAY_ELEMENTS);
+			removeElements (manifest, AMAZON_ELEMENTS);
+			break;
+		}
         return manifest;
     }
 
@@ -77,6 +100,7 @@ public class AndroidManifestMerger : IXmlNamespaceResolver {
         case ELEMENT_WRITE_EXTERNAL:
         case ELEMENT_INTERNET:
         case ELEMENT_GOOGLEPLAY_BILLING:
+		case ELEMENT_SAMSUNG_BILLING_PERMISSION:
             return "manifest";
         default:
             return "manifest/application";
@@ -121,9 +145,29 @@ public class AndroidManifestMerger : IXmlNamespaceResolver {
             activity.Add(new XAttribute(xmlns + "name", "com.outlinegames.unibill.PurchaseActivity"));
             activity.Add(new XAttribute(xmlns + "label", "@string/app_name"));
             activity.Add(new XAttribute(xmlns + "configChanges", "fontScale|keyboard|keyboardHidden|locale|mnc|mcc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode|touchscreen"));
-            activity.Add(new XAttribute(xmlns + "theme", "@android:style/Theme.NoTitleBar.Fullscreen"));
+			activity.Add(new XAttribute(xmlns + "theme", "@android:style/Theme.Translucent.NoTitleBar.Fullscreen"));
             return activity;
         }
+		case ELEMENT_SAMSUNG_BILLING_PERMISSION:
+			return new XElement("uses-permission", new XAttribute(xmlns + "name", "com.sec.android.iap.permission.BILLING"));
+		case ELEMENT_SAMSUNG_INBOX_ACTIVITY:
+			var inboxActivity = new XElement("activity");
+			inboxActivity.Add(new XAttribute(xmlns + "name", "com.sec.android.iap.lib.activity.InboxActivity"));
+			inboxActivity.Add(new XAttribute(xmlns + "theme", "@android:style/Theme.Translucent.NoTitleBar.Fullscreen"));
+			inboxActivity.Add(new XAttribute(xmlns + "configChanges", "orientation|screenSize"));
+			return inboxActivity;
+		case ELEMENT_SAMSUNG_PAYMENT_ACTIVITY:
+			var paymentActivity = new XElement("activity");
+			paymentActivity.Add(new XAttribute(xmlns + "name", "com.sec.android.iap.lib.activity.PaymentActivity"));
+			paymentActivity.Add(new XAttribute(xmlns + "theme", "@android:style/Theme.Translucent.NoTitleBar.Fullscreen"));
+			paymentActivity.Add(new XAttribute(xmlns + "configChanges", "orientation|screenSize"));
+			return paymentActivity;
+		case ELEMENT_SAMSUNG_ITEM_ACTIVITY:
+			var itemActivity = new XElement("activity");
+			itemActivity.Add(new XAttribute(xmlns + "name", "com.sec.android.iap.lib.activity.ItemActivity"));
+			itemActivity.Add(new XAttribute(xmlns + "theme", "@android:style/Theme.Translucent.NoTitleBar.Fullscreen"));
+			itemActivity.Add(new XAttribute(xmlns + "configChanges", "orientation|screenSize"));
+			return itemActivity;
         }
 
         throw new ArgumentException(el);

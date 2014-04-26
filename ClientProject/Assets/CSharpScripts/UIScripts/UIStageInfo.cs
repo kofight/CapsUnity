@@ -41,19 +41,6 @@ public class UIStageInfo : UIWindow
 
         AddChildComponentMouseClick("CloseBtn", OnCloseClicked);
         AddChildComponentMouseClick("PlayBtn", OnPlayClicked);
-
-        AddChildComponentMouseClick("HelpBtn", delegate()
-        {
-            if (m_stageTip == null)
-            {
-                m_stageTip = UIWindowManager.Singleton.CreateWindow<UIWindow>("UIStageTip", UIWindowManager.Anchor.Center);
-                m_stageTip.AddChildComponentMouseClick("CloseBtn", delegate()
-                {
-                    m_stageTip.HideWindow();
-                });
-            }
-            m_stageTip.ShowWindow();
-        });
     }
 
     public void OnToggle()

@@ -1,3 +1,51 @@
+1.4.5
+
+Added new Unibiller.onPurchaseCompleteEvent, with a 'PurchaseEvent' parameter,
+which includes both the PurchasableItem purchased and the purchase receipt.
+
+This saves looking up the purchase receipt following the purchase.
+
+1.4.4
+
+Google Play - fixed various ANRs caused by initialisation work being performed on the main thread.
+Google Play - fixed random IllegalStateException & NullPointerExceptions when Android kills the Google Play billing service under resource pressure.
+
+1.4.3
+
+Google Play - fixed a potential crash on process shutdown.
+
+1.4.2
+
+Google Play - fixed expiry of subscriptions.
+
+1.4.1
+
+Windows Phone 8 & Windows 8.1 - Fixed a crash if a product was defined in the Microsoft portal
+but not in Unibill's configuration.
+
+Amazon - Prevent firing of duplicate purchase events for non consumables.
+
+1.4.0
+
+Samsung Apps Support!
+
+Open the inventory editor and save to upgrade your inventory.
+
+Samsung apps feature three different modes; production (which you must ship your APK using) and two test modes;
+always succeed and always fail.
+
+1.3.12
+
+Google play - fixed two potential crashes.
+
+1.3.11
+
+All platforms - fixed parsing of inventory on certain locale configurations.
+
+1.3.10
+
+Unibill now defaults to the fake billing subsystem on all unsupported platforms.
+
 1.3.9
 
 Fixed overriding of default Purchasable identifiers when defining new products.

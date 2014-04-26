@@ -151,10 +151,17 @@ namespace Unibill.Impl {
 			rawInterface.pollForConsumables();
         }
 		
-		public void onPollForConsumablesFinished() {
+		public void onPollForConsumablesFinished(string json) {
 			logger.Log("Finished poll for consumables, completing init.");
+			Dictionary<string, object> response = (Dictionary<string, object>)Unibill.Impl.MiniJSON.jsonDecode(json);
+			if (null != response) {
+				var ownedSubscriptions = response.getStringList("ownedSubscriptions");
+				if (null != ownedSubscriptions) {
+					callback.onActiveSubscriptionsRetrieved (ownedSubscriptions);
+				}
+			}
 	        callback.onSetupComplete(true);
 		}
     }
 }
-
+	

@@ -35,14 +35,14 @@ namespace Tests {
             if (remapper.getPurchasableItemFromPlatformSpecificId (item).PurchaseType == PurchaseType.NonConsumable) {
                 purchasedItems.Add (item);
             }
-            this.biller.onPurchaseSucceeded(item);
+			this.biller.onPurchaseSucceeded(item, "{ \"this\" : \"is a fake receipt\" }");
         }
 
         public bool restoreCalled;
         public void restoreTransactions () {
             restoreCalled = true;
             foreach (var item in purchasedItems) {
-                biller.onPurchaseSucceeded(item);
+				biller.onPurchaseSucceeded(item, "{ \"this\" : \"is a fake receipt\" }");
             }
             this.biller.onTransactionsRestoredSuccess();
         }

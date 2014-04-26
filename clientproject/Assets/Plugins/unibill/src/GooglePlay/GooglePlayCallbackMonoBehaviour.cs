@@ -53,8 +53,8 @@ public class GooglePlayCallbackMonoBehaviour : MonoBehaviour {
     public void onInvalidPublicKey(string publicKey) {
         callback.onInvalidPublicKey(publicKey);
     }
-	
+
 	public void onPollForConsumablesFinished(string result) {
-		callback.onPollForConsumablesFinished();
+		callback.onPollForConsumablesFinished(result);
 	}
 }

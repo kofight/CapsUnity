@@ -9,7 +9,7 @@ namespace Unibill.Impl {
     /// <summary>
     /// Handles Windows Phone 8.
     /// </summary>
-    class WP8BillingService : IBillingService, IWindowsIAPCallback {
+    public class WP8BillingService : IBillingService, IWindowsIAPCallback {
 
         private IWindowsIAP wp8;
         private IBillingServiceCallback callback;
@@ -121,6 +121,10 @@ namespace Unibill.Impl {
         private static int count;
         public void OnPurchaseSucceeded(string productId, string receipt) {
             logger.LogError("PURCHASE SUCCEEDED!:{0}", count++);
+            if (!remapper.canMapProductSpecificId(productId)) {
+                logger.LogError("Purchased unknown product: {0}. Ignoring!", productId);
+                return;
+            }
             var details = remapper.getPurchasableItemFromPlatformSpecificId(productId);
             switch (details.PurchaseType) {
                 case PurchaseType.Consumable:

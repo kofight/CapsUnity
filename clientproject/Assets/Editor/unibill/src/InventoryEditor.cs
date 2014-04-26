@@ -48,10 +48,20 @@ public class InventoryEditor : EditorWindow {
     private XPathDocument doc;
     private static List<GUIPurchasable> items = new List<GUIPurchasable>();
     private static List<GUIPurchasable> toRemove = new List<GUIPurchasable>();
-    private string[] androidBillingPlatforms = new string[] { BillingPlatform.GooglePlay.ToString(), BillingPlatform.AmazonAppstore.ToString() };
+	private string[] androidBillingPlatforms = new string[] {
+		BillingPlatform.GooglePlay.ToString(),
+		BillingPlatform.AmazonAppstore.ToString(),
+		BillingPlatform.SamsungApps.ToString()
+	};
 	private UnibillCurrencyEditor currencyEditor;
     private UnibillConfiguration config;
     private int androidBillingPlatform;
+
+	public static List<GUIPurchasable> Items {
+		get {
+			return items;
+		}
+	}
 
     public void OnEnable () {
 		items = new List<GUIPurchasable> ();
@@ -76,6 +86,7 @@ public class InventoryEditor : EditorWindow {
             editors.Add(new DefaultPlatformEditor(element, BillingPlatform.MacAppStore));
             editors.Add(new DefaultPlatformEditor(element, BillingPlatform.WindowsPhone8));
             editors.Add(new DefaultPlatformEditor(element, BillingPlatform.Windows8_1));
+			editors.Add (new DefaultPlatformEditor (element, BillingPlatform.SamsungApps));
             items.Add(new GUIPurchasable(element, editors));
         }
 
@@ -121,7 +132,7 @@ public class InventoryEditor : EditorWindow {
         p.StartInfo.FileName = adb.FullName;
         string apkPath = new FileInfo(string.Format("Assets{0}Plugins{0}unibill{0}static{0}AmazonSDKTester.apk", Path.DirectorySeparatorChar)).FullName;
 
-        p.StartInfo.Arguments = string.Format("install {0}", apkPath);
+		p.StartInfo.Arguments = string.Format("install \"{0}\"", apkPath);
         p.Start();
     }
 #endif
@@ -147,7 +158,8 @@ public class InventoryEditor : EditorWindow {
         config.AmazonSandboxEnabled = EditorGUILayout.Toggle("Use Amazon sandbox:", config.AmazonSandboxEnabled);
         config.WP8SandboxEnabled = EditorGUILayout.Toggle("Use mock Windows Phone environment:", config.WP8SandboxEnabled);
         config.UseWin8_1Sandbox = EditorGUILayout.Toggle("Use mock Windows 8", config.UseWin8_1Sandbox);
-
+		config.SamsungAppsMode = (SamsungAppsMode) EditorGUILayout.EnumPopup ("Samsung Apps mode:", config.SamsungAppsMode);
+		config.SamsungItemGroupId = EditorGUILayout.TextField ("Samsung Apps Item Group ID:", config.SamsungItemGroupId);
         if (EditorGUI.EndChangeCheck()) {
             serialise();
         }
@@ -205,7 +217,7 @@ public class InventoryEditor : EditorWindow {
         AndroidManifestGenerator.mergeManifest();
     }
 
-    private class GUIPurchasable {
+	public class GUIPurchasable {
 
         public WritablePurchasable item;
         public bool visible { get; private set; }
@@ -222,6 +234,7 @@ public class InventoryEditor : EditorWindow {
             editors.Add(new DefaultPlatformEditor(item, BillingPlatform.MacAppStore));
             editors.Add(new DefaultPlatformEditor(item, BillingPlatform.WindowsPhone8));
             editors.Add(new DefaultPlatformEditor(item, BillingPlatform.Windows8_1));
+			editors.Add(new DefaultPlatformEditor(item, BillingPlatform.SamsungApps));
             return new GUIPurchasable(item, editors);
         }
 
@@ -334,7 +347,7 @@ public class InventoryEditor : EditorWindow {
             base.onGUI ();
 			int priceTier = 1;
 			int.TryParse(rootItem.platformBundles[BillingPlatform.AppleAppStore].getString("appleAppStorePriceTier"), out priceTier);
-            rootItem.platformBundles[BillingPlatform.AppleAppStore]["appleAppStorePriceTier"] = EditorGUILayout.IntSlider("Price tier:", priceTier, 1, 85);
+			rootItem.platformBundles[BillingPlatform.AppleAppStore]["appleAppStorePriceTier"] = EditorGUILayout.IntSlider("Price tier:", priceTier, 0, 85);
             screenshot = (Texture2D)EditorGUILayout.ObjectField ("Screenshot:", screenshot, typeof(Texture2D), false);
             rootItem.platformBundles[BillingPlatform.AppleAppStore]["screenshotPath"] = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(screenshot));
         }

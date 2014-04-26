@@ -1,5 +1,5 @@
 {
-  "com.linkrstudio.jellycraft.140coins": {
+  "com.linkrstudio.jellycrafttest.140coins": {
     "itemType": "CONSUMABLE",
     "description": "140 Gold Coins",
     "price": 0.99,

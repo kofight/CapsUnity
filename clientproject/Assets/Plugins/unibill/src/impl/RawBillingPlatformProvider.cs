@@ -27,5 +27,9 @@ namespace Unibill.Impl {
 
             return new OSXStoreKitPluginImpl();
         }
+
+		public IRawSamsungAppsBillingService getSamsung() {
+			return new RawSamsungAppsBillingInterface ();
+		}
     }
 }

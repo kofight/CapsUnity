@@ -16,13 +16,20 @@ namespace Unibill.Impl {
     /// </summary>
     public enum BillingPlatform {
         GooglePlay,
-        AmazonAppstore,
+		AmazonAppstore,
+		SamsungApps,
         AppleAppStore,
 		MacAppStore,
         WindowsPhone8,
         Windows8_1,
         UnityEditor
     }
+
+	public enum SamsungAppsMode {
+		PRODUCTION,
+		ALWAYS_SUCCEED,
+		ALWAYS_FAIL
+	}
 
     public class UnibillConfiguration {
 
@@ -41,6 +48,8 @@ namespace Unibill.Impl {
         public string HostedConfigUrl { get; set; }
 
         public bool UseWin8_1Sandbox { get; set; }
+		public SamsungAppsMode SamsungAppsMode { get; set; }
+		public string SamsungItemGroupId { get; set; }
 
         public List<PurchasableItem> inventory = new List<PurchasableItem>();
         public List<VirtualCurrency> currencies = new List<VirtualCurrency>();
@@ -56,6 +65,8 @@ namespace Unibill.Impl {
             this.UseHostedConfig = root.getBool("useHostedConfig");
             this.HostedConfigUrl = root.get<string>("hostedConfigUrl");
             this.UseWin8_1Sandbox = root.getBool("UseWin8_1Sandbox");
+			this.SamsungAppsMode = root.getEnum<SamsungAppsMode> ("samsungAppsMode");
+			this.SamsungItemGroupId = root.getString ("samsungAppsItemGroupId");
 
             switch (runtimePlatform) {
                 case RuntimePlatform.Android:
@@ -67,6 +78,8 @@ namespace Unibill.Impl {
                 case RuntimePlatform.OSXPlayer:
                     CurrentPlatform = BillingPlatform.MacAppStore;
                 break;
+				#if UNITY_3_5_0
+				#else
                 case RuntimePlatform.WP8Player:
                     CurrentPlatform = BillingPlatform.WindowsPhone8;
                 break;
@@ -75,12 +88,14 @@ namespace Unibill.Impl {
                 case RuntimePlatform.MetroPlayerX86:
                     CurrentPlatform = BillingPlatform.Windows8_1;
                 break;
+				#endif
                 case RuntimePlatform.OSXEditor:
                 case RuntimePlatform.WindowsEditor:
                     CurrentPlatform = BillingPlatform.UnityEditor;
                 break;
                 default:
-                    throw new ArgumentException("Unsupported platform:" + runtimePlatform);
+                    CurrentPlatform = BillingPlatform.UnityEditor;
+                break;
             }
 
             var items = (Dictionary<string, object>)root["purchasableItems"];
@@ -122,6 +137,8 @@ namespace Unibill.Impl {
             result.Add("useHostedConfig", UseHostedConfig);
             result.Add("hostedConfigUrl", HostedConfigUrl);
             result.Add("UseWin8_1Sandbox", UseWin8_1Sandbox);
+			result.Add ("samsungAppsMode", SamsungAppsMode.ToString ());
+			result.Add ("samsungAppsItemGroupId", SamsungItemGroupId);
 
             {
                 var items = new Dictionary<string, object>();

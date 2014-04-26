@@ -41,6 +41,19 @@ public enum PurchaseType {
 }
 
 /// <summary>
+/// Represents a purchased item along with its associated purchase receipt.
+/// </summary>
+public class PurchaseEvent {
+	public PurchasableItem PurchasedItem { get; private set; }
+	public string Receipt { get; private set; }
+
+	internal PurchaseEvent(PurchasableItem purchasedItem, string receipt) {
+		this.PurchasedItem = purchasedItem;
+		this.Receipt = receipt;
+	}
+}
+
+/// <summary>
 /// Represents an item that may be purchased as an In App Purchase.
 /// </summary>
 public partial class PurchasableItem : IEquatable<PurchasableItem> {

@@ -33,8 +33,8 @@ public class UnibillDemo : MonoBehaviour {
         Unibiller.onBillerReady += onBillerReady;
         Unibiller.onTransactionsRestored += onTransactionsRestored;
         Unibiller.onPurchaseCancelled += onCancelled;
-    Unibiller.onPurchaseFailed += onFailed;
-        Unibiller.onPurchaseComplete += onPurchased;
+	    Unibiller.onPurchaseFailed += onFailed;
+		Unibiller.onPurchaseCompleteEvent += onPurchased;
 
         // Now we're ready to initialise Unibill.
         Unibiller.Initialise();
@@ -59,11 +59,11 @@ public class UnibillDemo : MonoBehaviour {
     /// <summary>
     /// This will be called when a purchase completes.
     /// </summary>
-    private void onPurchased(PurchasableItem item) {
-        Debug.Log("Purchase OK: " + item.Id);
+	private void onPurchased(PurchaseEvent e) {
+		Debug.Log("Purchase OK: " + e.PurchasedItem.Id);
         Debug.Log(string.Format ("{0} has now been purchased {1} times.",
-                                 item.name,
-                                 Unibiller.GetPurchaseCount(item)));
+								 e.PurchasedItem.name,
+								 Unibiller.GetPurchaseCount(e.PurchasedItem)));
     }
 
     /// <summary>
@@ -130,6 +130,12 @@ public class UnibillDemo : MonoBehaviour {
 			GUI.Label(new Rect(Screen.width - Screen.width * 0.1f, start, 500, 50), Unibiller.GetCurrencyBalance(currencyId).ToString(), listStyle);
             start -= 30;
         }
+
+		foreach (var subscription in Unibiller.AllSubscriptions) {
+			GUI.Label(new Rect(0, start, 500, 50), subscription.localizedTitle, listStyle);
+			GUI.Label(new Rect(Screen.width - Screen.width * 0.1f, start, 500, 50), Unibiller.GetPurchaseCount(subscription).ToString(), listStyle);
+			start -= 30;
+		}
 
         GUI.Label(new Rect(0, start - 10, 500, 50), "Item", listStyle);
 

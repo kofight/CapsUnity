@@ -30,6 +30,7 @@ using System;
 using System.Collections;
 using System.Text;
 using System.Collections.Generic;
+using System.Globalization;
 
 
 /* Based on the JSON parser from 
@@ -392,7 +393,7 @@ namespace Unibill.Impl {
 
     		Array.Copy( json, index, numberCharArray, 0, charLength );
     		index = lastIndex + 1;
-    		return Double.Parse( new string( numberCharArray ) ); // , CultureInfo.InvariantCulture);
+			return Double.Parse( new string( numberCharArray), CultureInfo.InvariantCulture ); // , CultureInfo.InvariantCulture);
     	}
     	
     	
@@ -756,6 +757,19 @@ namespace Unibill.Impl {
 
             return string.Empty;
         }
+
+		public static List<string> getStringList(this Dictionary<string, object> dic, string key) {
+			if (dic.ContainsKey(key)) {
+				List<string> result = new List<string> ();
+				var objs = (List<object>)dic [key];
+				foreach (var v in objs) {
+					result.Add (v.ToString ());
+				}
+				return result;
+			}
+
+			return new List<string> ();
+		}
 
         public static bool getBool(this Dictionary<string, object> dic, string key) {
             if (dic.ContainsKey(key)) {

@@ -8,15 +8,12 @@ using System.Collections.Generic;
 
 namespace Unibill.Impl {
 
-
-
     /// <summary>
     /// Callback interface for <see cref="IBillingService"/>s.
     /// </summary>
     public interface IBillingServiceCallback {
         void onSetupComplete(bool successful);
 
-        void onPurchaseSucceeded(string platformSpecificId);
         // This variant should be called when we have a receipt for the purchase.
         void onPurchaseSucceeded(string platformSpecificId, string receipt);
         void onPurchaseCancelledEvent(string item);
@@ -25,6 +22,8 @@ namespace Unibill.Impl {
 
         void onTransactionsRestoredSuccess();
         void onTransactionsRestoredFail(string error);
+
+		void onActiveSubscriptionsRetrieved (IEnumerable<string> subscriptions);
 
         void logError(UnibillError error, params object[] args);
         void logError(UnibillError error);

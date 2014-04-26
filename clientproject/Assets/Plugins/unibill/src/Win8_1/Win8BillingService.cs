@@ -155,6 +155,10 @@ namespace Unibill.Impl {
             #if UNITY_METRO
             UnityEngine.WSA.Application.InvokeOnAppThread(() => {
                 logger.LogError("PURCHASE SUCCEEDED!:{0}", count++);
+                if (!remapper.canMapProductSpecificId(productId)) {
+                    logger.LogError("Purchased unknown product: {0}. Ignoring!", productId);
+                    return;
+                }
                 var details = remapper.getPurchasableItemFromPlatformSpecificId(productId);
                 switch (details.PurchaseType) {
                     case PurchaseType.Consumable:

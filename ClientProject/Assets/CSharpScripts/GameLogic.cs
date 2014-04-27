@@ -3264,7 +3264,8 @@ public class GameLogic
                                 m_blocks[i, j].AlphaFadeOut();
                             }
                             //普通块被特殊块消，额外播下基本消除特效
-                            if (m_blocks[i, j].special == TSpecialBlock.ESpecial_Normal && m_blocks[i, j].EatEffectName.Equals(CapsConfig.EatEffect))
+                            if (m_blocks[i, j].special == TSpecialBlock.ESpecial_Normal &&
+                                (m_blocks[i, j].EatEffectName == CapsConfig.LineEatEffect || m_blocks[i, j].EatEffectName == CapsConfig.BombEatEffect))
                             {
                                 AddPartile("EatEffectFlower" + (m_blocks[i, j].color - TBlockColor.EColor_None), AudioEnum.Audio_None, i, j);
                             }
@@ -4458,7 +4459,6 @@ public class GameLogic
 
     public void AddPartile(string name, AudioEnum audio, int x, int y, bool addToGameArea = true, float delay = 0.0f)
     {
-        Debug.Log("Add Partile " + name);
         //先看freeParticleList里面有没有可用的
         LinkedList<ParticleSystem> freeParticleList;
         if (!m_freeParticleMap.TryGetValue(name, out freeParticleList))

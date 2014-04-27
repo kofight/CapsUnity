@@ -4,30 +4,26 @@ using System.Collections;
 public class UIHowToPlay : UIWindow 
 {
     int m_curPicNum;
-    UITexture m_helpTex;
+
+    int pageCount = 4;
 
     public override void OnCreate()
     {
         base.OnCreate();
 
-        m_helpTex = GetChildComponent<UITexture>("HelpPic");
-
         AddChildComponentMouseClick("CloseBtn", OnClose);
 		
 		AddChildComponentMouseClick("NextBtn", Next);
+        AddChildComponentMouseClick("PreBtn", Pre);
     }
 
     public override void OnShow()
     {
         base.OnShow();
         m_curPicNum = 0;
-        Texture tex = ResourceManager.Singleton.GetIconByName("help" + m_curPicNum);
-        if (tex != null)
-        {
-            m_helpTex.mainTexture = tex;
+        Refresh();
 			if(GameLogic.Singleton != null)
             	GameLogic.Singleton.PauseGame();
-        }
     }
 
     public void OnClose()
@@ -40,10 +36,31 @@ public class UIHowToPlay : UIWindow
         UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();
     }
 
+    void Pre()
+    {
+        m_curPicNum = (pageCount + m_curPicNum - 1) % pageCount;
+        Refresh();
+    }
+
     void Next()
     {
-        m_curPicNum = (m_curPicNum + 1)%3;
-        Texture tex = ResourceManager.Singleton.GetIconByName("help" + m_curPicNum);
-        m_helpTex.mainTexture = tex;
+        m_curPicNum = (m_curPicNum + 1) % pageCount;
+        Refresh();
+    }
+
+    void Refresh()
+    {
+        for (int i = 0; i < pageCount; ++i)
+        {
+            Transform help = UIToolkits.FindChild(mUIObject.transform, "Help" + (i + 1));
+            if (i == m_curPicNum)
+            {
+                help.gameObject.SetActive(true);
+            }
+            else
+            {
+                help.gameObject.SetActive(false);
+            }
+        }
     }
 }

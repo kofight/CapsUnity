@@ -13,7 +13,7 @@ OK = 好 的
 NoMoreHearts = 没 有 心 了 !
 NotEnoughScore = 没有得到星星
 DidNotClearIce = 没有清除冰块
-DidNotBringNuts = 没有获得所有水果
+DidNotBringNuts = 没有获得所有钻石
 DidNotCollectEnough = 没有完成收集目标
 EndGameByHimSelf = 主动结束
 

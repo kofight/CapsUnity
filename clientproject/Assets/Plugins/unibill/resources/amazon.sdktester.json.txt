@@ -13,25 +13,25 @@
     "smallIconUrl": "http://example.com",
     "title": "130 Gold Coins"
   },
-  "com.linkrstudio.jellycraft.420coins": {
+  "com.linkrstudio.jellycraft.360coins": {
     "itemType": "CONSUMABLE",
-    "description": "420 Gold Coins",
+    "description": "360 Gold Coins",
     "price": 0.99,
     "smallIconUrl": "http://example.com",
-    "title": "420 Gold Coins"
+    "title": "360 Gold Coins"
   },
-  "com.linkrstudio.jellycraft.1040coins": {
+  "com.linkrstudio.jellycraft.860coins": {
     "itemType": "CONSUMABLE",
-    "description": "1040 Gold Coins",
+    "description": "860 Gold Coins",
     "price": 0.99,
     "smallIconUrl": "http://example.com",
-    "title": "1040 Gold Coins"
+    "title": "860 Gold Coins"
   },
-  "com.linkrstudio.jellycraft.2080coins": {
+  "com.linkrstudio.jellycraft.1680coins": {
     "itemType": "CONSUMABLE",
-    "description": "2080 Gold Coins",
+    "description": "1680 Gold Coins",
     "price": 0.99,
     "smallIconUrl": "http://example.com",
-    "title": "2080 Gold Coins"
+    "title": "1680 Gold Coins"
   }
 }

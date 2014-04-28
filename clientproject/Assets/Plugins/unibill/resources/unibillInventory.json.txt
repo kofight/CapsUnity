@@ -55,11 +55,11 @@
         "UnityEditor": {}
       }
     },
-    "com.linkrstudio.jellycraft.420coins": {
-      "@id": "com.linkrstudio.jellycraft.420coins",
+    "com.linkrstudio.jellycraft.360coins": {
+      "@id": "com.linkrstudio.jellycraft.360coins",
       "@purchaseType": "Consumable",
-      "name": "420 Gold Coins",
-      "description": "420 Gold Coins",
+      "name": "360 Gold Coins",
+      "description": "360 Gold Coins",
       "platforms": {
         "GooglePlay": {
           "priceInLocalCurrency": 1.0,
@@ -77,11 +77,11 @@
         "UnityEditor": {}
       }
     },
-    "com.linkrstudio.jellycraft.1040coins": {
-      "@id": "com.linkrstudio.jellycraft.1040coins",
+    "com.linkrstudio.jellycraft.860coins": {
+      "@id": "com.linkrstudio.jellycraft.860coins",
       "@purchaseType": "Consumable",
-      "name": "1040 Gold Coins",
-      "description": "1040 Gold Coins",
+      "name": "860 Gold Coins",
+      "description": "860 Gold Coins",
       "platforms": {
         "GooglePlay": {
           "priceInLocalCurrency": 1.0,
@@ -99,11 +99,11 @@
         "UnityEditor": {}
       }
     },
-    "com.linkrstudio.jellycraft.2080coins": {
-      "@id": "com.linkrstudio.jellycraft.2080coins",
+    "com.linkrstudio.jellycraft.1680coins": {
+      "@id": "com.linkrstudio.jellycraft.1680coins",
       "@purchaseType": "Consumable",
-      "name": "2080 Gold Coins",
-      "description": "2080 Gold Coins",
+      "name": "1680 Gold Coins",
+      "description": "1680 Gold Coins",
       "platforms": {
         "GooglePlay": {
           "priceInLocalCurrency": 1.0,
@@ -124,12 +124,11 @@
   },
   "currencies": {
     "gold": {
-      "com.linkrstudio.jellycraft.140coins": 40.0,
       "com.linkrstudio.jellycraft.60coins": 60.0,
       "com.linkrstudio.jellycraft.130coins": 130.0,
-      "com.linkrstudio.jellycraft.420coins": 420.0,
-      "com.linkrstudio.jellycraft.1040coins": 1040.0,
-      "com.linkrstudio.jellycraft.2080coins": 2080.0
+      "com.linkrstudio.jellycraft.360coins": 360.0,
+      "com.linkrstudio.jellycraft.860coins": 860.0,
+      "com.linkrstudio.jellycraft.1680coins": 1680.0
     }
   }
 }

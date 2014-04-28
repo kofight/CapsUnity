@@ -17,7 +17,8 @@ public class UIPurchaseNotEnoughMoney : UIWindow
 			HideWindow();
 			UIWindowManager.Singleton.GetUIWindow<UIWait>().ShowWindow(delegate()
             {
-                if (CapsConfig.GetItemPrice(GlobalVars.UsingItem) <= 60)
+                int coinNeeded = CapsConfig.GetItemPrice(GlobalVars.UsingItem) - (int)Unibiller.GetCurrencyBalance("gold");
+                if (coinNeeded <= 60)
                 {
                     Unibiller.initiatePurchase("com.linkrstudio.jellycraft.60coins");
                 }

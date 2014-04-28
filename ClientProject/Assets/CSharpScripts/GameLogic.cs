@@ -387,7 +387,7 @@ public class GameLogic
     TGameFlow m_gameFlow;								//游戏状态
     long m_curStateStartTime = 0;                       //当前状态的开始时间
     float m_lastPlayDropSoundTime = 0;                       //上一次播放Drop声音的时间
-
+    float m_lastPlayDropNutSoundTime = 0;                       //上一次播放DropNut声音的时间
 
     TSpecialEffect m_curSpecialEffect;                  //当前的特殊效果
     Position m_curSpecialEffectPos;                     //当前特殊效果的开始位置
@@ -620,14 +620,6 @@ public class GameLogic
 
     void PlaySoundNextFrame(AudioEnum audio)                            //为了同一声音在一帧内播放多次，把要播放的声音存起来下一帧播放
     {
-        if (audio == AudioEnum.Audio_Drop)       //对于下落声音，若没到固定时间间隔不播放，防止声音太密集
-        {
-            if (Timer.s_currentTime < m_lastPlayDropSoundTime + 0.2f)
-            {
-                return;
-            }
-            m_lastPlayDropSoundTime = Timer.s_currentTime;
-        }
         m_playSoundNextFrame.Add(audio);
     }
 
@@ -1871,7 +1863,7 @@ public class GameLogic
 					continue;
 				}
 				
-				if (m_blocks[i, j] != null)
+				if (m_blocks[i, j] != null && !m_blocks[i, j].IsEating())
 				{
 					if (m_blocks[i, j].m_dropDownStartTime > 0)     //处理一次下落动画
                     {
@@ -2528,12 +2520,23 @@ public class GameLogic
                         if (m_blocks[i, j].color < TBlockColor.EColor_Nut1)	//
                         {
                             m_blocks[i, j].m_animation.Play("DropDown");                                    //播放下落动画
-                            PlaySoundNextFrame(AudioEnum.Audio_Drop);
+                            
+                            if (Timer.s_currentTime > m_lastPlayDropSoundTime + 0.2f)
+                            {
+                                m_lastPlayDropSoundTime = Timer.s_currentTime;
+                                PlaySoundNextFrame(AudioEnum.Audio_Drop);
+                            }
                         }
                         else
                         {
                             m_blocks[i, j].m_animation.Play("NutDropDown");                                    //播放下落动画
-                            PlaySoundNextFrame(AudioEnum.Audio_NutDropDown);
+                            if (Timer.s_currentTime > m_lastPlayDropNutSoundTime + 1.0f)
+                            {
+                                m_lastPlayDropNutSoundTime = Timer.s_currentTime;
+                                PlaySoundNextFrame(AudioEnum.Audio_NutDropDown);
+                            }
+
+
                         }
                         
                         m_blocks[i, j].m_dropDownStartTime = Timer.GetRealTimeSinceStartUp();           //记录开始时间(用于强制停止下落动画)

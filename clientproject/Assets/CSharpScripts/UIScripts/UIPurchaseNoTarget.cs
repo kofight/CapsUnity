@@ -46,7 +46,8 @@ public class UIPurchaseNoTarget : UIWindow
 
             if (Unibiller.DebitBalance("gold", CapsConfig.GetItemPrice(GlobalVars.UsingItem)))      //花钱
             {
-                GA.API.Business.NewEvent(GlobalVars.UsingItem.ToString(), "Coins", CapsConfig.GetItemPrice(GlobalVars.UsingItem));
+                CapsApplication.Singleton.SubmitUseItemData(GlobalVars.UsingItem.ToString());
+
                 if (GlobalVars.UsingItem == PurchasedItem.ItemAfterGame_PlusStep)
                 {
                     //GlobalVars.CurStageData.StepLimit += 5;

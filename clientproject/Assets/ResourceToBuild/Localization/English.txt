@@ -81,6 +81,8 @@ TotalCost = Total:
 HurryUpStep = 还剩5步
 HurryUpTime = 还剩15秒
 
+FinishAllStages = 已经完成最后一关，更多关卡请期待版本更新
+
 FTUEStep0 = 这个是整个梦境世界的地图。
 FTUEStep1 = 我们刚刚通过的是这一扇门。
 FTUEStep2 = 每当我们通过一扇门以后，都会开启一扇新的门。

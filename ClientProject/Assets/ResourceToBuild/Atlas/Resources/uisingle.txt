@@ -789,8 +789,8 @@
 	"frame": {"x":639,"y":1222,"w":28,"h":28},
 	"rotated": false,
 	"trimmed": true,
-	"spriteSourceSize": {"x":1,"y":1,"w":28,"h":28},
-	"sourceSize": {"w":30,"h":30}
+	"spriteSourceSize": {"x":27,"y":54,"w":28,"h":28},
+	"sourceSize": {"w":82,"h":82}
 },
 "GamePauseText.png":
 {
@@ -2559,6 +2559,6 @@
 	"format": "RGBA8888",
 	"size": {"w":2048,"h":2048},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:5d5f5ec8d9fb8372f62af69a01f1f3f6$"
+	"smartupdate": "$TexturePacker:SmartUpdate:a14e0b2fb197c88331a28838318bc0ed$"
 }
 }

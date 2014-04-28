@@ -342,6 +342,12 @@ public class UIRetry : UIWindow
 
     private void OnNextLevelClicked()
     {
+        if (GlobalVars.AvailabeStageCount == GlobalVars.TotalStageCount)        //若到了最后一关
+        {
+            UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetString(Localization.instance.Get("FinishAllStages"));
+            UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().ShowWindow();
+            return;
+        }
         ++GlobalVars.LastStage;
 		GameLogic.Singleton.ClearGame();
         if (GlobalVars.HeadStagePos < GlobalVars.AvailabeStageCount)       //若是新开的关

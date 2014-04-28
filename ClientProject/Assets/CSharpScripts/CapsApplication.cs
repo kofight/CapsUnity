@@ -146,6 +146,14 @@ public class CapsApplication : S5Application
             Unibiller.onBillerReady += OnUniBillInitialised;
             Unibiller.Initialise();
         }
+
+        //第一次运行时，5月份之前，送点金币
+        if (System.DateTime.Today.Year == 2014 && System.DateTime.Today.Month <= 5
+            && !PlayerPrefs.HasKey("GiveFirstTimeMoney"))
+        {
+            PlayerPrefs.SetInt("GiveFirstTimeMoney", 1);
+            Unibiller.CreditBalance("gold", 3000);          //给3000金币
+        }
     }
 
     protected override void DoUpdate()
@@ -159,6 +167,26 @@ public class CapsApplication : S5Application
             UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(GlobalVars.OnPurchaseFunc);        //设置完成后执行的函数
             UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetString(Localization.instance.Get("PurchaseSucceed"));
             GlobalVars.PurchaseSuc = false;
+
+            if (CapsConfig.EnableGA)
+            {
+                string StageString = "BuyCoinsStage" + GlobalVars.AvailabeStageCount;
+                GA.API.Business.NewEvent("Buy" + GlobalVars.PurchasingItemName, "USD", GlobalVars.PurchasingItemPrice);             //记录购买金钱包
+                GA.API.Design.NewEvent("Buy" + GlobalVars.PurchasingItemName);
+            }
+
+            int purchaseInTotal = PlayerPrefs.GetInt("PurchaseInTotal", 0);
+
+            if (CapsConfig.EnableGA)
+            {
+                if (purchaseInTotal == 0)       //若第一次消费
+                {
+                    GA.API.Design.NewEvent("FirstBuyPlayTime" + ":" + GlobalVars.PurchasingItemName, GetPlayTime());                    //第一次购买时的游戏时间
+                    GA.API.Design.NewEvent("FirstBuyStageCount" + ":" + GlobalVars.PurchasingItemName, GlobalVars.AvailabeStageCount);  //第一次购买时的关数
+                }
+            }
+
+            PlayerPrefs.SetInt("PurchaseInTotal", purchaseInTotal + GlobalVars.PurchasingItemPrice);
         }
         if (GlobalVars.PurchaseCancel)
         {
@@ -196,6 +224,26 @@ public class CapsApplication : S5Application
     void OnPurchaseCancelled(PurchasableItem item)      //主动取消购买
     {
         GlobalVars.PurchaseCancel = true;
+    }
+
+    public void SubmitUseItemData(string itemName)
+    {
+        if (!CapsConfig.EnableGA)
+        {
+            return;
+        }
+
+        string StageString = "UsingItemStage" + GlobalVars.CurStageNum;
+        GA.API.Design.NewEvent(itemName + ":" + StageString);
+        GA.API.Design.NewEvent(StageString + ":" + itemName);
+
+        int useItemCount = PlayerPrefs.GetInt("UsedItemCount", 0);
+        if (useItemCount == 0)      //第一次使用
+        {
+            GA.API.Design.NewEvent("FirstUseItemPlayTime" + ":" + itemName, GetPlayTime());                    //第一次购买时的游戏时间
+            GA.API.Design.NewEvent("FirstUseItemStageCount" + ":" + itemName, GlobalVars.AvailabeStageCount);  //第一次购买时的关数
+        }
+        PlayerPrefs.SetInt("UsedItemCount", useItemCount + 1);      //记录使用道具次数
     }
 
     //初始化支付插件

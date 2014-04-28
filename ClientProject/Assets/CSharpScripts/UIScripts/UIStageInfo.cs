@@ -16,6 +16,9 @@ public class UIStageInfo : UIWindow
 
     GameObject m_pointer;
 
+    UISprite m_stageIcon;
+    UILabel m_stageInfoLabel;
+
     int m_moneyCost = 0;
 
     public int GetCurCost() { return m_moneyCost; }
@@ -26,6 +29,9 @@ public class UIStageInfo : UIWindow
 
         m_levelNumber = GetChildComponent<NumberDrawer>("LevelNumber");
         m_totalCostLabel = GetChildComponent<UILabel>("ItemTotalCost");
+
+        m_stageIcon = GetChildComponent<UISprite>("StageIcon");
+        m_stageInfoLabel = GetChildComponent<UILabel>("StageInfoLabel");
 
         for (int i = 0; i < 3; ++i )
         {
@@ -191,6 +197,10 @@ public class UIStageInfo : UIWindow
             m_pointer.SetActive(true);
             m_pointer.GetComponent<TweenScale>().enabled = true;
         }
+
+        //根据关卡类型显示提示信息
+        m_stageIcon.spriteName = "MapPoint_Type" + CapsConfig.StageTypeArray[GlobalVars.CurStageNum - 1] + "Num1";
+        m_stageInfoLabel.text = Localization.instance.Get("StageInfoHelpType" + CapsConfig.StageTypeArray[GlobalVars.CurStageNum - 1]);
     }
 
     public void OnCloseClicked()
@@ -240,6 +250,8 @@ public class UIStageInfo : UIWindow
                 if (m_itemToggles[i].value)
                 {
                     GlobalVars.StartStageItem[i] = m_items[i];
+
+                    CapsApplication.Singleton.SubmitUseItemData(m_items[i].ToString());
                 }
                 else
                 {

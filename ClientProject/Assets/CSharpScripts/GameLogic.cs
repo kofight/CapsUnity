@@ -89,6 +89,7 @@ public class GridSprites
     public UISprite layer3;            //结束点
     public UISprite layer4;            //冰块闪烁效果
     public GameObject portal;          //传送门
+    public GameObject fruitExit;       //冰块的出口
     //public GameObject IcePartile;      //冰的粒子
     public bool hasProcessAngle = false;        //是否已经处理了角(用来处理角的中间变量)
     public bool hasProcessStoneAround = false;  //是否已经处理了周围的石块，有石头的关每次三消后需要清理一次，确保一次三消之内不重复消除石头
@@ -908,24 +909,52 @@ public class GameLogic
             }
         }
 
-        //创建传送门
-        foreach (KeyValuePair<int, Portal> pair in PlayingStageData.PortalToMap)
+        if (PlayingStageData.Target == GameTarget.BringFruitDown)
         {
-            if (pair.Value.flag == 1)
+            Object fruitObj = Resources.Load("FruitExit");
+            //绘制底图
+            for (int i = BlockXStart; i <= BlockXEnd; ++i)
             {
-                Object obj = Resources.Load("PortalStart");
-                m_gridBackImage[pair.Value.from.x, pair.Value.from.y].portal = GameObject.Instantiate(obj) as GameObject;
-                m_gridBackImage[pair.Value.from.x, pair.Value.from.y].portal.transform.parent = m_gridInstance.transform.parent;
-                m_gridBackImage[pair.Value.from.x, pair.Value.from.y].portal.transform.localPosition = new Vector3(GetXPos(pair.Value.from.x), -GetYPos(pair.Value.from.x, pair.Value.from.y), 0);
-                m_gridBackImage[pair.Value.from.x, pair.Value.from.y].portal.transform.localScale = new Vector3(1, 1, 1);
+                for (int j = BlockYStart; j <= BlockYEnd; ++j)
+                {
+                    if (PlayingStageData.GridData[i, j] == 0)
+                    {
+                        continue;
+                    }
 
-                Object obj2 = Resources.Load("PortalEnd");
-                m_gridBackImage[pair.Value.to.x, pair.Value.to.y].portal = GameObject.Instantiate(obj2) as GameObject;
-                m_gridBackImage[pair.Value.to.x, pair.Value.to.y].portal.transform.parent = m_gridInstance.transform.parent;
-                m_gridBackImage[pair.Value.to.x, pair.Value.to.y].portal.transform.localPosition = new Vector3(GetXPos(pair.Value.to.x), -GetYPos(pair.Value.to.x, pair.Value.to.y), 0);
-                m_gridBackImage[pair.Value.to.x, pair.Value.to.y].portal.transform.localScale = new Vector3(1, 1, 1);
+                    if (PlayingStageData.CheckFlag(i, j, GridFlag.FruitExit))       //创建水果出口
+                    {
+                        m_gridBackImage[i, j].fruitExit = GameObject.Instantiate(fruitObj) as GameObject;
+                        m_gridBackImage[i, j].fruitExit.transform.parent = m_gridInstance.transform.parent;
+                        m_gridBackImage[i, j].fruitExit.transform.localPosition = new Vector3(GetXPos(i), -GetYPos(i, j), 0);
+                        m_gridBackImage[i, j].fruitExit.transform.localScale = new Vector3(1, 1, 1);
+                    }
+                }
             }
         }
+
+        if (PlayingStageData.PortalToMap.Count > 0)
+        {
+            Object obj = Resources.Load("PortalStart");
+            Object obj2 = Resources.Load("PortalEnd");
+            //创建传送门
+            foreach (KeyValuePair<int, Portal> pair in PlayingStageData.PortalToMap)
+            {
+                if (pair.Value.flag == 1)
+                {
+                    m_gridBackImage[pair.Value.from.x, pair.Value.from.y].portal = GameObject.Instantiate(obj) as GameObject;
+                    m_gridBackImage[pair.Value.from.x, pair.Value.from.y].portal.transform.parent = m_gridInstance.transform.parent;
+                    m_gridBackImage[pair.Value.from.x, pair.Value.from.y].portal.transform.localPosition = new Vector3(GetXPos(pair.Value.from.x), -GetYPos(pair.Value.from.x, pair.Value.from.y), 0);
+                    m_gridBackImage[pair.Value.from.x, pair.Value.from.y].portal.transform.localScale = new Vector3(1, 1, 1);
+                    
+                    m_gridBackImage[pair.Value.to.x, pair.Value.to.y].portal = GameObject.Instantiate(obj2) as GameObject;
+                    m_gridBackImage[pair.Value.to.x, pair.Value.to.y].portal.transform.parent = m_gridInstance.transform.parent;
+                    m_gridBackImage[pair.Value.to.x, pair.Value.to.y].portal.transform.localPosition = new Vector3(GetXPos(pair.Value.to.x), -GetYPos(pair.Value.to.x, pair.Value.to.y), 0);
+                    m_gridBackImage[pair.Value.to.x, pair.Value.to.y].portal.transform.localScale = new Vector3(1, 1, 1);
+                }
+            }
+        }
+        
 
         for (int i = 0; i < 3; ++i)
         {
@@ -1058,6 +1087,7 @@ public class GameLogic
 
         m_lastShowIceTipTime = 0;
         m_nextPlus5Step = 0;
+        m_gameStartTime = 0;
     }
 
     public void Init(int seed = -1)         //seed > -1时，指定seed
@@ -1652,6 +1682,11 @@ public class GameLogic
                         GameObject.Destroy(m_gridBackImage[i, j].portal);
                     }
 
+                    if (m_gridBackImage[i, j].fruitExit != null)
+                    {
+                        GameObject.Destroy(m_gridBackImage[i, j].fruitExit);
+                    }
+
                     m_gridBackImage[i, j] = null;
                 }
             }
@@ -1670,6 +1705,11 @@ public class GameLogic
     {
         FreeAllBlocks();
         m_cageCheckList.Clear();
+
+        for (int i = 0; i < 3; ++i)
+        {
+            GlobalVars.StartStageItem[i] = PurchasedItem.None;
+        }
         m_progress = 0;
         m_nut1Count = 0;
         m_nut2Count = 0;
@@ -1926,15 +1966,6 @@ public class GameLogic
 
                     //处理位置变化
                     m_blocks[i, j].m_blockTransform.localPosition = new Vector3(GetXPos(i) + m_blocks[i, j].x_move, -(m_blocks[i, j].y_move + GetYPos(i, j)), 0);
-                }
-
-                
-                //绘制水果出口
-                if (PlayingStageData.Target == GameTarget.BringFruitDown && PlayingStageData.CheckFlag(i, j, GridFlag.FruitExit))
-                {
-                    UIDrawer.Singleton.CurDepth = 5;
-                    UIDrawer.Singleton.DrawSprite("Exit" + (j * 10 + i), GetXPos(i), GetYPos(i, j), "FruitExit", 3);
-                    UIDrawer.Singleton.CurDepth = 0;
                 }
 
                 if (GlobalVars.EditStageMode && PlayingStageData.CheckFlag(i, j, GridFlag.Birth))     //若在关卡编辑状态
@@ -2891,7 +2922,7 @@ public class GameLogic
 
 
         //时间暂停但仍可继续游戏的状态 或 FTUE状态时间停止
-        if (IsStoppingTime || m_gameFlow == TGameFlow.EGameState_FTUE)
+        if (CapsConfig.Instance.GameSpeed > 0 && (IsStoppingTime || m_gameFlow == TGameFlow.EGameState_FTUE))
         {
             m_gameStartTime += (long)(Time.deltaTime * 1000);
         }
@@ -3265,7 +3296,7 @@ public class GameLogic
                             }
                             //普通块被特殊块消，额外播下基本消除特效
                             if (m_blocks[i, j].special == TSpecialBlock.ESpecial_Normal &&
-                                (m_blocks[i, j].EatEffectName == CapsConfig.LineEatEffect || m_blocks[i, j].EatEffectName == CapsConfig.BombEatEffect))
+                                (m_blocks[i, j].EatEffectName == CapsConfig.LineEatEffect || m_blocks[i, j].EatEffectName == CapsConfig.BombEatEffect || m_blocks[i, j].EatEffectName == CapsConfig.RainbowEatEffect))
                             {
                                 AddPartile("EatEffectFlower" + (m_blocks[i, j].color - TBlockColor.EColor_None), AudioEnum.Audio_None, i, j);
                             }

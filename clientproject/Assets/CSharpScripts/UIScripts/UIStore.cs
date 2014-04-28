@@ -12,7 +12,39 @@ public class UIStore : UIWindow
         AddChildComponentMouseClick("BuyItem1Btn", delegate()
         {
             HideWindow();
-			Unibiller.initiatePurchase("com.linkrstudio.jellycraft.140coins");
+			Unibiller.initiatePurchase("com.linkrstudio.jellycraft.60coins");
+            UIWindowManager.Singleton.GetUIWindow<UIWait>().ShowWindow();
+            UIWindowManager.Singleton.GetUIWindow<UIWait>().SetString(Localization.instance.Get("WaitForPurchase"));
+        });
+
+        AddChildComponentMouseClick("BuyItem2Btn", delegate()
+        {
+            HideWindow();
+            Unibiller.initiatePurchase("com.linkrstudio.jellycraft.130coins");
+            UIWindowManager.Singleton.GetUIWindow<UIWait>().ShowWindow();
+            UIWindowManager.Singleton.GetUIWindow<UIWait>().SetString(Localization.instance.Get("WaitForPurchase"));
+        });
+
+        AddChildComponentMouseClick("BuyItem3Btn", delegate()
+        {
+            HideWindow();
+            Unibiller.initiatePurchase("com.linkrstudio.jellycraft.420coins");
+            UIWindowManager.Singleton.GetUIWindow<UIWait>().ShowWindow();
+            UIWindowManager.Singleton.GetUIWindow<UIWait>().SetString(Localization.instance.Get("WaitForPurchase"));
+        });
+
+        AddChildComponentMouseClick("BuyItem4Btn", delegate()
+        {
+            HideWindow();
+            Unibiller.initiatePurchase("com.linkrstudio.jellycraft.1040coins");
+            UIWindowManager.Singleton.GetUIWindow<UIWait>().ShowWindow();
+            UIWindowManager.Singleton.GetUIWindow<UIWait>().SetString(Localization.instance.Get("WaitForPurchase"));
+        });
+
+        AddChildComponentMouseClick("BuyItem5Btn", delegate()
+        {
+            HideWindow();
+            Unibiller.initiatePurchase("com.linkrstudio.jellycraft.2080coins");
             UIWindowManager.Singleton.GetUIWindow<UIWait>().ShowWindow();
             UIWindowManager.Singleton.GetUIWindow<UIWait>().SetString(Localization.instance.Get("WaitForPurchase"));
         });

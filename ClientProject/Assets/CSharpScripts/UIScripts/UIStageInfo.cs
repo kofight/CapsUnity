@@ -72,8 +72,8 @@ public class UIStageInfo : UIWindow
 
         if (m_moneyCost > Unibiller.GetCurrencyBalance("gold"))
         {
-			UIToggle.current.SetWithoutTrigger(false);     //把值置回来
-            m_moneyCost -= CapsConfig.GetItemPrice(m_items[curItemIndex]);
+            ClearToggles();
+
             GlobalVars.StartStageItem[curItemIndex] = PurchasedItem.None;
 			
             HideWindow(delegate()

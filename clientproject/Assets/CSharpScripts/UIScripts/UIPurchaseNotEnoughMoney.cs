@@ -7,6 +7,7 @@ public class UIPurchaseNotEnoughMoney : UIWindow
 	UILabel m_msgLabel;
 	UILabel m_costLabel;
     UISprite m_itemIcon;
+    UISprite m_buyItemBtnSprite;
 
     public override void OnCreate()
     {
@@ -16,7 +17,15 @@ public class UIPurchaseNotEnoughMoney : UIWindow
 			HideWindow();
 			UIWindowManager.Singleton.GetUIWindow<UIWait>().ShowWindow(delegate()
             {
-                Unibiller.initiatePurchase("com.linkrstudio.jellycraft.140coins");
+                if (CapsConfig.GetItemPrice(GlobalVars.UsingItem) <= 60)
+                {
+                    Unibiller.initiatePurchase("com.linkrstudio.jellycraft.60coins");
+                }
+                else
+                {
+                    Unibiller.initiatePurchase("com.linkrstudio.jellycraft.130coins");
+                }
+                
                 UIWindowManager.Singleton.GetUIWindow<UIWait>().ShowWindow();
                 UIWindowManager.Singleton.GetUIWindow<UIWait>().SetString(Localization.instance.Get("WaitForPurchase"));
             });
@@ -34,6 +43,7 @@ public class UIPurchaseNotEnoughMoney : UIWindow
 		m_msgLabel = GetChildComponent<UILabel>("IntroduceLabel");
 		m_costLabel = GetChildComponent<UILabel>("CostLabel");
         m_itemIcon = GetChildComponent<UISprite>("ItemIcon");
+        m_buyItemBtnSprite = GetChildComponent<UISprite>("GetCoinTextSprite");
     }
 
     public void OnCloseBtn()
@@ -54,6 +64,15 @@ public class UIPurchaseNotEnoughMoney : UIWindow
         m_costLabel.text = CapsConfig.GetItemPrice(GlobalVars.UsingItem).ToString() + "/" + (Unibiller.GetCurrencyBalance("gold") - stageUI.GetCurCost()).ToString();
         m_msgLabel.text = Localization.instance.Get("Intro_" + GlobalVars.UsingItem.ToString());
         m_itemIcon.spriteName = GlobalVars.UsingItem.ToString();
+
+        if (CapsConfig.GetItemPrice(GlobalVars.UsingItem) <= 60)
+        {
+            m_buyItemBtnSprite.spriteName = "Button_Buy60Coins";
+        }
+        else
+        {
+            m_buyItemBtnSprite.spriteName = "Button_Buy130Coins";
+        }
     }
 
     void OnPurchased(PurchasableItem item)      //购买成功

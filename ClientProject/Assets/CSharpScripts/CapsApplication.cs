@@ -152,7 +152,7 @@ public class CapsApplication : S5Application
             && !PlayerPrefs.HasKey("GiveFirstTimeMoney"))
         {
             PlayerPrefs.SetInt("GiveFirstTimeMoney", 1);
-            Unibiller.CreditBalance("gold", 3000);          //给3000金币
+            //Unibiller.CreditBalance("gold", 3000);          //给3000金币
         }
     }
 

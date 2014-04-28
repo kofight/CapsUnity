@@ -10,11 +10,11 @@
   "samsungAppsMode": "PRODUCTION",
   "samsungAppsItemGroupId": "",
   "purchasableItems": {
-    "com.linkrstudio.jellycraft.140coins": {
-      "@id": "com.linkrstudio.jellycraft.140coins",
+    "com.linkrstudio.jellycraft.60coins": {
+      "@id": "com.linkrstudio.jellycraft.60coins",
       "@purchaseType": "Consumable",
-      "name": "140 Gold Coins",
-      "description": "140 Gold Coins",
+      "name": "60 Gold Coins",
+      "description": "60 Gold Coins",
       "platforms": {
         "GooglePlay": {
           "priceInLocalCurrency": 1.99,
@@ -32,11 +32,104 @@
         "Windows8_1": {},
         "UnityEditor": {}
       }
+    },
+    "com.linkrstudio.jellycraft.130coins": {
+      "@id": "com.linkrstudio.jellycraft.130coins",
+      "@purchaseType": "Consumable",
+      "name": "130 Gold Coins",
+      "description": "130 Gold Coins",
+      "platforms": {
+        "GooglePlay": {
+          "priceInLocalCurrency": 1.0,
+          "defaultLocale": "en_US"
+        },
+        "AmazonAppstore": {},
+        "SamsungApps": {},
+        "AppleAppStore": {
+          "appleAppStorePriceTier": 0.0,
+          "screenshotPath": ""
+        },
+        "MacAppStore": {},
+        "WindowsPhone8": {},
+        "Windows8_1": {},
+        "UnityEditor": {}
+      }
+    },
+    "com.linkrstudio.jellycraft.420coins": {
+      "@id": "com.linkrstudio.jellycraft.420coins",
+      "@purchaseType": "Consumable",
+      "name": "420 Gold Coins",
+      "description": "420 Gold Coins",
+      "platforms": {
+        "GooglePlay": {
+          "priceInLocalCurrency": 1.0,
+          "defaultLocale": "en_US"
+        },
+        "AmazonAppstore": {},
+        "SamsungApps": {},
+        "AppleAppStore": {
+          "appleAppStorePriceTier": 0.0,
+          "screenshotPath": ""
+        },
+        "MacAppStore": {},
+        "WindowsPhone8": {},
+        "Windows8_1": {},
+        "UnityEditor": {}
+      }
+    },
+    "com.linkrstudio.jellycraft.1040coins": {
+      "@id": "com.linkrstudio.jellycraft.1040coins",
+      "@purchaseType": "Consumable",
+      "name": "1040 Gold Coins",
+      "description": "1040 Gold Coins",
+      "platforms": {
+        "GooglePlay": {
+          "priceInLocalCurrency": 1.0,
+          "defaultLocale": "en_US"
+        },
+        "AmazonAppstore": {},
+        "SamsungApps": {},
+        "AppleAppStore": {
+          "appleAppStorePriceTier": 0.0,
+          "screenshotPath": ""
+        },
+        "MacAppStore": {},
+        "WindowsPhone8": {},
+        "Windows8_1": {},
+        "UnityEditor": {}
+      }
+    },
+    "com.linkrstudio.jellycraft.2080coins": {
+      "@id": "com.linkrstudio.jellycraft.2080coins",
+      "@purchaseType": "Consumable",
+      "name": "2080 Gold Coins",
+      "description": "2080 Gold Coins",
+      "platforms": {
+        "GooglePlay": {
+          "priceInLocalCurrency": 1.0,
+          "defaultLocale": "en_US"
+        },
+        "AmazonAppstore": {},
+        "SamsungApps": {},
+        "AppleAppStore": {
+          "appleAppStorePriceTier": 0.0,
+          "screenshotPath": ""
+        },
+        "MacAppStore": {},
+        "WindowsPhone8": {},
+        "Windows8_1": {},
+        "UnityEditor": {}
+      }
     }
   },
   "currencies": {
     "gold": {
-      "com.linkrstudio.jellycraft.140coins": 140.0
+      "com.linkrstudio.jellycraft.140coins": 40.0,
+      "com.linkrstudio.jellycraft.60coins": 60.0,
+      "com.linkrstudio.jellycraft.130coins": 130.0,
+      "com.linkrstudio.jellycraft.420coins": 420.0,
+      "com.linkrstudio.jellycraft.1040coins": 1040.0,
+      "com.linkrstudio.jellycraft.2080coins": 2080.0
     }
   }
 }

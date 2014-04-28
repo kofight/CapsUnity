@@ -77,10 +77,19 @@ Use_ItemPreGame_ExtraScore = 获得120%的分数
 NotEnoughMoney = 金币不足
 Get140Coins = 购买140个金币
 QuitConfirm = 确定离开游戏？
+
+StageInfoHelpType0 = 限定时间内获得目标分数
+StageInfoHelpType1 = 限定步数内获得目标分数
+StageInfoHelpType2 = 限定步数内消除所有冰块
+StageInfoHelpType3 = 限定步数掉落指定的钻石
+StageInfoHelpType4 = 限定步数消除指定魔法石
+
 TotalCost = 总共:
 
 HurryUpStep = 还剩5步
 HurryUpTime = 还剩15秒
+
+FinishAllStages = 已经完成最后一关，更多关卡请期待版本更新
 
 FTUEStep0 = 这个是整个梦境世界的地图。
 FTUEStep1 = 我们刚刚通过的是这一扇门。

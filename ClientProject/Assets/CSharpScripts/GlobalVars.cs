@@ -154,6 +154,8 @@ public class GlobalVars {
     public static UIWindow.WindowEffectFinished OnCancelFunc;
 
     public static bool PurchaseSuc;
+    public static int PurchasingItemPrice;                          //正在购买的东西的价格(美分)
+    public static string PurchasingItemName;                        //名字
     public static bool PurchaseFailed;
     public static bool PurchaseCancel;
 }

@@ -62,6 +62,7 @@ public class UINoMoreHearts : UIWindow
                 UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetString(Localization.instance.Get("PurchaseSucceed"));
                 UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(delegate()
                 {
+                    CapsApplication.Singleton.SubmitUseItemData("BuyHearts");
                     GlobalVars.AddHeart(5);
                     ContinuePlay();
                 });
@@ -74,6 +75,7 @@ public class UINoMoreHearts : UIWindow
                 GlobalVars.OnPurchaseFunc = delegate()
                 {
                     Unibiller.DebitBalance("gold", 100);
+                    CapsApplication.Singleton.SubmitUseItemData("BuyHearts");
                     GlobalVars.AddHeart(5);
                     ContinuePlay();
                 };

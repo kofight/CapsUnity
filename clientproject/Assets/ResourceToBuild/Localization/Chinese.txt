@@ -11,15 +11,15 @@ Get1Hearts = 获得 1 颗心
 Get5Hearts = 获得 5 颗心
 OK = 好 的
 NoMoreHearts = 没 有 心 了 !
-NotEnoughScore = 没有得到星星
-DidNotClearIce = 没有清除冰块
-DidNotBringNuts = 没有获得所有钻石
+NotEnoughScore = 分数不够得到第一颗星
+DidNotClearIce = 没有清除所有冰块
+DidNotBringNuts = 没有获得所有宝石
 DidNotCollectEnough = 没有完成收集目标
 EndGameByHimSelf = 主动结束
 
 EndGameConfirm = 您是否要退出游戏？
-YouCanContinue = 您可以选择继续游戏
-QuitCostHeartTip = 选择退出关卡，会消耗一颗心
+YouCanContinue = 您可以选择继续游戏。
+QuitCostHeartTip = 退出关卡，您会消耗一颗心。
 
 LoseAHeart = 您失去了一颗心。
 
@@ -31,14 +31,14 @@ ScoreImg = TextScoreChn
 StepImg = TextStepChn
 NextPage = 下 一 页
 EnglishVersion = 英文版
-Click = (轻点屏幕任意处)
+Click = (请轻点任意处)
 MoveBlock = (请按提示划动)
 BuyMoreCoins = 购买更多金币
-Buy140Coins = 140 金币
-Buy800Coins = 800 金币
-Buy1700Coins = 1700 金币
-Buy3800oins = 3800 金币
-Buy9500Coins = 9500 金币
+Buy140Coins = 60 金币
+Buy800Coins = 130 金币
+Buy1700Coins = 360 金币
+Buy3800oins = 860 金币
+Buy9500Coins = 1680 金币
 Confirm = 确定
 Cancel = 取消
 WaitForPurchase = 等待购买
@@ -48,35 +48,35 @@ PurchaseFailed = 购买失败
 PurchaseCancelled = 取消购买
 EnterShop = 进入商店
 
-Intro_ItemPreGame_PlusStep = 增加7步
-Intro_ItemPreGame_AddEatColor = 增加一个道具
-Intro_ItemPreGame_PlusTime = 增加20秒
-Intro_ItemPreGame_ExtraScore = 获得120%的分数
+Intro_ItemPreGame_PlusStep = 步数增加7步
+Intro_ItemPreGame_AddEatColor = 在关卡初始就拥有一个彩虹符石
+Intro_ItemPreGame_PlusTime = 时间增加20秒
+Intro_ItemPreGame_ExtraScore = 关卡进行中可以获得120%的分数
 
-Intro_ItemInGame_Resort = 使用就可以重排所有块
-Intro_ItemInGame_Hammer = 锤子道具厉害，瞬间敲一个块
-Intro_ItemInGame_ChocoStoper = 巧克力停止生长7步
-Intro_ItemInGame_TimeStoper= 时间停止7步
+Intro_ItemInGame_Resort = 重新排列所有符石
+Intro_ItemInGame_Hammer = 星星魔法棒可以瞬间敲碎一个块
+Intro_ItemInGame_ChocoStoper = 7步之内巧克力停止生长
+Intro_ItemInGame_TimeStoper= 7步之内时间停止
 
 Intro_ItemAfterGame_PlusStep = 使用就立刻加5步
 Intro_ItemAfterGame_PlusTime = 使用就立刻加15秒
 
-Use_ItemInGame_Resort = 重排？
-Use_ItemInGame_Hammer = 敲碎此块？
-Use_ItemInGame_ChocoStoper = 巧克力停止生长7步
-Use_ItemInGame_TimeStoper= 时间停止7步
+Use_ItemInGame_Resort = 是否需要重新排列所有符石？
+Use_ItemInGame_Hammer = 是否使用星星魔法棒来敲碎一个块？
+Use_ItemInGame_ChocoStoper = 7步之内巧克力停止生长，是否使用？
+Use_ItemInGame_TimeStoper= 7步之内时间停止，是否使用？
 
 Use_ItemAfterGame_PlusStep = 增加5步？
 Use_ItemAfterGame_PlusTime = 增加15秒？
 
 Use_ItemPreGame_PlusStep = 增加7步
-Use_ItemPreGame_AddEatColor = 增加一个道具
+Use_ItemPreGame_AddEatColor = 在游戏初始获得一个彩虹符石
 Use_ItemPreGame_PlusTime = 增加20秒
-Use_ItemPreGame_ExtraScore = 获得120%的分数
+Use_ItemPreGame_ExtraScore = 游戏过程中获得120%的分数
 
-NotEnoughMoney = 金币不足
-Get140Coins = 购买140个金币
-QuitConfirm = 确定离开游戏？
+NotEnoughMoney = 您的金币不足
+Get140Coins = 购买60个金币
+QuitConfirm = 是否离开游戏？
 
 StageInfoHelpType0 = 限定时间内获得目标分数
 StageInfoHelpType1 = 限定步数内获得目标分数

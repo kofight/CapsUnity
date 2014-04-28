@@ -1,2 +1,6 @@
 SKU	Product ID	Reference Name	Type	Cleared For Sale	Wholesale Price Tier	Displayed Name	Description	Screenshot Path
-JellyCraft.firsttest	com.linkr.jellycraft.140coins	com.linkr.jellycraft.140coins	Consumable	yes	1	140 Gold Coins	140 Gold Coins	
+JellyCraft.firsttest	com.linkr.jellycraft.140coins	com.linkr.jellycraft.140coins	Consumable	yes	1	60 Gold Coins	60 Gold Coins	
+JellyCraft.firsttest	com.linkrstudio.jellycraft.130coins	com.linkrstudio.jellycraft.130coins	Consumable	yes	0	130 Gold Coins	130 Gold Coins	
+JellyCraft.firsttest	com.linkrstudio.jellycraft.420coins	com.linkrstudio.jellycraft.420coins	Consumable	yes	0	420 Gold Coins	420 Gold Coins	
+JellyCraft.firsttest	com.linkrstudio.jellycraft.1040coins	com.linkrstudio.jellycraft.1040coins	Consumable	yes	0	1040 Gold Coins	1040 Gold Coins	
+JellyCraft.firsttest	com.linkrstudio.jellycraft.2080coins	com.linkrstudio.jellycraft.2080coins	Consumable	yes	0	2080 Gold Coins	2080 Gold Coins	

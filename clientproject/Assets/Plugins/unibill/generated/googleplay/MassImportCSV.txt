@@ -1,2 +1,6 @@
 Product ID,Published State,Purchase Type,Auto Translate,Locale; Title; Description,Auto Fill Prices,Price
-com.linkrstudio.jellycraft.140coins,published,managed_by_android,false,"en_US;140 Gold Coins;140 Gold Coins",true,1990000
+com.linkrstudio.jellycraft.60coins,published,managed_by_android,false,"en_US;60 Gold Coins;60 Gold Coins",true,1990000
+com.linkrstudio.jellycraft.130coins,published,managed_by_android,false,"en_US;130 Gold Coins;130 Gold Coins",true,1000000
+com.linkrstudio.jellycraft.420coins,published,managed_by_android,false,"en_US;420 Gold Coins;420 Gold Coins",true,1000000
+com.linkrstudio.jellycraft.1040coins,published,managed_by_android,false,"en_US;1040 Gold Coins;1040 Gold Coins",true,1000000
+com.linkrstudio.jellycraft.2080coins,published,managed_by_android,false,"en_US;2080 Gold Coins;2080 Gold Coins",true,1000000

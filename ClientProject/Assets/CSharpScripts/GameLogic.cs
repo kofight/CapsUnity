@@ -1087,6 +1087,7 @@ public class GameLogic
 
         m_lastShowIceTipTime = 0;
         m_nextPlus5Step = 0;
+        m_gameStartTime = 0;
     }
 
     public void Init(int seed = -1)         //seed > -1时，指定seed
@@ -2921,7 +2922,7 @@ public class GameLogic
 
 
         //时间暂停但仍可继续游戏的状态 或 FTUE状态时间停止
-        if (IsStoppingTime || m_gameFlow == TGameFlow.EGameState_FTUE)
+        if (CapsConfig.Instance.GameSpeed > 0 && (IsStoppingTime || m_gameFlow == TGameFlow.EGameState_FTUE))
         {
             m_gameStartTime += (long)(Time.deltaTime * 1000);
         }

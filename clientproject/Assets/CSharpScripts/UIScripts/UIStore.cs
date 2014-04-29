@@ -13,40 +13,40 @@ public class UIStore : UIWindow
         {
             HideWindow();
 			Unibiller.initiatePurchase("com.linkrstudio.jellycraft.60coins");
-            UIWindowManager.Singleton.GetUIWindow<UIWait>().ShowWindow();
-            UIWindowManager.Singleton.GetUIWindow<UIWait>().SetString(Localization.instance.Get("WaitForPurchase"));
+            //UIWindowManager.Singleton.GetUIWindow<UIWait>().ShowWindow();
+            //UIWindowManager.Singleton.GetUIWindow<UIWait>().SetString(Localization.instance.Get("WaitForPurchase"));
         });
 
         AddChildComponentMouseClick("BuyItem2Btn", delegate()
         {
             HideWindow();
             Unibiller.initiatePurchase("com.linkrstudio.jellycraft.130coins");
-            UIWindowManager.Singleton.GetUIWindow<UIWait>().ShowWindow();
-            UIWindowManager.Singleton.GetUIWindow<UIWait>().SetString(Localization.instance.Get("WaitForPurchase"));
+            //UIWindowManager.Singleton.GetUIWindow<UIWait>().ShowWindow();
+            //UIWindowManager.Singleton.GetUIWindow<UIWait>().SetString(Localization.instance.Get("WaitForPurchase"));
         });
 
         AddChildComponentMouseClick("BuyItem3Btn", delegate()
         {
             HideWindow();
             Unibiller.initiatePurchase("com.linkrstudio.jellycraft.360coins");
-            UIWindowManager.Singleton.GetUIWindow<UIWait>().ShowWindow();
-            UIWindowManager.Singleton.GetUIWindow<UIWait>().SetString(Localization.instance.Get("WaitForPurchase"));
+            //UIWindowManager.Singleton.GetUIWindow<UIWait>().ShowWindow();
+            //UIWindowManager.Singleton.GetUIWindow<UIWait>().SetString(Localization.instance.Get("WaitForPurchase"));
         });
 
         AddChildComponentMouseClick("BuyItem4Btn", delegate()
         {
             HideWindow();
             Unibiller.initiatePurchase("com.linkrstudio.jellycraft.860coins");
-            UIWindowManager.Singleton.GetUIWindow<UIWait>().ShowWindow();
-            UIWindowManager.Singleton.GetUIWindow<UIWait>().SetString(Localization.instance.Get("WaitForPurchase"));
+            //UIWindowManager.Singleton.GetUIWindow<UIWait>().ShowWindow();
+            //UIWindowManager.Singleton.GetUIWindow<UIWait>().SetString(Localization.instance.Get("WaitForPurchase"));
         });
 
         AddChildComponentMouseClick("BuyItem5Btn", delegate()
         {
             HideWindow();
             Unibiller.initiatePurchase("com.linkrstudio.jellycraft.1680coins");
-            UIWindowManager.Singleton.GetUIWindow<UIWait>().ShowWindow();
-            UIWindowManager.Singleton.GetUIWindow<UIWait>().SetString(Localization.instance.Get("WaitForPurchase"));
+            //UIWindowManager.Singleton.GetUIWindow<UIWait>().ShowWindow();
+            //UIWindowManager.Singleton.GetUIWindow<UIWait>().SetString(Localization.instance.Get("WaitForPurchase"));
         });
     }
 

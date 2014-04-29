@@ -36,7 +36,7 @@ public class LoginState : State
             UIWindowManager.Singleton.CreateWindow<UIWindow>("UILoading", UIWindowManager.Anchor.Center);
             UIWindowManager.Singleton.CreateWindow<UIDialog>(UIWindowManager.Anchor.Bottom);
             UIWindowManager.Singleton.CreateWindow<UIStore>();
-            UIWindowManager.Singleton.CreateWindow<UIWait>();
+            //UIWindowManager.Singleton.CreateWindow<UIWait>();
             UIWindowManager.Singleton.CreateWindow<UIPurchaseNotEnoughMoney>();
             UIWindowManager.Singleton.CreateWindow<UIMessageBox>();
             UIWindowManager.Singleton.GetUIWindow<UIMap>().RefreshButtons();
@@ -68,10 +68,10 @@ public class LoginState : State
                 return;
             }
 
-            if (UIWindowManager.Singleton.GetUIWindow<UIWait>().Visible)
-            {
-                return;
-            }
+            //if (UIWindowManager.Singleton.GetUIWindow<UIWait>().Visible)
+            //{
+            //    return;
+            //}
 
             if (UIWindowManager.Singleton.GetUIWindow<UIStore>().Visible)
             {

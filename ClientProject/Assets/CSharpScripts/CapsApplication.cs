@@ -162,7 +162,7 @@ public class CapsApplication : S5Application
 
         if (GlobalVars.PurchaseSuc)
         {
-            UIWindowManager.Singleton.GetUIWindow<UIWait>().HideWindow();
+            //UIWindowManager.Singleton.GetUIWindow<UIWait>().HideWindow();
             UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().ShowWindow();
             UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(GlobalVars.OnPurchaseFunc);        //设置完成后执行的函数
             UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetString(Localization.instance.Get("PurchaseSucceed"));
@@ -193,7 +193,7 @@ public class CapsApplication : S5Application
             GlobalVars.UsingItem = PurchasedItem.None;
             Debug.Log("Purchase Cancelled");
 
-            UIWindowManager.Singleton.GetUIWindow<UIWait>().HideWindow();
+            //UIWindowManager.Singleton.GetUIWindow<UIWait>().HideWindow();
             UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().ShowWindow();
             UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetString(Localization.instance.Get("PurchaseCancelled"));
             UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(GlobalVars.OnCancelFunc);        //设置完成后执行的函数
@@ -203,7 +203,7 @@ public class CapsApplication : S5Application
         {
             GlobalVars.UsingItem = PurchasedItem.None;
             //Debug.Log("Purchase Failed");
-            UIWindowManager.Singleton.GetUIWindow<UIWait>().HideWindow();
+            //UIWindowManager.Singleton.GetUIWindow<UIWait>().HideWindow();
             UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().ShowWindow();
             UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetString(Localization.instance.Get("PurchaseFailed"));
             UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(GlobalVars.OnCancelFunc);        //设置完成后执行的函数

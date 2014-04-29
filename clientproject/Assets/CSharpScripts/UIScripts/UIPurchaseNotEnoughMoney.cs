@@ -15,21 +15,18 @@ public class UIPurchaseNotEnoughMoney : UIWindow
         AddChildComponentMouseClick("GetCoinBtn", delegate()
 		{
 			HideWindow();
-			UIWindowManager.Singleton.GetUIWindow<UIWait>().ShowWindow(delegate()
+            //UIWindowManager.Singleton.GetUIWindow<UIWait>().ShowWindow();
+            //UIWindowManager.Singleton.GetUIWindow<UIWait>().SetString(Localization.instance.Get("WaitForPurchase"));
+
+            int coinNeeded = CapsConfig.GetItemPrice(GlobalVars.UsingItem) - (int)Unibiller.GetCurrencyBalance("gold");
+            if (coinNeeded <= 60)
             {
-                int coinNeeded = CapsConfig.GetItemPrice(GlobalVars.UsingItem) - (int)Unibiller.GetCurrencyBalance("gold");
-                if (coinNeeded <= 60)
-                {
-                    Unibiller.initiatePurchase("com.linkrstudio.jellycraft.60coins");
-                }
-                else
-                {
-                    Unibiller.initiatePurchase("com.linkrstudio.jellycraft.130coins");
-                }
-                
-                UIWindowManager.Singleton.GetUIWindow<UIWait>().ShowWindow();
-                UIWindowManager.Singleton.GetUIWindow<UIWait>().SetString(Localization.instance.Get("WaitForPurchase"));
-            });
+                Unibiller.initiatePurchase("com.linkrstudio.jellycraft.60coins");
+            }
+            else
+            {
+                Unibiller.initiatePurchase("com.linkrstudio.jellycraft.130coins");
+            }
 		});
         AddChildComponentMouseClick("ShopBtn", delegate()
 		{

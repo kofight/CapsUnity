@@ -253,7 +253,10 @@ public class UIGameEnd : UIWindow
         }
         UIWindowManager.Singleton.GetUIWindow<UIStageTarget>().ShowWindow(delegate()
         {
-            UIWindowManager.Singleton.GetUIWindow<UIStageTarget>().HideWindow();
+            Timer.AddDelayFunc(0.3f, delegate()
+            {
+                UIWindowManager.Singleton.GetUIWindow<UIStageTarget>().HideWindow();
+            });
         });
 
         Timer.AddDelayFunc(1.3f, delegate()

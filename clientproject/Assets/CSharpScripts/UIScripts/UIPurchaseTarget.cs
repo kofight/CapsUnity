@@ -30,19 +30,24 @@ public class UIPurchaseTarget : UIWindow
         m_msgLabel.text = Localization.instance.Get("Use_" + GlobalVars.UsingItem.ToString());
         m_costLabel.text = CapsConfig.GetItemPrice(GlobalVars.UsingItem).ToString();
 
+        int startX = (GameLogic.Singleton.BlockXStart + GameLogic.Singleton.BlockXEnd) / 2;
+        int startY = (GameLogic.Singleton.BlockYStart + GameLogic.Singleton.BlockYStart) / 2;
+
         //若冰块关，找个冰块
         if (GlobalVars.CurStageData.Target == GameTarget.ClearJelly)
         {
-            for (int i = 0; i < GameLogic.BlockCountX; ++i)
+            for (int i = 0; i <= GameLogic.BlockCountX; ++i)
             {
+                int x = (startX + i) % GameLogic.BlockCountX;
                 for (int j = 0; j < GameLogic.BlockCountY; ++j)
                 {
-                    if (GameLogic.Singleton.PlayingStageData.CheckFlag(i, j, GridFlag.Jelly) || GameLogic.Singleton.PlayingStageData.CheckFlag(i, j, GridFlag.JellyDouble))
+                    int y = (startY + j) % GameLogic.BlockCountY;
+                    if (GameLogic.Singleton.PlayingStageData.CheckFlag(x, y, GridFlag.Jelly) || GameLogic.Singleton.PlayingStageData.CheckFlag(x, y, GridFlag.JellyDouble))
                     {
-                        CapBlock pBlock = GameLogic.Singleton.GetBlock(new Position(i, j));
+                        CapBlock pBlock = GameLogic.Singleton.GetBlock(new Position(x, y));
                         if (pBlock != null && pBlock.color < TBlockColor.EColor_Nut1 && pBlock.CurState == BlockState.Normal)
                         {
-                            GlobalVars.UsingItemTarget = new Position(i, j);
+                            GlobalVars.UsingItemTarget = new Position(x, y);
                             SetTarget(GlobalVars.UsingItemTarget);
                             break;
                         }
@@ -50,21 +55,24 @@ public class UIPurchaseTarget : UIWindow
                 }
             }
         }
-        
-        //不是冰块关，找个可点块
-        for (int i = 0; i < GameLogic.BlockCountX; ++i)
-        {
-            for (int j = 0; j < GameLogic.BlockCountY; ++j)
+        else{
+			//不是冰块关，找个可点块
+            for (int i = 0; i <= GameLogic.BlockCountX; ++i)
             {
-                CapBlock pBlock = GameLogic.Singleton.GetBlock(new Position(i, j));
-                if (pBlock != null && pBlock.color < TBlockColor.EColor_Nut1 && pBlock.CurState == BlockState.Normal)
+                int x = (startX + i) % GameLogic.BlockCountX;
+                for (int j = 0; j < GameLogic.BlockCountY; ++j)
                 {
-                    GlobalVars.UsingItemTarget = new Position(i, j);
-                    SetTarget(GlobalVars.UsingItemTarget);
-                    break;
-                }
-            }
-        }
+                    int y = (startY + j) % GameLogic.BlockCountY;
+					CapBlock pBlock = GameLogic.Singleton.GetBlock(new Position(x, y));
+					if (pBlock != null && pBlock.color < TBlockColor.EColor_Nut1 && pBlock.CurState == BlockState.Normal)
+					{
+						GlobalVars.UsingItemTarget = new Position(x, y);
+						SetTarget(GlobalVars.UsingItemTarget);
+						break;
+					}
+				}
+			}
+		}
     }
 
     public override void OnHide()

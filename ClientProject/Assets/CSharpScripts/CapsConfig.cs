@@ -148,6 +148,10 @@ public class CapsConfig
 
     public static int GetItemPrice(PurchasedItem item)
     {
+        if (item == PurchasedItem.None)
+        {
+            return 0;
+        }
         return ItemPriceArray[(int)item];
     }
 

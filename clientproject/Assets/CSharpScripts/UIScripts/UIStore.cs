@@ -50,6 +50,21 @@ public class UIStore : UIWindow
         });
     }
 
+    public override void OnShow()
+    {
+        base.OnShow();
+        int cost = CapsConfig.GetItemPrice(GlobalVars.UsingItem);
+        UIButton btn = GetChildComponent<UIButton>("BuyItem1Btn");
+        if (cost > 60)      //要用的道具高于60金币，屏蔽买60金币的按钮
+        {
+            btn.enabled = false;
+        }
+        else
+        {
+            btn.enabled = true;
+        }
+    }
+
     public void OnCloseBtn()
     {
         HideWindow();

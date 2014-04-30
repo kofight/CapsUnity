@@ -62,9 +62,9 @@ Intro_ItemAfterGame_PlusStep = 使用就立刻加5步
 Intro_ItemAfterGame_PlusTime = 使用就立刻加15秒
 
 Use_ItemInGame_Resort = 是否需要重新排列所有符石？
-Use_ItemInGame_Hammer = 是否使用星星魔法棒来敲碎一个块？
-Use_ItemInGame_ChocoStoper = 7步之内巧克力停止生长，是否使用？
-Use_ItemInGame_TimeStoper= 7步之内时间停止，是否使用？
+Use_ItemInGame_Hammer = 敲碎上方选中的块？
+Use_ItemInGame_ChocoStoper = 7步之内让梦境之花停止生长？
+Use_ItemInGame_TimeStoper= 7步之内让时间倒计时停止？
 
 Use_ItemAfterGame_PlusStep = 增加5步？
 Use_ItemAfterGame_PlusTime = 增加15秒？
@@ -76,23 +76,23 @@ Use_ItemPreGame_ExtraScore = 游戏过程中获得120%的分数
 
 NotEnoughMoney = 您的金币不足
 Get140Coins = 购买60个金币
-QuitConfirm = 是否离开游戏？
+QuitConfirm = 是否退出游戏？
 
-StageInfoHelpType0 = 限定时间内获得目标分数
-StageInfoHelpType1 = 限定步数内获得目标分数
-StageInfoHelpType2 = 限定步数内消除所有冰块
-StageInfoHelpType3 = 限定步数掉落指定的钻石
-StageInfoHelpType4 = 限定步数消除指定魔法石
+StageInfoHelpType0 = 一定时间内获得目标分数
+StageInfoHelpType1 = 一定步数内获得目标分数
+StageInfoHelpType2 = 一定步数内消除所有冰块
+StageInfoHelpType3 = 一定步数内掉落指定钻石
+StageInfoHelpType4 = 一定步数内收集指定符石
 
-TotalCost = 总共:
+TotalCost = 共需花费:
 
 HurryUpStep = 还剩5步
 HurryUpTime = 还剩15秒
 
-FinishAllStages = 已经完成最后一关，更多关卡请期待版本更新
+FinishAllStages = 已经完成最后一关，更多关卡请期待版本更新。尝试挑战把所有的关卡都变成三星评价吧！
 
-FTUEStep0 = 这个是整个梦境世界的地图。
-FTUEStep1 = 我们刚刚通过的是这一扇门。
-FTUEStep2 = 每当我们通过一扇门以后，都会开启一扇新的门。
-FTUEStep3 = 这就是新的门。
+FTUEStep0 = 这个是梦境花园的世界地图。
+FTUEStep1 = 我们刚刚通过的是这一个关卡。
+FTUEStep2 = 每当我们通过一个关卡后，都会开启一个新的关卡。
+FTUEStep3 = 这就是新的关卡。
 FTUEStep4 = 点击它，接受下一个挑战吧？

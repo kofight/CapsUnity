@@ -11,7 +11,7 @@ public enum TGameFlow
     EGameState_EndEatingSpecial,                //结束后开始逐个吃屏幕上的特殊块
     EGameState_EndStepRewarding,                //结束后根据步数奖励
     EGameState_End,
-    EGameState_Clear,                           //过了结束画面进入这个状态，清掉画面显示
+    EGameState_Clear,                           //过了结束画面进入这个状态，清掉画面显示，新进关卡初始状态
     EGameState_FTUE,                            //FTUE状态
 };
 
@@ -421,6 +421,7 @@ public class GameLogic
 
     bool m_bReadyToStart = false;                           //这个变量标记当前是否可以开始(任意点击就可以开始了)
     float m_readyToStartTime;                               //准备好开始的时间
+    bool m_bPlaying = false;                                //这个变量用来标记是否在游戏中(开始游戏置True, 结束游戏置False)
 
     bool m_bAvailable = false;                              //GameLogic是否可用，用来在游戏结束时屏蔽Update
 
@@ -473,6 +474,11 @@ public class GameLogic
     float m_iceTipStartTime;                //冰块提示开始时间
     int m_curIceTipInterval;              //当前冰块闪烁的间隔
     float m_lastShowIceTipTime;             //上次冰块提示的时间
+
+    public bool IsPlaying()
+    {
+        return m_bPlaying;
+    }
 
     public void StopFTUE()
     {
@@ -588,8 +594,10 @@ public class GameLogic
 					break;
 			}
 		}
-		
-		NGUITools.PlaySound(clip);
+        if (GlobalVars.UseSFX)
+        {
+            NGUITools.PlaySound(clip);
+        }
 	}
 	
 	void ShowIceTip(int interval)       //冰块闪烁
@@ -663,6 +671,10 @@ public class GameLogic
     //恢复游戏
     public void ResumeGame()
     {
+        if (!m_bPlaying)        //若没在游戏，也不用恢复游戏
+        {
+            return;
+        }
         ShowHelpAnim();
         ShowUI();
         CapsConfig.Instance.GameSpeed = 1.0f;
@@ -690,7 +702,14 @@ public class GameLogic
     {
         if (m_gameStartTime == 0)
         {
-            return GlobalVars.CurStageData.TimeLimit;
+            if (m_gameFlow == TGameFlow.EGameState_Clear || m_gameFlow == TGameFlow.EGameState_EffectTime)       //若是初始状态代表游戏尚未开始
+            {
+                return GlobalVars.CurStageData.TimeLimit;
+            }
+            else                                                //其他状态代表游戏已经结束
+            {
+                return 0;
+            }
         }
         float timeRemain = GlobalVars.CurStageData.TimeLimit - (Timer.millisecondNow() - m_gameStartTime) / 1000.0f;
         timeRemain = Mathf.Max(0, timeRemain);
@@ -761,7 +780,6 @@ public class GameLogic
 
     void InitRes()
     {
-        m_gameFlow = TGameFlow.EGameState_Clear;
         m_bReadyToStart = false;
 
         if (m_freeNumberList.Count == 0)
@@ -863,6 +881,7 @@ public class GameLogic
 
     public void InitLogic(int seed = -1)
     {
+        m_gameFlow = TGameFlow.EGameState_Clear;
         PlayingStageData.CopyStageData(GlobalVars.CurStageData);
 
         if (seed > -1)
@@ -1413,6 +1432,15 @@ public class GameLogic
         //播放开始的Banner
         m_stageTargetUI.Mode = UIStageTarget.TargetMode.StageTarget;
         m_stageTargetUI.ShowWindow();
+
+        m_bPlaying = true;
+    }
+
+    public void PlaySugarCrushEffect()
+    {
+        //播放开始的Banner
+        m_stageTargetUI.Mode = UIStageTarget.TargetMode.StageTarget;
+        m_stageTargetUI.ShowWindow();
     }
 
     public void AutoResort()           //自动重排功能 Todo 没处理交换后形成消除的情况，不确定要不要处理
@@ -1566,10 +1594,10 @@ public class GameLogic
 
     public void PlayEndGameAnim()
     {
-		m_gameFlow = TGameFlow.EGameState_Clear;
         TweenPosition tweenPos = m_gameArea.GetComponent<TweenPosition>();
         tweenPos.duration = 0.8f;
         tweenPos.Play(false);
+        m_bPlaying = false;
     }
 
     void FreeAllBlocks()
@@ -4662,7 +4690,14 @@ public class GameLogic
             if (foundSpecial || PlayingStageData.StepLimit > 0)     //若能进SugarCrush
             {
                 m_gameFlow = TGameFlow.EGameState_SugarCrushAnim;                                                       //临时加快时间
-                AddPartile("SugarCrushAnim", AudioEnum.Audio_None, 0, 0, false);
+                m_stageTargetUI.Mode = UIStageTarget.TargetMode.SugarCrush;
+                m_stageTargetUI.ShowWindow(delegate()
+                {
+                    Timer.AddDelayFunc(0.8f, delegate()
+                    {
+                        m_stageTargetUI.HideWindow();
+                    });
+                });
                 ClearHelpPoint();
                 m_curStateStartTime = Timer.millisecondNow();
             }
@@ -4671,7 +4706,7 @@ public class GameLogic
                 //否则直接结束游戏
                 m_gameStartTime = 0;
 
-                GameLogic.Singleton.PlayEndGameAnim();		//play the end anim(move the game area out of screen)
+                PlayEndGameAnim();		//play the end anim(move the game area out of screen)
                 HideUI();
 
                 //触发关卡结束对话，并在对话结束后切回大地图
@@ -4719,8 +4754,15 @@ public class GameLogic
                 }
                 if (foundSpecial)       //若有特殊块，进入奖励环节
                 {
-                    m_gameFlow = TGameFlow.EGameState_SugarCrushAnim;                                                 //临时加快时间
-                    AddPartile("SugarCrushAnim", AudioEnum.Audio_None, 0, 0, false);
+                    m_gameFlow = TGameFlow.EGameState_SugarCrushAnim;
+                    m_stageTargetUI.Mode = UIStageTarget.TargetMode.SugarCrush;
+                    m_stageTargetUI.ShowWindow(delegate()
+                    {
+                        Timer.AddDelayFunc(0.8f, delegate()
+                        {
+                            m_stageTargetUI.HideWindow();
+                        });
+                    });
                     ClearHelpPoint();
                     m_curStateStartTime = Timer.millisecondNow();
                     return;

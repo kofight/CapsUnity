@@ -18,12 +18,14 @@ public class UIStageTarget : UIWindow
     Transform m_gameFailedBoard;
     Transform m_resortBoard;
     Transform m_autoResortBoard;
+    Transform m_sugarCrushBoard;        
 
     public enum TargetMode
     {
         StageTarget,
         AutoResort,
         GameFailed,
+        SugarCrush,
     }
 
     public TargetMode Mode;
@@ -51,6 +53,7 @@ public class UIStageTarget : UIWindow
         m_gameFailedBoard = mUIObject.transform.FindChild("FailedBoard");
         m_resortBoard = mUIObject.transform.FindChild("ResortBoard");
         m_autoResortBoard = mUIObject.transform.FindChild("AutoResortBoard");
+        m_sugarCrushBoard = mUIObject.transform.FindChild("SugarCrushBoard");
 
         m_stepLimitBoard = mUIObject.transform.FindChild("StepLimitBoard");
         m_timeLimitBoard = mUIObject.transform.FindChild("TimeLimitBoard");
@@ -88,6 +91,7 @@ public class UIStageTarget : UIWindow
         m_autoResortBoard.gameObject.SetActive(false);
         m_stepLimitBoard.gameObject.SetActive(false);
         m_timeLimitBoard.gameObject.SetActive(false);
+        m_sugarCrushBoard.gameObject.SetActive(false);
 		
 		Transform curBoard;
         if (Mode == TargetMode.StageTarget)
@@ -281,6 +285,11 @@ public class UIStageTarget : UIWindow
             {
                 m_background.spriteName = "ResortBar";
                 m_autoResortBoard.gameObject.SetActive(true);
+            }
+            else if (Mode == TargetMode.SugarCrush)
+            {
+                m_background.spriteName = "TargetBar";
+                m_sugarCrushBoard.gameObject.SetActive(true);
             }
         }
     }

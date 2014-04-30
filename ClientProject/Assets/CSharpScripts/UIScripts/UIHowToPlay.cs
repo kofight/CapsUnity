@@ -22,8 +22,6 @@ public class UIHowToPlay : UIWindow
         base.OnShow();
         m_curPicNum = 0;
         Refresh();
-			if(GameLogic.Singleton != null)
-            	GameLogic.Singleton.PauseGame();
     }
 
     public void OnClose()

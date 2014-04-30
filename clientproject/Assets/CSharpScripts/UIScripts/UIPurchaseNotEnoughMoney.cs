@@ -52,6 +52,10 @@ public class UIPurchaseNotEnoughMoney : UIWindow
             {
 				GlobalVars.OnCancelFunc();
             }
+            if (CapsApplication.Singleton.CurStateEnum == StateEnum.Game)
+            {
+                GameLogic.Singleton.ResumeGame();
+            }
         });
     }
 
@@ -71,23 +75,10 @@ public class UIPurchaseNotEnoughMoney : UIWindow
         {
             m_buyItemBtnSprite.spriteName = "Button_Buy130Coins";
         }
-    }
 
-    void OnPurchased(PurchasableItem item)      //购买成功
-    {
-        Debug.Log("Purchase Succeed");
-        GlobalVars.PurchaseSuc = true;
-    }
-
-    void OnPurchaseFailed(PurchasableItem item)     //购买失败
-    {
-        Debug.Log("Purchase Failed");
-        GlobalVars.PurchaseFailed = true;
-    }
-
-    void OnPurchaseCancelled(PurchasableItem item)      //主动取消购买
-    {
-        Debug.Log("Purchase Cancelled");
-        GlobalVars.PurchaseCancel = true;
+        if (CapsApplication.Singleton.CurStateEnum == StateEnum.Game)
+        {
+            GameLogic.Singleton.PauseGame();
+        }
     }
 }

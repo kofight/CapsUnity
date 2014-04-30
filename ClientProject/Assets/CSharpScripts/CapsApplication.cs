@@ -151,8 +151,8 @@ public class CapsApplication : S5Application
         if (System.DateTime.Today.Year == 2014 && System.DateTime.Today.Month <= 5
             && !PlayerPrefs.HasKey("GiveFirstTimeMoney2"))
         {
-            PlayerPrefs.SetInt("GiveFirstTimeMoney2", 1);
-            Unibiller.CreditBalance("gold", 3000);          //给3000金币
+           // PlayerPrefs.SetInt("GiveFirstTimeMoney2", 1);
+           // Unibiller.CreditBalance("gold", 3000);          //给3000金币
         }
     }
 
@@ -187,6 +187,11 @@ public class CapsApplication : S5Application
             }
 
             PlayerPrefs.SetInt("PurchaseInTotal", purchaseInTotal + GlobalVars.PurchasingItemPrice);
+
+            if (CapsApplication.Singleton.CurStateEnum == StateEnum.Game)
+            {
+                GameLogic.Singleton.ResumeGame();
+            }
         }
         if (GlobalVars.PurchaseCancel)
         {
@@ -198,6 +203,11 @@ public class CapsApplication : S5Application
             UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetString(Localization.instance.Get("PurchaseCancelled"));
             UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(GlobalVars.OnCancelFunc);        //设置完成后执行的函数
             GlobalVars.PurchaseCancel = false;
+
+            if (CapsApplication.Singleton.CurStateEnum == StateEnum.Game)
+            {
+                GameLogic.Singleton.ResumeGame();
+            }
         }
         if (GlobalVars.PurchaseFailed)
         {
@@ -208,6 +218,11 @@ public class CapsApplication : S5Application
             UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetString(Localization.instance.Get("PurchaseFailed"));
             UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(GlobalVars.OnCancelFunc);        //设置完成后执行的函数
             GlobalVars.PurchaseFailed = false;
+
+            if (CapsApplication.Singleton.CurStateEnum == StateEnum.Game)
+            {
+                GameLogic.Singleton.ResumeGame();
+            }
         }
     }
 

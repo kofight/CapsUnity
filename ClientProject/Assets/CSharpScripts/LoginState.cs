@@ -61,6 +61,13 @@ public class LoginState : State
             UIWindowManager.Singleton.GetUIWindow<UIHowToPlay>().OnClose();
             return;
         }
+
+        if (UIWindowManager.Singleton.GetUIWindow("UIMainMenuExtend").Visible)      //若主菜单开启状态
+        {
+            UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().HideExtendMainMenu();       //显示主菜单按钮
+            return;
+        }
+
         if (CurFlow == TLoginFlow.LoginFlow_Map)
         {
             if (GlobalVars.InMapFTUE)

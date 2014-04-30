@@ -5,7 +5,7 @@ public class UIGameBottom : UIWindow
 {
     UISprite[] m_starsSprites = new UISprite[3];
     UISprite m_progressSprite;
-    static readonly int ProgressLenth = 386;
+    static readonly int ProgressLenth = 396;
     static readonly int ProgressStartX = -95;
 
     UISprite stageBoard;
@@ -24,7 +24,8 @@ public class UIGameBottom : UIWindow
     Animation m_stepChangeAnim;
     Animation m_scoreChangeAnim;
 
-    GameObject m_hurryParticle;
+    GameObject m_hurryStepParticle;
+    GameObject m_hurryTimeParticle;
 
     int m_startCount = 0;
 
@@ -55,12 +56,16 @@ public class UIGameBottom : UIWindow
         m_stepChangeAnim = m_stepDrawer.GetComponent<Animation>();
         m_scoreChangeAnim = m_scoreDrawer.GetComponent<Animation>();
 
-        m_hurryParticle = UIToolkits.FindChild(mUIObject.transform, "Effect_Hurry").gameObject;
-        m_hurryParticle.SetActive(false);
+        m_hurryStepParticle = UIToolkits.FindChild(mUIObject.transform, "Effect_HurryStep").gameObject;
+        m_hurryStepParticle.SetActive(false);
+
+        m_hurryTimeParticle = UIToolkits.FindChild(mUIObject.transform, "Effect_HurryTime").gameObject;
+        m_hurryTimeParticle.SetActive(false);
     }
     public override void OnShow()
     {
         base.OnShow();
+
         if (GameLogic.Singleton.PlayingStageData.TimeLimit > 0)
         {
             stageBoard.spriteName = "TimeBoard";
@@ -68,6 +73,7 @@ public class UIGameBottom : UIWindow
 
             m_stepDrawer.gameObject.SetActive(false);
             m_timeNumber.SetActive(true);
+            m_hurryStepParticle.SetActive(false);
         }
         else
         {
@@ -76,6 +82,8 @@ public class UIGameBottom : UIWindow
 
             m_stepDrawer.gameObject.SetActive(true);
             m_timeNumber.SetActive(false);
+
+            m_hurryTimeParticle.SetActive(false);
 
             OnChangeStep(GameLogic.Singleton.PlayingStageData.StepLimit);
         }
@@ -128,16 +136,16 @@ public class UIGameBottom : UIWindow
 
             if (GameLogic.Singleton.GetTimeRemain() > 0.01 && GameLogic.Singleton.GetTimeRemain() <= 15 && GameLogic.Singleton.GetGameFlow() == TGameFlow.EGameState_Playing)       //小于15秒播粒子
             {
-                if (!m_hurryParticle.activeSelf)
+                if (!m_hurryTimeParticle.activeSelf)
                 {
-                    m_hurryParticle.SetActive(true);
+                    m_hurryTimeParticle.SetActive(true);
                 }
             }
             else                    //大于15秒关闭粒子
             {
-                if (m_hurryParticle.activeSelf)
+                if (m_hurryTimeParticle.activeSelf)
                 {
-                    m_hurryParticle.SetActive(false);
+                    m_hurryTimeParticle.SetActive(false);
                 }
             }
             m_timeBar.fillAmount = GameLogic.Singleton.GetTimeRemain() / GlobalVars.CurStageData.TimeLimit;
@@ -157,16 +165,16 @@ public class UIGameBottom : UIWindow
 
         if (curStep <= 5 && curStep >0 && GameLogic.Singleton.GetGameFlow() == TGameFlow.EGameState_Playing)       //1到5步时播粒子
         {
-            if (!m_hurryParticle.activeSelf)
+            if (!m_hurryStepParticle.activeSelf)
             {
-                m_hurryParticle.SetActive(true);
+                m_hurryStepParticle.SetActive(true);
             }
         }
         else                    //大于5步时关闭粒子
         {
-            if (m_hurryParticle.activeSelf)
+            if (m_hurryStepParticle.activeSelf)
             {
-                m_hurryParticle.SetActive(false);
+                m_hurryStepParticle.SetActive(false);
             }
         }
     }
@@ -184,12 +192,15 @@ public class UIGameBottom : UIWindow
                     if (par != null)
                     {
                         par.Play();
-						if(i == 0)
-                        	NGUITools.PlaySound(CapsConfig.CurAudioList.GetStar1Clip);
-						if(i == 1)
-							NGUITools.PlaySound(CapsConfig.CurAudioList.GetStar2Clip);
-						if(i == 2)
-							NGUITools.PlaySound(CapsConfig.CurAudioList.GetStar3Clip);
+                        if (GlobalVars.UseSFX)
+                        {
+                            if (i == 0)
+                                NGUITools.PlaySound(CapsConfig.CurAudioList.GetStar1Clip);
+                            if (i == 1)
+                                NGUITools.PlaySound(CapsConfig.CurAudioList.GetStar2Clip);
+                            if (i == 2)
+                                NGUITools.PlaySound(CapsConfig.CurAudioList.GetStar3Clip);
+                        }
                     }
 					m_startCount = i + 1;
                 }

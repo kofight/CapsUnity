@@ -67,17 +67,9 @@ public class UIMainMenu : UIWindow
             RefreshIcons();
         });
 
-        m_mainMenuExtend.AddChildComponentMouseClick("MainBtn", delegate()
-        {
-            m_mainMenuExtend.HideWindow();
-            ShowWindow();
-        });
+        m_mainMenuExtend.AddChildComponentMouseClick("MainBtn", HideExtendMainMenu);
 
-        m_mainMenuExtend.AddChildComponentMouseClick("HideBtn", delegate()
-        {
-            m_mainMenuExtend.HideWindow();      //隐藏窗口
-            ShowWindow();
-        });
+        m_mainMenuExtend.AddChildComponentMouseClick("HideBtn", HideExtendMainMenu);
 
 
 
@@ -93,8 +85,24 @@ public class UIMainMenu : UIWindow
             {
                 m_quitBtn.gameObject.SetActive(true);
             }
+
+            if (CapsApplication.Singleton.CurStateEnum == StateEnum.Game)
+            {
+                GameLogic.Singleton.PauseGame();
+            }
+
             HideWindow();
         });
+    }
+
+    public void HideExtendMainMenu()
+    {
+        m_mainMenuExtend.HideWindow();      //隐藏窗口
+        if (CapsApplication.Singleton.CurStateEnum == StateEnum.Game)
+        {
+            GameLogic.Singleton.ResumeGame();
+        }
+        ShowWindow();
     }
 
     void RefreshIcons()
@@ -148,6 +156,11 @@ public class UIMainMenu : UIWindow
             //若非时间关且没消耗步数，不用弹GameEnd界面，直接返回并恢复心
             if (GlobalVars.CurStageData.StepLimit > 0 && GameLogic.Singleton.PlayingStageData.StepLimit == GlobalVars.CurStageData.StepLimit)
             {
+                if (CapsApplication.Singleton.CurStateEnum == StateEnum.Game)
+                {
+                    GameLogic.Singleton.ResumeGame();
+                }
+
                 GlobalVars.AddHeart(1);
 
                 GameLogic.Singleton.PlayEndGameAnim();

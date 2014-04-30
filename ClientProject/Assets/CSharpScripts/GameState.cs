@@ -141,8 +141,7 @@ public class GameState : State
 
         if (UIWindowManager.Singleton.GetUIWindow("UIMainMenuExtend").Visible)      //若主菜单开启状态
         {
-            UIWindowManager.Singleton.GetUIWindow("UIMainMenuExtend").HideWindow();
-            UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().ShowWindow();       //显示主菜单按钮
+            UIWindowManager.Singleton.GetUIWindow<UIMainMenu>().HideExtendMainMenu();       //显示主菜单按钮
             return;
         }
 

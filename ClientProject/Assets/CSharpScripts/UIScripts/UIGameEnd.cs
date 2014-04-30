@@ -231,8 +231,6 @@ public class UIGameEnd : UIWindow
         }
 
         m_levelLabel.SetNumberRapid(GlobalVars.CurStageNum);        //显示关卡编号
-
-        GameLogic.Singleton.PauseGame();
     }
     public override void OnUpdate()
     {
@@ -249,7 +247,10 @@ public class UIGameEnd : UIWindow
         GameLogic.Singleton.HideUI();
 
         UIWindowManager.Singleton.GetUIWindow<UIStageTarget>().Mode = UIStageTarget.TargetMode.GameFailed;
-		NGUITools.PlaySound(CapsConfig.CurAudioList.GameFailedClip);
+        if (GlobalVars.UseSFX)
+        {
+            NGUITools.PlaySound(CapsConfig.CurAudioList.GameFailedClip);
+        }
         UIWindowManager.Singleton.GetUIWindow<UIStageTarget>().ShowWindow(delegate()
         {
             UIWindowManager.Singleton.GetUIWindow<UIStageTarget>().HideWindow();

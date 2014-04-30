@@ -664,6 +664,10 @@ public class GameLogic
     //暂停游戏
     public void PauseGame()
     {
+        if (!m_bPlaying)        //若没在游戏，也不用暂停游戏
+        {
+            return;
+        }
         HideHelp();
         CapsConfig.Instance.GameSpeed = 0.0f;
     }
@@ -1099,6 +1103,8 @@ public class GameLogic
         m_lastShowIceTipTime = 0;
         m_nextPlus5Step = 0;
         m_gameStartTime = 0;
+
+        CapsConfig.Instance.GameSpeed = 1;
     }
 
     public void Init(int seed = -1)         //seed > -1时，指定seed

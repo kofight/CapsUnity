@@ -52,8 +52,6 @@ public class UIMap : UIWindow
 
     UIStageInfo m_stageUI;
 
-    bool m_bInFTUE;                                 //是否在FTUE中
-
     public override void OnCreate()
     {
         base.OnCreate();
@@ -217,20 +215,20 @@ public class UIMap : UIWindow
             System.Collections.Generic.List<FTUEData> ftueData = new System.Collections.Generic.List<FTUEData>();
             FTUEData data = new FTUEData();
             data.dialog = Localization.instance.Get("FTUEStep0");
-            data.headImage = "Dog";
+            data.headImage = "Speicher";
             data.from = new Position();
             data.from.MakeItUnAvailable();
             ftueData.Add(data);             //第1句话
             data = new FTUEData();
             data.dialog = Localization.instance.Get("FTUEStep1");
-            data.headImage = "Dog";
+            data.headImage = "Speicher";
             data.pointToGameObject = "Stage1";
             data.from = new Position();
             data.from.MakeItUnAvailable();
             ftueData.Add(data);             //第2句话
             data = new FTUEData();
             data.dialog = Localization.instance.Get("FTUEStep2");
-            data.headImage = "Dog";
+            data.headImage = "Speicher";
             data.from = new Position();
             data.from.MakeItUnAvailable();
             ftueData.Add(data);             //第3句话
@@ -491,7 +489,7 @@ public class UIMap : UIWindow
                     System.Collections.Generic.List<FTUEData> ftueData = new System.Collections.Generic.List<FTUEData>();
                     FTUEData data = new FTUEData();
                     data.dialog = Localization.instance.Get("FTUEStep3");
-                    data.headImage = "Dog";
+                    data.headImage = "Speicher";
                     data.pointToGameObject = "Stage2";
                     data.from = new Position();
                     data.from.MakeItUnAvailable();
@@ -546,7 +544,8 @@ public class UIMap : UIWindow
         {
             m_lastClickStageTime = Timer.GetRealTimeSinceStartUp();     //更新关卡点击时间
         }
-        else if (Timer.GetRealTimeSinceStartUp() - m_lastClickStageTime > 5.0f)      //5秒没有有效操作
+        //else if (Timer.GetRealTimeSinceStartUp() - m_lastClickStageTime > 5.0f)      //5秒没有有效操作
+        else
         {
             SetStageHelp(true);
         }

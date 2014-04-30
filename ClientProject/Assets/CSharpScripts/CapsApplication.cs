@@ -149,10 +149,10 @@ public class CapsApplication : S5Application
 
         //第一次运行时，5月份之前，送点金币
         if (System.DateTime.Today.Year == 2014 && System.DateTime.Today.Month <= 5
-            && !PlayerPrefs.HasKey("GiveFirstTimeMoney"))
+            && !PlayerPrefs.HasKey("GiveFirstTimeMoney2"))
         {
-            PlayerPrefs.SetInt("GiveFirstTimeMoney", 1);
-            //Unibiller.CreditBalance("gold", 3000);          //给3000金币
+            PlayerPrefs.SetInt("GiveFirstTimeMoney2", 1);
+            Unibiller.CreditBalance("gold", 3000);          //给3000金币
         }
     }
 
@@ -162,7 +162,7 @@ public class CapsApplication : S5Application
 
         if (GlobalVars.PurchaseSuc)
         {
-            UIWindowManager.Singleton.GetUIWindow<UIWait>().HideWindow();
+            //UIWindowManager.Singleton.GetUIWindow<UIWait>().HideWindow();
             UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().ShowWindow();
             UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(GlobalVars.OnPurchaseFunc);        //设置完成后执行的函数
             UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetString(Localization.instance.Get("PurchaseSucceed"));
@@ -193,7 +193,7 @@ public class CapsApplication : S5Application
             GlobalVars.UsingItem = PurchasedItem.None;
             Debug.Log("Purchase Cancelled");
 
-            UIWindowManager.Singleton.GetUIWindow<UIWait>().HideWindow();
+            //UIWindowManager.Singleton.GetUIWindow<UIWait>().HideWindow();
             UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().ShowWindow();
             UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetString(Localization.instance.Get("PurchaseCancelled"));
             UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(GlobalVars.OnCancelFunc);        //设置完成后执行的函数
@@ -203,7 +203,7 @@ public class CapsApplication : S5Application
         {
             GlobalVars.UsingItem = PurchasedItem.None;
             //Debug.Log("Purchase Failed");
-            UIWindowManager.Singleton.GetUIWindow<UIWait>().HideWindow();
+            //UIWindowManager.Singleton.GetUIWindow<UIWait>().HideWindow();
             UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().ShowWindow();
             UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetString(Localization.instance.Get("PurchaseFailed"));
             UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(GlobalVars.OnCancelFunc);        //设置完成后执行的函数

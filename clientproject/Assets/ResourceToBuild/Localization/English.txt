@@ -59,6 +59,8 @@ Intro_ItemInGame_TimeStoper= 时间停止7步
 Intro_ItemAfterGame_PlusStep = Add 5 extra steps
 Intro_ItemAfterGame_PlusTime = Add 5 extra seconds
 
+Intro_Item_Hearts = 立刻充满5颗心
+
 Use_ItemInGame_Resort = 重排？
 Use_ItemInGame_Hammer = Knock the block？
 Use_ItemInGame_ChocoStoper = 巧克力停止生长7步

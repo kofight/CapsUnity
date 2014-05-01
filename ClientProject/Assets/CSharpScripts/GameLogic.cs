@@ -11,7 +11,7 @@ public enum TGameFlow
     EGameState_EndEatingSpecial,                //结束后开始逐个吃屏幕上的特殊块
     EGameState_EndStepRewarding,                //结束后根据步数奖励
     EGameState_End,
-    EGameState_Clear,                           //过了结束画面进入这个状态，清掉画面显示，新进关卡初始状态
+    EGameState_UnStart,                           //过了结束画面进入这个状态，清掉画面显示，新进关卡初始状态
     EGameState_FTUE,                            //FTUE状态
 };
 
@@ -421,7 +421,6 @@ public class GameLogic
 
     bool m_bReadyToStart = false;                           //这个变量标记当前是否可以开始(任意点击就可以开始了)
     float m_readyToStartTime;                               //准备好开始的时间
-    bool m_bPlaying = false;                                //这个变量用来标记是否在游戏中(开始游戏置True, 结束游戏置False)
 
     bool m_bAvailable = false;                              //GameLogic是否可用，用来在游戏结束时屏蔽Update
 
@@ -474,11 +473,6 @@ public class GameLogic
     float m_iceTipStartTime;                //冰块提示开始时间
     int m_curIceTipInterval;              //当前冰块闪烁的间隔
     float m_lastShowIceTipTime;             //上次冰块提示的时间
-
-    public bool IsPlaying()
-    {
-        return m_bPlaying;
-    }
 
     public void StopFTUE()
     {
@@ -664,7 +658,7 @@ public class GameLogic
     //暂停游戏
     public void PauseGame()
     {
-        if (!m_bPlaying)        //若没在游戏，也不用暂停游戏
+        if (!m_bAvailable)        //若没在游戏，也不用暂停游戏
         {
             return;
         }
@@ -675,7 +669,7 @@ public class GameLogic
     //恢复游戏
     public void ResumeGame()
     {
-        if (!m_bPlaying)        //若没在游戏，也不用恢复游戏
+        if (!m_bAvailable)        //若没在游戏，也不用恢复游戏
         {
             return;
         }
@@ -706,7 +700,7 @@ public class GameLogic
     {
         if (m_gameStartTime == 0)
         {
-            if (m_gameFlow == TGameFlow.EGameState_Clear || m_gameFlow == TGameFlow.EGameState_EffectTime)       //若是初始状态代表游戏尚未开始
+            if (m_gameFlow == TGameFlow.EGameState_EffectTime && m_curSpecialEffect == TSpecialEffect.EStartEffect)       //若是初始状态代表游戏尚未开始
             {
                 return GlobalVars.CurStageData.TimeLimit;
             }
@@ -881,11 +875,16 @@ public class GameLogic
         {
             AddParticleToFreeList("StoneEffect", true, GlobalVars.CurStageData.StoneCount / 3);
         }
+
+        m_gameFlow = TGameFlow.EGameState_UnStart;
     }
 
     public void InitLogic(int seed = -1)
     {
-        m_gameFlow = TGameFlow.EGameState_Clear;
+        m_lastShowIceTipTime = 0;
+        m_nextPlus5Step = 0;
+        m_gameStartTime = 0;
+
         PlayingStageData.CopyStageData(GlobalVars.CurStageData);
 
         if (seed > -1)
@@ -1099,10 +1098,6 @@ public class GameLogic
                 PlayingStageData.CollectCount[i] = 0;           //先把已搜集数量清零
             }
         }
-
-        m_lastShowIceTipTime = 0;
-        m_nextPlus5Step = 0;
-        m_gameStartTime = 0;
 
         CapsConfig.Instance.GameSpeed = 1;
     }
@@ -1438,8 +1433,6 @@ public class GameLogic
         //播放开始的Banner
         m_stageTargetUI.Mode = UIStageTarget.TargetMode.StageTarget;
         m_stageTargetUI.ShowWindow();
-
-        m_bPlaying = true;
     }
 
     public void PlaySugarCrushEffect()
@@ -1603,7 +1596,6 @@ public class GameLogic
         TweenPosition tweenPos = m_gameArea.GetComponent<TweenPosition>();
         tweenPos.duration = 0.8f;
         tweenPos.Play(false);
-        m_bPlaying = false;
     }
 
     void FreeAllBlocks()
@@ -1806,11 +1798,6 @@ public class GameLogic
 
     void DrawGraphics()
     {
-        if (m_gameFlow == TGameFlow.EGameState_Clear)
-        {
-            return;
-        }
-
         //处理下落
         if (CapBlock.DropingBlockCount > 0)            //若有块在下落
         {
@@ -2137,10 +2124,10 @@ public class GameLogic
             long timePast = Timer.millisecondNow() - m_curStateStartTime;
             if (m_effectStateDuration > 0 && timePast > m_effectStateDuration)       //若到时间，不继续处理
             {
-                if (m_curSpecialEffect == TSpecialEffect.ERestartEffect)            //若是重新开始和开始特效，结束后开始游戏
+                if (m_curSpecialEffect == TSpecialEffect.ERestartEffect)            //若是重新开始特效，结束后开始游戏
                 {
                     m_bReadyToStart = true;
-                    m_readyToStartTime = Timer.GetRealTimeSinceStartUp();
+                    m_readyToStartTime = Timer.GetRealTimeSinceStartUp() - 3;       //立刻开始
                 }
                 else
                 {
@@ -2320,6 +2307,7 @@ public class GameLogic
                                 ClearLogic(true);
                                 InitLogic();
                                 UIWindowManager.Singleton.GetUIWindow<UIGameHead>().RefreshTarget();
+                                UIWindowManager.Singleton.GetUIWindow<UIGameBottom>().OnChangeStep(PlayingStageData.StepLimit);
                             }
                             ProcessResortEffectStartTime(oneTimeCount + CapsConfig.EffectResortTime, CapsConfig.EffectResortInterval, m_curSpecialEffect == TSpecialEffect.EResortEffect);    //计算特效时序
                             m_effectStep = 3;
@@ -4699,7 +4687,7 @@ public class GameLogic
                 m_stageTargetUI.Mode = UIStageTarget.TargetMode.SugarCrush;
                 m_stageTargetUI.ShowWindow(delegate()
                 {
-                    Timer.AddDelayFunc(0.8f, delegate()
+                    Timer.AddDelayFunc(0.3f, delegate()
                     {
                         m_stageTargetUI.HideWindow();
                     });
@@ -4764,7 +4752,7 @@ public class GameLogic
                     m_stageTargetUI.Mode = UIStageTarget.TargetMode.SugarCrush;
                     m_stageTargetUI.ShowWindow(delegate()
                     {
-                        Timer.AddDelayFunc(0.8f, delegate()
+                        Timer.AddDelayFunc(0.3f, delegate()
                         {
                             m_stageTargetUI.HideWindow();
                         });
@@ -5895,7 +5883,7 @@ public class GameLogic
         m_blocks[x, y].color = color;               //设置颜色
         m_blocks[x, y].m_animation.enabled = false;
         m_blocks[x, y].EatDuration = EATBLOCK_TIME;
-        if (m_gameFlow == TGameFlow.EGameState_EffectTime && m_curSpecialEffect == TSpecialEffect.ERestartEffect || m_gameFlow == TGameFlow.EGameState_Clear)              //这个是在失败FTUE时用的，播开始时的特效中创建的块都置为透明
+        if (m_gameFlow == TGameFlow.EGameState_EffectTime && m_curSpecialEffect == TSpecialEffect.ERestartEffect || m_gameFlow == TGameFlow.EGameState_UnStart)              //这个是在失败FTUE时用的，播开始时的特效中创建的块都置为透明
         {
             m_blocks[x, y].m_blockSprite.color = new Color(1.0f, 1.0f, 1.0f, 0.0f);     //新创建出来是透明的
         }

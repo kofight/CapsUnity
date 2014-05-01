@@ -6,4 +6,4 @@
     2      Speicher      竖方向的三个也可以连起来。继续让花盛开吧！     5,4        5,3       5,1,5,2	None	0	1,9
     3      Speicher      这样也是可以的。     3,5        3,4       1,3,2,3	None	0	1,9
     4      Speicher      试试看这样？	2,5	3,6	4,5,5,5	None	0	0,9
-    5      Speicher      [ff0000]连锁盛开！[-]	None None None
+    5      Speicher      [ff0000]连锁盛开！[-]再继续寻找到2组同色的符石吧。	None None None

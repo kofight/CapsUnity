@@ -5,7 +5,8 @@ public class UIGameBottom : UIWindow
 {
     UISprite[] m_starsSprites = new UISprite[3];
     UISprite m_progressSprite;
-    static readonly int ProgressLenth = 396;
+    static readonly int ProgressLenth = 386;
+    static readonly int ProgressRealLenth = 396;
     static readonly int ProgressStartX = -95;
 
     UISprite stageBoard;
@@ -222,6 +223,16 @@ public class UIGameBottom : UIWindow
             completeRatio = (float)GameLogic.Singleton.GetProgress() / GlobalVars.CurStageData.StarScore[2];
         }
         completeRatio = Mathf.Min(1.0f, completeRatio);
+
+        if (completeRatio >= 1.0f)
+        {
+            completeRatio = 1.0f;
+        }
+        else
+        {
+            completeRatio = (completeRatio * ProgressLenth) / ProgressRealLenth;
+        }
+
         if (completeRatio != 0.0f)
         {
             m_progressSprite.gameObject.SetActive(true);

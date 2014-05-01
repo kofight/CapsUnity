@@ -75,6 +75,7 @@ public class UINoMoreHearts : UIWindow
                 UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>().ShowWindow();
                 GlobalVars.OnPurchaseFunc = delegate()
                 {
+                    GlobalVars.UsingItem = PurchasedItem.None;
                     Unibiller.DebitBalance("gold", 60);
                     CapsApplication.Singleton.SubmitUseItemData("BuyHearts");
                     GlobalVars.AddHeart(5);
@@ -82,6 +83,7 @@ public class UINoMoreHearts : UIWindow
                 };
                 GlobalVars.OnCancelFunc = delegate()
                 {
+                    GlobalVars.UsingItem = PurchasedItem.None;
                     Close();
                 };
             }

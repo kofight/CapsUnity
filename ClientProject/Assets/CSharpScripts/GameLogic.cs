@@ -4277,11 +4277,11 @@ public class GameLogic
             {
                 for (int i = 0; i < 3; ++i)
                 {
+					m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].EndAddColorPingPong();
                     m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.enabled = false;
                     m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.Stop();
                     m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_animation.transform.localScale = Vector3.one;          //恢复缩放
                     m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].m_addColorSprite.alpha = 0.0f;
-					m_blocks[m_saveHelpBlocks[i].x, m_saveHelpBlocks[i].y].EndAddColorPingPong();
                 }
             }
             catch (System.Exception ex)

@@ -57,7 +57,7 @@ public class UINoMoreHearts : UIWindow
 
         AddChildComponentMouseClick("Buy5HeartBtn", delegate()
         {
-            if (Unibiller.DebitBalance("gold", 100))
+            if (Unibiller.DebitBalance("gold", 60))
             {
                 UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetString(Localization.instance.Get("PurchaseSucceed"));
                 UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetFunc(delegate()
@@ -71,10 +71,11 @@ public class UINoMoreHearts : UIWindow
             else
             {
                 HideWindow();
-                UIWindowManager.Singleton.GetUIWindow<UIStore>().ShowWindow();
+                GlobalVars.UsingItem = PurchasedItem.Item_Hearts;
+                UIWindowManager.Singleton.GetUIWindow<UIPurchaseNotEnoughMoney>().ShowWindow();
                 GlobalVars.OnPurchaseFunc = delegate()
                 {
-                    Unibiller.DebitBalance("gold", 100);
+                    Unibiller.DebitBalance("gold", 60);
                     CapsApplication.Singleton.SubmitUseItemData("BuyHearts");
                     GlobalVars.AddHeart(5);
                     ContinuePlay();

@@ -61,6 +61,8 @@ Intro_ItemInGame_TimeStoper= 7步之内时间停止
 Intro_ItemAfterGame_PlusStep = 使用就立刻加5步
 Intro_ItemAfterGame_PlusTime = 使用就立刻加15秒
 
+Intro_Item_Hearts = 立刻充满5颗心
+
 Use_ItemInGame_Resort = 是否需要重新排列所有符石？
 Use_ItemInGame_Hammer = 敲碎上方选中的块？
 Use_ItemInGame_ChocoStoper = 7步之内让梦境之花停止生长？

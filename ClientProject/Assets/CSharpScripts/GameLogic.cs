@@ -885,6 +885,10 @@ public class GameLogic
 
     public void InitLogic(int seed = -1)
     {
+        m_lastShowIceTipTime = 0;
+        m_nextPlus5Step = 0;
+        m_gameStartTime = 0;
+
         m_gameFlow = TGameFlow.EGameState_Clear;
         PlayingStageData.CopyStageData(GlobalVars.CurStageData);
 
@@ -1099,10 +1103,6 @@ public class GameLogic
                 PlayingStageData.CollectCount[i] = 0;           //先把已搜集数量清零
             }
         }
-
-        m_lastShowIceTipTime = 0;
-        m_nextPlus5Step = 0;
-        m_gameStartTime = 0;
 
         CapsConfig.Instance.GameSpeed = 1;
     }

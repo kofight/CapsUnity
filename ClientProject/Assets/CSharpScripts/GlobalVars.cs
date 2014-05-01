@@ -28,6 +28,8 @@ public enum PurchasedItem
 	ItemAfterGame_PlusStep,
     ItemAfterGame_PlusTime,
 
+    Item_Hearts,
+
     None,
 }
 

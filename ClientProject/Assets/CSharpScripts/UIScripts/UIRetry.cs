@@ -152,7 +152,9 @@ public class UIRetry : UIWindow
         {
             if (GlobalVars.AvailabeStageCount == GlobalVars.CurStageNum)
             {
-                ++GlobalVars.AvailabeStageCount;        //开启下一关
+				if(GlobalVars.AvailabeStageCount < GlobalVars.TotalStageCount)
+                	++GlobalVars.AvailabeStageCount;        //开启下一关
+
                 //UIWindowManager.Singleton.GetUIWindow<UIMap>().OpenNewButton(GlobalVars.AvailabeStageCount);
             }
 
@@ -342,7 +344,7 @@ public class UIRetry : UIWindow
 
     private void OnNextLevelClicked()
     {
-        if (GlobalVars.AvailabeStageCount == GlobalVars.TotalStageCount)        //若到了最后一关
+        if (GlobalVars.CurStageNum == GlobalVars.TotalStageCount)        //若到了最后一关
         {
             UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().SetString(Localization.instance.Get("FinishAllStages"));
             UIWindowManager.Singleton.GetUIWindow<UIMessageBox>().ShowWindow();

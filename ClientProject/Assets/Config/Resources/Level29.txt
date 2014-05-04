@@ -1,13 +1,13 @@
 ﻿Target			1				
 StepLimit			50				
 TimeLimit			0				
-ColorCount			8				
+ColorCount			7				
 Nut1Count			3				
 Nut2Count			3				
 NutInitCount			1				
 NutMaxCount			3				
 NutMinCount			1				
-NutStep			7				
+NutStep			8				
 PlusInitCount			0				
 PlusMaxCount			0				
 PlusStartTime			0				

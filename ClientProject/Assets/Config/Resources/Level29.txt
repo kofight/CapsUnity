@@ -7,7 +7,7 @@ Nut2Count			3
 NutInitCount			1				
 NutMaxCount			3				
 NutMinCount			1				
-NutStep			7				
+NutStep			8				
 PlusInitCount			0				
 PlusMaxCount			0				
 PlusStartTime			0				

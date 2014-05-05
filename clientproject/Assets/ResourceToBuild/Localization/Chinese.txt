@@ -18,7 +18,7 @@ DidNotCollectEnough = 没有完成收集目标
 EndGameByHimSelf = 主动结束
 
 EndGameConfirm = 您是否要退出游戏？
-YouCanContinue = 您可以选择继续游戏。
+YouCanContinue = 是否继续游戏？
 QuitCostHeartTip = 退出关卡，您会消耗一颗心。
 
 LoseAHeart = 您失去了一颗心。
@@ -48,33 +48,33 @@ PurchaseFailed = 购买失败
 PurchaseCancelled = 取消购买
 EnterShop = 进入商店
 
-Intro_ItemPreGame_PlusStep = 步数增加7步
-Intro_ItemPreGame_AddEatColor = 在关卡初始就拥有一个彩虹符石
-Intro_ItemPreGame_PlusTime = 时间增加20秒
-Intro_ItemPreGame_ExtraScore = 关卡进行中可以获得120%的分数
+Intro_ItemPreGame_PlusStep = 关卡步数增加7步
+Intro_ItemPreGame_AddEatColor = 在关卡初始获得一个彩虹符石
+Intro_ItemPreGame_PlusTime = 关卡时间增加20秒
+Intro_ItemPreGame_ExtraScore = 关卡过程中获得120%的分数
 
 Intro_ItemInGame_Resort = 重新排列所有符石
-Intro_ItemInGame_Hammer = 星星魔法棒可以瞬间敲碎一个块
-Intro_ItemInGame_ChocoStoper = 7步之内巧克力停止生长
-Intro_ItemInGame_TimeStoper= 7步之内时间停止
+Intro_ItemInGame_Hammer = 敲碎上方选中的块
+Intro_ItemInGame_ChocoStoper = 在7步之内让梦境之花停止生长
+Intro_ItemInGame_TimeStoper= 在7步之内让时间倒计时停止
 
-Intro_ItemAfterGame_PlusStep = 使用就立刻加5步
-Intro_ItemAfterGame_PlusTime = 使用就立刻加15秒
+Intro_ItemAfterGame_PlusStep = 增加5步
+Intro_ItemAfterGame_PlusTime = 增加15秒
 
 Intro_Item_Hearts = 立刻充满5颗心
 
-Use_ItemInGame_Resort = 是否需要重新排列所有符石？
-Use_ItemInGame_Hammer = 敲碎上方选中的块？
-Use_ItemInGame_ChocoStoper = 7步之内让梦境之花停止生长？
-Use_ItemInGame_TimeStoper= 7步之内让时间倒计时停止？
+Use_ItemInGame_Resort = 重新排列所有符石
+Use_ItemInGame_Hammer = 敲碎上方选中的块
+Use_ItemInGame_ChocoStoper = 在7步之内让梦境之花停止生长
+Use_ItemInGame_TimeStoper= 在7步之内让时间倒计时停止
 
-Use_ItemAfterGame_PlusStep = 增加5步？
-Use_ItemAfterGame_PlusTime = 增加15秒？
+Use_ItemAfterGame_PlusStep = 增加5步
+Use_ItemAfterGame_PlusTime = 增加15秒
 
-Use_ItemPreGame_PlusStep = 增加7步
-Use_ItemPreGame_AddEatColor = 在游戏初始获得一个彩虹符石
-Use_ItemPreGame_PlusTime = 增加20秒
-Use_ItemPreGame_ExtraScore = 游戏过程中获得120%的分数
+Use_ItemPreGame_PlusStep = 关卡步数增加7步
+Use_ItemPreGame_AddEatColor = 在关卡初始获得一个彩虹符石
+Use_ItemPreGame_PlusTime = 关卡时间增加20秒
+Use_ItemPreGame_ExtraScore = 关卡过程中获得120%的分数
 
 NotEnoughMoney = 您的金币不足
 Get140Coins = 购买60个金币

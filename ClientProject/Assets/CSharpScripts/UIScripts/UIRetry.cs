@@ -121,11 +121,7 @@ public class UIRetry : UIWindow
         else
         {
 			m_bWin = false;
-            if (!GameLogic.Singleton.CheckGetEnoughScore())       //没到基础的分数要求的情况
-            {
-                m_infoLabel.text = Localization.instance.Get("NotEnoughScore");
-            }
-            else if (GlobalVars.CurStageData.Target == GameTarget.ClearJelly)
+            if (GlobalVars.CurStageData.Target == GameTarget.ClearJelly)
             {
                 m_infoLabel.text = Localization.instance.Get("DidNotClearIce");
             }
@@ -136,6 +132,10 @@ public class UIRetry : UIWindow
             else if (GlobalVars.CurStageData.Target == GameTarget.Collect)
             {
                 m_infoLabel.text = Localization.instance.Get("DidNotCollectEnough");
+            }
+            else if (GlobalVars.CurStageData.Target == GameTarget.GetScore)             //分数要求的情况
+            {
+                m_infoLabel.text = Localization.instance.Get("NotEnoughScore");
             }
             else
             {

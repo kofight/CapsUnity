@@ -427,7 +427,7 @@ public class UIMap : UIWindow
         {
             UISprite heartNum = m_heartUI.GetChildComponent<UISprite>("HeartNum");
             heartNum.spriteName = "Large_" + GlobalVars.HeartCount;
-            m_coinNumber.SetNumber((int)(Unibiller.GetCurrencyBalance("gold") - m_stageUI.GetCurCost()));
+            m_coinNumber.SetNumber((int)Unibiller.GetCurrencyBalance("gold"));
 
             if (GlobalVars.HeartCount < 5)               //若心没满，要显示时间
             {

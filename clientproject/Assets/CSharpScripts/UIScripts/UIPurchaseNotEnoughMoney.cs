@@ -8,6 +8,8 @@ public class UIPurchaseNotEnoughMoney : UIWindow
 	UILabel m_costLabel;
     UISprite m_itemIcon;
     UISprite m_buyItemBtnSprite;
+    GameObject m_buy6Board;
+    GameObject m_buy12Board;
 
     public override void OnCreate()
     {
@@ -22,10 +24,14 @@ public class UIPurchaseNotEnoughMoney : UIWindow
             if (coinNeeded <= 60)
             {
                 Unibiller.initiatePurchase("com.linkrstudio.jellycraft.60coins");
+                GlobalVars.PurchasingItemName = "60Coins";
+                GlobalVars.PurchasingItemPrice = 99;
             }
             else
             {
                 Unibiller.initiatePurchase("com.linkrstudio.jellycraft.130coins");
+                GlobalVars.PurchasingItemName = "130Coins";
+                GlobalVars.PurchasingItemPrice = 199;
             }
 		});
         AddChildComponentMouseClick("ShopBtn", delegate()
@@ -41,7 +47,8 @@ public class UIPurchaseNotEnoughMoney : UIWindow
 		m_msgLabel = GetChildComponent<UILabel>("IntroduceLabel");
 		m_costLabel = GetChildComponent<UILabel>("CostLabel");
         m_itemIcon = GetChildComponent<UISprite>("ItemIcon");
-        m_buyItemBtnSprite = GetChildComponent<UISprite>("GetCoinTextSprite");
+        m_buy6Board = UIToolkits.FindChild(mUIObject.transform, "Price6").gameObject;
+        m_buy12Board = UIToolkits.FindChild(mUIObject.transform, "Price12").gameObject;
     }
 
     public void OnCloseBtn()
@@ -69,11 +76,13 @@ public class UIPurchaseNotEnoughMoney : UIWindow
 
         if (CapsConfig.GetItemPrice(GlobalVars.UsingItem) <= 60)
         {
-            m_buyItemBtnSprite.spriteName = "Button_Buy60Coins";
+            m_buy6Board.SetActive(true);
+            m_buy12Board.SetActive(false);
         }
         else
         {
-            m_buyItemBtnSprite.spriteName = "Button_Buy130Coins";
+            m_buy6Board.SetActive(false);
+            m_buy12Board.SetActive(true);
         }
 
         if (CapsApplication.Singleton.CurStateEnum == StateEnum.Game)

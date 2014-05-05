@@ -4,6 +4,7 @@ using System.Collections;
 public class UIGameEnd : UIWindow 
 {
     UIButton m_playOnBtn;
+    UIButton m_playOnWithPayBtn;
     UIButton m_EndGameBtn;
 	NumberDrawer m_curScore;
 	NumberDrawer m_targetScore;
@@ -38,6 +39,7 @@ public class UIGameEnd : UIWindow
         base.OnCreate();
 
         m_playOnBtn = GetChildComponent<UIButton>("PlayOnBtn");
+        m_playOnWithPayBtn = GetChildComponent<UIButton>("PlayOnWithPayBtn");
         m_EndGameBtn = GetChildComponent<UIButton>("EndGameBtn");
 
         m_curScore = GetChildComponent<NumberDrawer>("CurScore");
@@ -64,6 +66,7 @@ public class UIGameEnd : UIWindow
 		
         AddChildComponentMouseClick("EndGameBtn", OnEndGameClicked);
         AddChildComponentMouseClick("PlayOnBtn", OnPlayOnClicked);
+        AddChildComponentMouseClick("PlayOnWithPayBtn", OnPlayOnClicked);
 
         m_levelLabel = GetChildComponent<NumberDrawer>("LevelNumber");
 
@@ -99,6 +102,8 @@ public class UIGameEnd : UIWindow
             if (GameLogic.Singleton.ResortFailed)
             {
                 m_playOnBtn.gameObject.SetActive(false);
+                m_playOnWithPayBtn.gameObject.SetActive(false);
+
                 m_continueTipBoard.gameObject.SetActive(false);
                 m_planOnItemIcon.gameObject.SetActive(false);
                 m_EndGameBtn.LocalPositionX(0);
@@ -118,8 +123,10 @@ public class UIGameEnd : UIWindow
 
                 m_EndGameBtn.LocalPositionX(-108);
                 m_continueTipBoard.gameObject.SetActive(true);
-                m_playOnBtn.gameObject.SetActive(true);
                 m_planOnItemIcon.gameObject.SetActive(true);
+
+                m_playOnBtn.gameObject.SetActive(false);
+                m_playOnWithPayBtn.gameObject.SetActive(true);
             }
         }
         else
@@ -129,6 +136,9 @@ public class UIGameEnd : UIWindow
 
             m_continueTipBoard.gameObject.SetActive(false);
             m_pauseTipBoard.gameObject.SetActive(true);
+
+            m_playOnBtn.gameObject.SetActive(true);
+            m_playOnWithPayBtn.gameObject.SetActive(false);
 
             m_curScore.SetNumberRapid(GameLogic.Singleton.GetProgress());
             m_targetScore.SetNumberRapid(GlobalVars.CurStageData.StarScore[0]);

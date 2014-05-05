@@ -172,7 +172,7 @@ public class CapsApplication : S5Application
             {
                 string StageString = "BuyCoinsStage" + GlobalVars.AvailabeStageCount;
                 GA.API.Business.NewEvent("Buy" + GlobalVars.PurchasingItemName, "USD", GlobalVars.PurchasingItemPrice);             //记录购买金钱包
-                GA.API.Design.NewEvent("Buy" + GlobalVars.PurchasingItemName);
+                GA.API.Design.NewEvent(StageString + ":Buy" + GlobalVars.PurchasingItemName);
             }
 
             int purchaseInTotal = PlayerPrefs.GetInt("PurchaseInTotal", 0);

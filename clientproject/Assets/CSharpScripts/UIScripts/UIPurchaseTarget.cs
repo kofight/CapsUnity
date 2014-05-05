@@ -8,6 +8,7 @@ public class UIPurchaseTarget : UIWindow
 	UILabel m_costLabel;
 	public delegate void OnPurchaseFunc();
     GameObject m_target;
+    NumberDrawer m_coinDrawer;
 	
 	public OnPurchaseFunc OnPurchase; 
 	
@@ -20,6 +21,8 @@ public class UIPurchaseTarget : UIWindow
 		m_costLabel = GetChildComponent<UILabel>("CostLabel");
         m_target = GameObject.Find("TargetBlock");
         m_target.SetActive(false);
+
+        m_coinDrawer = GetChildComponent<NumberDrawer>("CoinNumber");
     }
     public override void OnShow()
     {
@@ -29,6 +32,7 @@ public class UIPurchaseTarget : UIWindow
 
         m_msgLabel.text = Localization.instance.Get("Use_" + GlobalVars.UsingItem.ToString());
         m_costLabel.text = CapsConfig.GetItemPrice(GlobalVars.UsingItem).ToString();
+        m_coinDrawer.SetNumberRapid(CapsConfig.GetItemPrice(GlobalVars.UsingItem));
 
         int startX = (GameLogic.Singleton.BlockXStart + GameLogic.Singleton.BlockXEnd) / 2;
         int startY = (GameLogic.Singleton.BlockYStart + GameLogic.Singleton.BlockYStart) / 2;

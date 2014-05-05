@@ -5879,7 +5879,6 @@ public class GameLogic
     bool CreateBlock(int x, int y, bool avoidLine)
     {
         TBlockColor color = GetRandomColor(PlayingStageData.CheckFlag(x, y, GridFlag.Birth) && !PlayingStageData.CheckFlag(x, y, GridFlag.Cage));		//最上方获取新的方块，笼子里不能生成坚果
-		Debug.Log(color.ToString());
         m_blocks[x, y] = GetFreeCapBlock(color);            //创建新的块
         m_blocks[x, y].color = color;               //设置颜色
         m_blocks[x, y].m_animation.enabled = false;
@@ -5999,11 +5998,9 @@ public class GameLogic
                 {
                     ++m_nut2Count;
                 }
-				Debug.Log("Resturn nut color");
                 return nutColor;
             }
         }
-		Debug.Log("Resturn normal color");
         return TBlockColor.EColor_Purple + m_random.Next() % PlayingStageData.ColorCount;
     }
 

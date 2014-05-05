@@ -4,7 +4,7 @@ using System.Collections;
 public class UIStageInfo : UIWindow 
 {
     NumberDrawer m_levelNumber;
-    UILabel m_totalCostLabel;
+    NumberDrawer m_totalCostNumber;
 
     UIWindow m_stageTip;
 
@@ -19,6 +19,14 @@ public class UIStageInfo : UIWindow
     UISprite m_stageIcon;
     UILabel m_stageInfoLabel;
 
+
+    //使用道具和不使用道具情况下的按钮和地板（需要运行时切换显示）
+    GameObject m_playBtn;
+    GameObject m_playPayCoinBtn;
+
+    GameObject m_itemBoard;
+    GameObject m_itemBoardWithArrow;
+
     int m_moneyCost = 0;
 
     public int GetCurCost() { return m_moneyCost; }
@@ -28,7 +36,7 @@ public class UIStageInfo : UIWindow
         base.OnCreate();
 
         m_levelNumber = GetChildComponent<NumberDrawer>("LevelNumber");
-        m_totalCostLabel = GetChildComponent<UILabel>("ItemTotalCost");
+        m_totalCostNumber = GetChildComponent<NumberDrawer>("ItemTotalCost");
 
         m_stageIcon = GetChildComponent<UISprite>("StageIcon");
         m_stageInfoLabel = GetChildComponent<UILabel>("StageInfoLabel");
@@ -45,8 +53,15 @@ public class UIStageInfo : UIWindow
             EventDelegate.Set(m_itemToggles[i].onChange, OnToggle);
         }
 
+        m_playBtn = UIToolkits.FindChild(mUIObject.transform, "PlayBtn").gameObject;
+        m_playPayCoinBtn = UIToolkits.FindChild(mUIObject.transform, "PlayPlayCoinBtn").gameObject;
+
+        m_itemBoard = UIToolkits.FindChild(mUIObject.transform, "Board").gameObject;
+        m_itemBoardWithArrow = UIToolkits.FindChild(mUIObject.transform, "BoardWithArrow").gameObject;
+        
         AddChildComponentMouseClick("CloseBtn", OnCloseClicked);
         AddChildComponentMouseClick("PlayBtn", OnPlayClicked);
+        AddChildComponentMouseClick("PlayPlayCoinBtn", OnPlayClicked);
     }
 
     public void OnToggle()
@@ -110,12 +125,20 @@ public class UIStageInfo : UIWindow
     {
         if (m_moneyCost == 0)
         {
-            m_totalCostLabel.gameObject.SetActive(false);
+            m_playBtn.SetActive(true);
+            m_playPayCoinBtn.SetActive(false);
+
+            m_itemBoard.SetActive(true);
+            m_itemBoardWithArrow.SetActive(false);
         }
         else
         {
-            m_totalCostLabel.gameObject.SetActive(true);
-            m_totalCostLabel.text = m_moneyCost.ToString();
+            m_itemBoard.SetActive(false);
+            m_itemBoardWithArrow.SetActive(true);
+
+            m_playBtn.SetActive(false);
+            m_playPayCoinBtn.SetActive(true);
+            m_totalCostNumber.SetNumber(m_moneyCost);
         }
     }
 
@@ -199,7 +222,7 @@ public class UIStageInfo : UIWindow
         }
 
         //根据关卡类型显示提示信息
-        m_stageIcon.spriteName = "MapPoint_Type" + CapsConfig.StageTypeArray[GlobalVars.CurStageNum - 1] + "Num1";
+        m_stageIcon.spriteName = "MapPoint_Type" + CapsConfig.StageTypeArray[GlobalVars.CurStageNum - 1];
         m_stageInfoLabel.text = Localization.instance.Get("StageInfoHelpType" + CapsConfig.StageTypeArray[GlobalVars.CurStageNum - 1]);
     }
 

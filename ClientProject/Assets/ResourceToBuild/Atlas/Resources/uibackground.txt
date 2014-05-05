@@ -2,7 +2,7 @@
 
 "CurMapPoint_Type0Num1.png":
 {
-	"frame": {"x":2318,"y":1628,"w":113,"h":102},
+	"frame": {"x":2455,"y":1701,"w":113,"h":102},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
@@ -10,7 +10,7 @@
 },
 "CurMapPoint_Type0Num2.png":
 {
-	"frame": {"x":2204,"y":1731,"w":113,"h":102},
+	"frame": {"x":2568,"y":1344,"w":113,"h":102},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
@@ -18,7 +18,7 @@
 },
 "CurMapPoint_Type0Num3.png":
 {
-	"frame": {"x":2204,"y":1628,"w":113,"h":102},
+	"frame": {"x":2455,"y":1598,"w":113,"h":102},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
@@ -26,7 +26,7 @@
 },
 "CurMapPoint_Type1Num1.png":
 {
-	"frame": {"x":2167,"y":1452,"w":113,"h":102},
+	"frame": {"x":2477,"y":1241,"w":113,"h":102},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
@@ -34,7 +34,7 @@
 },
 "CurMapPoint_Type1Num2.png":
 {
-	"frame": {"x":2167,"y":1349,"w":113,"h":102},
+	"frame": {"x":2477,"y":1138,"w":113,"h":102},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
@@ -42,7 +42,7 @@
 },
 "CurMapPoint_Type1Num3.png":
 {
-	"frame": {"x":2053,"y":1452,"w":113,"h":102},
+	"frame": {"x":2454,"y":1349,"w":113,"h":102},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
@@ -50,7 +50,7 @@
 },
 "CurMapPoint_Type2Num1.png":
 {
-	"frame": {"x":2053,"y":1349,"w":113,"h":102},
+	"frame": {"x":2340,"y":1349,"w":113,"h":102},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
@@ -58,7 +58,7 @@
 },
 "CurMapPoint_Type2Num2.png":
 {
-	"frame": {"x":2239,"y":1905,"w":113,"h":102},
+	"frame": {"x":2226,"y":1349,"w":113,"h":102},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
@@ -66,7 +66,7 @@
 },
 "CurMapPoint_Type2Num3.png":
 {
-	"frame": {"x":2125,"y":1905,"w":113,"h":102},
+	"frame": {"x":2125,"y":1888,"w":113,"h":102},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
@@ -74,7 +74,7 @@
 },
 "CurMapPoint_Type3Num1.png":
 {
-	"frame": {"x":2011,"y":1905,"w":113,"h":102},
+	"frame": {"x":2011,"y":1888,"w":113,"h":102},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
@@ -120,7 +120,7 @@
 	"spriteSourceSize": {"x":3,"y":4,"w":113,"h":102},
 	"sourceSize": {"w":121,"h":112}
 },
-"MainMenu_Background.jpg":
+"MainMenu_Background.png":
 {
 	"frame": {"x":2082,"y":1,"w":640,"h":1136},
 	"rotated": false,
@@ -146,7 +146,7 @@
 },
 "MapPic0_blur.png":
 {
-	"frame": {"x":3084,"y":1017,"w":360,"h":1023},
+	"frame": {"x":3084,"y":1,"w":360,"h":1023},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":360,"h":1023},
@@ -162,7 +162,7 @@
 },
 "MapPic1_Blur.png":
 {
-	"frame": {"x":2723,"y":1017,"w":360,"h":1023},
+	"frame": {"x":2723,"y":1,"w":360,"h":1023},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":360,"h":1023},
@@ -170,7 +170,7 @@
 },
 "MapPic2.png":
 {
-	"frame": {"x":2723,"y":1,"w":719,"h":1015},
+	"frame": {"x":2739,"y":1025,"w":719,"h":1015},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":719,"h":1015},
@@ -186,7 +186,7 @@
 },
 "MapPoint_NotOpen_Type0.png":
 {
-	"frame": {"x":2249,"y":1834,"w":73,"h":60},
+	"frame": {"x":2665,"y":1199,"w":73,"h":60},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":6,"w":73,"h":60},
@@ -194,7 +194,7 @@
 },
 "MapPoint_NotOpen_Type1.png":
 {
-	"frame": {"x":2175,"y":1844,"w":73,"h":60},
+	"frame": {"x":2665,"y":1138,"w":73,"h":60},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":6,"w":73,"h":60},
@@ -202,7 +202,7 @@
 },
 "MapPoint_NotOpen_Type2.png":
 {
-	"frame": {"x":2101,"y":1844,"w":73,"h":60},
+	"frame": {"x":2591,"y":1260,"w":73,"h":60},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":6,"w":73,"h":60},
@@ -210,7 +210,7 @@
 },
 "MapPoint_NotOpen_Type3.png":
 {
-	"frame": {"x":2027,"y":1844,"w":73,"h":60},
+	"frame": {"x":2591,"y":1199,"w":73,"h":60},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":6,"w":73,"h":60},
@@ -218,7 +218,7 @@
 },
 "MapPoint_NotOpen_Type4.png":
 {
-	"frame": {"x":1953,"y":1844,"w":73,"h":60},
+	"frame": {"x":2591,"y":1138,"w":73,"h":60},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":6,"w":73,"h":60},
@@ -328,9 +328,17 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":25,"h":24},
 	"sourceSize": {"w":25,"h":24}
 },
+"MapPoint_Type0.png":
+{
+	"frame": {"x":2011,"y":1991,"w":45,"h":38},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":5,"y":5,"w":45,"h":38},
+	"sourceSize": {"w":53,"h":48}
+},
 "MapPoint_Type0Num1.png":
 {
-	"frame": {"x":2514,"y":1950,"w":73,"h":72},
+	"frame": {"x":2596,"y":1447,"w":73,"h":72},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":73,"h":72},
@@ -338,7 +346,7 @@
 },
 "MapPoint_Type0Num2.png":
 {
-	"frame": {"x":2514,"y":1877,"w":73,"h":72},
+	"frame": {"x":2568,"y":1525,"w":73,"h":72},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":73,"h":72},
@@ -346,15 +354,23 @@
 },
 "MapPoint_Type0Num3.png":
 {
-	"frame": {"x":2471,"y":1804,"w":73,"h":72},
+	"frame": {"x":2522,"y":1452,"w":73,"h":72},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":73,"h":72},
 	"sourceSize": {"w":73,"h":74}
 },
+"MapPoint_Type1.png":
+{
+	"frame": {"x":2091,"y":1849,"w":45,"h":38},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":5,"y":5,"w":45,"h":38},
+	"sourceSize": {"w":53,"h":48}
+},
 "MapPoint_Type1Num1.png":
 {
-	"frame": {"x":2440,"y":1965,"w":73,"h":72},
+	"frame": {"x":2494,"y":1525,"w":73,"h":72},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":73,"h":72},
@@ -362,7 +378,7 @@
 },
 "MapPoint_Type1Num2.png":
 {
-	"frame": {"x":2440,"y":1892,"w":73,"h":72},
+	"frame": {"x":2448,"y":1452,"w":73,"h":72},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":73,"h":72},
@@ -370,15 +386,23 @@
 },
 "MapPoint_Type1Num3.png":
 {
-	"frame": {"x":2405,"y":1731,"w":73,"h":72},
+	"frame": {"x":2420,"y":1525,"w":73,"h":72},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":73,"h":72},
 	"sourceSize": {"w":73,"h":74}
 },
+"MapPoint_Type2.png":
+{
+	"frame": {"x":2045,"y":1849,"w":45,"h":38},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":6,"y":5,"w":45,"h":38},
+	"sourceSize": {"w":53,"h":48}
+},
 "MapPoint_Type2Num1.png":
 {
-	"frame": {"x":2397,"y":1819,"w":73,"h":72},
+	"frame": {"x":2374,"y":1452,"w":73,"h":72},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":73,"h":72},
@@ -386,7 +410,7 @@
 },
 "MapPoint_Type2Num2.png":
 {
-	"frame": {"x":2323,"y":1819,"w":73,"h":72},
+	"frame": {"x":2346,"y":1525,"w":73,"h":72},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":73,"h":72},
@@ -394,15 +418,23 @@
 },
 "MapPoint_Type2Num3.png":
 {
-	"frame": {"x":2246,"y":1555,"w":73,"h":72},
+	"frame": {"x":2300,"y":1452,"w":73,"h":72},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":73,"h":72},
 	"sourceSize": {"w":73,"h":74}
 },
+"MapPoint_Type3.png":
+{
+	"frame": {"x":1999,"y":1849,"w":45,"h":38},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":5,"y":5,"w":45,"h":38},
+	"sourceSize": {"w":53,"h":48}
+},
 "MapPoint_Type3Num1.png":
 {
-	"frame": {"x":2172,"y":1555,"w":73,"h":72},
+	"frame": {"x":2272,"y":1525,"w":73,"h":72},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":73,"h":72},
@@ -410,7 +442,7 @@
 },
 "MapPoint_Type3Num2.png":
 {
-	"frame": {"x":2098,"y":1555,"w":73,"h":72},
+	"frame": {"x":2226,"y":1452,"w":73,"h":72},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":73,"h":72},
@@ -418,15 +450,23 @@
 },
 "MapPoint_Type3Num3.png":
 {
-	"frame": {"x":2024,"y":1560,"w":73,"h":72},
+	"frame": {"x":2198,"y":1550,"w":73,"h":72},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":73,"h":72},
 	"sourceSize": {"w":73,"h":74}
 },
+"MapPoint_Type4.png":
+{
+	"frame": {"x":1953,"y":1849,"w":45,"h":38},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":5,"y":5,"w":45,"h":38},
+	"sourceSize": {"w":53,"h":48}
+},
 "MapPoint_Type4Num1.png":
 {
-	"frame": {"x":1950,"y":1560,"w":73,"h":72},
+	"frame": {"x":2124,"y":1550,"w":73,"h":72},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":73,"h":72},
@@ -434,7 +474,7 @@
 },
 "MapPoint_Type4Num2.png":
 {
-	"frame": {"x":1876,"y":1560,"w":73,"h":72},
+	"frame": {"x":2050,"y":1550,"w":73,"h":72},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":73,"h":72},
@@ -442,7 +482,7 @@
 },
 "MapPoint_Type4Num3.png":
 {
-	"frame": {"x":1802,"y":1560,"w":73,"h":72},
+	"frame": {"x":1976,"y":1550,"w":73,"h":72},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":73,"h":72},
@@ -450,7 +490,7 @@
 },
 "MapPoint_UserIcon_Female.png":
 {
-	"frame": {"x":2353,"y":1892,"w":86,"h":87},
+	"frame": {"x":1889,"y":1550,"w":86,"h":87},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":86,"h":87},
@@ -458,7 +498,7 @@
 },
 "MapPoint_UserIcon_Male.png":
 {
-	"frame": {"x":2318,"y":1731,"w":86,"h":87},
+	"frame": {"x":1802,"y":1550,"w":86,"h":87},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":86,"h":87},
@@ -469,40 +509,48 @@
 	"frame": {"x":1441,"y":1647,"w":511,"h":260},
 	"rotated": false,
 	"trimmed": true,
-	"spriteSourceSize": {"x":4,"y":4,"w":511,"h":260},
+	"spriteSourceSize": {"x":5,"y":4,"w":511,"h":260},
 	"sourceSize": {"w":521,"h":270}
 },
 "Sale2.png":
 {
-	"frame": {"x":2053,"y":1138,"w":250,"h":210},
+	"frame": {"x":2226,"y":1138,"w":250,"h":210},
 	"rotated": false,
 	"trimmed": true,
-	"spriteSourceSize": {"x":4,"y":4,"w":250,"h":210},
+	"spriteSourceSize": {"x":5,"y":4,"w":250,"h":210},
 	"sourceSize": {"w":260,"h":220}
 },
 "Sale3.png":
 {
-	"frame": {"x":1953,"y":1633,"w":250,"h":210},
+	"frame": {"x":2239,"y":1834,"w":250,"h":210},
 	"rotated": false,
 	"trimmed": true,
-	"spriteSourceSize": {"x":4,"y":4,"w":250,"h":210},
+	"spriteSourceSize": {"x":5,"y":4,"w":250,"h":210},
 	"sourceSize": {"w":260,"h":220}
 },
 "Sale4.png":
 {
-	"frame": {"x":1802,"y":1349,"w":250,"h":210},
+	"frame": {"x":2204,"y":1623,"w":250,"h":210},
 	"rotated": false,
 	"trimmed": true,
-	"spriteSourceSize": {"x":4,"y":4,"w":250,"h":210},
+	"spriteSourceSize": {"x":5,"y":4,"w":250,"h":210},
 	"sourceSize": {"w":260,"h":220}
 },
 "Sale5.png":
 {
-	"frame": {"x":1802,"y":1138,"w":250,"h":210},
+	"frame": {"x":1953,"y":1638,"w":250,"h":210},
 	"rotated": false,
 	"trimmed": true,
-	"spriteSourceSize": {"x":4,"y":4,"w":250,"h":210},
+	"spriteSourceSize": {"x":5,"y":4,"w":250,"h":210},
 	"sourceSize": {"w":260,"h":220}
+},
+"gamelogo.png":
+{
+	"frame": {"x":1802,"y":1138,"w":423,"h":411},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":423,"h":411},
+	"sourceSize": {"w":423,"h":411}
 }},
 "meta": {
 	"app": "http://www.texturepacker.com",
@@ -511,6 +559,6 @@
 	"format": "RGBA8888",
 	"size": {"w":4096,"h":2048},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:36494ce5d32f90660953fdc49ad71b0a$"
+	"smartupdate": "$TexturePacker:SmartUpdate:7a10c5691f8432059b83f0b2edc3fe73$"
 }
 }

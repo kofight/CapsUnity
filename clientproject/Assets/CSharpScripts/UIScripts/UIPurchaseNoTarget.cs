@@ -7,6 +7,7 @@ public class UIPurchaseNoTarget : UIWindow
 	UILabel m_msgLabel;
 	UILabel m_costLabel;
     UISprite m_itemIcon;
+    NumberDrawer m_coinDrawer;
 
     public override void OnCreate()
     {
@@ -16,6 +17,8 @@ public class UIPurchaseNoTarget : UIWindow
 		m_msgLabel = GetChildComponent<UILabel>("IntroduceLabel");
 		m_costLabel = GetChildComponent<UILabel>("CostLabel");
         m_itemIcon = GetChildComponent<UISprite>("ItemIcon");
+
+        m_coinDrawer = GetChildComponent<NumberDrawer>("CoinNumber");
     }
     public override void OnShow()
     {
@@ -25,6 +28,7 @@ public class UIPurchaseNoTarget : UIWindow
         //获取道具信息
         m_msgLabel.text = Localization.instance.Get("Use_" + GlobalVars.UsingItem.ToString());
         m_costLabel.text = CapsConfig.GetItemPrice(GlobalVars.UsingItem).ToString();
+        m_coinDrawer.SetNumberRapid(CapsConfig.GetItemPrice(GlobalVars.UsingItem));
         m_itemIcon.spriteName = GlobalVars.UsingItem.ToString();
 
         UIGameHead gamehead = UIWindowManager.Singleton.GetUIWindow<UIGameHead>();

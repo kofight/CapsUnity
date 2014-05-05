@@ -144,7 +144,7 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":719,"h":2045},
 	"sourceSize": {"w":719,"h":2045}
 },
-"MapPic0_blur.png":
+"MapPic0_Blur.png":
 {
 	"frame": {"x":3084,"y":1,"w":360,"h":1023},
 	"rotated": false,
@@ -559,6 +559,6 @@
 	"format": "RGBA8888",
 	"size": {"w":4096,"h":2048},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:7a10c5691f8432059b83f0b2edc3fe73$"
+	"smartupdate": "$TexturePacker:SmartUpdate:993816145acd34eb2fcd44696131bbe5$"
 }
 }

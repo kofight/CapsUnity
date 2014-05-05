@@ -147,12 +147,15 @@ public class CapsApplication : S5Application
             Unibiller.Initialise();
         }
 
-        //第一次运行时，5月份之前，送点金币
-        if (System.DateTime.Today.Year == 2014 && System.DateTime.Today.Month <= 5
-            && !PlayerPrefs.HasKey("GiveFirstTimeMoney2"))
+        if (Application.platform != RuntimePlatform.WP8Player)
         {
-           //PlayerPrefs.SetInt("GiveFirstTimeMoney2", 1);
-           //Unibiller.CreditBalance("gold", 3000);          //给3000金币
+            //第一次运行时，5月份之前，送点金币
+            if (System.DateTime.Today.Year == 2014 && System.DateTime.Today.Month <= 5
+                && !PlayerPrefs.HasKey("GiveFirstTimeMoney3"))
+            {
+                PlayerPrefs.SetInt("GiveFirstTimeMoney3", 1);
+                Unibiller.CreditBalance("gold", 3000);          //给3000金币
+            }
         }
     }
 

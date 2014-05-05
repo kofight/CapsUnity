@@ -4902,7 +4902,7 @@ public class GameLogic
         if (m_comboCount >= 5 && m_gameFlow == TGameFlow.EGameState_Playing)      //显示连锁盛开的特效
         {
             m_bloomingTimeUI.ShowWindow();
-            Timer.AddDelayFunc(1.2f, delegate()         //1.2秒后隐藏窗口
+            Timer.AddDelayFunc(1.0f, delegate()         //1.2秒后隐藏窗口
             {
                 m_bloomingTimeUI.HideWindow();
             });

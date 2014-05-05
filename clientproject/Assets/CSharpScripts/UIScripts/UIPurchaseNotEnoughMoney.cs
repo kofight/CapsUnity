@@ -70,7 +70,7 @@ public class UIPurchaseNotEnoughMoney : UIWindow
     {
         base.OnShow();
         UIStageInfo stageUI = UIWindowManager.Singleton.GetUIWindow<UIStageInfo>();
-        m_costLabel.text = CapsConfig.GetItemPrice(GlobalVars.UsingItem).ToString() + "/" + (Unibiller.GetCurrencyBalance("gold") - stageUI.GetCurCost()).ToString();
+        m_costLabel.text = CapsConfig.GetItemPrice(GlobalVars.UsingItem).ToString();
         m_msgLabel.text = Localization.instance.Get("Intro_" + GlobalVars.UsingItem.ToString());
         m_itemIcon.spriteName = GlobalVars.UsingItem.ToString();
 

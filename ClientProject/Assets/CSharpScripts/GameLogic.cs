@@ -345,6 +345,7 @@ public class GameLogic
     public static int SugarCrushAnimTime = 1200;            //SugarCrush动画的时间长度
     public static int StartAnimTime = 1200;            //开始动画的时间长度
 
+    UIWindow m_bloomingTimeUI;
     UIGameBottom m_gameBottomUI;
     UIStageTarget m_stageTargetUI;                               //关卡开始时显示的关卡目标
     UISprite m_hurryUpSprite;                                       //剩余5步（15秒）的文字框
@@ -736,6 +737,7 @@ public class GameLogic
        // m_iceParticle = GameObject.Instantiate(obj) as GameObject;
        // m_iceParticle.SetActive(false);
         m_gameBottomUI = UIWindowManager.Singleton.GetUIWindow<UIGameBottom>();
+        m_bloomingTimeUI = UIWindowManager.Singleton.GetUIWindow("UIBloomingTime");
 
         //初始化瓶盖图片池
         for (int j = 0; j < 100; ++j)              //一百个够了
@@ -2983,7 +2985,6 @@ public class GameLogic
 
     public void ShowHelpAnim()
     {
-        Debug.Log("Show Help Anim");
         if (m_saveHelpBlocks[2].IsAvailable() && m_blocks[m_saveHelpBlocks[2].x, m_saveHelpBlocks[2].y] != null && !m_blocks[m_saveHelpBlocks[2].x, m_saveHelpBlocks[2].y].m_animation.isPlaying)
         {
             m_bHidingHelp = false;
@@ -4898,6 +4899,14 @@ public class GameLogic
 
     void OnDropEnd()            //所有下落和移动结束时被调用
     {
+        if (m_comboCount >= 5)      //显示连锁盛开的特效
+        {
+            m_bloomingTimeUI.ShowWindow();
+            Timer.AddDelayFunc(1.2f, delegate()         //1.2秒后隐藏窗口
+            {
+                m_bloomingTimeUI.HideWindow();
+            });
+        }
         m_comboCount = 0;
         if (m_gameFlow != TGameFlow.EGameState_Playing)
         {

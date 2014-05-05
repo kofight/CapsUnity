@@ -4899,7 +4899,7 @@ public class GameLogic
 
     void OnDropEnd()            //所有下落和移动结束时被调用
     {
-        if (m_comboCount >= 5)      //显示连锁盛开的特效
+        if (m_comboCount >= 5 && m_gameFlow == TGameFlow.EGameState_Playing)      //显示连锁盛开的特效
         {
             m_bloomingTimeUI.ShowWindow();
             Timer.AddDelayFunc(1.2f, delegate()         //1.2秒后隐藏窗口

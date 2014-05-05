@@ -764,10 +764,8 @@ public class GameLogic
         AddParticleToFreeList("Dir2Effect", true, 3);
         AddParticleToFreeList("Dir0Effect", true, 3);
         AddParticleToFreeList("BombEffect", true, 3);
+        AddParticleToFreeList("BombEatEffect", true, 20);
         AddParticleToFreeList("LineEatEffect", true, 20);
-        AddParticleToFreeList(CapsConfig.EatEffect, true, 10);
-
-
 
         AddParticleToFreeList("EatEffectFlower1", true, 10);
         AddParticleToFreeList("EatEffectFlower2", true, 10);

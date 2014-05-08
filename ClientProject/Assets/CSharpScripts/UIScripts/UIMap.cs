@@ -72,6 +72,14 @@ public class UIMap : UIWindow
         {
             GlobalVars.AvailabeStageCount = 1;
         }
+        if (GlobalVars.AvailabeStageCount > GlobalVars.TotalStageCount)
+        {
+            GlobalVars.AvailabeStageCount = GlobalVars.TotalStageCount;
+        }
+        if (GlobalVars.HeadStagePos > GlobalVars.TotalStageCount)
+        {
+            GlobalVars.HeadStagePos = GlobalVars.TotalStageCount;
+        }
         if (GlobalVars.HeadStagePos == 0)
         {
             GlobalVars.HeadStagePos = 1;

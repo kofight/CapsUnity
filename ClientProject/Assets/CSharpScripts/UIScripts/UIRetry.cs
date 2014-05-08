@@ -110,6 +110,11 @@ public class UIRetry : UIWindow
             m_failedBoard.gameObject.SetActive(true);
             m_retryBtn.transform.LocalPositionX(0);
         }
+
+        if (UIWindowManager.Singleton.GetUIWindow<UIFTUE>().Visible)
+        {
+            UIWindowManager.Singleton.GetUIWindow<UIFTUE>().EndFTUE();      //结束FTUE
+        }
 	}
 	
 	public void RefreshData()
